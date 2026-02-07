@@ -23,8 +23,8 @@ export function discoverDevices(
     onError(err);
   });
 
-  socket.on('message', (data: Buffer, info: { address: string }) => {
-    const message = data.toString('utf-8');
+  socket.on('message', (data: Uint8Array, info: { address: string }) => {
+    const message = new TextDecoder().decode(data);
     const match = message.match(DISCOVERY_REGEX);
     if (match && !seen.has(info.address)) {
       seen.add(info.address);
@@ -39,7 +39,7 @@ export function discoverDevices(
   socket.bind(0, () => {
     try {
       socket.setBroadcast(true);
-      const msg = Buffer.from('hello');
+      const msg = new TextEncoder().encode('hello');
       socket.send(msg, 0, msg.length, UDP_DISCOVERY_PORT, '255.255.255.255');
     } catch (err) {
       cleanup();
