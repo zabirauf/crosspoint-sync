@@ -1,7 +1,6 @@
 import { File } from 'expo-file-system';
 import {
   CHUNK_SIZE,
-  CHUNK_DELAY_MS,
   CHUNKS_PER_WINDOW,
   PROGRESS_ACK_TIMEOUT_MS,
   UPLOAD_TIMEOUT_MS,
@@ -92,9 +91,6 @@ export function uploadFileViaWebSocket(
       );
 
       if (cancelled) return;
-
-      // Brief pause to let device finish file setup before chunks arrive
-      await delay(200);
 
       // Set up progress/completion listener with resettable timeout
       let uploadResolve: () => void;
@@ -211,8 +207,9 @@ export function uploadFileViaWebSocket(
             log('upload', 'Connection lost while waiting for progress ack');
             break;
           }
-        } else {
-          await delay(CHUNK_DELAY_MS);
+        } else if (chunksSinceAck % 4 === 0) {
+          // Yield to event loop every 4 chunks so PROGRESS/error handlers can fire
+          await delay(0);
         }
       }
 
