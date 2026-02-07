@@ -12,10 +12,9 @@ import { UploadJobCard } from '@/components/UploadJobCard';
 import { ScanningIndicator } from '@/components/ScanningIndicator';
 
 export default function SyncScreen() {
-  const [manualIp, setManualIp] = useState('');
-
   const { connectionStatus, connectedDevice, deviceStatus, lastDeviceIp, error: deviceError } =
     useDeviceStore();
+  const [manualIp, setManualIp] = useState(lastDeviceIp ?? '');
   const disconnect = useDeviceStore((s) => s.disconnect);
   const { jobs } = useUploadStore();
   const { removeJob, retryJob, clearCompleted } = useUploadStore();
@@ -33,12 +32,12 @@ export default function SyncScreen() {
 
   const { pickAndQueueFiles } = useDocumentPicker();
 
-  // Auto-reconnect to last known device on mount
+  // Prefill manual IP when store hydrates with a saved value
   useEffect(() => {
-    if (connectionStatus === 'disconnected' && lastDeviceIp) {
-      connectManualIP(lastDeviceIp);
+    if (lastDeviceIp && !manualIp) {
+      setManualIp(lastDeviceIp);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [lastDeviceIp]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isConnected = connectionStatus === 'connected';
   const activeJob = jobs.find((j) => j.status === 'uploading');
@@ -148,10 +147,7 @@ export default function SyncScreen() {
                     size="$4"
                     theme="blue"
                     disabled={!manualIp.trim()}
-                    onPress={() => {
-                      connectManualIP(manualIp.trim());
-                      setManualIp('');
-                    }}
+                    onPress={() => connectManualIP(manualIp.trim())}
                   >
                     Connect
                   </Button>

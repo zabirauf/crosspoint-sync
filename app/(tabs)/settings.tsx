@@ -1,6 +1,7 @@
 import { YStack, XStack, Text, H4, Card, Separator, Button } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { useColorScheme, Alert, ScrollView } from 'react-native';
+import { useTheme } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { useDeviceStore } from '@/stores/device-store';
@@ -52,6 +53,7 @@ export default function SettingsScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const { colors } = useTheme();
 
   const isConnected = connectionStatus === 'connected';
 
@@ -107,7 +109,7 @@ export default function SettingsScreen() {
   const appVersion = Constants.expoConfig?.version ?? '1.0.0';
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: isDark ? '#000' : '#fff' }} contentContainerStyle={{ padding: 16, gap: 16 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.background }} contentContainerStyle={{ padding: 16, gap: 16 }}>
       <Card bordered padded elevate size="$4">
         <YStack gap="$2">
           <H4>Sync Settings</H4>

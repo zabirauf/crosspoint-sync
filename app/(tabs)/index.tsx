@@ -1,7 +1,9 @@
+import { useCallback } from 'react';
 import { YStack, XStack, Text, Button } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { useColorScheme, Alert, RefreshControl } from 'react-native';
 import { FlatList } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useDeviceStore } from '@/stores/device-store';
 import { useFileBrowser } from '@/hooks/use-file-browser';
 import { useDocumentPicker } from '@/hooks/use-document-picker';
@@ -29,6 +31,15 @@ export default function LibraryScreen() {
   const { pickAndQueueFiles } = useDocumentPicker();
 
   const isConnected = connectionStatus === 'connected';
+
+  // Refresh file list whenever the tab gains focus
+  useFocusEffect(
+    useCallback(() => {
+      if (isConnected) {
+        loadFiles();
+      }
+    }, [isConnected, loadFiles])
+  );
 
   if (!isConnected) {
     return (

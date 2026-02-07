@@ -11,6 +11,8 @@ import 'react-native-reanimated';
 import tamaguiConfig from '../tamagui.config';
 import { startQueueProcessor } from '@/services/upload-queue';
 import { useDeviceStatusPolling } from '@/hooks/use-device-status';
+import { useDeviceStore } from '@/stores/device-store';
+import { validateDeviceIP } from '@/services/device-discovery';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -50,6 +52,35 @@ function RootLayoutNav() {
   useEffect(() => {
     const unsubscribe = startQueueProcessor();
     return unsubscribe;
+  }, []);
+
+  // Auto-reconnect to last known device on app launch
+  useEffect(() => {
+    const tryReconnect = async () => {
+      const { connectionStatus, lastDeviceIp } = useDeviceStore.getState();
+      if (connectionStatus === 'disconnected' && lastDeviceIp) {
+        const { setConnectionStatus, connectDevice } = useDeviceStore.getState();
+        setConnectionStatus('connecting');
+        try {
+          const device = await validateDeviceIP(lastDeviceIp);
+          if (device) {
+            connectDevice(device);
+          } else {
+            setConnectionStatus('disconnected');
+          }
+        } catch {
+          setConnectionStatus('disconnected');
+        }
+      }
+    };
+
+    if (useDeviceStore.persist.hasHydrated()) {
+      tryReconnect();
+    }
+    const unsub = useDeviceStore.persist.onFinishHydration(() => {
+      tryReconnect();
+    });
+    return unsub;
   }, []);
 
   // Poll device status while connected
