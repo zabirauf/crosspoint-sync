@@ -3,6 +3,7 @@ import { DeviceFile } from '@/types/device';
 import { getFiles, createFolder, deleteItem } from '@/services/device-api';
 import { useDeviceStore } from '@/stores/device-store';
 import { DEFAULT_UPLOAD_PATH } from '@/constants/Protocol';
+import { log } from '@/services/logger';
 
 export function useFileBrowser() {
   const [currentPath, setCurrentPath] = useState(DEFAULT_UPLOAD_PATH);
@@ -15,6 +16,7 @@ export function useFileBrowser() {
     async (path?: string) => {
       if (!connectedDevice || connectionStatus !== 'connected') return;
       const targetPath = path ?? currentPath;
+      log('api', `Loading files: ${targetPath}`);
       setIsLoading(true);
       setError(null);
       try {
@@ -24,6 +26,7 @@ export function useFileBrowser() {
           if (a.isDirectory !== b.isDirectory) return a.isDirectory ? -1 : 1;
           return a.name.localeCompare(b.name);
         });
+        log('api', `Loaded ${result.length} items from ${targetPath}`);
         setFiles(result);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load files');
@@ -39,6 +42,7 @@ export function useFileBrowser() {
     (folderName: string) => {
       const newPath =
         currentPath === '/' ? `/${folderName}` : `${currentPath}/${folderName}`;
+      log('api', `Navigate to: ${newPath}`);
       setCurrentPath(newPath);
       loadFiles(newPath);
     },
@@ -48,6 +52,7 @@ export function useFileBrowser() {
   const navigateUp = useCallback(() => {
     if (currentPath === '/') return;
     const parent = currentPath.substring(0, currentPath.lastIndexOf('/')) || '/';
+    log('api', `Navigate up to: ${parent}`);
     setCurrentPath(parent);
     loadFiles(parent);
   }, [currentPath, loadFiles]);
@@ -55,6 +60,7 @@ export function useFileBrowser() {
   const createNewFolder = useCallback(
     async (name: string) => {
       if (!connectedDevice) return;
+      log('api', `Create folder: ${name} at ${currentPath}`);
       try {
         await createFolder(connectedDevice.ip, name, currentPath);
         await loadFiles();
@@ -72,6 +78,7 @@ export function useFileBrowser() {
         currentPath === '/'
           ? `/${file.name}`
           : `${currentPath}/${file.name}`;
+      log('api', `Delete ${file.isDirectory ? 'folder' : 'file'}: ${fullPath}`);
       try {
         await deleteItem(
           connectedDevice.ip,

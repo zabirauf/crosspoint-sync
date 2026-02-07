@@ -1,6 +1,7 @@
 import { File, Directory, Paths } from 'expo-file-system';
 import { DeviceStatus, DeviceFile } from '@/types/device';
 import { HTTP_PORT, REQUEST_TIMEOUT_MS } from '@/constants/Protocol';
+import { log } from './logger';
 
 function baseUrl(ip: string): string {
   return `http://${ip}:${HTTP_PORT}`;
@@ -11,11 +12,18 @@ async function fetchWithTimeout(
   options: RequestInit = {},
   timeoutMs = REQUEST_TIMEOUT_MS,
 ): Promise<Response> {
+  const method = options.method ?? 'GET';
+  log('api', `${method} ${url}`);
+  const start = Date.now();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(url, { ...options, signal: controller.signal });
+    log('api', `${method} ${url} → ${res.status} (${Date.now() - start}ms)`);
     return res;
+  } catch (err) {
+    log('api', `${method} ${url} → Error: ${err instanceof Error ? err.message : String(err)}`);
+    throw err;
   } finally {
     clearTimeout(timer);
   }

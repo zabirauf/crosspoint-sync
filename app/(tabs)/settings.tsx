@@ -1,7 +1,8 @@
 import { YStack, XStack, Text, H4, Card, Separator, Button } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
-import { useColorScheme, Alert } from 'react-native';
+import { useColorScheme, Alert, ScrollView } from 'react-native';
 import Constants from 'expo-constants';
+import { useRouter } from 'expo-router';
 import { useDeviceStore } from '@/stores/device-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import { useUploadStore } from '@/stores/upload-store';
@@ -45,9 +46,12 @@ function SettingsRow({
 export default function SettingsScreen() {
   const { connectedDevice, deviceStatus, connectionStatus } = useDeviceStore();
   const disconnect = useDeviceStore((s) => s.disconnect);
-  const { preferredFormat, setPreferredFormat, defaultUploadPath, setDefaultUploadPath } = useSettingsStore();
+  const { preferredFormat, setPreferredFormat, defaultUploadPath, setDefaultUploadPath, debugLogsEnabled, setDebugLogsEnabled } = useSettingsStore();
   const clearCompleted = useUploadStore((s) => s.clearCompleted);
   const lastDeviceIp = useDeviceStore((s) => s.lastDeviceIp);
+  const router = useRouter();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const isConnected = connectionStatus === 'connected';
 
@@ -103,7 +107,7 @@ export default function SettingsScreen() {
   const appVersion = Constants.expoConfig?.version ?? '1.0.0';
 
   return (
-    <YStack flex={1} padding="$4" gap="$4" backgroundColor="$background">
+    <ScrollView style={{ flex: 1, backgroundColor: isDark ? '#000' : '#fff' }} contentContainerStyle={{ padding: 16, gap: 16 }}>
       <Card bordered padded elevate size="$4">
         <YStack gap="$2">
           <H4>Sync Settings</H4>
@@ -171,6 +175,36 @@ export default function SettingsScreen() {
 
       <Card bordered padded elevate size="$4">
         <YStack gap="$2">
+          <H4>Debug</H4>
+          <Separator marginVertical="$2" />
+          <XStack
+            justifyContent="space-between"
+            alignItems="center"
+            paddingVertical="$2"
+            onPress={() => setDebugLogsEnabled(!debugLogsEnabled)}
+            pressStyle={{ opacity: 0.7 }}
+          >
+            <XStack gap="$3" alignItems="center">
+              <FontAwesome
+                name={debugLogsEnabled ? 'toggle-on' : 'toggle-off'}
+                size={22}
+                color={debugLogsEnabled ? '#22C55E' : (isDark ? '#555' : '#ccc')}
+              />
+              <Text fontSize="$4">Debug Logging</Text>
+            </XStack>
+          </XStack>
+          <Separator />
+          <SettingsRow
+            icon="file-text-o"
+            label="View Logs"
+            value=""
+            onPress={() => router.push('/debug-logs')}
+          />
+        </YStack>
+      </Card>
+
+      <Card bordered padded elevate size="$4">
+        <YStack gap="$2">
           <H4>About</H4>
           <Separator marginVertical="$2" />
           <SettingsRow icon="info-circle" label="Version" value={appVersion} />
@@ -178,6 +212,6 @@ export default function SettingsScreen() {
           <SettingsRow icon="code" label="Build" value="Expo SDK 54" />
         </YStack>
       </Card>
-    </YStack>
+    </ScrollView>
   );
 }

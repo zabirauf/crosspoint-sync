@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DeviceInfo, DeviceStatus, ConnectionStatus } from '@/types/device';
+import { log } from '@/services/logger';
 
 interface DeviceState {
   connectionStatus: ConnectionStatus;
@@ -25,33 +26,41 @@ export const useDeviceStore = create<DeviceState>()(
       lastDeviceIp: null,
       error: null,
 
-      connectDevice: (device) =>
+      connectDevice: (device) => {
+        log('store', `Connected: ${device.hostname} (${device.ip})`);
         set({
           connectionStatus: 'connected',
           connectedDevice: device,
           lastDeviceIp: device.ip,
           error: null,
-        }),
+        });
+      },
 
-      disconnect: () =>
+      disconnect: () => {
+        log('store', 'Disconnected');
         set({
           connectionStatus: 'disconnected',
           connectedDevice: null,
           deviceStatus: null,
           error: null,
-        }),
+        });
+      },
 
       updateDeviceStatus: (status) =>
         set({ deviceStatus: status }),
 
-      setConnectionStatus: (status) =>
-        set({ connectionStatus: status }),
+      setConnectionStatus: (status) => {
+        log('store', `Status → ${status}`);
+        set({ connectionStatus: status });
+      },
 
-      setError: (error) =>
+      setError: (error) => {
+        log('store', error ? `Error: ${error}` : 'Error cleared');
         set({
           connectionStatus: error ? 'error' : 'disconnected',
           error,
-        }),
+        });
+      },
     }),
     {
       name: 'zync-device',

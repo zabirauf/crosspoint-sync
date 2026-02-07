@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { getDeviceStatus } from '@/services/device-api';
 import { useDeviceStore } from '@/stores/device-store';
 import { STATUS_POLL_INTERVAL_MS, MAX_CONSECUTIVE_FAILURES } from '@/constants/Protocol';
+import { log } from '@/services/logger';
 
 export function useDeviceStatusPolling() {
   const {
@@ -25,12 +26,15 @@ export function useDeviceStatusPolling() {
       try {
         const status = await getDeviceStatus(connectedDevice.ip);
         if (active) {
+          log('connection', `Status poll OK: RSSI ${status.rssi ?? 'N/A'}, heap ${status.freeHeap ?? 'N/A'}, uptime ${status.uptime ?? 'N/A'}s`);
           updateDeviceStatus(status);
           failureCount.current = 0;
         }
       } catch {
         failureCount.current++;
+        log('connection', `Status poll failed (${failureCount.current}/${MAX_CONSECUTIVE_FAILURES})`);
         if (failureCount.current >= MAX_CONSECUTIVE_FAILURES && active) {
+          log('connection', `Auto-disconnect: ${MAX_CONSECUTIVE_FAILURES} consecutive poll failures`);
           disconnect();
         }
       }

@@ -3,6 +3,7 @@ import { DeviceInfo } from '@/types/device';
 import { discoverDevices, validateDeviceIP } from '@/services/device-discovery';
 import { getDeviceStatus } from '@/services/device-api';
 import { useDeviceStore } from '@/stores/device-store';
+import { log } from '@/services/logger';
 
 export function useDeviceDiscovery() {
   const [devices, setDevices] = useState<DeviceInfo[]>([]);
@@ -12,6 +13,7 @@ export function useDeviceDiscovery() {
   const { connectDevice, setConnectionStatus } = useDeviceStore();
 
   const startScan = useCallback(() => {
+    log('discovery', 'Scan started');
     setDevices([]);
     setError(null);
     setIsScanning(true);
@@ -19,17 +21,20 @@ export function useDeviceDiscovery() {
 
     cancelRef.current = discoverDevices(
       (device) => {
+        log('discovery', `Scan found: ${device.hostname} (${device.ip})`);
         setDevices((prev) => {
           if (prev.some((d) => d.ip === device.ip)) return prev;
           return [...prev, device];
         });
       },
       () => {
+        log('discovery', 'Scan ended');
         setIsScanning(false);
         setConnectionStatus('disconnected');
         cancelRef.current = null;
       },
       (err) => {
+        log('discovery', `Scan ended`);
         setIsScanning(false);
         setError(err.message);
         setConnectionStatus('error');
@@ -39,6 +44,7 @@ export function useDeviceDiscovery() {
   }, [setConnectionStatus]);
 
   const stopScan = useCallback(() => {
+    log('discovery', 'Scan stopped by user');
     if (cancelRef.current) {
       cancelRef.current();
       cancelRef.current = null;
@@ -49,13 +55,17 @@ export function useDeviceDiscovery() {
 
   const connectToDevice = useCallback(
     async (device: DeviceInfo) => {
+      log('connection', `Connecting to ${device.hostname} (${device.ip})`);
       setConnectionStatus('connecting');
       setError(null);
       try {
         await getDeviceStatus(device.ip);
+        log('connection', `Connected to ${device.hostname}`);
         connectDevice(device);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Connection failed');
+        const msg = err instanceof Error ? err.message : 'Connection failed';
+        log('connection', `Connection failed: ${msg}`);
+        setError(msg);
         setConnectionStatus('error');
       }
     },
@@ -64,18 +74,23 @@ export function useDeviceDiscovery() {
 
   const connectManualIP = useCallback(
     async (ip: string) => {
+      log('connection', `Manual connect to ${ip}`);
       setConnectionStatus('connecting');
       setError(null);
       try {
         const device = await validateDeviceIP(ip);
         if (device) {
+          log('connection', `Manual connect succeeded`);
           connectDevice(device);
         } else {
+          log('connection', `Manual connect failed: no device at ${ip}`);
           setError('No device found at this IP address');
           setConnectionStatus('error');
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Connection failed');
+        const msg = err instanceof Error ? err.message : 'Connection failed';
+        log('connection', `Manual connect failed: ${msg}`);
+        setError(msg);
         setConnectionStatus('error');
       }
     },
