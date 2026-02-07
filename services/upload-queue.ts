@@ -84,6 +84,19 @@ export function startQueueProcessor(): () => void {
   };
 }
 
+export function pauseCurrentUploadJob(): void {
+  const { jobs, retryJob } = useUploadStore.getState();
+  const activeJob = jobs.find((j) => j.status === 'uploading');
+  if (!activeJob) return;
+
+  if (cancelCurrentUpload) {
+    log('queue', `Pausing upload: ${activeJob.fileName}`);
+    cancelCurrentUpload();
+    cancelCurrentUpload = null;
+  }
+  retryJob(activeJob.id); // resets to 'pending', progress 0
+}
+
 export function cancelCurrentUploadJob(): void {
   if (cancelCurrentUpload) {
     log('queue', 'Cancelling active upload');

@@ -4,12 +4,15 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import { AppState, useColorScheme } from 'react-native';
+import type { AppStateStatus } from 'react-native';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { TamaguiProvider } from 'tamagui';
 import 'react-native-reanimated';
 
 import tamaguiConfig from '../tamagui.config';
-import { startQueueProcessor } from '@/services/upload-queue';
+import { startQueueProcessor, pauseCurrentUploadJob } from '@/services/upload-queue';
+import { useUploadStore } from '@/stores/upload-store';
 import { useDeviceStatusPolling } from '@/hooks/use-device-status';
 import { useDeviceStore } from '@/stores/device-store';
 import { validateDeviceIP } from '@/services/device-discovery';
@@ -81,6 +84,39 @@ function RootLayoutNav() {
       tryReconnect();
     });
     return unsub;
+  }, []);
+
+  // Keep screen awake during uploads
+  useEffect(() => {
+    const unsubscribe = useUploadStore.subscribe((state) => {
+      const hasActive = state.jobs.some(
+        (j) => j.status === 'uploading' || j.status === 'pending'
+      );
+      if (hasActive) {
+        activateKeepAwakeAsync('upload');
+      } else {
+        deactivateKeepAwake('upload');
+      }
+    });
+    // Check initial state
+    const { jobs } = useUploadStore.getState();
+    if (jobs.some((j) => j.status === 'uploading' || j.status === 'pending')) {
+      activateKeepAwakeAsync('upload');
+    }
+    return () => {
+      unsubscribe();
+      deactivateKeepAwake('upload');
+    };
+  }, []);
+
+  // Pause active upload when app is backgrounded
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state: AppStateStatus) => {
+      if (state === 'background') {
+        pauseCurrentUploadJob();
+      }
+    });
+    return () => sub.remove();
   }, []);
 
   // Poll device status while connected

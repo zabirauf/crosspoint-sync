@@ -36,7 +36,7 @@ npm install
 npx expo run:ios
 ```
 
-> **Note:** This app uses `react-native-udp`, which requires a native dev build. It will not work with Expo Go.
+> **Note:** This app uses `react-native-udp`, which requires a native dev build. Device discovery will not work with Expo Go.
 
 ## Development
 
