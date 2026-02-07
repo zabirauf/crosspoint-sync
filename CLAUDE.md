@@ -1,0 +1,83 @@
+# Zync
+
+Book syncing app for the XTEink X4 e-ink reader. Discovers devices on local WiFi, browses files, and uploads EPUBs/PDFs via WebSocket.
+
+## Stack
+
+- **Expo SDK 54** / React Native 0.81 / TypeScript (strict)
+- **Tamagui** v2 RC for UI components (`@tamagui/config/v5` default config)
+- **expo-router** v6 with tab-based navigation
+- **Zustand** for state management, persisted via AsyncStorage
+- **react-native-udp** for UDP device discovery (requires dev build, not Expo Go)
+- Primary target: **iOS**. Bundle ID: `com.zync.app`
+
+## Commands
+
+```bash
+npm start          # Start Expo dev server
+npx expo run:ios   # Build and run on iOS (required for native UDP module)
+npx expo export --platform ios  # Test Metro bundling
+```
+
+There are no tests yet. Do not run a test command.
+
+## Project Structure
+
+```
+app/
+  _layout.tsx          # Root layout: TamaguiProvider, queue processor, status polling
+  (tabs)/
+    _layout.tsx        # Tab bar config (Library, Sync, Settings)
+    index.tsx          # Library tab — file browser on connected device
+    sync.tsx           # Sync tab — device discovery/connection + upload queue
+    settings.tsx       # Settings tab — format prefs, device info, data management
+  modal.tsx            # About modal
+  +not-found.tsx
+types/
+  device.ts            # DeviceInfo, DeviceStatus, DeviceFile, ConnectionStatus
+  upload.ts            # UploadJob, UploadJobStatus
+constants/
+  Protocol.ts          # UDP/HTTP/WS ports, chunk size, timeouts
+  Colors.ts            # Light/dark theme colors
+services/
+  device-api.ts        # REST client (fetch-based) for XTEink HTTP API
+  device-discovery.ts  # UDP broadcast discovery + manual IP validation
+  websocket-upload.ts  # WebSocket binary upload with chunked FileHandle reads
+  upload-queue.ts      # Sequential job processor subscribing to stores
+stores/
+  device-store.ts      # Connection state, persists lastDeviceIp
+  upload-store.ts      # Upload job queue, persists pending/failed jobs
+  settings-store.ts    # User preferences (format, upload path)
+hooks/
+  use-device-discovery.ts  # Scan/connect state machine
+  use-device-status.ts     # Polls /api/status every 10s while connected
+  use-file-browser.ts      # Path navigation, file CRUD
+  use-document-picker.ts   # EPUB/PDF picker → upload queue
+components/
+  DeviceCard.tsx       # Device info display with signal/status
+  FileRow.tsx          # File/folder row with icons and size
+  UploadJobCard.tsx    # Upload progress bar, cancel/retry
+  ScanningIndicator.tsx # Animated scanning indicator
+  EmptyState.tsx       # Generic empty state
+```
+
+## Key Patterns
+
+- **Path alias**: `@/*` maps to project root (configured in `tsconfig.json`)
+- **expo-file-system**: Uses the new class-based API (`File`, `Directory`, `Paths`, `FileHandle`) — NOT the legacy `readAsStringAsync`/`downloadAsync` functions which throw at runtime in SDK 54
+- **Tamagui babel plugin**: `disableExtraction: true` is required — extraction causes build errors with RN 0.81
+- **Metro config**: Custom `resolveRequest` hook loads `.native.js` instead of `.mjs` for Tamagui packages on native
+- **Tamagui v2 RC type errors**: TS reports errors on props like `bordered`, `padded`, `padding`, `alignItems`, `backgroundColor` — these are type definition bugs in the RC, not actual runtime issues. The app bundles and runs fine. Ignore these when checking `tsc` output.
+
+## XTEink X4 Protocol
+
+- **UDP discovery**: Send "hello" to `255.255.255.255:8134`, parse response matching `crosspoint (on <hostname>);<wsPort>`
+- **HTTP REST API** (port 80): `GET /api/status`, `GET /api/files?path=`, `POST /mkdir`, `POST /delete`, `GET /download?path=`
+- **WebSocket upload** (port 81): `START:filename:size:path` → `READY` → binary chunks (64KB) → `PROGRESS:received:total` → `DONE`
+
+## Gotchas
+
+- `react-native-udp` requires a dev build (`npx expo run:ios`). Won't work in Expo Go.
+- Node v21.7.3 triggers EBADENGINE warnings for some deps. Non-blocking — use Node 20 or >=22 to silence.
+- New Architecture is enabled (`newArchEnabled: true`). If `react-native-udp` has TurboModule issues, manual IP entry works as a full fallback.
+- `Alert.prompt` is iOS-only. The new folder feature in the Library tab uses it.

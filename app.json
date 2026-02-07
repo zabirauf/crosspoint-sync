@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "zync",
+    "name": "Zync",
     "slug": "zync",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -14,7 +14,13 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.zync.app",
+      "infoPlist": {
+        "UISupportsDocumentBrowser": true,
+        "LSSupportsOpeningDocumentsInPlace": true,
+        "NSLocalNetworkUsageDescription": "Zync needs local network access to discover and communicate with your e-ink reader device."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -30,7 +36,8 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-document-picker"
     ],
     "experiments": {
       "typedRoutes": true

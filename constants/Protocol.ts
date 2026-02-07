@@ -1,0 +1,11 @@
+export const UDP_DISCOVERY_PORT = 8134;
+export const HTTP_PORT = 80;
+export const WS_PORT = 81;
+export const CHUNK_SIZE = 64 * 1024; // 64KB
+export const DISCOVERY_TIMEOUT_MS = 5000;
+export const DISCOVERY_REGEX = /crosspoint \(on (.+?)\);(\d+)/;
+export const DEFAULT_UPLOAD_PATH = '/Books';
+export const CHUNK_DELAY_MS = 10;
+export const STATUS_POLL_INTERVAL_MS = 10000;
+export const REQUEST_TIMEOUT_MS = 5000;
+export const MAX_CONSECUTIVE_FAILURES = 3;

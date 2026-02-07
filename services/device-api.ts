@@ -1,0 +1,84 @@
+import { File, Directory, Paths } from 'expo-file-system';
+import { DeviceStatus, DeviceFile } from '@/types/device';
+import { HTTP_PORT, REQUEST_TIMEOUT_MS } from '@/constants/Protocol';
+
+function baseUrl(ip: string): string {
+  return `http://${ip}:${HTTP_PORT}`;
+}
+
+async function fetchWithTimeout(
+  url: string,
+  options: RequestInit = {},
+  timeoutMs = REQUEST_TIMEOUT_MS,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    return res;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export async function getDeviceStatus(ip: string): Promise<DeviceStatus> {
+  const res = await fetchWithTimeout(`${baseUrl(ip)}/api/status`);
+  if (!res.ok) throw new Error(`Status request failed: ${res.status}`);
+  return res.json();
+}
+
+export async function getFiles(ip: string, path: string): Promise<DeviceFile[]> {
+  const res = await fetchWithTimeout(
+    `${baseUrl(ip)}/api/files?path=${encodeURIComponent(path)}`,
+  );
+  if (!res.ok) throw new Error(`File listing failed: ${res.status}`);
+  const data: Array<{ name: string; size: number; dir: boolean }> = await res.json();
+  return data.map((f) => ({
+    name: f.name,
+    size: f.size,
+    isDirectory: f.dir,
+    isEpub: !f.dir && f.name.toLowerCase().endsWith('.epub'),
+  }));
+}
+
+export async function createFolder(
+  ip: string,
+  name: string,
+  path: string,
+): Promise<void> {
+  const formData = new FormData();
+  formData.append('name', name);
+  formData.append('path', path);
+  const res = await fetchWithTimeout(`${baseUrl(ip)}/mkdir`, {
+    method: 'POST',
+    body: formData,
+  });
+  if (!res.ok) throw new Error(`Create folder failed: ${res.status}`);
+}
+
+export async function deleteItem(
+  ip: string,
+  path: string,
+  type: 'file' | 'dir',
+): Promise<void> {
+  const formData = new FormData();
+  formData.append('path', path);
+  formData.append('type', type);
+  const res = await fetchWithTimeout(`${baseUrl(ip)}/delete`, {
+    method: 'POST',
+    body: formData,
+  });
+  if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
+}
+
+export async function downloadFile(
+  ip: string,
+  remotePath: string,
+): Promise<string> {
+  const file = await File.downloadFileAsync(
+    `${baseUrl(ip)}/download?path=${encodeURIComponent(remotePath)}`,
+    new Directory(Paths.cache),
+    { idempotent: true },
+  );
+  return file.uri;
+}

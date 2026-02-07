@@ -1,0 +1,48 @@
+import { useEffect, useRef } from 'react';
+import { getDeviceStatus } from '@/services/device-api';
+import { useDeviceStore } from '@/stores/device-store';
+import { STATUS_POLL_INTERVAL_MS, MAX_CONSECUTIVE_FAILURES } from '@/constants/Protocol';
+
+export function useDeviceStatusPolling() {
+  const {
+    connectionStatus,
+    connectedDevice,
+    updateDeviceStatus,
+    disconnect,
+  } = useDeviceStore();
+  const failureCount = useRef(0);
+
+  useEffect(() => {
+    if (connectionStatus !== 'connected' || !connectedDevice) {
+      failureCount.current = 0;
+      return;
+    }
+
+    let active = true;
+
+    async function poll() {
+      if (!active || !connectedDevice) return;
+      try {
+        const status = await getDeviceStatus(connectedDevice.ip);
+        if (active) {
+          updateDeviceStatus(status);
+          failureCount.current = 0;
+        }
+      } catch {
+        failureCount.current++;
+        if (failureCount.current >= MAX_CONSECUTIVE_FAILURES && active) {
+          disconnect();
+        }
+      }
+    }
+
+    // Poll immediately, then on interval
+    poll();
+    const interval = setInterval(poll, STATUS_POLL_INTERVAL_MS);
+
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
+  }, [connectionStatus, connectedDevice, updateDeviceStatus, disconnect]);
+}
