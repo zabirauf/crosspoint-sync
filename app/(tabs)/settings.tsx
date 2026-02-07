@@ -45,7 +45,7 @@ function SettingsRow({
 export default function SettingsScreen() {
   const { connectedDevice, deviceStatus, connectionStatus } = useDeviceStore();
   const disconnect = useDeviceStore((s) => s.disconnect);
-  const { preferredFormat, setPreferredFormat, defaultUploadPath } = useSettingsStore();
+  const { preferredFormat, setPreferredFormat, defaultUploadPath, setDefaultUploadPath } = useSettingsStore();
   const clearCompleted = useUploadStore((s) => s.clearCompleted);
   const lastDeviceIp = useDeviceStore((s) => s.lastDeviceIp);
 
@@ -53,6 +53,27 @@ export default function SettingsScreen() {
 
   const handleToggleFormat = () => {
     setPreferredFormat(preferredFormat === 'EPUB' ? 'PDF' : 'EPUB');
+  };
+
+  const handleChangeUploadPath = () => {
+    Alert.prompt(
+      'Upload Path',
+      'Enter the destination folder on the device (e.g. / or /Books)',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Save',
+          onPress: (value?: string) => {
+            if (value != null) {
+              const path = value.trim() || '/';
+              setDefaultUploadPath(path.startsWith('/') ? path : `/${path}`);
+            }
+          },
+        },
+      ],
+      'plain-text',
+      defaultUploadPath,
+    );
   };
 
   const handleForgetDevice = () => {
@@ -94,7 +115,7 @@ export default function SettingsScreen() {
             onPress={handleToggleFormat}
           />
           <Separator />
-          <SettingsRow icon="upload" label="Upload path" value={defaultUploadPath} />
+          <SettingsRow icon="upload" label="Upload path" value={defaultUploadPath} onPress={handleChangeUploadPath} />
         </YStack>
       </Card>
 

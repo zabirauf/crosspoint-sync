@@ -1,5 +1,5 @@
 import { File } from 'expo-file-system';
-import { CHUNK_SIZE, CHUNK_DELAY_MS } from '@/constants/Protocol';
+import { CHUNK_SIZE, CHUNK_DELAY_MS, UPLOAD_TIMEOUT_MS } from '@/constants/Protocol';
 
 interface UploadCallbacks {
   onProgress: (bytesTransferred: number, totalBytes: number) => void;
@@ -9,6 +9,14 @@ interface UploadCallbacks {
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(message)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timeoutId));
 }
 
 export function uploadFileViaWebSocket(
@@ -29,11 +37,16 @@ export function uploadFileViaWebSocket(
       ws = new WebSocket(`ws://${deviceIp}:${wsPort}/`);
       ws.binaryType = 'arraybuffer';
 
-      await new Promise<void>((resolve, reject) => {
-        ws!.onopen = () => resolve();
-        ws!.onerror = (e) =>
-          reject(new Error(`WebSocket connect failed: ${(e as any).message || 'unknown'}`));
-      });
+      await withTimeout(
+        new Promise<void>((resolve, reject) => {
+          ws!.onopen = () => resolve();
+          ws!.onerror = (e) =>
+            reject(new Error(`WebSocket connect failed: ${(e as any).message || 'unknown'}`));
+          ws!.onclose = () => reject(new Error('WebSocket closed before connection opened'));
+        }),
+        UPLOAD_TIMEOUT_MS,
+        'Timed out waiting for WebSocket connection',
+      );
 
       if (cancelled) return;
 
@@ -41,22 +54,27 @@ export function uploadFileViaWebSocket(
       ws.send(`START:${fileName}:${fileSize}:${destPath}`);
 
       // Wait for READY
-      await new Promise<void>((resolve, reject) => {
-        ws!.onmessage = (event) => {
-          const msg = typeof event.data === 'string' ? event.data : '';
-          if (msg === 'READY') {
-            resolve();
-          } else if (msg.startsWith('ERROR:')) {
-            reject(new Error(msg.slice(6)));
-          }
-        };
-        ws!.onerror = (e) =>
-          reject(new Error(`WebSocket error: ${(e as any).message || 'unknown'}`));
-      });
+      await withTimeout(
+        new Promise<void>((resolve, reject) => {
+          ws!.onmessage = (event) => {
+            const msg = typeof event.data === 'string' ? event.data : '';
+            if (msg === 'READY') {
+              resolve();
+            } else if (msg.startsWith('ERROR:')) {
+              reject(new Error(msg.slice(6)));
+            }
+          };
+          ws!.onerror = (e) =>
+            reject(new Error(`WebSocket error: ${(e as any).message || 'unknown'}`));
+          ws!.onclose = () => reject(new Error('WebSocket closed while waiting for READY'));
+        }),
+        UPLOAD_TIMEOUT_MS,
+        'Timed out waiting for device READY response',
+      );
 
       if (cancelled) return;
 
-      // Set up progress/completion listener
+      // Set up progress/completion listener with resettable timeout
       let uploadResolve: () => void;
       let uploadReject: (err: Error) => void;
       const uploadPromise = new Promise<void>((resolve, reject) => {
@@ -64,24 +82,42 @@ export function uploadFileViaWebSocket(
         uploadReject = reject;
       });
 
+      let uploadTimeoutId: ReturnType<typeof setTimeout>;
+      const resetUploadTimeout = () => {
+        clearTimeout(uploadTimeoutId);
+        uploadTimeoutId = setTimeout(() => {
+          uploadReject(new Error('Timed out waiting for upload completion'));
+        }, UPLOAD_TIMEOUT_MS);
+      };
+      resetUploadTimeout();
+
       ws.onmessage = (event) => {
         const msg = typeof event.data === 'string' ? event.data : '';
         if (msg.startsWith('PROGRESS:')) {
+          resetUploadTimeout();
           const parts = msg.split(':');
           const received = parseInt(parts[1], 10);
           const total = parseInt(parts[2], 10);
           callbacks.onProgress(received, total);
         } else if (msg === 'DONE') {
+          clearTimeout(uploadTimeoutId);
           uploadResolve();
         } else if (msg.startsWith('ERROR:')) {
+          clearTimeout(uploadTimeoutId);
           uploadReject(new Error(msg.slice(6)));
         }
       };
 
       ws.onerror = (e) => {
+        clearTimeout(uploadTimeoutId);
         uploadReject(
           new Error(`WebSocket error during upload: ${(e as any).message || 'unknown'}`),
         );
+      };
+
+      ws.onclose = () => {
+        clearTimeout(uploadTimeoutId);
+        uploadReject(new Error('WebSocket closed during upload'));
       };
 
       // Read file in chunks using FileHandle and send as binary

@@ -13,6 +13,15 @@ export function discoverDevices(
   onComplete: () => void,
   onError: (error: Error) => void,
 ): () => void {
+  if (!dgram?.createSocket) {
+    onError(
+      new Error(
+        'UDP discovery is not available. Please use manual IP entry to connect.',
+      ),
+    );
+    return () => {};
+  }
+
   const seen = new Set<string>();
   let timer: ReturnType<typeof setTimeout> | null = null;
 
