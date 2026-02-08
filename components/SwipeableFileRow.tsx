@@ -18,6 +18,7 @@ interface SwipeableFileRowProps {
   onDelete: (file: DeviceFile) => void;
   onDownload: (file: DeviceFile) => void;
   onSwipeOpen: (methods: SwipeableMethods) => void;
+  downloadStatus?: 'downloading' | 'queued';
 }
 
 const ACTION_WIDTH = 80;
@@ -79,6 +80,7 @@ export function SwipeableFileRow({
   onDelete,
   onDownload,
   onSwipeOpen,
+  downloadStatus,
 }: SwipeableFileRowProps) {
   const swipeableRef = useRef<SwipeableMethods>(null);
   const colorScheme = useColorScheme();
@@ -87,6 +89,7 @@ export function SwipeableFileRow({
   return (
     <ReanimatedSwipeable
       ref={swipeableRef}
+      enabled={!downloadStatus}
       renderRightActions={(_progress, translation) => (
         <RightActions
           file={file}
@@ -104,7 +107,7 @@ export function SwipeableFileRow({
       }}
     >
       <View style={{ backgroundColor: isDark ? '#000' : '#fff' }}>
-        <FileRow file={file} onPress={onPress} />
+        <FileRow file={file} onPress={onPress} downloadStatus={downloadStatus} />
       </View>
     </ReanimatedSwipeable>
   );

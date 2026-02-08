@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import * as Sharing from 'expo-sharing';
 import { DeviceFile } from '@/types/device';
 import { getFiles, createFolder, deleteItem, downloadFile } from '@/services/device-api';
@@ -94,27 +94,73 @@ export function useFileBrowser() {
     [connectedDevice, currentPath, loadFiles],
   );
 
-  const downloadFileFromDevice = useCallback(
-    async (file: DeviceFile) => {
-      if (!connectedDevice) return;
-      const fullPath =
-        currentPath === '/'
-          ? `/${file.name}`
-          : `${currentPath}/${file.name}`;
-      log('api', `Download file: ${fullPath}`);
-      try {
-        const localUri = await downloadFile(connectedDevice.ip, fullPath);
-        const mimeType = file.name.toLowerCase().endsWith('.epub')
-          ? 'application/epub+zip'
-          : file.name.toLowerCase().endsWith('.pdf')
-            ? 'application/pdf'
-            : 'application/octet-stream';
-        await Sharing.shareAsync(localUri, { mimeType });
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to download file');
+  const [downloadingFile, setDownloadingFile] = useState<string | null>(null);
+  const [queuedDownloads, setQueuedDownloads] = useState<string[]>([]);
+  const isProcessingRef = useRef(false);
+  // Refs to read latest state inside the processing loop without re-creating the callback
+  const connectedDeviceRef = useRef(connectedDevice);
+  const currentPathRef = useRef(currentPath);
+  connectedDeviceRef.current = connectedDevice;
+  currentPathRef.current = currentPath;
+
+  const processQueue = useCallback(async () => {
+    if (isProcessingRef.current) return;
+    isProcessingRef.current = true;
+
+    try {
+      while (true) {
+        // Shift next item from the queue
+        let nextFile: string | undefined;
+        setQueuedDownloads((prev) => {
+          if (prev.length === 0) return prev;
+          nextFile = prev[0];
+          return prev.slice(1);
+        });
+
+        // Need to await a tick for the setState to flush so we can read nextFile
+        await new Promise((r) => setTimeout(r, 0));
+        if (!nextFile) break;
+
+        const device = connectedDeviceRef.current;
+        if (!device) break;
+
+        const path = currentPathRef.current;
+        const fullPath = path === '/' ? `/${nextFile}` : `${path}/${nextFile}`;
+
+        setDownloadingFile(nextFile);
+        log('api', `Download file: ${fullPath}`);
+
+        try {
+          const localUri = await downloadFile(device.ip, fullPath);
+          const mimeType = nextFile.toLowerCase().endsWith('.epub')
+            ? 'application/epub+zip'
+            : nextFile.toLowerCase().endsWith('.pdf')
+              ? 'application/pdf'
+              : 'application/octet-stream';
+          await Sharing.shareAsync(localUri, { mimeType });
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Failed to download file');
+        }
+
+        setDownloadingFile(null);
       }
+    } finally {
+      isProcessingRef.current = false;
+    }
+  }, []);
+
+  const queueDownload = useCallback(
+    (file: DeviceFile) => {
+      if (!connectedDevice) return;
+      // Check for duplicates against current downloading + queued
+      setQueuedDownloads((prev) => {
+        if (downloadingFile === file.name || prev.includes(file.name)) return prev;
+        return [...prev, file.name];
+      });
+      // Kick off processing (no-op if already running)
+      setTimeout(() => processQueue(), 0);
     },
-    [connectedDevice, currentPath],
+    [connectedDevice, downloadingFile, processQueue],
   );
 
   // Reload when connected or path changes
@@ -136,6 +182,8 @@ export function useFileBrowser() {
     navigateUp,
     createNewFolder,
     deleteFileOrFolder,
-    downloadFileFromDevice,
+    downloadingFile,
+    queuedDownloads,
+    queueDownload,
   };
 }

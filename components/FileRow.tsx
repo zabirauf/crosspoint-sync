@@ -1,12 +1,13 @@
 import { XStack, YStack, Text } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
-import { Pressable, useColorScheme } from 'react-native';
+import { ActivityIndicator, Pressable, useColorScheme } from 'react-native';
 import { DeviceFile } from '@/types/device';
 
 interface FileRowProps {
   file: DeviceFile;
   onPress: () => void;
   onLongPress?: () => void;
+  downloadStatus?: 'downloading' | 'queued';
 }
 
 function formatSize(bytes: number): string {
@@ -28,9 +29,36 @@ function fileColor(file: DeviceFile, isDark: boolean): string {
   return isDark ? '#ccc' : '#666';
 }
 
-export function FileRow({ file, onPress, onLongPress }: FileRowProps) {
+export function FileRow({ file, onPress, onLongPress, downloadStatus }: FileRowProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+
+  const renderTrailing = () => {
+    if (file.isDirectory) {
+      return <FontAwesome name="chevron-right" size={12} color={isDark ? '#666' : '#ccc'} />;
+    }
+    if (downloadStatus === 'downloading') {
+      return (
+        <XStack gap="$1.5" alignItems="center">
+          <ActivityIndicator size="small" color="#007AFF" />
+          <Text color="#007AFF" fontSize="$2">Saving...</Text>
+        </XStack>
+      );
+    }
+    if (downloadStatus === 'queued') {
+      return (
+        <XStack gap="$1.5" alignItems="center">
+          <FontAwesome name="clock-o" size={14} color={isDark ? '#888' : '#999'} />
+          <Text color={isDark ? '$gray9' : '$gray10'} fontSize="$2">Queued</Text>
+        </XStack>
+      );
+    }
+    return (
+      <Text color="$gray10" fontSize="$2">
+        {formatSize(file.size)}
+      </Text>
+    );
+  };
 
   return (
     <Pressable onPress={onPress} onLongPress={onLongPress}>
@@ -52,14 +80,7 @@ export function FileRow({ file, onPress, onLongPress }: FileRowProps) {
             {file.name}
           </Text>
         </YStack>
-        {!file.isDirectory && (
-          <Text color="$gray10" fontSize="$2">
-            {formatSize(file.size)}
-          </Text>
-        )}
-        {file.isDirectory && (
-          <FontAwesome name="chevron-right" size={12} color={isDark ? '#666' : '#ccc'} />
-        )}
+        {renderTrailing()}
       </XStack>
     </Pressable>
   );

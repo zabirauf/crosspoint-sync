@@ -27,7 +27,9 @@ export default function LibraryScreen() {
     navigateUp,
     createNewFolder,
     deleteFileOrFolder,
-    downloadFileFromDevice,
+    downloadingFile,
+    queuedDownloads,
+    queueDownload,
   } = useFileBrowser();
 
   const { pickAndQueueFiles } = useDocumentPicker();
@@ -143,19 +145,27 @@ export default function LibraryScreen() {
       <FlatList
         data={files}
         keyExtractor={(item) => item.name}
-        renderItem={({ item }) => (
-          <SwipeableFileRow
-            file={item}
-            onPress={() => {
-              if (item.isDirectory) {
-                navigateToFolder(item.name);
-              }
-            }}
-            onDelete={handleDelete}
-            onDownload={downloadFileFromDevice}
-            onSwipeOpen={handleSwipeOpen}
-          />
-        )}
+        renderItem={({ item }) => {
+          const downloadStatus = downloadingFile === item.name
+            ? 'downloading' as const
+            : queuedDownloads.includes(item.name)
+              ? 'queued' as const
+              : undefined;
+          return (
+            <SwipeableFileRow
+              file={item}
+              onPress={() => {
+                if (item.isDirectory) {
+                  navigateToFolder(item.name);
+                }
+              }}
+              onDelete={handleDelete}
+              onDownload={queueDownload}
+              onSwipeOpen={handleSwipeOpen}
+              downloadStatus={downloadStatus}
+            />
+          );
+        }}
         contentContainerStyle={{ paddingHorizontal: 16 }}
         refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={() => loadFiles()} />
