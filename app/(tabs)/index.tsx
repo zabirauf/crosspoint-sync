@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { YStack, XStack, Text, Button } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { useColorScheme, Alert, RefreshControl } from 'react-native';
@@ -7,7 +7,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useDeviceStore } from '@/stores/device-store';
 import { useFileBrowser } from '@/hooks/use-file-browser';
 import { useDocumentPicker } from '@/hooks/use-document-picker';
-import { FileRow } from '@/components/FileRow';
+import { SwipeableFileRow, type SwipeableMethods } from '@/components/SwipeableFileRow';
 import { EmptyState } from '@/components/EmptyState';
 import { DeviceFile } from '@/types/device';
 
@@ -15,6 +15,7 @@ export default function LibraryScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const { connectionStatus } = useDeviceStore();
+  const openSwipeableRef = useRef<SwipeableMethods | null>(null);
 
   const {
     currentPath,
@@ -26,6 +27,7 @@ export default function LibraryScreen() {
     navigateUp,
     createNewFolder,
     deleteFileOrFolder,
+    downloadFileFromDevice,
   } = useFileBrowser();
 
   const { pickAndQueueFiles } = useDocumentPicker();
@@ -51,7 +53,7 @@ export default function LibraryScreen() {
     );
   }
 
-  const handleLongPress = (file: DeviceFile) => {
+  const handleDelete = (file: DeviceFile) => {
     Alert.alert(
       `Delete "${file.name}"?`,
       file.isDirectory
@@ -66,6 +68,13 @@ export default function LibraryScreen() {
         },
       ],
     );
+  };
+
+  const handleSwipeOpen = (methods: SwipeableMethods) => {
+    if (openSwipeableRef.current && openSwipeableRef.current !== methods) {
+      openSwipeableRef.current.close();
+    }
+    openSwipeableRef.current = methods;
   };
 
   const handleNewFolder = () => {
@@ -135,14 +144,16 @@ export default function LibraryScreen() {
         data={files}
         keyExtractor={(item) => item.name}
         renderItem={({ item }) => (
-          <FileRow
+          <SwipeableFileRow
             file={item}
             onPress={() => {
               if (item.isDirectory) {
                 navigateToFolder(item.name);
               }
             }}
-            onLongPress={() => handleLongPress(item)}
+            onDelete={handleDelete}
+            onDownload={downloadFileFromDevice}
+            onSwipeOpen={handleSwipeOpen}
           />
         )}
         contentContainerStyle={{ paddingHorizontal: 16 }}

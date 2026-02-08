@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
+import * as Sharing from 'expo-sharing';
 import { DeviceFile } from '@/types/device';
-import { getFiles, createFolder, deleteItem } from '@/services/device-api';
+import { getFiles, createFolder, deleteItem, downloadFile } from '@/services/device-api';
 import { useDeviceStore } from '@/stores/device-store';
 import { DEFAULT_UPLOAD_PATH } from '@/constants/Protocol';
 import { log } from '@/services/logger';
@@ -93,6 +94,29 @@ export function useFileBrowser() {
     [connectedDevice, currentPath, loadFiles],
   );
 
+  const downloadFileFromDevice = useCallback(
+    async (file: DeviceFile) => {
+      if (!connectedDevice) return;
+      const fullPath =
+        currentPath === '/'
+          ? `/${file.name}`
+          : `${currentPath}/${file.name}`;
+      log('api', `Download file: ${fullPath}`);
+      try {
+        const localUri = await downloadFile(connectedDevice.ip, fullPath);
+        const mimeType = file.name.toLowerCase().endsWith('.epub')
+          ? 'application/epub+zip'
+          : file.name.toLowerCase().endsWith('.pdf')
+            ? 'application/pdf'
+            : 'application/octet-stream';
+        await Sharing.shareAsync(localUri, { mimeType });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to download file');
+      }
+    },
+    [connectedDevice, currentPath],
+  );
+
   // Reload when connected or path changes
   useEffect(() => {
     if (connectionStatus === 'connected') {
@@ -112,5 +136,6 @@ export function useFileBrowser() {
     navigateUp,
     createNewFolder,
     deleteFileOrFolder,
+    downloadFileFromDevice,
   };
 }
