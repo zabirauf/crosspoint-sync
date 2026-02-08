@@ -17,7 +17,7 @@ export default function SyncScreen() {
   const [manualIp, setManualIp] = useState(lastDeviceIp ?? '');
   const disconnect = useDeviceStore((s) => s.disconnect);
   const { jobs } = useUploadStore();
-  const { removeJob, retryJob, clearCompleted } = useUploadStore();
+  const { removeJob, retryJob, clearCompleted, resolveConflict } = useUploadStore();
   const { defaultUploadPath } = useSettingsStore();
 
   const {
@@ -42,6 +42,7 @@ export default function SyncScreen() {
   const isConnected = connectionStatus === 'connected';
   const activeJob = jobs.find((j) => j.status === 'uploading');
   const pendingJobs = jobs.filter((j) => j.status === 'pending');
+  const conflictJobs = jobs.filter((j) => j.status === 'conflict');
   const completedCount = jobs.filter((j) => j.status === 'completed').length;
   const failedJobs = jobs.filter((j) => j.status === 'failed' || j.status === 'cancelled');
 
@@ -212,6 +213,24 @@ export default function SyncScreen() {
               />
             ))}
 
+            {/* Conflict jobs */}
+            {conflictJobs.length > 0 && (
+              <XStack gap="$2" alignItems="center" paddingTop="$2">
+                <FontAwesome name="warning" size={14} color="#f5a623" />
+                <Text color="$yellow10" fontSize="$3" fontWeight="600">
+                  Conflicts
+                </Text>
+              </XStack>
+            )}
+            {conflictJobs.map((job) => (
+              <UploadJobCard
+                key={job.id}
+                job={job}
+                onOverwrite={() => resolveConflict(job.id, 'overwrite')}
+                onRemove={() => resolveConflict(job.id, 'remove')}
+              />
+            ))}
+
             {/* Failed/cancelled jobs */}
             {failedJobs.map((job) => (
               <UploadJobCard
@@ -222,7 +241,7 @@ export default function SyncScreen() {
               />
             ))}
 
-            {!activeJob && pendingJobs.length === 0 && failedJobs.length === 0 && (
+            {!activeJob && pendingJobs.length === 0 && conflictJobs.length === 0 && failedJobs.length === 0 && (
               <Text color="$gray10" fontSize="$3" textAlign="center" paddingVertical="$2">
                 No uploads in queue
               </Text>
@@ -231,13 +250,17 @@ export default function SyncScreen() {
             <Button
               size="$4"
               theme="blue"
-              disabled={!isConnected}
-              opacity={isConnected ? 1 : 0.5}
               icon={<FontAwesome name="plus" size={16} color="#fff" />}
               onPress={() => pickAndQueueFiles(defaultUploadPath)}
             >
               Add Books
             </Button>
+
+            {!isConnected && pendingJobs.length > 0 && (
+              <Text color="$gray10" fontSize="$2" textAlign="center">
+                Books will upload when a device connects
+              </Text>
+            )}
 
             {completedCount > 0 && (
               <Button size="$3" chromeless onPress={clearCompleted}>

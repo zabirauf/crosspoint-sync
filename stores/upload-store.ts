@@ -10,6 +10,8 @@ interface UploadState {
   updateJobStatus: (id: string, status: UploadJobStatus, error?: string) => void;
   removeJob: (id: string) => void;
   retryJob: (id: string) => void;
+  resolveConflict: (id: string, action: 'overwrite' | 'remove') => void;
+  resetConflicts: () => void;
   clearCompleted: () => void;
   getPendingJobs: () => UploadJob[];
   getActiveJob: () => UploadJob | undefined;
@@ -76,6 +78,29 @@ export const useUploadStore = create<UploadState>()(
           ),
         })),
 
+      resolveConflict: (id, action) => {
+        if (action === 'remove') {
+          set((state) => ({ jobs: state.jobs.filter((j) => j.id !== id) }));
+        } else {
+          set((state) => ({
+            jobs: state.jobs.map((j) =>
+              j.id === id
+                ? { ...j, status: 'pending' as const, progress: 0, bytesTransferred: 0, error: undefined, forceUpload: true }
+                : j,
+            ),
+          }));
+        }
+      },
+
+      resetConflicts: () =>
+        set((state) => ({
+          jobs: state.jobs.map((j) =>
+            j.status === 'conflict'
+              ? { ...j, status: 'pending' as const, progress: 0, bytesTransferred: 0, error: undefined, forceUpload: false }
+              : j,
+          ),
+        })),
+
       clearCompleted: () =>
         set((state) => ({
           jobs: state.jobs.filter((j) => j.status !== 'completed'),
@@ -89,8 +114,8 @@ export const useUploadStore = create<UploadState>()(
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         jobs: state.jobs
-          .filter((j) => j.status === 'pending' || j.status === 'failed')
-          .map((j) => ({ ...j, status: 'pending' as const, progress: 0, bytesTransferred: 0 })),
+          .filter((j) => j.status === 'pending' || j.status === 'failed' || j.status === 'conflict')
+          .map((j) => ({ ...j, status: 'pending' as const, progress: 0, bytesTransferred: 0, forceUpload: false })),
       }),
     },
   ),

@@ -3,7 +3,8 @@ export type UploadJobStatus =
   | 'uploading'
   | 'completed'
   | 'failed'
-  | 'cancelled';
+  | 'cancelled'
+  | 'conflict';
 
 export interface UploadJob {
   id: string;
@@ -17,4 +18,5 @@ export interface UploadJob {
   error?: string;
   createdAt: number;
   completedAt?: number;
+  forceUpload?: boolean;
 }

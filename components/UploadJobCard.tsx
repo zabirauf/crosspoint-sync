@@ -7,6 +7,7 @@ interface UploadJobCardProps {
   onCancel?: () => void;
   onRetry?: () => void;
   onRemove?: () => void;
+  onOverwrite?: () => void;
 }
 
 function statusLabel(status: UploadJob['status']): string {
@@ -21,6 +22,8 @@ function statusLabel(status: UploadJob['status']): string {
       return 'Failed';
     case 'cancelled':
       return 'Cancelled';
+    case 'conflict':
+      return 'File Exists';
   }
 }
 
@@ -36,6 +39,8 @@ function statusColor(status: UploadJob['status']): string {
       return '$red10';
     case 'cancelled':
       return '$gray10';
+    case 'conflict':
+      return '$yellow10';
   }
 }
 
@@ -45,7 +50,7 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function UploadJobCard({ job, onCancel, onRetry, onRemove }: UploadJobCardProps) {
+export function UploadJobCard({ job, onCancel, onRetry, onRemove, onOverwrite }: UploadJobCardProps) {
   return (
     <Card bordered padded size="$3">
       <YStack gap="$2">
@@ -80,10 +85,26 @@ export function UploadJobCard({ job, onCancel, onRetry, onRemove }: UploadJobCar
           </Text>
         )}
 
+        {job.status === 'conflict' && (
+          <Text color="$gray10" fontSize="$2">
+            A file with this name already exists on the device
+          </Text>
+        )}
+
         <XStack gap="$2" justifyContent="flex-end">
           {job.status === 'uploading' && onCancel && (
             <Button size="$2" theme="red" onPress={onCancel}>
               Cancel
+            </Button>
+          )}
+          {job.status === 'conflict' && onOverwrite && (
+            <Button size="$2" theme="orange" onPress={onOverwrite}>
+              Overwrite
+            </Button>
+          )}
+          {job.status === 'conflict' && onRemove && (
+            <Button size="$2" chromeless onPress={onRemove}>
+              Remove
             </Button>
           )}
           {(job.status === 'failed' || job.status === 'cancelled') && onRetry && (
