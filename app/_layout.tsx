@@ -12,7 +12,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import tamaguiConfig from '../tamagui.config';
-import { startQueueProcessor, pauseCurrentUploadJob } from '@/services/upload-queue';
+import { startQueueProcessor, switchToBackgroundUpload, handleForegroundReturn } from '@/services/upload-queue';
 import { useUploadStore } from '@/stores/upload-store';
 import { useDeviceStatusPolling } from '@/hooks/use-device-status';
 import { useDeviceStore } from '@/stores/device-store';
@@ -111,11 +111,14 @@ function RootLayoutNav() {
     };
   }, []);
 
-  // Pause active upload when app is backgrounded
+  // Switch upload method based on app state
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state: AppStateStatus) => {
       if (state === 'background') {
-        pauseCurrentUploadJob();
+        switchToBackgroundUpload();
+        deactivateKeepAwake('upload'); // HTTP background upload doesn't need screen awake
+      } else if (state === 'active') {
+        handleForegroundReturn();
       }
     });
     return () => sub.remove();

@@ -1,12 +1,19 @@
 import { useDeviceStore } from '@/stores/device-store';
 import { useUploadStore } from '@/stores/upload-store';
 import { uploadFileViaWebSocket } from './websocket-upload';
+import { startHttpBackgroundUpload, type HttpUploadHandle } from './http-upload';
 import { getFiles } from './device-api';
 import { log } from './logger';
 import { deviceScheduler } from './device-request-scheduler';
+import { BACKGROUND_UPGRADE_THRESHOLD } from '@/constants/Protocol';
 
 let cancelCurrentUpload: (() => void) | null = null;
 let isProcessing = false;
+
+// Background upload state
+let currentUploadMethod: 'websocket' | 'http' | null = null;
+let httpUploadHandle: HttpUploadHandle | null = null;
+let currentUploadJobId: string | null = null;
 
 // Cache directory listings within a processing chain to avoid redundant API calls
 const dirListingCache = new Map<string, string[]>();
@@ -24,6 +31,14 @@ async function getRemoteFileNames(ip: string, dirPath: string): Promise<string[]
     log('queue', `Conflict check failed for ${dirPath}: ${err instanceof Error ? err.message : String(err)}`);
     return [];
   }
+}
+
+function clearUploadState() {
+  cancelCurrentUpload = null;
+  httpUploadHandle = null;
+  currentUploadMethod = null;
+  currentUploadJobId = null;
+  deviceScheduler.setExternalBusy(false);
 }
 
 async function processNextJob() {
@@ -66,6 +81,8 @@ async function processNextJob() {
       log('queue', `Processing: ${nextJob.fileName} (job ${nextJob.id})`);
       updateJobStatus(nextJob.id, 'uploading');
       deviceScheduler.setExternalBusy(true);
+      currentUploadMethod = 'websocket';
+      currentUploadJobId = nextJob.id;
 
       cancelCurrentUpload = uploadFileViaWebSocket(
         connectedDevice.ip,
@@ -79,16 +96,14 @@ async function processNextJob() {
             updateJobProgress(nextJob.id, bytesTransferred, totalBytes);
           },
           onComplete: () => {
-            cancelCurrentUpload = null;
-            deviceScheduler.setExternalBusy(false);
+            clearUploadState();
             log('queue', `Completed: ${nextJob.fileName}`);
             updateJobStatus(nextJob.id, 'completed');
             dirListingCache.clear();
             processNextJob();
           },
           onError: (error) => {
-            cancelCurrentUpload = null;
-            deviceScheduler.setExternalBusy(false);
+            clearUploadState();
             log('queue', `Failed: ${nextJob.fileName} — ${error.message}`);
             updateJobStatus(nextJob.id, 'failed', error.message);
             dirListingCache.clear();
@@ -138,31 +153,175 @@ export function startQueueProcessor(): () => void {
   };
 }
 
+export function switchToBackgroundUpload(): void {
+  if (currentUploadMethod !== 'websocket' || !currentUploadJobId) {
+    log('queue', 'switchToBackgroundUpload: no active WebSocket upload, skipping');
+    return;
+  }
+
+  const { jobs, updateJobProgress } = useUploadStore.getState();
+  const activeJob = jobs.find((j) => j.id === currentUploadJobId);
+  if (!activeJob || activeJob.status !== 'uploading') {
+    log('queue', 'switchToBackgroundUpload: no uploading job found');
+    return;
+  }
+
+  const { connectedDevice } = useDeviceStore.getState();
+  if (!connectedDevice) {
+    log('queue', 'switchToBackgroundUpload: no connected device');
+    return;
+  }
+
+  // Cancel WebSocket upload — device firmware cleans up partial WS file
+  if (cancelCurrentUpload) {
+    log('queue', `Cancelling WebSocket upload for background switch: ${activeJob.fileName}`);
+    cancelCurrentUpload();
+    cancelCurrentUpload = null;
+  }
+
+  // Start HTTP background upload for same job
+  currentUploadMethod = 'http';
+  const jobId = currentUploadJobId;
+  log('queue', `Starting HTTP background upload: ${activeJob.fileName}`);
+
+  startHttpBackgroundUpload(
+    connectedDevice.ip,
+    activeJob.fileUri,
+    activeJob.fileName,
+    activeJob.fileSize,
+    activeJob.destinationPath,
+    {
+      onProgress: (bytesTransferred, totalBytes) => {
+        updateJobProgress(jobId, bytesTransferred, totalBytes);
+      },
+      onComplete: () => {
+        log('queue', `HTTP background upload completed: ${activeJob.fileName}`);
+        const { updateJobStatus } = useUploadStore.getState();
+        clearUploadState();
+        updateJobStatus(jobId, 'completed');
+        dirListingCache.clear();
+        processNextJob();
+      },
+      onError: (error) => {
+        log('queue', `HTTP background upload failed: ${activeJob.fileName} — ${error.message}`);
+        const { updateJobStatus } = useUploadStore.getState();
+        clearUploadState();
+        updateJobStatus(jobId, 'failed', error.message);
+        dirListingCache.clear();
+        processNextJob();
+      },
+    },
+  ).then((handle) => {
+    httpUploadHandle = handle;
+  }).catch((error) => {
+    log('queue', `Failed to start HTTP background upload: ${error.message}`);
+    const { updateJobStatus } = useUploadStore.getState();
+    clearUploadState();
+    updateJobStatus(jobId, 'failed', error.message);
+    dirListingCache.clear();
+    processNextJob();
+  });
+}
+
+export async function handleForegroundReturn(): Promise<void> {
+  if (currentUploadMethod !== 'http' || !httpUploadHandle || !currentUploadJobId) {
+    log('queue', 'handleForegroundReturn: no active HTTP upload, skipping');
+    return;
+  }
+
+  const progress = httpUploadHandle.getProgress();
+  log('queue', `Foreground return: HTTP upload at ${Math.round(progress * 100)}%`);
+
+  if (progress >= BACKGROUND_UPGRADE_THRESHOLD) {
+    // Close to done — let HTTP finish
+    log('queue', `HTTP upload at ${Math.round(progress * 100)}% (>= ${BACKGROUND_UPGRADE_THRESHOLD * 100}%), letting it finish`);
+    return;
+  }
+
+  // Cancel HTTP and switch back to WebSocket
+  const { jobs, updateJobProgress } = useUploadStore.getState();
+  const activeJob = jobs.find((j) => j.id === currentUploadJobId);
+  if (!activeJob || activeJob.status !== 'uploading') {
+    log('queue', 'handleForegroundReturn: job no longer uploading');
+    return;
+  }
+
+  const { connectedDevice } = useDeviceStore.getState();
+  if (!connectedDevice) {
+    log('queue', 'handleForegroundReturn: no connected device');
+    return;
+  }
+
+  log('queue', `Cancelling HTTP upload, switching back to WebSocket: ${activeJob.fileName}`);
+  await httpUploadHandle.cancel();
+  httpUploadHandle = null;
+
+  // Restart via WebSocket from scratch
+  currentUploadMethod = 'websocket';
+  const jobId = currentUploadJobId;
+
+  cancelCurrentUpload = uploadFileViaWebSocket(
+    connectedDevice.ip,
+    connectedDevice.wsPort,
+    activeJob.fileUri,
+    activeJob.fileName,
+    activeJob.fileSize,
+    activeJob.destinationPath,
+    {
+      onProgress: (bytesTransferred, totalBytes) => {
+        updateJobProgress(jobId, bytesTransferred, totalBytes);
+      },
+      onComplete: () => {
+        const { updateJobStatus } = useUploadStore.getState();
+        clearUploadState();
+        log('queue', `Completed (WS after HTTP switch): ${activeJob.fileName}`);
+        updateJobStatus(jobId, 'completed');
+        dirListingCache.clear();
+        processNextJob();
+      },
+      onError: (error) => {
+        const { updateJobStatus } = useUploadStore.getState();
+        clearUploadState();
+        log('queue', `Failed (WS after HTTP switch): ${activeJob.fileName} — ${error.message}`);
+        updateJobStatus(jobId, 'failed', error.message);
+        dirListingCache.clear();
+        processNextJob();
+      },
+    },
+  );
+}
+
 export function pauseCurrentUploadJob(): void {
   const { jobs, retryJob } = useUploadStore.getState();
   const activeJob = jobs.find((j) => j.status === 'uploading');
   if (!activeJob) return;
 
-  if (cancelCurrentUpload) {
-    log('queue', `Pausing upload: ${activeJob.fileName}`);
+  if (currentUploadMethod === 'http' && httpUploadHandle) {
+    log('queue', `Pausing HTTP upload: ${activeJob.fileName}`);
+    httpUploadHandle.cancel();
+  } else if (cancelCurrentUpload) {
+    log('queue', `Pausing WebSocket upload: ${activeJob.fileName}`);
     cancelCurrentUpload();
-    cancelCurrentUpload = null;
   }
-  deviceScheduler.setExternalBusy(false);
+
+  clearUploadState();
   retryJob(activeJob.id); // resets to 'pending', progress 0
 }
 
 export function cancelCurrentUploadJob(): void {
-  if (cancelCurrentUpload) {
-    log('queue', 'Cancelling active upload');
+  if (currentUploadMethod === 'http' && httpUploadHandle) {
+    log('queue', 'Cancelling active HTTP upload');
+    httpUploadHandle.cancel();
+  } else if (cancelCurrentUpload) {
+    log('queue', 'Cancelling active WebSocket upload');
     cancelCurrentUpload();
-    cancelCurrentUpload = null;
   }
-  deviceScheduler.setExternalBusy(false);
 
   const { jobs, updateJobStatus } = useUploadStore.getState();
   const activeJob = jobs.find((j) => j.status === 'uploading');
   if (activeJob) {
     updateJobStatus(activeJob.id, 'cancelled');
   }
+
+  clearUploadState();
 }
