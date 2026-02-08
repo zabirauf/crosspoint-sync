@@ -155,7 +155,7 @@ const INFO_PLIST = `<?xml version="1.0" encoding="UTF-8"?>
         <key>NSExtensionPointIdentifier</key>
         <string>com.apple.share-services</string>
         <key>NSExtensionPrincipalClass</key>
-        <string>ShareViewController</string>
+        <string>$(PRODUCT_MODULE_NAME).ShareViewController</string>
         <key>NSExtensionActivationRule</key>
         <dict>
             <key>NSExtensionActivationSupportsFileWithMaxCount</key>
