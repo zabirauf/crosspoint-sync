@@ -44,12 +44,27 @@ npx expo run:ios
 # Start the Expo dev server (after initial build)
 npm start
 
-# Build and run on iOS
+# Build and run on iOS simulator
 npx expo run:ios
+
+# Build and run on a physical iOS device
+npx expo run:ios --device
 
 # Test Metro bundling
 npx expo export --platform ios
 ```
+
+### Running on a Physical Device
+
+This app uses native modules (`react-native-udp`, App Group path, Share Extension) that require a dev build — **Expo Go will not work**.
+
+1. Connect your iPhone via USB (or ensure it's on the same Wi-Fi for wireless debugging)
+2. Open `ios/Zync.xcworkspace` in Xcode
+3. Select both the **Zync** and **ZyncShareExtension** targets, go to **Signing & Capabilities**, and select your Apple Developer team
+4. In Xcode **Build Settings**, search for `ENABLE_USER_SCRIPT_SANDBOXING` and set it to **No** (Xcode 16+ enables this by default, which blocks React Native's bundle script)
+5. Run `npx expo run:ios --device` and select your device from the list
+
+> After the initial device build, you can iterate with just `npm start` — the dev client on your phone will connect to Metro automatically.
 
 ## Project Structure
 
