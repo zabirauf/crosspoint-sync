@@ -17,6 +17,7 @@ import { useUploadStore } from '@/stores/upload-store';
 import { useDeviceStatusPolling } from '@/hooks/use-device-status';
 import { useDeviceStore } from '@/stores/device-store';
 import { validateDeviceIP } from '@/services/device-discovery';
+import { importSharedFiles } from '@/services/share-import';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -118,6 +119,29 @@ function RootLayoutNav() {
       }
     });
     return () => sub.remove();
+  }, []);
+
+  // Import files shared via iOS Share Extension
+  useEffect(() => {
+    // Import on launch (after store hydration)
+    if (useUploadStore.persist.hasHydrated()) {
+      importSharedFiles();
+    }
+    const unsub = useUploadStore.persist.onFinishHydration(() => {
+      importSharedFiles();
+    });
+
+    // Import when app returns to foreground
+    const sub = AppState.addEventListener('change', (state: AppStateStatus) => {
+      if (state === 'active') {
+        importSharedFiles();
+      }
+    });
+
+    return () => {
+      unsub();
+      sub.remove();
+    };
   }, []);
 
   // Poll device status while connected

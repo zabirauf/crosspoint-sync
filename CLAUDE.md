@@ -44,6 +44,7 @@ services/
   device-discovery.ts  # UDP broadcast discovery + manual IP validation
   websocket-upload.ts  # WebSocket binary upload with chunked FileHandle reads
   upload-queue.ts      # Sequential job processor subscribing to stores
+  share-import.ts      # Imports files shared via iOS Share Extension into upload queue
 stores/
   device-store.ts      # Connection state, persists lastDeviceIp
   upload-store.ts      # Upload job queue, persists pending/failed jobs
@@ -59,6 +60,10 @@ components/
   UploadJobCard.tsx    # Upload progress bar, cancel/retry
   ScanningIndicator.tsx # Animated scanning indicator
   EmptyState.tsx       # Generic empty state
+modules/
+  app-group-path/      # Local Expo module — exposes iOS App Group container path to JS
+plugins/
+  withShareExtension.js # Config plugin — adds iOS Share Extension target + App Groups entitlement
 ```
 
 ## Key Patterns
@@ -75,9 +80,18 @@ components/
 - **HTTP REST API** (port 80): `GET /api/status`, `GET /api/files?path=`, `POST /mkdir`, `POST /delete`, `GET /download?path=`
 - **WebSocket upload** (port 81): `START:filename:size:path` → `READY` → binary chunks (64KB) → `PROGRESS:received:total` → `DONE`
 
+## iOS Share Extension
+
+- Users can share EPUB/PDF files from any app (Files, Safari, etc.) into Zync's upload queue.
+- **Config plugin** (`plugins/withShareExtension.js`) generates the native extension at prebuild time: Swift source, Info.plist, entitlements, and Xcode target.
+- **App Group**: `group.com.zync.app` — shared container between main app and extension.
+- **Flow**: Extension copies file to App Group container + writes JSON manifest → main app picks up manifests on launch/foreground via `services/share-import.ts` → files added to Zustand upload queue.
+- Extension bundle ID: `com.zync.app.ShareExtension`
+
 ## Gotchas
 
 - `react-native-udp` requires a dev build (`npx expo run:ios`). Won't work in Expo Go.
 - Node v21.7.3 triggers EBADENGINE warnings for some deps. Non-blocking — use Node 20 or >=22 to silence.
 - New Architecture is enabled (`newArchEnabled: true`). If `react-native-udp` has TurboModule issues, manual IP entry works as a full fallback.
 - `Alert.prompt` is iOS-only. The new folder feature in the Library tab uses it.
+- **Local Expo modules** (`modules/` dir) require a `.podspec` in the `ios/` subdirectory for CocoaPods autolinking. Without it, `expo-modules-autolinking search` finds the module but `resolve` skips it → "Cannot find native module" at runtime.
