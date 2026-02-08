@@ -47,6 +47,7 @@ export async function getDeviceStatus(
 
 export async function getFiles(ip: string, path: string): Promise<DeviceFile[]> {
   return deviceScheduler.schedule({
+    ignoreExternalBusy: true,
     execute: async () => {
       const res = await fetchWithTimeout(
         `${baseUrl(ip)}/api/files?path=${encodeURIComponent(path)}`,

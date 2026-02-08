@@ -112,7 +112,7 @@ export function UploadJobCard({ job, onCancel, onRetry, onRemove, onOverwrite }:
               Retry
             </Button>
           )}
-          {(job.status === 'completed' || job.status === 'failed' || job.status === 'cancelled') &&
+          {(job.status === 'pending' || job.status === 'completed' || job.status === 'failed' || job.status === 'cancelled') &&
             onRemove && (
               <Button size="$2" chromeless onPress={onRemove}>
                 <FontAwesome name="times" size={14} />

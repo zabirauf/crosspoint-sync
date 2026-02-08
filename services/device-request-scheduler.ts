@@ -12,6 +12,7 @@ export class DeviceSchedulerDroppedError extends Error {
 interface QueueItem<T = unknown> {
   execute: () => Promise<T>;
   priority: RequestPriority;
+  ignoreExternalBusy: boolean;
   resolve: (value: T) => void;
   reject: (error: unknown) => void;
 }
@@ -36,9 +37,11 @@ export class DeviceRequestScheduler {
     execute: () => Promise<T>;
     priority?: RequestPriority;
     droppable?: boolean;
+    ignoreExternalBusy?: boolean;
   }): Promise<T> {
     const priority = opts.priority ?? 'normal';
     const droppable = opts.droppable ?? false;
+    const ignoreExternalBusy = opts.ignoreExternalBusy ?? false;
 
     if (droppable && (this.activeCount >= this.maxConcurrent || this.externalBusy)) {
       log('scheduler', `Dropped ${priority}-priority request (busy)`);
@@ -49,6 +52,7 @@ export class DeviceRequestScheduler {
       const item: QueueItem<T> = {
         execute: opts.execute,
         priority,
+        ignoreExternalBusy,
         resolve,
         reject,
       };
@@ -76,11 +80,19 @@ export class DeviceRequestScheduler {
   }
 
   private async processNext(): Promise<void> {
-    if (this.activeCount >= this.maxConcurrent || this.externalBusy || this.queue.length === 0) {
+    if (this.activeCount >= this.maxConcurrent || this.queue.length === 0) {
       return;
     }
 
-    const item = this.queue.shift()!;
+    let itemIdx: number;
+    if (this.externalBusy) {
+      itemIdx = this.queue.findIndex((q) => q.ignoreExternalBusy);
+      if (itemIdx === -1) return;
+    } else {
+      itemIdx = 0;
+    }
+
+    const [item] = this.queue.splice(itemIdx, 1);
     this.activeCount++;
 
     try {
