@@ -1,5 +1,6 @@
 import { useRef } from 'react';
-import { StyleSheet, Text, View, useColorScheme } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { useTheme } from 'tamagui';
 import { RectButton } from 'react-native-gesture-handler';
 import ReanimatedSwipeable, {
   type SwipeableMethods,
@@ -83,8 +84,7 @@ export function SwipeableFileRow({
   downloadStatus,
 }: SwipeableFileRowProps) {
   const swipeableRef = useRef<SwipeableMethods>(null);
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const theme = useTheme();
 
   return (
     <ReanimatedSwipeable
@@ -106,7 +106,7 @@ export function SwipeableFileRow({
         }
       }}
     >
-      <View style={{ backgroundColor: isDark ? '#000' : '#fff' }}>
+      <View style={{ backgroundColor: theme.background.val }}>
         <FileRow file={file} onPress={onPress} downloadStatus={downloadStatus} />
       </View>
     </ReanimatedSwipeable>

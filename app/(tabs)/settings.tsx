@@ -1,7 +1,6 @@
-import { YStack, XStack, Text, H4, Card, Separator, Button } from 'tamagui';
+import { YStack, XStack, Text, H4, Separator, Button, useTheme } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { useColorScheme, Alert, ScrollView } from 'react-native';
-import { useTheme } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { useDeviceStore } from '@/stores/device-store';
@@ -53,7 +52,7 @@ export default function SettingsScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const { colors } = useTheme();
+  const theme = useTheme();
 
   const isConnected = connectionStatus === 'connected';
 
@@ -109,111 +108,109 @@ export default function SettingsScreen() {
   const appVersion = Constants.expoConfig?.version ?? '1.0.0';
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: colors.background }} contentContainerStyle={{ padding: 16, gap: 16 }}>
-      <Card bordered padded elevate size="$4">
-        <YStack gap="$2">
-          <H4>Sync Settings</H4>
-          <Separator marginVertical="$2" />
-          <SettingsRow
-            icon="folder"
-            label="Default format"
-            value={preferredFormat}
-            onPress={handleToggleFormat}
-          />
-          <Separator />
-          <SettingsRow icon="upload" label="Upload path" value={defaultUploadPath} onPress={handleChangeUploadPath} />
-        </YStack>
-      </Card>
+    <ScrollView style={{ flex: 1, backgroundColor: theme.background.val }} contentContainerStyle={{ padding: 16, gap: 24 }}>
+      <YStack gap="$2" paddingHorizontal="$2">
+        <H4>Sync Settings</H4>
+        <Separator marginVertical="$1" />
+        <SettingsRow
+          icon="folder"
+          label="Default format"
+          value={preferredFormat}
+          onPress={handleToggleFormat}
+        />
+        <Separator />
+        <SettingsRow icon="upload" label="Upload path" value={defaultUploadPath} onPress={handleChangeUploadPath} />
+      </YStack>
 
-      <Card bordered padded elevate size="$4">
-        <YStack gap="$2">
-          <H4>Device</H4>
-          <Separator marginVertical="$2" />
-          <SettingsRow
-            icon="tablet"
-            label="Device"
-            value={
-              isConnected && connectedDevice
-                ? connectedDevice.hostname
-                : 'Not connected'
-            }
-          />
-          <Separator />
-          <SettingsRow
-            icon="wifi"
-            label="IP Address"
-            value={
-              isConnected && connectedDevice
-                ? connectedDevice.ip
-                : lastDeviceIp ?? 'None'
-            }
-          />
-          <Separator />
-          <SettingsRow
-            icon="code"
-            label="Firmware"
-            value={deviceStatus?.version ?? 'N/A'}
-          />
-          {(isConnected || lastDeviceIp) && (
-            <>
-              <Separator />
-              <Button size="$3" theme="red" marginTop="$2" onPress={handleForgetDevice}>
-                Forget Device
-              </Button>
-            </>
-          )}
-        </YStack>
-      </Card>
+      <Separator />
 
-      <Card bordered padded elevate size="$4">
-        <YStack gap="$2">
-          <H4>Data</H4>
-          <Separator marginVertical="$2" />
-          <Button size="$3" onPress={handleClearHistory}>
-            Clear Upload History
-          </Button>
-        </YStack>
-      </Card>
+      <YStack gap="$2" paddingHorizontal="$2">
+        <H4>Device</H4>
+        <Separator marginVertical="$1" />
+        <SettingsRow
+          icon="tablet"
+          label="Device"
+          value={
+            isConnected && connectedDevice
+              ? connectedDevice.hostname
+              : 'Not connected'
+          }
+        />
+        <Separator />
+        <SettingsRow
+          icon="wifi"
+          label="IP Address"
+          value={
+            isConnected && connectedDevice
+              ? connectedDevice.ip
+              : lastDeviceIp ?? 'None'
+          }
+        />
+        <Separator />
+        <SettingsRow
+          icon="code"
+          label="Firmware"
+          value={deviceStatus?.version ?? 'N/A'}
+        />
+        {(isConnected || lastDeviceIp) && (
+          <>
+            <Separator />
+            <Button size="$3" theme="red" marginTop="$2" onPress={handleForgetDevice}>
+              Forget Device
+            </Button>
+          </>
+        )}
+      </YStack>
 
-      <Card bordered padded elevate size="$4">
-        <YStack gap="$2">
-          <H4>Debug</H4>
-          <Separator marginVertical="$2" />
-          <XStack
-            justifyContent="space-between"
-            alignItems="center"
-            paddingVertical="$2"
-            onPress={() => setDebugLogsEnabled(!debugLogsEnabled)}
-            pressStyle={{ opacity: 0.7 }}
-          >
-            <XStack gap="$3" alignItems="center">
-              <FontAwesome
-                name={debugLogsEnabled ? 'toggle-on' : 'toggle-off'}
-                size={22}
-                color={debugLogsEnabled ? '#22C55E' : (isDark ? '#555' : '#ccc')}
-              />
-              <Text fontSize="$4">Debug Logging</Text>
-            </XStack>
+      <Separator />
+
+      <YStack gap="$2" paddingHorizontal="$2">
+        <H4>Data</H4>
+        <Separator marginVertical="$1" />
+        <Button size="$3" onPress={handleClearHistory}>
+          Clear Upload History
+        </Button>
+      </YStack>
+
+      <Separator />
+
+      <YStack gap="$2" paddingHorizontal="$2">
+        <H4>Debug</H4>
+        <Separator marginVertical="$1" />
+        <XStack
+          justifyContent="space-between"
+          alignItems="center"
+          paddingVertical="$2"
+          onPress={() => setDebugLogsEnabled(!debugLogsEnabled)}
+          pressStyle={{ opacity: 0.7 }}
+        >
+          <XStack gap="$3" alignItems="center">
+            <FontAwesome
+              name={debugLogsEnabled ? 'toggle-on' : 'toggle-off'}
+              size={22}
+              color={debugLogsEnabled ? '#22C55E' : (isDark ? '#555' : '#ccc')}
+            />
+            <Text fontSize="$4">Debug Logging</Text>
           </XStack>
-          <Separator />
-          <SettingsRow
-            icon="file-text-o"
-            label="View Logs"
-            value=""
-            onPress={() => router.push('/debug-logs')}
-          />
-        </YStack>
-      </Card>
+        </XStack>
+        <Separator />
+        <SettingsRow
+          icon="file-text-o"
+          label="View Logs"
+          value=""
+          onPress={() => router.push('/debug-logs')}
+        />
+      </YStack>
 
-      <Card bordered padded elevate size="$4">
-        <YStack gap="$2">
-          <H4>About</H4>
-          <Separator marginVertical="$2" />
-          <SettingsRow icon="info-circle" label="Version" value={appVersion} />
-          <Separator />
-          <SettingsRow icon="code" label="Build" value="Expo SDK 54" />
-        </YStack>
-      </Card>
+      <Separator />
+
+      <YStack gap="$2" paddingHorizontal="$2">
+        <H4>About</H4>
+        <Separator marginVertical="$1" />
+        <SettingsRow icon="info-circle" label="Version" value={appVersion} />
+        <Separator />
+        <SettingsRow icon="code" label="Build" value="Expo SDK 54" />
+      </YStack>
     </ScrollView>
   );
 }
