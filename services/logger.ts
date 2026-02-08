@@ -1,6 +1,6 @@
 import { useSettingsStore } from '@/stores/settings-store';
 
-export type LogCategory = 'discovery' | 'connection' | 'api' | 'upload' | 'queue' | 'store';
+export type LogCategory = 'discovery' | 'connection' | 'api' | 'upload' | 'queue' | 'store' | 'scheduler';
 
 export interface LogEntry {
   id: string;

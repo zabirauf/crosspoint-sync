@@ -2,6 +2,7 @@ import { File, Directory, Paths } from 'expo-file-system';
 import { DeviceStatus, DeviceFile } from '@/types/device';
 import { HTTP_PORT, REQUEST_TIMEOUT_MS } from '@/constants/Protocol';
 import { log } from './logger';
+import { deviceScheduler, type RequestPriority } from './device-request-scheduler';
 
 function baseUrl(ip: string): string {
   return `http://${ip}:${HTTP_PORT}`;
@@ -29,24 +30,37 @@ async function fetchWithTimeout(
   }
 }
 
-export async function getDeviceStatus(ip: string): Promise<DeviceStatus> {
-  const res = await fetchWithTimeout(`${baseUrl(ip)}/api/status`);
-  if (!res.ok) throw new Error(`Status request failed: ${res.status}`);
-  return res.json();
+export async function getDeviceStatus(
+  ip: string,
+  opts?: { priority?: RequestPriority; droppable?: boolean },
+): Promise<DeviceStatus> {
+  return deviceScheduler.schedule({
+    priority: opts?.priority,
+    droppable: opts?.droppable,
+    execute: async () => {
+      const res = await fetchWithTimeout(`${baseUrl(ip)}/api/status`);
+      if (!res.ok) throw new Error(`Status request failed: ${res.status}`);
+      return res.json();
+    },
+  });
 }
 
 export async function getFiles(ip: string, path: string): Promise<DeviceFile[]> {
-  const res = await fetchWithTimeout(
-    `${baseUrl(ip)}/api/files?path=${encodeURIComponent(path)}`,
-  );
-  if (!res.ok) throw new Error(`File listing failed: ${res.status}`);
-  const data: Array<{ name: string; size: number; dir: boolean }> = await res.json();
-  return data.map((f) => ({
-    name: f.name,
-    size: f.size,
-    isDirectory: f.dir,
-    isEpub: !f.dir && f.name.toLowerCase().endsWith('.epub'),
-  }));
+  return deviceScheduler.schedule({
+    execute: async () => {
+      const res = await fetchWithTimeout(
+        `${baseUrl(ip)}/api/files?path=${encodeURIComponent(path)}`,
+      );
+      if (!res.ok) throw new Error(`File listing failed: ${res.status}`);
+      const data: Array<{ name: string; size: number; dir: boolean }> = await res.json();
+      return data.map((f) => ({
+        name: f.name,
+        size: f.size,
+        isDirectory: f.dir,
+        isEpub: !f.dir && f.name.toLowerCase().endsWith('.epub'),
+      }));
+    },
+  });
 }
 
 export async function createFolder(
@@ -54,14 +68,18 @@ export async function createFolder(
   name: string,
   path: string,
 ): Promise<void> {
-  const formData = new FormData();
-  formData.append('name', name);
-  formData.append('path', path);
-  const res = await fetchWithTimeout(`${baseUrl(ip)}/mkdir`, {
-    method: 'POST',
-    body: formData,
+  return deviceScheduler.schedule({
+    execute: async () => {
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('path', path);
+      const res = await fetchWithTimeout(`${baseUrl(ip)}/mkdir`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) throw new Error(`Create folder failed: ${res.status}`);
+    },
   });
-  if (!res.ok) throw new Error(`Create folder failed: ${res.status}`);
 }
 
 export async function deleteItem(
@@ -69,24 +87,32 @@ export async function deleteItem(
   path: string,
   type: 'file' | 'dir',
 ): Promise<void> {
-  const formData = new FormData();
-  formData.append('path', path);
-  formData.append('type', type);
-  const res = await fetchWithTimeout(`${baseUrl(ip)}/delete`, {
-    method: 'POST',
-    body: formData,
+  return deviceScheduler.schedule({
+    execute: async () => {
+      const formData = new FormData();
+      formData.append('path', path);
+      formData.append('type', type);
+      const res = await fetchWithTimeout(`${baseUrl(ip)}/delete`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
+    },
   });
-  if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
 }
 
 export async function downloadFile(
   ip: string,
   remotePath: string,
 ): Promise<string> {
-  const file = await File.downloadFileAsync(
-    `${baseUrl(ip)}/download?path=${encodeURIComponent(remotePath)}`,
-    new Directory(Paths.cache),
-    { idempotent: true },
-  );
-  return file.uri;
+  return deviceScheduler.schedule({
+    execute: async () => {
+      const file = await File.downloadFileAsync(
+        `${baseUrl(ip)}/download?path=${encodeURIComponent(remotePath)}`,
+        new Directory(Paths.cache),
+        { idempotent: true },
+      );
+      return file.uri;
+    },
+  });
 }

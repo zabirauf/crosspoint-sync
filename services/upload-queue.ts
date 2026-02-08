@@ -2,6 +2,7 @@ import { useDeviceStore } from '@/stores/device-store';
 import { useUploadStore } from '@/stores/upload-store';
 import { uploadFileViaWebSocket } from './websocket-upload';
 import { log } from './logger';
+import { deviceScheduler } from './device-request-scheduler';
 
 let cancelCurrentUpload: (() => void) | null = null;
 
@@ -29,6 +30,7 @@ function processNextJob() {
   const { updateJobStatus, updateJobProgress } = useUploadStore.getState();
   log('queue', `Processing: ${nextJob.fileName} (job ${nextJob.id})`);
   updateJobStatus(nextJob.id, 'uploading');
+  deviceScheduler.setExternalBusy(true);
 
   cancelCurrentUpload = uploadFileViaWebSocket(
     connectedDevice.ip,
@@ -43,12 +45,14 @@ function processNextJob() {
       },
       onComplete: () => {
         cancelCurrentUpload = null;
+        deviceScheduler.setExternalBusy(false);
         log('queue', `Completed: ${nextJob.fileName}`);
         updateJobStatus(nextJob.id, 'completed');
         processNextJob();
       },
       onError: (error) => {
         cancelCurrentUpload = null;
+        deviceScheduler.setExternalBusy(false);
         log('queue', `Failed: ${nextJob.fileName} — ${error.message}`);
         updateJobStatus(nextJob.id, 'failed', error.message);
         processNextJob();
@@ -94,6 +98,7 @@ export function pauseCurrentUploadJob(): void {
     cancelCurrentUpload();
     cancelCurrentUpload = null;
   }
+  deviceScheduler.setExternalBusy(false);
   retryJob(activeJob.id); // resets to 'pending', progress 0
 }
 
@@ -103,6 +108,7 @@ export function cancelCurrentUploadJob(): void {
     cancelCurrentUpload();
     cancelCurrentUpload = null;
   }
+  deviceScheduler.setExternalBusy(false);
 
   const { jobs, updateJobStatus } = useUploadStore.getState();
   const activeJob = jobs.find((j) => j.status === 'uploading');
