@@ -234,6 +234,15 @@ function withShareExtensionTarget(config) {
       return mod;
     }
 
+    // Ensure these sections exist so addTarget can create proper dependencies
+    // (the xcode npm package's addTargetDependency silently skips if these are missing)
+    if (!proj.hash.project.objects['PBXTargetDependency']) {
+      proj.hash.project.objects['PBXTargetDependency'] = {};
+    }
+    if (!proj.hash.project.objects['PBXContainerItemProxy']) {
+      proj.hash.project.objects['PBXContainerItemProxy'] = {};
+    }
+
     // Add the extension target
     const target = proj.addTarget(
       targetName,
@@ -264,16 +273,6 @@ function withShareExtensionTarget(config) {
     // Add extension group to main project group
     const mainGroupId = proj.getFirstProject().firstProject.mainGroup;
     proj.addToPbxGroup(extGroup.uuid, mainGroupId);
-
-    // Add "Embed App Extensions" copy phase to main target
-    const mainTarget = proj.getFirstTarget();
-    proj.addBuildPhase(
-      [],
-      "PBXCopyFilesBuildPhase",
-      "Embed App Extensions",
-      mainTarget.uuid,
-      "app_extension"
-    );
 
     // Set build settings for the extension target
     const configurations = proj.pbxXCBuildConfigurationSection();
