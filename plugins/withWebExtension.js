@@ -216,9 +216,8 @@ function withWebExtensionFiles(config) {
       const iosPath = mod.modRequest.platformProjectRoot;
       const extPath = path.join(iosPath, EXTENSION_NAME);
       const resourcesPath = path.join(extPath, "Resources");
-      const imagesPath = path.join(resourcesPath, "images");
 
-      fs.mkdirSync(imagesPath, { recursive: true });
+      fs.mkdirSync(resourcesPath, { recursive: true });
 
       // Write Swift handler
       fs.writeFileSync(
@@ -271,12 +270,12 @@ function withWebExtensionFiles(config) {
         path.join(resourcesPath, "manifest.json")
       );
 
-      // Copy icon images
+      // Copy icon images directly into Resources (no images/ subdirectory)
       const srcImages = path.join(extensionSrc, "images");
       for (const file of fs.readdirSync(srcImages)) {
         fs.copyFileSync(
           path.join(srcImages, file),
-          path.join(imagesPath, file)
+          path.join(resourcesPath, file)
         );
       }
 
@@ -324,7 +323,9 @@ function withWebExtensionTarget(config) {
         "popup.html",
         "popup.js",
         "popup.css",
-        "images",
+        "icon-48.png",
+        "icon-96.png",
+        "icon-128.png",
       ],
       "PBXResourcesBuildPhase",
       "Resources",
@@ -342,7 +343,7 @@ function withWebExtensionTarget(config) {
       targetName
     );
 
-    // Add Resources subgroup
+    // Add Resources subgroup (path is relative to parent extGroup which has path "ZyncWebExtension")
     const resourcesGroup = proj.addPbxGroup(
       [
         "manifest.json",
@@ -351,20 +352,15 @@ function withWebExtensionTarget(config) {
         "popup.html",
         "popup.js",
         "popup.css",
+        "icon-48.png",
+        "icon-96.png",
+        "icon-128.png",
       ],
       "Resources",
-      `${targetName}/Resources`
-    );
-
-    // Add images subgroup inside Resources
-    const imagesGroup = proj.addPbxGroup(
-      ["icon-48.png", "icon-96.png", "icon-128.png"],
-      "images",
-      `${targetName}/Resources/images`
+      "Resources"
     );
 
     // Wire up group hierarchy
-    proj.addToPbxGroup(imagesGroup.uuid, resourcesGroup.uuid);
     proj.addToPbxGroup(resourcesGroup.uuid, extGroup.uuid);
 
     // Add extension group to main project group
