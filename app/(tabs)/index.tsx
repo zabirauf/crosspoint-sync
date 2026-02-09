@@ -1,21 +1,30 @@
-import { useCallback, useRef } from 'react';
-import { YStack, XStack, Text, Button } from 'tamagui';
+import { useCallback, useRef, useState, useLayoutEffect } from 'react';
+import { YStack, XStack, Text } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
-import { useColorScheme, Alert, RefreshControl } from 'react-native';
-import { FlatList } from 'react-native';
+import { useColorScheme, Alert, RefreshControl, FlatList, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from 'expo-router';
 import { useDeviceStore } from '@/stores/device-store';
 import { useFileBrowser } from '@/hooks/use-file-browser';
 import { useDocumentPicker } from '@/hooks/use-document-picker';
 import { SwipeableFileRow, type SwipeableMethods } from '@/components/SwipeableFileRow';
 import { EmptyState } from '@/components/EmptyState';
+import { ConnectionPill } from '@/components/ConnectionPill';
+import { ConnectionSheet } from '@/components/ConnectionSheet';
+import { UploadStatusBar } from '@/components/UploadStatusBar';
+import { UploadQueueSheet } from '@/components/UploadQueueSheet';
+import { AddBookFAB } from '@/components/AddBookFAB';
 import { DeviceFile } from '@/types/device';
 
 export default function LibraryScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const navigation = useNavigation();
   const { connectionStatus } = useDeviceStore();
   const openSwipeableRef = useRef<SwipeableMethods | null>(null);
+
+  const [connectionSheetOpen, setConnectionSheetOpen] = useState(false);
+  const [queueSheetOpen, setQueueSheetOpen] = useState(false);
 
   const {
     currentPath,
@@ -36,6 +45,15 @@ export default function LibraryScreen() {
 
   const isConnected = connectionStatus === 'connected';
 
+  // Place ConnectionPill in the header
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <ConnectionPill onPress={() => setConnectionSheetOpen(true)} />
+      ),
+    });
+  }, [navigation]);
+
   // Refresh file list whenever the tab gains focus
   useFocusEffect(
     useCallback(() => {
@@ -44,16 +62,6 @@ export default function LibraryScreen() {
       }
     }, [isConnected, loadFiles])
   );
-
-  if (!isConnected) {
-    return (
-      <EmptyState
-        icon="plug"
-        title="No Device Connected"
-        subtitle="Go to the Sync tab to connect to your e-ink reader."
-      />
-    );
-  }
 
   const handleDelete = (file: DeviceFile) => {
     Alert.alert(
@@ -98,40 +106,39 @@ export default function LibraryScreen() {
     );
   };
 
+  if (!isConnected) {
+    return (
+      <View style={{ flex: 1 }}>
+        <EmptyState
+          icon="plug"
+          title="No Device Connected"
+          subtitle="Connect to your e-ink reader to browse and manage books."
+          actionLabel="Connect"
+          onAction={() => setConnectionSheetOpen(true)}
+        />
+        <ConnectionSheet open={connectionSheetOpen} onOpenChange={setConnectionSheetOpen} />
+      </View>
+    );
+  }
+
   const pathParts = currentPath.split('/').filter(Boolean);
 
   return (
     <YStack flex={1} backgroundColor="$background">
-      {/* Breadcrumb header */}
-      <YStack padding="$3" gap="$2" borderBottomWidth={0.5} borderBottomColor={isDark ? '$gray5' : '$gray4'}>
+      {/* Breadcrumb navigation */}
+      <YStack paddingHorizontal="$3" paddingVertical="$2" borderBottomWidth={0.5} borderBottomColor={isDark ? '$gray5' : '$gray4'}>
         <XStack gap="$2" alignItems="center" flexWrap="wrap">
           {currentPath !== '/' && (
-            <Button size="$2" chromeless onPress={navigateUp} icon={<FontAwesome name="arrow-left" size={14} color={isDark ? '#ccc' : '#666'} />}>
-              Back
-            </Button>
+            <FontAwesome
+              name="arrow-left"
+              size={14}
+              color={isDark ? '#ccc' : '#666'}
+              onPress={navigateUp}
+            />
           )}
           <Text color="$gray10" fontSize="$3" numberOfLines={1} flex={1}>
             /{pathParts.join('/')}
           </Text>
-        </XStack>
-        <XStack gap="$2">
-          <Button
-            size="$2"
-            theme="blue"
-            flex={1}
-            onPress={() => pickAndQueueFiles(currentPath)}
-            icon={<FontAwesome name="plus" size={12} color="#fff" />}
-          >
-            Add Book
-          </Button>
-          <Button
-            size="$2"
-            flex={1}
-            onPress={handleNewFolder}
-            icon={<FontAwesome name="folder" size={12} color={isDark ? '#ccc' : '#666'} />}
-          >
-            New Folder
-          </Button>
         </XStack>
       </YStack>
 
@@ -166,7 +173,7 @@ export default function LibraryScreen() {
             />
           );
         }}
-        contentContainerStyle={{ paddingHorizontal: 16 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 120 }}
         refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={() => loadFiles()} />
         }
@@ -175,11 +182,25 @@ export default function LibraryScreen() {
             <EmptyState
               icon="folder-open-o"
               title="Empty Folder"
-              subtitle="Add books or create a new folder to get started."
+              subtitle="Tap + to add books or long press to create a folder."
             />
           ) : null
         }
       />
+
+      {/* Upload status bar */}
+      <UploadStatusBar onPress={() => setQueueSheetOpen(true)} />
+
+      {/* Floating action button */}
+      <AddBookFAB
+        onAddBook={() => pickAndQueueFiles(currentPath)}
+        onNewFolder={handleNewFolder}
+        bottomOffset={80}
+      />
+
+      {/* Sheets */}
+      <ConnectionSheet open={connectionSheetOpen} onOpenChange={setConnectionSheetOpen} />
+      <UploadQueueSheet open={queueSheetOpen} onOpenChange={setQueueSheetOpen} />
     </YStack>
   );
 }

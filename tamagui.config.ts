@@ -1,7 +1,11 @@
 import { defaultConfig } from '@tamagui/config/v5'
+import { animations } from '@tamagui/config/v5-rn'
 import { createTamagui } from 'tamagui'
 
-const tamaguiConfig = createTamagui(defaultConfig)
+const tamaguiConfig = createTamagui({
+  ...defaultConfig,
+  animations,
+})
 
 export default tamaguiConfig
 

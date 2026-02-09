@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import { AppState, useColorScheme } from 'react-native';
 import type { AppStateStatus } from 'react-native';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
-import { TamaguiProvider } from 'tamagui';
+import { TamaguiProvider, PortalProvider } from 'tamagui';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
@@ -150,13 +150,15 @@ function RootLayoutNav() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <TamaguiProvider config={tamaguiConfig} defaultTheme={colorScheme ?? 'light'}>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-            <Stack.Screen name="debug-logs" options={{ title: 'Debug Logs' }} />
-          </Stack>
-        </ThemeProvider>
+        <PortalProvider>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+              <Stack.Screen name="debug-logs" options={{ title: 'Debug Logs' }} />
+            </Stack>
+          </ThemeProvider>
+        </PortalProvider>
       </TamaguiProvider>
     </GestureHandlerRootView>
   );
