@@ -55,7 +55,7 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
       zIndex={100_000}
       animation="medium"
     >
-      <Sheet.Overlay animation="lazy" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
+      <Sheet.Overlay animation="lazy" opacity={0.5} enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
       <Sheet.Handle />
       <Sheet.Frame padding="$4">
         <Sheet.ScrollView>
