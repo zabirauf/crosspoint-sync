@@ -285,6 +285,37 @@ function withWebExtensionFiles(config) {
 }
 
 // ──────────────────────────────────────────────────────
+// Helper: Add extension target to Xcode scheme
+// ──────────────────────────────────────────────────────
+function addExtensionToScheme(iosPath, targetUuid, targetName) {
+  const xcodeprojName = fs.readdirSync(iosPath).find((f) => f.endsWith(".xcodeproj"));
+  if (!xcodeprojName) return;
+  const projectName = xcodeprojName.replace(".xcodeproj", "");
+  const schemePath = path.join(iosPath, xcodeprojName, "xcshareddata", "xcschemes", `${projectName}.xcscheme`);
+  if (!fs.existsSync(schemePath)) return;
+
+  let scheme = fs.readFileSync(schemePath, "utf8");
+  if (scheme.includes(targetUuid)) return; // already present
+
+  const entry = `      <BuildActionEntry
+         buildForTesting = "YES"
+         buildForRunning = "YES"
+         buildForProfiling = "YES"
+         buildForArchiving = "YES"
+         buildForAnalyzing = "YES">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "${targetUuid}"
+            BuildableName = "${targetName}.appex"
+            BlueprintName = "${targetName}"
+            ReferencedContainer = "container:${xcodeprojName}">
+         </BuildableReference>
+      </BuildActionEntry>`;
+  scheme = scheme.replace("</BuildActionEntries>", entry + "\n      </BuildActionEntries>");
+  fs.writeFileSync(schemePath, scheme, "utf8");
+}
+
+// ──────────────────────────────────────────────────────
 // 3. Add web extension target to Xcode project
 // ──────────────────────────────────────────────────────
 function withWebExtensionTarget(config) {
@@ -425,6 +456,25 @@ function withWebExtensionTarget(config) {
         }
       }
     }
+
+    // Set ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES on main target
+    const mainTarget = proj.getFirstTarget();
+    const mainNativeTarget = proj.pbxNativeTargetSection()[mainTarget.uuid];
+    const mainConfigListUuid = mainNativeTarget.buildConfigurationList;
+    const configListSection = proj.hash.project.objects['XCConfigurationList'];
+    const mainConfigList = configListSection[mainConfigListUuid];
+    if (mainConfigList && mainConfigList.buildConfigurations) {
+      const allConfigs = proj.pbxXCBuildConfigurationSection();
+      for (const ref of mainConfigList.buildConfigurations) {
+        const cfg = allConfigs[ref.value];
+        if (cfg && cfg.buildSettings) {
+          cfg.buildSettings.ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "YES";
+        }
+      }
+    }
+
+    // Add extension target to Xcode scheme
+    addExtensionToScheme(mod.modRequest.platformProjectRoot, target.uuid, targetName);
 
     return mod;
   });
