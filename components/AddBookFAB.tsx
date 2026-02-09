@@ -13,10 +13,11 @@ import Animated, {
 interface AddBookFABProps {
   onAddBook: () => void;
   onNewFolder: () => void;
+  showNewFolder?: boolean;
   bottomOffset?: number;
 }
 
-export function AddBookFAB({ onAddBook, onNewFolder, bottomOffset = 16 }: AddBookFABProps) {
+export function AddBookFAB({ onAddBook, onNewFolder, showNewFolder = true, bottomOffset = 16 }: AddBookFABProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -73,16 +74,20 @@ export function AddBookFAB({ onAddBook, onNewFolder, bottomOffset = 16 }: AddBoo
               <Text fontSize="$3" fontWeight="500">Upload Book</Text>
             </XStack>
           </Pressable>
-          <YStack height={0.5} backgroundColor={isDark ? '$gray6' : '$gray4'} />
-          <Pressable
-            onPress={() => handleOption(onNewFolder)}
-            style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
-          >
-            <XStack gap="$2.5" alignItems="center" paddingHorizontal="$3" paddingVertical="$2.5">
-              <FontAwesome name="folder" size={16} color={isDark ? '#ffb74d' : '#f5a623'} />
-              <Text fontSize="$3" fontWeight="500">New Folder</Text>
-            </XStack>
-          </Pressable>
+          {showNewFolder && (
+            <>
+              <YStack height={0.5} backgroundColor={isDark ? '$gray6' : '$gray4'} />
+              <Pressable
+                onPress={() => handleOption(onNewFolder)}
+                style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
+              >
+                <XStack gap="$2.5" alignItems="center" paddingHorizontal="$3" paddingVertical="$2.5">
+                  <FontAwesome name="folder" size={16} color={isDark ? '#ffb74d' : '#f5a623'} />
+                  <Text fontSize="$3" fontWeight="500">New Folder</Text>
+                </XStack>
+              </Pressable>
+            </>
+          )}
         </Animated.View>
       )}
 
