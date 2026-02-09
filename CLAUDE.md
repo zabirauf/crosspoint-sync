@@ -36,6 +36,7 @@ app/
 types/
   device.ts            # DeviceInfo, DeviceStatus, DeviceFile, ConnectionStatus
   upload.ts            # UploadJob, UploadJobStatus
+  clip.ts              # ClipManifest, ClipImage — web clipper data types
 constants/
   Protocol.ts          # UDP/HTTP/WS ports, chunk size, timeouts
   Colors.ts            # Light/dark theme colors
@@ -45,6 +46,8 @@ services/
   websocket-upload.ts  # WebSocket binary upload with chunked FileHandle reads
   upload-queue.ts      # Sequential job processor subscribing to stores
   share-import.ts      # Imports files shared via iOS Share Extension into upload queue
+  clip-import.ts       # Imports clipped articles from Safari Web Extension, generates EPUBs
+  epub-generator.ts    # Converts HTML + images into EPUB 3.0 via JSZip
 stores/
   device-store.ts      # Connection state, persists lastDeviceIp
   upload-store.ts      # Upload job queue, persists pending/failed jobs
@@ -64,6 +67,13 @@ modules/
   app-group-path/      # Local Expo module — exposes iOS App Group container path to JS
 plugins/
   withShareExtension.js # Config plugin — adds iOS Share Extension target + App Groups entitlement
+  withWebExtension.js   # Config plugin — adds Safari Web Extension target + native handler
+extension-src/           # Safari Web Extension source files (bundled at prebuild)
+  content.js            # Content script — Defuddle + DOMPurify article extraction
+  background.js         # Background script — image downloads + native messaging
+  popup.html/js/css     # Extension popup UI
+  manifest.json         # WebExtension manifest v2
+  images/               # Extension icons (48/96/128px)
 ```
 
 ## Key Patterns
@@ -80,6 +90,17 @@ plugins/
 - **HTTP REST API** (port 80): `GET /api/status`, `GET /api/files?path=`, `POST /mkdir`, `POST /delete`, `GET /download?path=`
 - **WebSocket upload** (port 81): `START:filename:size:path` → `READY` → binary chunks (64KB) → `PROGRESS:received:total` → `DONE`
 
+## Safari Web Clipper Extension
+
+- Users can clip web articles from Safari, which are converted to EPUB and uploaded to the device.
+- **Config plugin** (`plugins/withWebExtension.js`) generates the Safari Web Extension at prebuild time: Swift native handler, Info.plist, entitlements, Xcode target, and bundled Resources.
+- **Content script** uses **Defuddle** (article extraction) + **DOMPurify** (HTML sanitization). These are bundled into a single IIFE via esbuild at prebuild time.
+- **Flow**: Content script extracts article HTML + image URLs → background script downloads images → native handler writes HTML/images/manifest to App Groups → main app picks up via `services/clip-import.ts` → `services/epub-generator.ts` generates EPUB → upload queue.
+- **Manifest naming**: Clip manifests are prefixed `clip-` (e.g., `clip-<uuid>.json`) to distinguish from share manifests. HTML goes to `shared-clips/<uuid>.html`, images to `shared-clips/<uuid>/`.
+- Extension bundle ID: `com.zync.app.WebExtension`
+- **Dev dependencies**: `defuddle` and `dompurify` are devDependencies — only used at prebuild time for esbuild bundling, not included in the React Native bundle.
+- **Extension source files** live in `extension-src/` and are copied/bundled into `ios/ZyncWebExtension/Resources/` during prebuild.
+
 ## iOS Share Extension
 
 - Users can share EPUB/PDF files from any app (Files, Safari, etc.) into Zync's upload queue.
@@ -95,3 +116,5 @@ plugins/
 - New Architecture is enabled (`newArchEnabled: true`). If `react-native-udp` has TurboModule issues, manual IP entry works as a full fallback.
 - `Alert.prompt` is iOS-only. The new folder feature in the Library tab uses it.
 - **Local Expo modules** (`modules/` dir) require a `.podspec` in the `ios/` subdirectory for CocoaPods autolinking. Without it, `expo-modules-autolinking search` finds the module but `resolve` skips it → "Cannot find native module" at runtime.
+- Safari Web Extension requires `npx expo prebuild --clean` after changes to `extension-src/` or `plugins/withWebExtension.js`. The extension's content.js is bundled via esbuild during prebuild — if esbuild isn't available, prebuild will fail.
+- The Safari Web Extension must be enabled manually: iOS Settings → Safari → Extensions → Zync Web Clipper.

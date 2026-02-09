@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="popup.css">
+  <title>Zync Clipper</title>
+</head>
+<body>
+  <div id="app">
+    <div id="loading" class="state">
+      <div class="spinner"></div>
+      <p>Extracting article...</p>
+    </div>
+
+    <div id="preview" class="state hidden">
+      <h1 id="article-title"></h1>
+      <p id="article-author" class="meta"></p>
+      <p id="article-source" class="meta source"></p>
+      <p id="article-images" class="meta"></p>
+      <button id="send-btn">Send to Zync</button>
+    </div>
+
+    <div id="sending" class="state hidden">
+      <div class="spinner"></div>
+      <p>Sending to Zync...</p>
+    </div>
+
+    <div id="success" class="state hidden">
+      <div class="checkmark">&#10003;</div>
+      <p>Sent to Zync!</p>
+      <p class="meta">Open the app to sync to your device.</p>
+    </div>
+
+    <div id="error" class="state hidden">
+      <div class="error-icon">!</div>
+      <p id="error-message">Something went wrong.</p>
+      <button id="retry-btn">Try Again</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

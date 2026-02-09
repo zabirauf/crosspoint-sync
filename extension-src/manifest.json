@@ -1,0 +1,33 @@
+{
+  "manifest_version": 2,
+  "name": "Zync Web Clipper",
+  "version": "1.0",
+  "description": "Clip web articles to read on your e-ink device",
+  "icons": {
+    "48": "images/icon-48.png",
+    "96": "images/icon-96.png",
+    "128": "images/icon-128.png"
+  },
+  "permissions": [
+    "activeTab",
+    "nativeMessaging"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "48": "images/icon-48.png",
+      "96": "images/icon-96.png"
+    }
+  }
+}

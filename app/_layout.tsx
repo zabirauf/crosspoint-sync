@@ -18,6 +18,7 @@ import { useDeviceStatusPolling } from '@/hooks/use-device-status';
 import { useDeviceStore } from '@/stores/device-store';
 import { validateDeviceIP } from '@/services/device-discovery';
 import { importSharedFiles } from '@/services/share-import';
+import { importClippedArticles } from '@/services/clip-import';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -121,20 +122,25 @@ function RootLayoutNav() {
     return () => sub.remove();
   }, []);
 
-  // Import files shared via iOS Share Extension
+  // Import files shared via iOS Share Extension + Safari Web Clipper
   useEffect(() => {
+    const importAll = () => {
+      importSharedFiles();
+      importClippedArticles();
+    };
+
     // Import on launch (after store hydration)
     if (useUploadStore.persist.hasHydrated()) {
-      importSharedFiles();
+      importAll();
     }
     const unsub = useUploadStore.persist.onFinishHydration(() => {
-      importSharedFiles();
+      importAll();
     });
 
     // Import when app returns to foreground
     const sub = AppState.addEventListener('change', (state: AppStateStatus) => {
       if (state === 'active') {
-        importSharedFiles();
+        importAll();
       }
     });
 
