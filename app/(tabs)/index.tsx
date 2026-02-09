@@ -1,10 +1,12 @@
 import { useCallback, useRef, useState, useLayoutEffect } from 'react';
 import { YStack, XStack, Text } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
-import { useColorScheme, Alert, RefreshControl, FlatList, View } from 'react-native';
+import { useColorScheme, Alert, RefreshControl, FlatList } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useNavigation } from 'expo-router';
 import { useDeviceStore } from '@/stores/device-store';
+import { useUploadStore } from '@/stores/upload-store';
+import { useSettingsStore } from '@/stores/settings-store';
 import { useFileBrowser } from '@/hooks/use-file-browser';
 import { useDocumentPicker } from '@/hooks/use-document-picker';
 import { SwipeableFileRow, type SwipeableMethods } from '@/components/SwipeableFileRow';
@@ -21,6 +23,7 @@ export default function LibraryScreen() {
   const isDark = colorScheme === 'dark';
   const navigation = useNavigation();
   const { connectionStatus } = useDeviceStore();
+  const { jobs } = useUploadStore();
   const openSwipeableRef = useRef<SwipeableMethods | null>(null);
 
   const [connectionSheetOpen, setConnectionSheetOpen] = useState(false);
@@ -42,8 +45,13 @@ export default function LibraryScreen() {
   } = useFileBrowser();
 
   const { pickAndQueueFiles } = useDocumentPicker();
+  const { defaultUploadPath } = useSettingsStore();
 
   const isConnected = connectionStatus === 'connected';
+  const hasActiveUploads = jobs.some(j =>
+    j.status === 'uploading' || j.status === 'pending' ||
+    j.status === 'conflict' || j.status === 'failed' || j.status === 'cancelled'
+  );
 
   // Place ConnectionPill in the header
   useLayoutEffect(() => {
@@ -106,9 +114,76 @@ export default function LibraryScreen() {
     );
   };
 
-  if (!isConnected) {
-    return (
-      <View style={{ flex: 1 }}>
+  const pathParts = currentPath.split('/').filter(Boolean);
+
+  return (
+    <YStack flex={1} backgroundColor="$background">
+      {isConnected ? (
+        <>
+          {/* Breadcrumb navigation */}
+          <YStack paddingHorizontal="$3" paddingVertical="$2" borderBottomWidth={0.5} borderBottomColor={isDark ? '$gray5' : '$gray4'}>
+            <XStack gap="$2" alignItems="center" flexWrap="wrap">
+              {currentPath !== '/' && (
+                <FontAwesome
+                  name="arrow-left"
+                  size={14}
+                  color={isDark ? '#ccc' : '#666'}
+                  onPress={navigateUp}
+                />
+              )}
+              <Text color="$gray10" fontSize="$3" numberOfLines={1} flex={1}>
+                /{pathParts.join('/')}
+              </Text>
+            </XStack>
+          </YStack>
+
+          {error && (
+            <YStack padding="$3">
+              <Text color="$red10" fontSize="$3">{error}</Text>
+            </YStack>
+          )}
+
+          {/* File list */}
+          <FlatList
+            data={files}
+            keyExtractor={(item) => item.name}
+            renderItem={({ item }) => {
+              const downloadStatus = downloadingFile === item.name
+                ? 'downloading' as const
+                : queuedDownloads.includes(item.name)
+                  ? 'queued' as const
+                  : undefined;
+              return (
+                <SwipeableFileRow
+                  file={item}
+                  onPress={() => {
+                    if (item.isDirectory) {
+                      navigateToFolder(item.name);
+                    }
+                  }}
+                  onDelete={handleDelete}
+                  onDownload={queueDownload}
+                  onSwipeOpen={handleSwipeOpen}
+                  downloadStatus={downloadStatus}
+                />
+              );
+            }}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 120 }}
+            refreshControl={
+              <RefreshControl refreshing={isLoading} onRefresh={() => loadFiles()} />
+            }
+            ListEmptyComponent={
+              !isLoading ? (
+                <EmptyState
+                  icon="folder-open-o"
+                  title="Empty Folder"
+                  subtitle="Tap + to add books or long press to create a folder."
+                />
+              ) : null
+            }
+          />
+        </>
+      ) : (
         <EmptyState
           icon="plug"
           title="No Device Connected"
@@ -116,91 +191,26 @@ export default function LibraryScreen() {
           actionLabel="Connect"
           onAction={() => setConnectionSheetOpen(true)}
         />
-        <ConnectionSheet open={connectionSheetOpen} onOpenChange={setConnectionSheetOpen} />
-      </View>
-    );
-  }
-
-  const pathParts = currentPath.split('/').filter(Boolean);
-
-  return (
-    <YStack flex={1} backgroundColor="$background">
-      {/* Breadcrumb navigation */}
-      <YStack paddingHorizontal="$3" paddingVertical="$2" borderBottomWidth={0.5} borderBottomColor={isDark ? '$gray5' : '$gray4'}>
-        <XStack gap="$2" alignItems="center" flexWrap="wrap">
-          {currentPath !== '/' && (
-            <FontAwesome
-              name="arrow-left"
-              size={14}
-              color={isDark ? '#ccc' : '#666'}
-              onPress={navigateUp}
-            />
-          )}
-          <Text color="$gray10" fontSize="$3" numberOfLines={1} flex={1}>
-            /{pathParts.join('/')}
-          </Text>
-        </XStack>
-      </YStack>
-
-      {error && (
-        <YStack padding="$3">
-          <Text color="$red10" fontSize="$3">{error}</Text>
-        </YStack>
       )}
-
-      {/* File list */}
-      <FlatList
-        data={files}
-        keyExtractor={(item) => item.name}
-        renderItem={({ item }) => {
-          const downloadStatus = downloadingFile === item.name
-            ? 'downloading' as const
-            : queuedDownloads.includes(item.name)
-              ? 'queued' as const
-              : undefined;
-          return (
-            <SwipeableFileRow
-              file={item}
-              onPress={() => {
-                if (item.isDirectory) {
-                  navigateToFolder(item.name);
-                }
-              }}
-              onDelete={handleDelete}
-              onDownload={queueDownload}
-              onSwipeOpen={handleSwipeOpen}
-              downloadStatus={downloadStatus}
-            />
-          );
-        }}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 120 }}
-        refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={() => loadFiles()} />
-        }
-        ListEmptyComponent={
-          !isLoading ? (
-            <EmptyState
-              icon="folder-open-o"
-              title="Empty Folder"
-              subtitle="Tap + to add books or long press to create a folder."
-            />
-          ) : null
-        }
-      />
 
       {/* Upload status bar */}
       <UploadStatusBar onPress={() => setQueueSheetOpen(true)} />
 
       {/* Floating action button */}
       <AddBookFAB
-        onAddBook={() => pickAndQueueFiles(currentPath)}
+        onAddBook={() => pickAndQueueFiles(isConnected ? currentPath : defaultUploadPath)}
         onNewFolder={handleNewFolder}
-        bottomOffset={80}
+        showNewFolder={isConnected}
+        bottomOffset={hasActiveUploads ? 72 : 16}
       />
 
       {/* Sheets */}
-      <ConnectionSheet open={connectionSheetOpen} onOpenChange={setConnectionSheetOpen} />
-      <UploadQueueSheet open={queueSheetOpen} onOpenChange={setQueueSheetOpen} />
+      {connectionSheetOpen && (
+        <ConnectionSheet open={connectionSheetOpen} onOpenChange={setConnectionSheetOpen} />
+      )}
+      {queueSheetOpen && (
+        <UploadQueueSheet open={queueSheetOpen} onOpenChange={setQueueSheetOpen} />
+      )}
     </YStack>
   );
 }
