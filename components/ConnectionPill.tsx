@@ -19,7 +19,7 @@ export function ConnectionPill({ onPress }: ConnectionPillProps) {
   const label = isConnected && connectedDevice ? connectedDevice.hostname : 'Connect';
 
   return (
-    <Pressable onPress={onPress}>
+    <Pressable onPress={onPress} style={{ marginRight: 8 }}>
       <XStack
         alignItems="center"
         gap="$1.5"
