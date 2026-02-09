@@ -13,6 +13,8 @@ const CATEGORY_COLORS: Record<LogCategory, string> = {
   upload: '#F59E0B',
   queue: '#EF4444',
   store: '#6366F1',
+  scheduler: '#14B8A6',
+  clip: '#EC4899',
 };
 
 function formatTime(timestamp: number): string {

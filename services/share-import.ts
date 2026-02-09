@@ -45,6 +45,11 @@ export async function importSharedFiles(): Promise<number> {
       const raw = await entry.text();
       const manifest: ShareManifest = JSON.parse(raw);
 
+      // Skip clip manifests — handled by clip-import.ts
+      if ((manifest as any).type === 'clip') {
+        continue;
+      }
+
       const sharedFile = new File(pathToUri(manifest.fileUri));
       if (!sharedFile.exists) {
         log('queue', `Shared file missing, skipping: ${manifest.fileName}`);

@@ -38,7 +38,8 @@
     "plugins": [
       "expo-router",
       "expo-document-picker",
-      "./plugins/withShareExtension"
+      "./plugins/withShareExtension",
+      "./plugins/withWebExtension"
     ],
     "experiments": {
       "typedRoutes": true

@@ -16,7 +16,7 @@ The approach mirrors the existing Share Extension pattern: extension writes data
 Safari → [Content Script] → [Background Script] → [Native Handler] → App Groups → [Main App] → EPUB → Upload Queue → Device
 ```
 
-1. **Content Script** (`content.js`): Runs `@mozilla/readability` on the page DOM to extract clean article HTML + metadata (title, author, excerpt)
+1. **Content Script** (`content.js`): Runs **Defuddle** (same as Obsidian Clipper) on the page DOM to extract clean article HTML + metadata, then **DOMPurify** sanitizes the output for safe, well-formed XHTML
 2. **Popup** (`popup.html/js`): Shows article preview, user taps "Send to Zync"
 3. **Background Script** (`background.js`): Downloads article images via fetch (has page cookies), sends everything to native handler
 4. **Native Handler** (`SafariWebExtensionHandler.swift`): Writes HTML + images + manifest JSON to App Groups container
@@ -39,7 +39,7 @@ Safari → [Content Script] → [Background Script] → [Native Handler] → App
 
 **Details:**
 - EPUB structure: `mimetype` (uncompressed, first entry), `META-INF/container.xml`, `OEBPS/content.opf`, `OEBPS/toc.ncx`, `OEBPS/nav.xhtml`, `OEBPS/chapter.xhtml`, `OEBPS/styles.css`, `OEBPS/images/*`
-- HTML-to-XHTML sanitization: self-close void elements (`<br>` → `<br/>`), escape bare `&`, strip `<script>`/`<style>`, wrap in XHTML document
+- HTML arrives pre-sanitized by DOMPurify in the extension. EPUB generator does lightweight XHTML fixup: self-close void elements (`<br>` → `<br/>`), escape bare `&`, wrap in XHTML document
 - Rewrite `<img src>` URLs to reference local `images/` paths
 - E-ink-optimized CSS: serif font, good line-height, no backgrounds
 - Write output to cache dir via expo-file-system `File` API
@@ -98,7 +98,7 @@ Manifests go to `manifests/clip-<uuid>.json`, HTML to `shared-clips/<uuid>.html`
 All embedded as string constants in `withWebExtension.js` (same pattern as Share Extension Swift code):
 
 - `Resources/manifest.json` — WebExtension manifest v2, permissions: `activeTab`, `nativeMessaging`
-- `Resources/content.js` — bundled with `@mozilla/readability` (~30KB minified, inlined as IIFE). Extracts article via `new Readability(document.cloneNode(true)).parse()`
+- `Resources/content.js` — bundled with **Defuddle** (content extraction, ~30KB) + **DOMPurify** (HTML sanitization, ~60KB), both inlined as IIFEs. Extracts article via `Defuddle.parse(document)`, sanitizes with `DOMPurify.sanitize(html)`
 - `Resources/background.js` — receives clip data, downloads images via fetch, sends to native handler via `browser.runtime.sendNativeMessage()`
 - `Resources/popup.html` + `popup.js` + `popup.css` — minimal UI: loading → article preview → "Send to Zync" button → success/error
 - `Resources/images/icon-*.png` — extension icons (embedded as base64 in plugin, decoded at prebuild)
@@ -133,9 +133,10 @@ All embedded as string constants in `withWebExtension.js` (same pattern as Share
 ## Key Risks
 
 1. **Xcode target config complexity** — Safari Web Extension targets need a Resources build phase that the Share Extension didn't. Mitigation: create one manually in Xcode first to see exact pbxproj structure, then replicate.
-2. **Readability bundling** — 30KB library inlined as a string constant in the config plugin is workable for MVP but messy. Future improvement: prebuild script that bundles from `extension-src/`.
+2. **Library bundling** — Defuddle (~30KB) + DOMPurify (~60KB) inlined as string constants in the config plugin. Total ~90KB is manageable for MVP. Future improvement: prebuild script that bundles from `extension-src/`.
 3. **Image downloads** — Some images may fail (CORS, auth). Mitigation: skip failed images, article text still readable.
 4. **EPUB validity on XTEink X4** — Keep EPUB structure minimal (EPUB 3.0 + EPUB 2.0 NCX fallback). Test early on actual device.
+5. **DOMPurify in content script** — Runs in extension JS context which has full DOM APIs, so DOMPurify works natively (no jsdom needed).
 
 ---
 
