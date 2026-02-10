@@ -1,4 +1,4 @@
-# Zync
+# CrossPoint Sync
 
 Book syncing app for the [XTEink X4](https://xteink.com) e-ink reader. Discovers devices on your local WiFi, browses files on the device, and uploads EPUBs/PDFs via WebSocket.
 
@@ -60,8 +60,8 @@ npx expo export --platform ios
 This app uses native modules (`react-native-udp`, App Group path, Share Extension, Safari Web Extension) that require a dev build — **Expo Go will not work**.
 
 1. Connect your iPhone via USB (or ensure it's on the same Wi-Fi for wireless debugging)
-2. Open `ios/Zync.xcworkspace` in Xcode
-3. Select the **Zync**, **ZyncShareExtension**, and **ZyncWebExtension** targets, go to **Signing & Capabilities**, and select your Apple Developer team
+2. Open `ios/CrossPointSync.xcworkspace` in Xcode
+3. Select the **CrossPointSync**, **CrossPointSyncShareExtension**, and **CrossPointSyncWebExtension** targets, go to **Signing & Capabilities**, and select your Apple Developer team
 4. In Xcode **Build Settings**, search for `ENABLE_USER_SCRIPT_SANDBOXING` and set it to **No** (Xcode 16+ enables this by default, which blocks React Native's bundle script)
 5. Run `npx expo run:ios --device` and select your device from the list
 
@@ -90,7 +90,7 @@ extension-src/             # Safari Web Extension source (content script, popup,
 
 ## How It Works
 
-Zync communicates with the XTEink X4 using three protocols:
+CrossPoint Sync communicates with the XTEink X4 using three protocols:
 
 1. **UDP Discovery** (port 8134) — Broadcasts a `hello` message on the local network and listens for the device's response
 2. **HTTP REST API** (port 80) — Fetches device status, lists files, creates/deletes folders, and downloads files
@@ -104,7 +104,7 @@ The Safari Web Clipper extension lets you save web articles directly to your e-i
 
 1. Tap the extension icon in Safari on any article
 2. The extension extracts the article content (using [Defuddle](https://github.com/nicepkg/defuddle)) and sanitizes it (using [DOMPurify](https://github.com/cure53/DOMPurify))
-3. Tap "Send to Zync" — the extension downloads article images and passes everything to the native handler
+3. Tap "Send to CrossPoint" — the extension downloads article images and passes everything to the native handler
 4. The main app picks it up, generates an EPUB with e-ink optimized styling, and adds it to the upload queue
 5. Connect to your device and the article syncs automatically
 
@@ -113,7 +113,7 @@ The Safari Web Clipper extension lets you save web articles directly to your e-i
 After building and installing the app:
 
 1. Go to **iOS Settings → Safari → Extensions**
-2. Find **Zync Web Clipper** and enable it
+2. Find **CrossPoint Web Clipper** and enable it
 3. Tap **All Websites** and choose **Allow**
 
 ### Rebuilding after changes

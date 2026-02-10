@@ -6,7 +6,7 @@ import { generateEpub } from '@/services/epub-generator';
 import { log } from '@/services/logger';
 import type { ClipManifest, ClipImage } from '@/types/clip';
 
-const APP_GROUP_ID = 'group.com.zync.app';
+const APP_GROUP_ID = 'group.com.crosspointsync.app';
 
 function pathToUri(p: string): string {
   return p.startsWith('file://') ? p : `file://${p}`;

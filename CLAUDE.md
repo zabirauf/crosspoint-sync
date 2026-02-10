@@ -1,4 +1,4 @@
-# Zync
+# CrossPoint Sync
 
 Book syncing app for the XTEink X4 e-ink reader. Discovers devices on local WiFi, browses files, and uploads EPUBs/PDFs via WebSocket.
 
@@ -9,7 +9,7 @@ Book syncing app for the XTEink X4 e-ink reader. Discovers devices on local WiFi
 - **expo-router** v6 with tab-based navigation
 - **Zustand** for state management, persisted via AsyncStorage
 - **react-native-udp** for UDP device discovery (requires dev build, not Expo Go)
-- Primary target: **iOS**. Bundle ID: `com.zync.app`
+- Primary target: **iOS**. Bundle ID: `com.crosspointsync.app`
 
 ## Commands
 
@@ -97,17 +97,17 @@ extension-src/           # Safari Web Extension source files (bundled at prebuil
 - **Content script** uses **Defuddle** (article extraction) + **DOMPurify** (HTML sanitization). These are bundled into a single IIFE via esbuild at prebuild time.
 - **Flow**: Content script extracts article HTML + image URLs → background script downloads images → native handler writes HTML/images/manifest to App Groups → main app picks up via `services/clip-import.ts` → `services/epub-generator.ts` generates EPUB → upload queue.
 - **Manifest naming**: Clip manifests are prefixed `clip-` (e.g., `clip-<uuid>.json`) to distinguish from share manifests. HTML goes to `shared-clips/<uuid>.html`, images to `shared-clips/<uuid>/`.
-- Extension bundle ID: `com.zync.app.WebExtension`
+- Extension bundle ID: `com.crosspointsync.app.WebExtension`
 - **Dev dependencies**: `defuddle` and `dompurify` are devDependencies — only used at prebuild time for esbuild bundling, not included in the React Native bundle.
-- **Extension source files** live in `extension-src/` and are copied/bundled into `ios/ZyncWebExtension/Resources/` during prebuild.
+- **Extension source files** live in `extension-src/` and are copied/bundled into `ios/CrossPointSyncWebExtension/Resources/` during prebuild.
 
 ## iOS Share Extension
 
-- Users can share EPUB/PDF files from any app (Files, Safari, etc.) into Zync's upload queue.
+- Users can share EPUB/PDF files from any app (Files, Safari, etc.) into CrossPoint Sync's upload queue.
 - **Config plugin** (`plugins/withShareExtension.js`) generates the native extension at prebuild time: Swift source, Info.plist, entitlements, and Xcode target.
-- **App Group**: `group.com.zync.app` — shared container between main app and extension.
+- **App Group**: `group.com.crosspointsync.app` — shared container between main app and extension.
 - **Flow**: Extension copies file to App Group container + writes JSON manifest → main app picks up manifests on launch/foreground via `services/share-import.ts` → files added to Zustand upload queue.
-- Extension bundle ID: `com.zync.app.ShareExtension`
+- Extension bundle ID: `com.crosspointsync.app.ShareExtension`
 
 ## Gotchas
 
@@ -117,4 +117,4 @@ extension-src/           # Safari Web Extension source files (bundled at prebuil
 - `Alert.prompt` is iOS-only. The new folder feature in the Library tab uses it.
 - **Local Expo modules** (`modules/` dir) require a `.podspec` in the `ios/` subdirectory for CocoaPods autolinking. Without it, `expo-modules-autolinking search` finds the module but `resolve` skips it → "Cannot find native module" at runtime.
 - Safari Web Extension requires `npx expo prebuild --clean` after changes to `extension-src/` or `plugins/withWebExtension.js`. The extension's content.js is bundled via esbuild during prebuild — if esbuild isn't available, prebuild will fail.
-- The Safari Web Extension must be enabled manually: iOS Settings → Safari → Extensions → Zync Web Clipper.
+- The Safari Web Extension must be enabled manually: iOS Settings → Safari → Extensions → CrossPoint Web Clipper.

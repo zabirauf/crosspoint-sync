@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Zync",
-    "slug": "zync",
+    "name": "CrossPoint Sync",
+    "slug": "crosspoint-sync",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "zync",
+    "scheme": "crosspointsync",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -15,11 +15,11 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.zync.app",
+      "bundleIdentifier": "com.crosspointsync.app",
       "infoPlist": {
         "UISupportsDocumentBrowser": true,
         "LSSupportsOpeningDocumentsInPlace": true,
-        "NSLocalNetworkUsageDescription": "Zync needs local network access to discover and communicate with your e-ink reader device."
+        "NSLocalNetworkUsageDescription": "CrossPoint Sync needs local network access to discover and communicate with your e-ink reader device."
       }
     },
     "android": {
@@ -29,7 +29,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.zync.app"
+      "package": "com.crosspointsync.app"
     },
     "web": {
       "bundler": "metro",

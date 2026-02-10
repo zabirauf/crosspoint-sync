@@ -24,7 +24,7 @@ export const useSettingsStore = create<SettingsState>()(
       setDebugLogsEnabled: (enabled) => set({ debugLogsEnabled: enabled }),
     }),
     {
-      name: 'zync-settings',
+      name: 'crosspointsync-settings',
       storage: createJSONStorage(() => AsyncStorage),
     },
   ),

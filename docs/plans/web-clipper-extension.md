@@ -1,10 +1,10 @@
-# Safari Web Clipper Extension for Zync
+# Safari Web Clipper Extension for CrossPoint Sync
 
 ## Context
 
-Users want to read webpages on their e-ink device. The extension will capture a webpage's content in Safari, convert it to EPUB, and feed it into Zync's existing upload pipeline to send to the device.
+Users want to read webpages on their e-ink device. The extension will capture a webpage's content in Safari, convert it to EPUB, and feed it into CrossPoint Sync's existing upload pipeline to send to the device.
 
-This **must be part of the Zync project** (not a separate app) because Safari Web Extensions must be bundled inside a containing iOS app, and Zync already has the full upload infrastructure + App Groups set up.
+This **must be part of the CrossPoint Sync project** (not a separate app) because Safari Web Extensions must be bundled inside a containing iOS app, and CrossPoint Sync already has the full upload infrastructure + App Groups set up.
 
 The approach mirrors the existing Share Extension pattern: extension writes data to App Groups, main app picks it up on launch/foreground, processes it, and queues it for upload.
 
@@ -17,7 +17,7 @@ Safari → [Content Script] → [Background Script] → [Native Handler] → App
 ```
 
 1. **Content Script** (`content.js`): Runs **Defuddle** (same as Obsidian Clipper) on the page DOM to extract clean article HTML + metadata, then **DOMPurify** sanitizes the output for safe, well-formed XHTML
-2. **Popup** (`popup.html/js`): Shows article preview, user taps "Send to Zync"
+2. **Popup** (`popup.html/js`): Shows article preview, user taps "Send to CrossPoint"
 3. **Background Script** (`background.js`): Downloads article images via fetch (has page cookies), sends everything to native handler
 4. **Native Handler** (`SafariWebExtensionHandler.swift`): Writes HTML + images + manifest JSON to App Groups container
 5. **Clip Import** (`clip-import.ts`): Reads clip manifests from App Groups (same pattern as `share-import.ts`)
@@ -76,18 +76,18 @@ Manifests go to `manifests/clip-<uuid>.json`, HTML to `shared-clips/<uuid>.html`
 - `plugins/withWebExtension.js` — Expo config plugin (replicates `withShareExtension.js` pattern)
 
 **Modified:**
-- `app.json` — add `"./plugins/withWebExtension"` to plugins array
+- `app.json` — add `"./plugins/withWebExtension"` plugin
 
 **Plugin structure** (same 3-function pattern as `withShareExtension.js`):
-1. `withAppGroupEntitlement()` — ensures `group.com.zync.app` on main app
-2. `withWebExtensionFiles()` — writes Swift handler + Info.plist + entitlements + Resources/ dir to `ios/ZyncWebExtension/`
+1. `withAppGroupEntitlement()` — ensures `group.com.crosspointsync.app` on main app
+2. `withWebExtensionFiles()` — writes Swift handler + Info.plist + entitlements + Resources/ dir to `ios/CrossPointSyncWebExtension/`
 3. `withWebExtensionTarget()` — adds Xcode target (`app_extension` type with `com.apple.Safari.web-extension` extension point), PBXResourcesBuildPhase for Resources/, build settings
 
 **Key differences from Share Extension plugin:**
 - `NSExtensionPointIdentifier`: `com.apple.Safari.web-extension` (not `com.apple.share-services`)
 - `NSExtensionPrincipalClass`: `SafariWebExtensionHandler` (not a UIViewController)
 - Needs `PBXResourcesBuildPhase` to copy Resources/ (manifest.json, JS, HTML, CSS) into bundle
-- Bundle ID: `com.zync.app.WebExtension`
+- Bundle ID: `com.crosspointsync.app.WebExtension`
 
 **Native handler** (`SafariWebExtensionHandler.swift`):
 - Handles `"clip"` action: parse JSON payload, write HTML/images/manifest to App Groups
@@ -100,7 +100,7 @@ All embedded as string constants in `withWebExtension.js` (same pattern as Share
 - `Resources/manifest.json` — WebExtension manifest v2, permissions: `activeTab`, `nativeMessaging`
 - `Resources/content.js` — bundled with **Defuddle** (content extraction, ~30KB) + **DOMPurify** (HTML sanitization, ~60KB), both inlined as IIFEs. Extracts article via `Defuddle.parse(document)`, sanitizes with `DOMPurify.sanitize(html)`
 - `Resources/background.js` — receives clip data, downloads images via fetch, sends to native handler via `browser.runtime.sendNativeMessage()`
-- `Resources/popup.html` + `popup.js` + `popup.css` — minimal UI: loading → article preview → "Send to Zync" button → success/error
+- `Resources/popup.html` + `popup.js` + `popup.css` — minimal UI: loading → article preview → "Send to CrossPoint" button → success/error
 - `Resources/images/icon-*.png` — extension icons (embedded as base64 in plugin, decoded at prebuild)
 
 ---
@@ -123,10 +123,10 @@ All embedded as string constants in `withWebExtension.js` (same pattern as Share
 | `services/logger.ts` | Add `'clip'` to LogCategory |
 
 **Generated at prebuild** (not checked in):
-- `ios/ZyncWebExtension/SafariWebExtensionHandler.swift`
-- `ios/ZyncWebExtension/Info.plist`
-- `ios/ZyncWebExtension/ZyncWebExtension.entitlements`
-- `ios/ZyncWebExtension/Resources/` (manifest.json, content.js, background.js, popup.html/js/css, icons)
+- `ios/CrossPointSyncWebExtension/SafariWebExtensionHandler.swift`
+- `ios/CrossPointSyncWebExtension/Info.plist`
+- `ios/CrossPointSyncWebExtension/CrossPointSyncWebExtension.entitlements`
+- `ios/CrossPointSyncWebExtension/Resources/` (manifest.json, content.js, background.js, popup.html/js/css, icons)
 
 ---
 
@@ -144,5 +144,5 @@ All embedded as string constants in `withWebExtension.js` (same pattern as Share
 
 1. **EPUB Generator**: Add temporary debug button in Settings → generate EPUB from sample HTML → open in Apple Books
 2. **Clip Import**: Manually create test manifest + HTML in App Group dir → verify app picks it up → verify EPUB in upload queue
-3. **Config Plugin**: `npx expo prebuild --clean` → verify `ios/ZyncWebExtension/` generated → build succeeds
-4. **End-to-end**: Enable extension in Safari Settings → visit article → tap extension → "Send to Zync" → switch to app → EPUB appears in queue → uploads to device
+3. **Config Plugin**: `npx expo prebuild --clean` → verify `ios/CrossPointSyncWebExtension/` generated → build succeeds
+4. **End-to-end**: Enable extension in Safari Settings → visit article → tap extension → "Send to CrossPoint" → switch to app → EPUB appears in queue → uploads to device

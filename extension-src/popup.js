@@ -1,4 +1,4 @@
-// Popup script for Zync Safari Web Extension
+// Popup script for CrossPoint Safari Web Extension
 
 const states = {
   loading: document.getElementById('loading'),
@@ -56,7 +56,7 @@ async function init() {
   }
 }
 
-// Send to Zync
+// Send to CrossPoint
 document.getElementById('send-btn').addEventListener('click', async () => {
   if (!extractedData) return;
 
@@ -69,7 +69,7 @@ document.getElementById('send-btn').addEventListener('click', async () => {
     });
 
     if (!response || !response.success) {
-      throw new Error(response?.error || 'Failed to send to Zync');
+      throw new Error(response?.error || 'Failed to send to CrossPoint');
     }
 
     showState('success');

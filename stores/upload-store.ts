@@ -110,7 +110,7 @@ export const useUploadStore = create<UploadState>()(
       getActiveJob: () => get().jobs.find((j) => j.status === 'uploading'),
     }),
     {
-      name: 'zync-uploads',
+      name: 'crosspointsync-uploads',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         jobs: state.jobs

@@ -63,7 +63,7 @@ export const useDeviceStore = create<DeviceState>()(
       },
     }),
     {
-      name: 'zync-device',
+      name: 'crosspointsync-device',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({ lastDeviceIp: state.lastDeviceIp }),
     },

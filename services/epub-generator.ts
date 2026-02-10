@@ -22,7 +22,7 @@ interface EpubOptions {
  */
 export async function generateEpub(options: EpubOptions): Promise<{ uri: string; size: number }> {
   const { title, author, sourceUrl, html, images, clippedAt } = options;
-  const bookId = `zync-clip-${clippedAt}-${Math.random().toString(36).slice(2, 9)}`;
+  const bookId = `crosspointsync-clip-${clippedAt}-${Math.random().toString(36).slice(2, 9)}`;
   const sanitizedTitle = escapeXml(title);
   const sanitizedAuthor = escapeXml(author);
 

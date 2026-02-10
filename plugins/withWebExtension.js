@@ -7,9 +7,9 @@ const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
 
-const APP_GROUP = "group.com.zync.app";
-const EXTENSION_NAME = "ZyncWebExtension";
-const EXTENSION_BUNDLE_ID = "com.zync.app.WebExtension";
+const APP_GROUP = "group.com.crosspointsync.app";
+const EXTENSION_NAME = "CrossPointSyncWebExtension";
+const EXTENSION_BUNDLE_ID = "com.crosspointsync.app.WebExtension";
 
 // ──────────────────────────────────────────────────────
 // SafariWebExtensionHandler.swift source
@@ -155,9 +155,9 @@ const INFO_PLIST = `<?xml version="1.0" encoding="UTF-8"?>
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>Zync Web Clipper</string>
+    <string>CrossPoint Web Clipper</string>
     <key>CFBundleDisplayName</key>
-    <string>Zync Web Clipper</string>
+    <string>CrossPoint Web Clipper</string>
     <key>CFBundleIdentifier</key>
     <string>${EXTENSION_BUNDLE_ID}</string>
     <key>CFBundleVersion</key>
@@ -236,7 +236,7 @@ function withWebExtensionFiles(config) {
 
       try {
         execSync(
-          `npx esbuild "${path.join(extensionSrc, "content.js")}" --bundle --format=iife --global-name=__zyncContent --outfile="${path.join(resourcesPath, "content.js")}" --minify --target=safari16`,
+          `npx esbuild "${path.join(extensionSrc, "content.js")}" --bundle --format=iife --global-name=__crossPointSyncContent --outfile="${path.join(resourcesPath, "content.js")}" --minify --target=safari16`,
           { cwd: projectRoot, stdio: "pipe" }
         );
       } catch (err) {
@@ -383,7 +383,7 @@ function withWebExtensionTarget(config) {
       targetName
     );
 
-    // Add Resources subgroup (path is relative to parent extGroup which has path "ZyncWebExtension")
+    // Add Resources subgroup (path is relative to parent extGroup which has path "CrossPointSyncWebExtension")
     const resourcesGroup = proj.addPbxGroup(
       [
         "manifest.json",

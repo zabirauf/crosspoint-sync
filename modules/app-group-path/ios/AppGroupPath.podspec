@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
   s.summary        = 'Expo module to get App Group container path'
   s.description    = 'Exposes the iOS App Group container path to JavaScript'
   s.author         = ''
-  s.homepage       = 'https://github.com/zabirauf/zync'
+  s.homepage       = 'https://github.com/zabirauf/crosspoint-sync'
   s.platforms      = { :ios => '15.1' }
   s.source         = { git: '' }
   s.static_framework = true

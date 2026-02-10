@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "Zync Web Clipper",
+  "name": "CrossPoint Web Clipper",
   "version": "1.0",
   "description": "Clip web articles to read on your e-ink device",
   "icons": {

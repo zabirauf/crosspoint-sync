@@ -6,9 +6,9 @@ const {
 const fs = require("fs");
 const path = require("path");
 
-const APP_GROUP = "group.com.zync.app";
-const EXTENSION_NAME = "ZyncShareExtension";
-const EXTENSION_BUNDLE_ID = "com.zync.app.ShareExtension";
+const APP_GROUP = "group.com.crosspointsync.app";
+const EXTENSION_NAME = "CrossPointSyncShareExtension";
+const EXTENSION_BUNDLE_ID = "com.crosspointsync.app.ShareExtension";
 
 // ──────────────────────────────────────────────────────
 // ShareViewController.swift source
@@ -117,7 +117,7 @@ class ShareViewController: UIViewController {
     }
 
     private func finishAndDismiss() {
-        label.text = "Queued for Zync!"
+        label.text = "Queued for CrossPoint!"
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             self?.dismiss()
         }
@@ -137,9 +137,9 @@ const INFO_PLIST = `<?xml version="1.0" encoding="UTF-8"?>
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>Zync Share</string>
+    <string>CrossPoint Share</string>
     <key>CFBundleDisplayName</key>
-    <string>Zync</string>
+    <string>CrossPoint Sync</string>
     <key>CFBundleIdentifier</key>
     <string>${EXTENSION_BUNDLE_ID}</string>
     <key>CFBundleVersion</key>

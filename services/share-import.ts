@@ -3,7 +3,7 @@ import { getAppGroupPath } from '@/modules/app-group-path';
 import { useUploadStore } from '@/stores/upload-store';
 import { log } from '@/services/logger';
 
-const APP_GROUP_ID = 'group.com.zync.app';
+const APP_GROUP_ID = 'group.com.crosspointsync.app';
 
 interface ShareManifest {
   fileName: string;

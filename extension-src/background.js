@@ -1,4 +1,4 @@
-// Background script for Zync Safari Web Extension
+// Background script for CrossPoint Safari Web Extension
 // Handles image downloads and native messaging
 
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -33,7 +33,7 @@ async function handleClip(data) {
       });
     } catch (err) {
       // Skip failed images — article text is still readable
-      console.log(`[Zync] Failed to download image: ${url}`, err);
+      console.log(`[CrossPoint] Failed to download image: ${url}`, err);
     }
   }
 

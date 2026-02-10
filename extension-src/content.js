@@ -1,4 +1,4 @@
-// Content script for Zync Safari Web Extension
+// Content script for CrossPoint Safari Web Extension
 // This runs in the web page context and extracts article content
 import Defuddle from 'defuddle';
 import DOMPurify from 'dompurify';
