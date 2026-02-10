@@ -38,16 +38,8 @@ async function init() {
 
     // Show preview
     document.getElementById('article-title').textContent = extractedData.title;
-    document.getElementById('article-author').textContent = extractedData.author
-      ? `by ${extractedData.author}`
-      : '';
-
     const domain = new URL(extractedData.sourceUrl).hostname;
-    document.getElementById('article-source').textContent = domain;
-
-    const imgCount = extractedData.images.length;
-    document.getElementById('article-images').textContent =
-      imgCount > 0 ? `${imgCount} image${imgCount !== 1 ? 's' : ''}` : 'No images';
+    document.getElementById('source-text').textContent = domain;
 
     showState('preview');
   } catch (err) {
@@ -75,7 +67,7 @@ document.getElementById('send-btn').addEventListener('click', async () => {
     showState('success');
 
     // Auto-close popup after success
-    setTimeout(() => window.close(), 2000);
+    setTimeout(() => window.close(), 1800);
   } catch (err) {
     document.getElementById('error-message').textContent = err.message;
     showState('error');

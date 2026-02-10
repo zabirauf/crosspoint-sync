@@ -8,34 +8,54 @@
 </head>
 <body>
   <div id="app">
+    <div class="header-label">CrossPoint Clipper</div>
+
     <div id="loading" class="state">
       <div class="spinner"></div>
-      <p>Extracting article...</p>
+      <p class="state-text">Extracting article...</p>
     </div>
 
     <div id="preview" class="state hidden">
-      <h1 id="article-title"></h1>
-      <p id="article-author" class="meta"></p>
-      <p id="article-source" class="meta source"></p>
-      <p id="article-images" class="meta"></p>
-      <button id="send-btn">Send to CrossPoint</button>
+      <div class="article-card">
+        <h1 id="article-title"></h1>
+        <span id="article-source" class="meta-row">
+          <svg class="meta-icon" width="12" height="12" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
+            <ellipse cx="8" cy="8" rx="3" ry="7" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          <span id="source-text"></span>
+        </span>
+      </div>
+      <button id="send-btn">Save Article</button>
+      <p class="hint-text">Will sync when you next open the app.</p>
     </div>
 
     <div id="sending" class="state hidden">
       <div class="spinner"></div>
-      <p>Sending to CrossPoint...</p>
+      <p class="state-text">Saving article...</p>
     </div>
 
     <div id="success" class="state hidden">
-      <div class="checkmark">&#10003;</div>
-      <p>Sent to CrossPoint!</p>
-      <p class="meta">Open the app to sync to your device.</p>
+      <div class="success-checkmark">
+        <svg width="52" height="52" viewBox="0 0 52 52">
+          <circle class="checkmark-circle" cx="26" cy="26" r="24" fill="none" stroke="#34C759" stroke-width="3"/>
+          <path class="checkmark-tick" fill="none" stroke="#34C759" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M15 27L22 34L37 19"/>
+        </svg>
+      </div>
+      <p class="state-text success-text">Saved!</p>
+      <p class="state-subtext">Open the app to sync to your device.</p>
     </div>
 
     <div id="error" class="state hidden">
-      <div class="error-icon">!</div>
-      <p id="error-message">Something went wrong.</p>
-      <button id="retry-btn">Try Again</button>
+      <div class="error-icon">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <line x1="6" y1="6" x2="14" y2="14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <line x1="14" y1="6" x2="6" y2="14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p id="error-message" class="state-text">Something went wrong.</p>
+      <button id="retry-btn" class="btn-secondary">Try Again</button>
     </div>
   </div>
 

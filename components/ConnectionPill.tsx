@@ -16,7 +16,7 @@ export function ConnectionPill({ onPress }: ConnectionPillProps) {
   const isActive = connectionStatus === 'connecting' || connectionStatus === 'scanning';
 
   const dotColor = isConnected ? '#4caf50' : isActive ? '#ff9800' : '#999';
-  const label = isConnected && connectedDevice ? connectedDevice.hostname : 'Connect';
+  const label = isConnected ? 'Connected' : 'Connect';
 
   return (
     <Pressable onPress={onPress} style={{ marginRight: 8 }}>
