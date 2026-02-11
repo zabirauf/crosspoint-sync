@@ -1,7 +1,7 @@
 import { useDeviceStore } from '@/stores/device-store';
 import { useUploadStore } from '@/stores/upload-store';
 import { uploadFileViaWebSocket } from './websocket-upload';
-import { getFiles } from './device-api';
+import { getFiles, ensureRemotePath } from './device-api';
 import { log } from './logger';
 import { deviceScheduler } from './device-request-scheduler';
 
@@ -60,6 +60,15 @@ async function processNextJob() {
           updateJobStatus(nextJob.id, 'conflict');
           continue; // Check next job
         }
+      }
+
+      // Ensure destination folder exists on device
+      try {
+        await ensureRemotePath(connectedDevice.ip, nextJob.destinationPath);
+      } catch (err) {
+        log('queue', `Failed to ensure path ${nextJob.destinationPath}: ${err instanceof Error ? err.message : String(err)}`);
+        updateJobStatus(nextJob.id, 'failed', `Folder creation failed: ${err instanceof Error ? err.message : String(err)}`);
+        continue;
       }
 
       // Start upload

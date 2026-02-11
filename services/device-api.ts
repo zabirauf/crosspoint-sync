@@ -102,6 +102,28 @@ export async function deleteItem(
   });
 }
 
+export async function ensureRemotePath(ip: string, remotePath: string): Promise<void> {
+  if (!remotePath || remotePath === '/') return;
+
+  const segments = remotePath.replace(/\/+$/, '').split('/').filter(Boolean);
+  let currentPath = '/';
+
+  for (const segment of segments) {
+    try {
+      const files = await getFiles(ip, currentPath);
+      const exists = files.some((f) => f.isDirectory && f.name === segment);
+      if (!exists) {
+        await createFolder(ip, segment, currentPath);
+        log('api', `Created folder: ${segment} at ${currentPath}`);
+      }
+    } catch {
+      // Listing failed (parent may not exist yet on some firmwares) — try creating
+      await createFolder(ip, segment, currentPath);
+    }
+    currentPath = currentPath === '/' ? `/${segment}` : `${currentPath}/${segment}`;
+  }
+}
+
 export async function downloadFile(
   ip: string,
   remotePath: string,
