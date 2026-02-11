@@ -62,6 +62,9 @@ export function UploadJobCard({ job, onCancel, onRetry, onRemove, onOverwrite }:
             {statusLabel(job.status)}
           </Text>
         </XStack>
+        <Text color="$gray10" fontSize="$2" numberOfLines={1}>
+          {job.destinationPath}
+        </Text>
 
         {job.status === 'uploading' && (
           <YStack gap="$1">

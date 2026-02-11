@@ -4,6 +4,21 @@ import { HTTP_PORT, REQUEST_TIMEOUT_MS } from '@/constants/Protocol';
 import { log } from './logger';
 import { deviceScheduler, type RequestPriority } from './device-request-scheduler';
 
+const validatedPaths = new Set<string>();
+
+export function clearValidatedPaths(): void {
+  validatedPaths.clear();
+}
+
+function invalidatePath(path: string): void {
+  const normalized = path.endsWith('/') ? path.slice(0, -1) : path;
+  for (const cached of validatedPaths) {
+    if (cached === normalized || cached.startsWith(normalized + '/')) {
+      validatedPaths.delete(cached);
+    }
+  }
+}
+
 function baseUrl(ip: string): string {
   return `http://${ip}:${HTTP_PORT}`;
 }
@@ -98,6 +113,7 @@ export async function deleteItem(
         body: formData,
       });
       if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
+      if (type === 'dir') invalidatePath(path);
     },
   });
 }
@@ -105,10 +121,23 @@ export async function deleteItem(
 export async function ensureRemotePath(ip: string, remotePath: string): Promise<void> {
   if (!remotePath || remotePath === '/') return;
 
-  const segments = remotePath.replace(/\/+$/, '').split('/').filter(Boolean);
+  const normalized = remotePath.replace(/\/+$/, '');
+  if (validatedPaths.has(normalized)) {
+    log('api', `Path already validated: ${normalized}`);
+    return;
+  }
+
+  const segments = normalized.split('/').filter(Boolean);
   let currentPath = '/';
 
   for (const segment of segments) {
+    const segmentPath = currentPath === '/' ? `/${segment}` : `${currentPath}/${segment}`;
+
+    if (validatedPaths.has(segmentPath)) {
+      currentPath = segmentPath;
+      continue;
+    }
+
     try {
       const files = await getFiles(ip, currentPath);
       const exists = files.some((f) => f.isDirectory && f.name === segment);
@@ -120,7 +149,9 @@ export async function ensureRemotePath(ip: string, remotePath: string): Promise<
       // Listing failed (parent may not exist yet on some firmwares) — try creating
       await createFolder(ip, segment, currentPath);
     }
-    currentPath = currentPath === '/' ? `/${segment}` : `${currentPath}/${segment}`;
+
+    validatedPaths.add(segmentPath);
+    currentPath = segmentPath;
   }
 }
 

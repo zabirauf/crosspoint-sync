@@ -1,6 +1,6 @@
 import { YStack, XStack, Text, H4, Separator, Button, useTheme } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
-import { useColorScheme, Alert, ScrollView } from 'react-native';
+import { useColorScheme, Alert, ScrollView, Linking } from 'react-native';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { useDeviceStore } from '@/stores/device-store';
@@ -46,7 +46,7 @@ function SettingsRow({
 export default function SettingsScreen() {
   const { connectedDevice, deviceStatus, connectionStatus } = useDeviceStore();
   const disconnect = useDeviceStore((s) => s.disconnect);
-  const { preferredFormat, setPreferredFormat, defaultUploadPath, setDefaultUploadPath, debugLogsEnabled, setDebugLogsEnabled } = useSettingsStore();
+  const { preferredFormat, setPreferredFormat, defaultUploadPath, setDefaultUploadPath, clipUploadPath, setClipUploadPath, debugLogsEnabled, setDebugLogsEnabled } = useSettingsStore();
   const clearCompleted = useUploadStore((s) => s.clearCompleted);
   const lastDeviceIp = useDeviceStore((s) => s.lastDeviceIp);
   const router = useRouter();
@@ -79,6 +79,33 @@ export default function SettingsScreen() {
       'plain-text',
       defaultUploadPath,
     );
+  };
+
+  const handleChangeClipPath = () => {
+    Alert.prompt(
+      'Clip Upload Path',
+      'Enter the destination folder for clipped articles (e.g. /Articles)',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Save',
+          onPress: (value?: string) => {
+            if (value != null) {
+              const path = value.trim() || '/Articles';
+              setClipUploadPath(path.startsWith('/') ? path : `/${path}`);
+            }
+          },
+        },
+      ],
+      'plain-text',
+      clipUploadPath,
+    );
+  };
+
+  const handleOpenExtensionSettings = () => {
+    Linking.openURL('App-Prefs:SAFARI&path=WEB_EXTENSIONS').catch(() => {
+      Linking.openSettings();
+    });
   };
 
   const handleForgetDevice = () => {
@@ -120,6 +147,16 @@ export default function SettingsScreen() {
         />
         <Separator />
         <SettingsRow icon="upload" label="Upload path" value={defaultUploadPath} onPress={handleChangeUploadPath} />
+      </YStack>
+
+      <Separator />
+
+      <YStack gap="$2" paddingHorizontal="$2">
+        <H4>Web Clipper</H4>
+        <Separator marginVertical="$1" />
+        <SettingsRow icon="folder-o" label="Clip upload path" value={clipUploadPath} onPress={handleChangeClipPath} />
+        <Separator />
+        <SettingsRow icon="safari" label="Enable in Safari" value="Safari → Extensions" onPress={handleOpenExtensionSettings} />
       </YStack>
 
       <Separator />

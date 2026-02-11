@@ -81,7 +81,7 @@ export async function importClippedArticles(): Promise<number> {
 
       const safeTitle = manifest.title.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '-').slice(0, 80) || 'article';
       const fileName = `${safeTitle}.epub`;
-      const destinationPath = useSettingsStore.getState().defaultUploadPath;
+      const destinationPath = useSettingsStore.getState().clipUploadPath;
 
       useUploadStore.getState().addJob({
         fileName,

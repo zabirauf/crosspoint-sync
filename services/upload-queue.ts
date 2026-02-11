@@ -1,7 +1,7 @@
 import { useDeviceStore } from '@/stores/device-store';
 import { useUploadStore } from '@/stores/upload-store';
 import { uploadFileViaWebSocket } from './websocket-upload';
-import { getFiles, ensureRemotePath } from './device-api';
+import { getFiles, ensureRemotePath, clearValidatedPaths } from './device-api';
 import { log } from './logger';
 import { deviceScheduler } from './device-request-scheduler';
 
@@ -132,6 +132,7 @@ export function startQueueProcessor(): () => void {
       // Reset conflicts on reconnect so they re-check against the new device
       useUploadStore.getState().resetConflicts();
       dirListingCache.clear();
+      clearValidatedPaths();
     }
 
     processNextJob();
