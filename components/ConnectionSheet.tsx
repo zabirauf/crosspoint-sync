@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Sheet, YStack, XStack, Text, H4, Button, Separator, Input } from 'tamagui';
+import { Sheet, YStack, XStack, Text, H4, Button, Separator, Input, Label } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { useDeviceStore } from '@/stores/device-store';
+import { useSettingsStore } from '@/stores/settings-store';
 import { useDeviceDiscovery } from '@/hooks/use-device-discovery';
 import { DeviceCard } from '@/components/DeviceCard';
 import { ScanningIndicator } from '@/components/ScanningIndicator';
@@ -14,6 +15,7 @@ interface ConnectionSheetProps {
 export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
   const { connectionStatus, connectedDevice, deviceStatus, lastDeviceIp, error: deviceError } =
     useDeviceStore();
+  const deviceScanEnabled = useSettingsStore((s) => s.deviceScanEnabled);
   const [manualIp, setManualIp] = useState(lastDeviceIp ?? '');
   const disconnect = useDeviceStore((s) => s.disconnect);
 
@@ -110,7 +112,7 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
             )}
 
             {/* Scanning state */}
-            {isScanning && (
+            {deviceScanEnabled && isScanning && (
               <>
                 <ScanningIndicator />
                 {devices.map((device) => (
@@ -132,33 +134,56 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
             {/* Disconnected state */}
             {!isConnected && !isScanning && connectionStatus !== 'connecting' && (
               <>
-                <Button size="$4" theme="blue" onPress={startScan}>
-                  Scan for Devices
-                </Button>
+                <YStack
+                  backgroundColor="$blue2"
+                  borderRadius="$4"
+                  padding="$3"
+                  gap="$2"
+                >
+                  <Text fontWeight="600" fontSize="$4">How to connect</Text>
+                  <Text color="$gray11" fontSize="$3">
+                    Make sure your XTEink device is in File Transfer mode and on the same WiFi network, or connect your phone to the device's hotspot:
+                  </Text>
+                  <Text color="$gray11" fontSize="$3" fontWeight="500">
+                    SSID: CrossPoint-Reader (no password)
+                  </Text>
+                </YStack>
 
-                <Separator />
+                <YStack gap="$2">
+                  <Label htmlFor="device-address" fontSize="$3" color="$gray10">
+                    Device address
+                  </Label>
+                  <XStack gap="$2">
+                    <Input
+                      id="device-address"
+                      flex={1}
+                      size="$4"
+                      placeholder="crosspoint.local"
+                      value={manualIp}
+                      onChangeText={setManualIp}
+                      keyboardType="url"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                    />
+                    <Button
+                      size="$4"
+                      theme="blue"
+                      disabled={!manualIp.trim()}
+                      onPress={() => connectManualIP(manualIp.trim())}
+                    >
+                      Connect
+                    </Button>
+                  </XStack>
+                </YStack>
 
-                <Text color="$gray10" fontSize="$3">
-                  Or enter device IP manually:
-                </Text>
-                <XStack gap="$2">
-                  <Input
-                    flex={1}
-                    size="$4"
-                    placeholder="192.168.1.x"
-                    value={manualIp}
-                    onChangeText={setManualIp}
-                    keyboardType="numeric"
-                  />
-                  <Button
-                    size="$4"
-                    theme="blue"
-                    disabled={!manualIp.trim()}
-                    onPress={() => connectManualIP(manualIp.trim())}
-                  >
-                    Connect
-                  </Button>
-                </XStack>
+                {deviceScanEnabled && (
+                  <>
+                    <Separator />
+                    <Button size="$4" theme="blue" onPress={startScan}>
+                      Scan for Devices
+                    </Button>
+                  </>
+                )}
               </>
             )}
 

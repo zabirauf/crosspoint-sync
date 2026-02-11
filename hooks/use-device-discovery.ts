@@ -84,7 +84,7 @@ export function useDeviceDiscovery() {
           connectDevice(device);
         } else {
           log('connection', `Manual connect failed: no device at ${ip}`);
-          setError('No device found at this IP address');
+          setError('No device found at this address');
           setConnectionStatus('error');
         }
       } catch (err) {

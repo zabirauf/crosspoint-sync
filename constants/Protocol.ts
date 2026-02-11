@@ -6,6 +6,7 @@ export const DISCOVERY_TIMEOUT_MS = 5000;
 export const DISCOVERY_REGEX = /crosspoint \(on (.+?)\);(\d+)/;
 export const DEFAULT_UPLOAD_PATH = '/';
 export const DEFAULT_CLIP_UPLOAD_PATH = '/Articles';
+export const DEFAULT_DEVICE_ADDRESS = 'crosspoint.local';
 export const CHUNKS_PER_WINDOW = 16; // 16 × 4KB = 64KB = one PROGRESS interval
 export const PROGRESS_ACK_TIMEOUT_MS = 5000;
 export const STATUS_POLL_INTERVAL_MS = 10000;

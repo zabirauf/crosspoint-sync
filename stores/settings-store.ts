@@ -8,10 +8,12 @@ interface SettingsState {
   clipUploadPath: string;
   preferredFormat: 'EPUB' | 'PDF';
   debugLogsEnabled: boolean;
+  deviceScanEnabled: boolean;
   setDefaultUploadPath: (path: string) => void;
   setClipUploadPath: (path: string) => void;
   setPreferredFormat: (format: 'EPUB' | 'PDF') => void;
   setDebugLogsEnabled: (enabled: boolean) => void;
+  setDeviceScanEnabled: (enabled: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -21,11 +23,13 @@ export const useSettingsStore = create<SettingsState>()(
       clipUploadPath: DEFAULT_CLIP_UPLOAD_PATH,
       preferredFormat: 'EPUB',
       debugLogsEnabled: false,
+      deviceScanEnabled: false,
 
       setDefaultUploadPath: (path) => set({ defaultUploadPath: path }),
       setClipUploadPath: (path) => set({ clipUploadPath: path }),
       setPreferredFormat: (format) => set({ preferredFormat: format }),
       setDebugLogsEnabled: (enabled) => set({ debugLogsEnabled: enabled }),
+      setDeviceScanEnabled: (enabled) => set({ deviceScanEnabled: enabled }),
     }),
     {
       name: 'crosspointsync-settings',

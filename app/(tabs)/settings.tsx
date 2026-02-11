@@ -1,7 +1,6 @@
 import { YStack, XStack, Text, H4, Separator, Button, useTheme } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { useColorScheme, Alert, ScrollView, Linking } from 'react-native';
-import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { useDeviceStore } from '@/stores/device-store';
 import { useSettingsStore } from '@/stores/settings-store';
@@ -132,8 +131,6 @@ export default function SettingsScreen() {
     Alert.alert('Cleared', 'Upload history has been cleared.');
   };
 
-  const appVersion = Constants.expoConfig?.version ?? '1.0.0';
-
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.background.val }} contentContainerStyle={{ padding: 16, gap: 24 }}>
       <YStack gap="$2" paddingHorizontal="$2">
@@ -239,15 +236,6 @@ export default function SettingsScreen() {
         />
       </YStack>
 
-      <Separator />
-
-      <YStack gap="$2" paddingHorizontal="$2">
-        <H4>About</H4>
-        <Separator marginVertical="$1" />
-        <SettingsRow icon="info-circle" label="Version" value={appVersion} />
-        <Separator />
-        <SettingsRow icon="code" label="Build" value="Expo SDK 54" />
-      </YStack>
     </ScrollView>
   );
 }
