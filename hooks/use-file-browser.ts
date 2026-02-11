@@ -58,6 +58,15 @@ export function useFileBrowser() {
     loadFiles(parent);
   }, [currentPath, loadFiles]);
 
+  const navigateToPath = useCallback(
+    (absolutePath: string) => {
+      log('api', `Navigate to path: ${absolutePath}`);
+      setCurrentPath(absolutePath);
+      loadFiles(absolutePath);
+    },
+    [loadFiles],
+  );
+
   const createNewFolder = useCallback(
     async (name: string) => {
       if (!connectedDevice) return;
@@ -180,6 +189,7 @@ export function useFileBrowser() {
     loadFiles,
     navigateToFolder,
     navigateUp,
+    navigateToPath,
     createNewFolder,
     deleteFileOrFolder,
     downloadingFile,

@@ -1,5 +1,5 @@
-import { useCallback, useRef, useState, useLayoutEffect } from 'react';
-import { YStack, XStack, Text } from 'tamagui';
+import { useCallback, useRef, useState, useLayoutEffect, useEffect } from 'react';
+import { YStack, XStack, Text, ScrollView } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { useColorScheme, Alert, RefreshControl, FlatList } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -36,7 +36,7 @@ export default function LibraryScreen() {
     error,
     loadFiles,
     navigateToFolder,
-    navigateUp,
+    navigateToPath,
     createNewFolder,
     deleteFileOrFolder,
     downloadingFile,
@@ -115,26 +115,74 @@ export default function LibraryScreen() {
   };
 
   const pathParts = currentPath.split('/').filter(Boolean);
+  const breadcrumbRef = useRef<any>(null);
+
+  // Auto-scroll breadcrumbs to the end when path changes
+  useEffect(() => {
+    setTimeout(() => {
+      breadcrumbRef.current?.scrollToEnd?.({ animated: true });
+    }, 50);
+  }, [currentPath]);
 
   return (
     <YStack flex={1} backgroundColor="$background">
       {isConnected ? (
         <>
           {/* Breadcrumb navigation */}
-          <YStack paddingHorizontal="$3" paddingVertical="$2" borderBottomWidth={0.5} borderBottomColor={isDark ? '$gray5' : '$gray4'}>
-            <XStack gap="$2" alignItems="center" flexWrap="wrap">
-              {currentPath !== '/' && (
-                <FontAwesome
-                  name="arrow-left"
-                  size={14}
-                  color={isDark ? '#ccc' : '#666'}
-                  onPress={navigateUp}
-                />
-              )}
-              <Text color="$gray10" fontSize="$3" numberOfLines={1} flex={1}>
-                /{pathParts.join('/')}
-              </Text>
-            </XStack>
+          <YStack borderBottomWidth={0.5} borderBottomColor={isDark ? '$gray5' : '$gray4'}>
+            <ScrollView
+              ref={breadcrumbRef}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 10, alignItems: 'center' }}
+            >
+              <XStack alignItems="center" gap="$1.5">
+                {/* Root segment */}
+                {pathParts.length > 0 ? (
+                  <Text
+                    color="$blue10"
+                    fontSize="$3"
+                    fontWeight="500"
+                    onPress={() => navigateToPath('/')}
+                  >
+                    <FontAwesome name="tablet" size={13} color={isDark ? '#6cb4ee' : '#2089dc'} />{' '}
+                    Device
+                  </Text>
+                ) : (
+                  <Text color="$colorFocus" fontSize="$3" fontWeight="600">
+                    <FontAwesome name="tablet" size={13} />{' '}
+                    Device
+                  </Text>
+                )}
+
+                {/* Path segments */}
+                {pathParts.map((part, index) => {
+                  const isLast = index === pathParts.length - 1;
+                  const segmentPath = '/' + pathParts.slice(0, index + 1).join('/');
+                  return (
+                    <XStack key={segmentPath} alignItems="center" gap="$1.5">
+                      <Text color={isDark ? '$gray8' : '$gray9'} fontSize="$3">
+                        ›
+                      </Text>
+                      {isLast ? (
+                        <Text color="$colorFocus" fontSize="$3" fontWeight="600">
+                          {part}
+                        </Text>
+                      ) : (
+                        <Text
+                          color="$blue10"
+                          fontSize="$3"
+                          fontWeight="500"
+                          onPress={() => navigateToPath(segmentPath)}
+                        >
+                          {part}
+                        </Text>
+                      )}
+                    </XStack>
+                  );
+                })}
+              </XStack>
+            </ScrollView>
           </YStack>
 
           {error && (
