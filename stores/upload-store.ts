@@ -12,7 +12,7 @@ interface UploadState {
   retryJob: (id: string) => void;
   resolveConflict: (id: string, action: 'overwrite' | 'remove') => void;
   resetConflicts: () => void;
-  clearCompleted: () => void;
+
   getPendingJobs: () => UploadJob[];
   getActiveJob: () => UploadJob | undefined;
 }
@@ -101,10 +101,6 @@ export const useUploadStore = create<UploadState>()(
           ),
         })),
 
-      clearCompleted: () =>
-        set((state) => ({
-          jobs: state.jobs.filter((j) => j.status !== 'completed'),
-        })),
 
       getPendingJobs: () => get().jobs.filter((j) => j.status === 'pending'),
       getActiveJob: () => get().jobs.find((j) => j.status === 'uploading'),

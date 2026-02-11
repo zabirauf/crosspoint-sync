@@ -15,7 +15,7 @@ interface UploadQueueSheetProps {
 
 export function UploadQueueSheet({ open, onOpenChange }: UploadQueueSheetProps) {
   const { jobs } = useUploadStore();
-  const { removeJob, retryJob, clearCompleted, resolveConflict } = useUploadStore();
+  const { removeJob, retryJob, resolveConflict } = useUploadStore();
   const { defaultUploadPath } = useSettingsStore();
   const { connectionStatus } = useDeviceStore();
   const { pickAndQueueFiles } = useDocumentPicker();
@@ -128,11 +128,7 @@ export function UploadQueueSheet({ open, onOpenChange }: UploadQueueSheetProps) 
               </Text>
             )}
 
-            {completedCount > 0 && (
-              <Button size="$3" chromeless onPress={clearCompleted}>
-                Clear Completed
-              </Button>
-            )}
+
           </YStack>
         </Sheet.ScrollView>
       </Sheet.Frame>

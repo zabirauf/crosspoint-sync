@@ -4,7 +4,7 @@ import { useColorScheme, Alert, ScrollView, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useDeviceStore } from '@/stores/device-store';
 import { useSettingsStore } from '@/stores/settings-store';
-import { useUploadStore } from '@/stores/upload-store';
+
 
 function SettingsRow({
   icon,
@@ -45,8 +45,8 @@ function SettingsRow({
 export default function SettingsScreen() {
   const { connectedDevice, deviceStatus, connectionStatus } = useDeviceStore();
   const disconnect = useDeviceStore((s) => s.disconnect);
-  const { preferredFormat, setPreferredFormat, defaultUploadPath, setDefaultUploadPath, clipUploadPath, setClipUploadPath, debugLogsEnabled, setDebugLogsEnabled } = useSettingsStore();
-  const clearCompleted = useUploadStore((s) => s.clearCompleted);
+  const { defaultUploadPath, setDefaultUploadPath, clipUploadPath, setClipUploadPath, debugLogsEnabled, setDebugLogsEnabled } = useSettingsStore();
+
   const lastDeviceIp = useDeviceStore((s) => s.lastDeviceIp);
   const router = useRouter();
   const colorScheme = useColorScheme();
@@ -54,10 +54,6 @@ export default function SettingsScreen() {
   const theme = useTheme();
 
   const isConnected = connectionStatus === 'connected';
-
-  const handleToggleFormat = () => {
-    setPreferredFormat(preferredFormat === 'EPUB' ? 'PDF' : 'EPUB');
-  };
 
   const handleChangeUploadPath = () => {
     Alert.prompt(
@@ -126,23 +122,11 @@ export default function SettingsScreen() {
     );
   };
 
-  const handleClearHistory = () => {
-    clearCompleted();
-    Alert.alert('Cleared', 'Upload history has been cleared.');
-  };
-
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.background.val }} contentContainerStyle={{ padding: 16, gap: 24 }}>
       <YStack gap="$2" paddingHorizontal="$2">
         <H4>Sync Settings</H4>
         <Separator marginVertical="$1" />
-        <SettingsRow
-          icon="folder"
-          label="Default format"
-          value={preferredFormat}
-          onPress={handleToggleFormat}
-        />
-        <Separator />
         <SettingsRow icon="upload" label="Upload path" value={defaultUploadPath} onPress={handleChangeUploadPath} />
       </YStack>
 
@@ -194,16 +178,6 @@ export default function SettingsScreen() {
             </Button>
           </>
         )}
-      </YStack>
-
-      <Separator />
-
-      <YStack gap="$2" paddingHorizontal="$2">
-        <H4>Data</H4>
-        <Separator marginVertical="$1" />
-        <Button size="$3" onPress={handleClearHistory}>
-          Clear Upload History
-        </Button>
       </YStack>
 
       <Separator />
