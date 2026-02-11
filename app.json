@@ -19,7 +19,8 @@
       "infoPlist": {
         "UISupportsDocumentBrowser": true,
         "LSSupportsOpeningDocumentsInPlace": true,
-        "NSLocalNetworkUsageDescription": "CrossPoint Sync needs local network access to discover and communicate with your e-ink reader device."
+        "NSLocalNetworkUsageDescription": "CrossPoint Sync needs local network access to discover and communicate with your e-ink reader device.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -44,6 +45,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "88d9da58-f827-4b76-8ff5-75eb58d751af"
+      }
     }
   }
 }

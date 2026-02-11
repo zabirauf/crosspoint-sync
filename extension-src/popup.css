@@ -22,6 +22,18 @@ body {
   }
 }
 
+/* === App Container === */
+#app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+#app > .state {
+  width: 100%;
+}
+
 /* === Header Label === */
 .header-label {
   font-size: 11px;
@@ -30,6 +42,7 @@ body {
   letter-spacing: 1px;
   color: #8E8E93;
   margin-bottom: 14px;
+  text-align: center;
 }
 
 /* === State Container === */
@@ -54,6 +67,7 @@ body {
   padding: 14px;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 8px;
 }
 
@@ -67,7 +81,8 @@ body {
   font-size: 17px;
   font-weight: 600;
   line-height: 1.35;
-  text-align: left;
+  text-align: center;
+  max-width: 100%;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -81,14 +96,18 @@ body {
   gap: 5px;
   font-size: 13px;
   color: #8E8E93;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  max-width: 100%;
 }
 
 .meta-icon {
   flex-shrink: 0;
   color: #8E8E93;
+}
+
+#source-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* === Hint Text === */
