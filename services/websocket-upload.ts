@@ -233,7 +233,7 @@ export function uploadFileViaWebSocket(
           // handle may already be closed
         }
       }
-      if (ws && ws.readyState === WebSocket.OPEN) {
+      if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
         ws.close();
       }
     }
@@ -244,7 +244,7 @@ export function uploadFileViaWebSocket(
   return () => {
     log('upload', `Upload cancelled: ${fileName}`);
     cancelled = true;
-    if (ws && ws.readyState === WebSocket.OPEN) {
+    if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
       ws.close();
     }
   };

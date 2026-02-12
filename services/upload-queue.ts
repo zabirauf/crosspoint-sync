@@ -4,9 +4,20 @@ import { uploadFileViaWebSocket } from './websocket-upload';
 import { getFiles, ensureRemotePath, clearValidatedPaths } from './device-api';
 import { log } from './logger';
 import { deviceScheduler } from './device-request-scheduler';
+import {
+  DEVICE_RECOVERY_DELAY_MS,
+  ENSURE_PATH_MAX_RETRIES,
+  ENSURE_PATH_RETRY_DELAY_MS,
+} from '@/constants/Protocol';
 
 let cancelCurrentUpload: (() => void) | null = null;
 let isProcessing = false;
+let earliestProcessTime = 0;
+
+function scheduleDelayedProcessing(delayMs: number): void {
+  earliestProcessTime = Date.now() + delayMs;
+  setTimeout(() => processNextJob(), delayMs);
+}
 
 // Cache directory listings within a processing chain to avoid redundant API calls
 const dirListingCache = new Map<string, string[]>();
@@ -28,6 +39,7 @@ async function getRemoteFileNames(ip: string, dirPath: string): Promise<string[]
 
 async function processNextJob() {
   if (isProcessing) return;
+  if (Date.now() < earliestProcessTime) return;
   isProcessing = true;
 
   try {
@@ -62,14 +74,25 @@ async function processNextJob() {
         }
       }
 
-      // Ensure destination folder exists on device
-      try {
-        await ensureRemotePath(connectedDevice.ip, nextJob.destinationPath);
-      } catch (err) {
-        log('queue', `Failed to ensure path ${nextJob.destinationPath}: ${err instanceof Error ? err.message : String(err)}`);
-        updateJobStatus(nextJob.id, 'failed', `Folder creation failed: ${err instanceof Error ? err.message : String(err)}`);
-        continue;
+      // Ensure destination folder exists on device (retry with backoff)
+      let pathEnsured = false;
+      for (let attempt = 0; attempt <= ENSURE_PATH_MAX_RETRIES; attempt++) {
+        try {
+          await ensureRemotePath(connectedDevice.ip, nextJob.destinationPath);
+          pathEnsured = true;
+          break;
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          if (attempt < ENSURE_PATH_MAX_RETRIES) {
+            log('queue', `ensureRemotePath attempt ${attempt + 1} failed (${msg}), retrying in ${ENSURE_PATH_RETRY_DELAY_MS}ms...`);
+            await new Promise((r) => setTimeout(r, ENSURE_PATH_RETRY_DELAY_MS));
+          } else {
+            log('queue', `Failed to ensure path ${nextJob.destinationPath} after ${ENSURE_PATH_MAX_RETRIES + 1} attempts: ${msg}`);
+            updateJobStatus(nextJob.id, 'failed', `Folder creation failed: ${msg}`);
+          }
+        }
       }
+      if (!pathEnsured) break; // Stop cascade — remaining jobs would fail for the same reason
 
       // Start upload
       log('queue', `Processing: ${nextJob.fileName} (job ${nextJob.id})`);
@@ -93,7 +116,7 @@ async function processNextJob() {
             log('queue', `Completed: ${nextJob.fileName}`);
             updateJobStatus(nextJob.id, 'completed');
             dirListingCache.clear();
-            processNextJob();
+            scheduleDelayedProcessing(DEVICE_RECOVERY_DELAY_MS);
           },
           onError: (error) => {
             cancelCurrentUpload = null;
@@ -101,7 +124,7 @@ async function processNextJob() {
             log('queue', `Failed: ${nextJob.fileName} — ${error.message}`);
             updateJobStatus(nextJob.id, 'failed', error.message);
             dirListingCache.clear();
-            processNextJob();
+            scheduleDelayedProcessing(DEVICE_RECOVERY_DELAY_MS);
           },
         },
       );
@@ -160,6 +183,7 @@ export function pauseCurrentUploadJob(): void {
   }
   deviceScheduler.setExternalBusy(false);
   retryJob(activeJob.id); // resets to 'pending', progress 0
+  scheduleDelayedProcessing(DEVICE_RECOVERY_DELAY_MS);
 }
 
 export function cancelCurrentUploadJob(): void {
@@ -175,4 +199,5 @@ export function cancelCurrentUploadJob(): void {
   if (activeJob) {
     updateJobStatus(activeJob.id, 'cancelled');
   }
+  scheduleDelayedProcessing(DEVICE_RECOVERY_DELAY_MS);
 }

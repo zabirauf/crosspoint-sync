@@ -12,11 +12,14 @@ export function useFileBrowser() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { connectedDevice, connectionStatus } = useDeviceStore();
+  const loadingPathRef = useRef<string | null>(null);
 
   const loadFiles = useCallback(
     async (path?: string) => {
       if (!connectedDevice || connectionStatus !== 'connected') return;
       const targetPath = path ?? currentPath;
+      if (loadingPathRef.current === targetPath) return; // already loading this path
+      loadingPathRef.current = targetPath;
       log('api', `Loading files: ${targetPath}`);
       setIsLoading(true);
       setError(null);
@@ -34,6 +37,7 @@ export function useFileBrowser() {
         setError("Couldn't load files. Pull down to retry.");
         setFiles([]);
       } finally {
+        loadingPathRef.current = null;
         setIsLoading(false);
       }
     },
