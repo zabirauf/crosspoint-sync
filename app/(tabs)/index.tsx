@@ -16,6 +16,7 @@ import { ConnectionSheet } from '@/components/ConnectionSheet';
 import { UploadStatusBar } from '@/components/UploadStatusBar';
 import { UploadQueueSheet } from '@/components/UploadQueueSheet';
 import { AddBookFAB } from '@/components/AddBookFAB';
+import { SwipeBackGesture } from '@/components/SwipeBackGesture';
 import { DeviceFile } from '@/types/device';
 
 export default function LibraryScreen() {
@@ -36,6 +37,7 @@ export default function LibraryScreen() {
     error,
     loadFiles,
     navigateToFolder,
+    navigateUp,
     navigateToPath,
     createNewFolder,
     deleteFileOrFolder,
@@ -75,7 +77,7 @@ export default function LibraryScreen() {
     Alert.alert(
       `Delete "${file.name}"?`,
       file.isDirectory
-        ? 'This will delete the folder and all its contents.'
+        ? 'This will delete the folder from the device.'
         : 'This file will be permanently removed from the device.',
       [
         { text: 'Cancel', style: 'cancel' },
@@ -127,7 +129,11 @@ export default function LibraryScreen() {
   return (
     <YStack flex={1} backgroundColor="$background">
       {isConnected ? (
-        <>
+        <SwipeBackGesture
+          onSwipeBack={navigateUp}
+          enabled={isConnected && currentPath !== '/'}
+          resetKey={currentPath}
+        >
           {/* Breadcrumb navigation */}
           <YStack borderBottomWidth={0.5} borderBottomColor={isDark ? '$gray5' : '$gray4'}>
             <ScrollView
@@ -230,7 +236,7 @@ export default function LibraryScreen() {
               ) : null
             }
           />
-        </>
+        </SwipeBackGesture>
       ) : (
         <EmptyState
           icon="plug"
