@@ -101,7 +101,7 @@ export async function createFolder(
 export async function deleteItem(
   ip: string,
   path: string,
-  type: 'file' | 'dir',
+  type: 'file' | 'folder',
 ): Promise<void> {
   return deviceScheduler.schedule({
     execute: async () => {
@@ -112,8 +112,12 @@ export async function deleteItem(
         method: 'POST',
         body: formData,
       });
-      if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
-      if (type === 'dir') invalidatePath(path);
+      if (!res.ok) {
+        const body = await res.text().catch(() => '');
+        log('api', `Delete failed (${res.status}): ${body}`);
+        throw new Error(body || 'Failed to delete item');
+      }
+      if (type === 'folder') invalidatePath(path);
     },
   });
 }

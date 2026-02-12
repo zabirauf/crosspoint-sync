@@ -86,6 +86,7 @@ extension-src/           # Safari Web Extension source files (bundled at prebuil
 
 ## XTEink X4 Protocol
 
+- **Firmware source**: When making changes to device API calls (anything in `services/device-api.ts`, `services/device-discovery.ts`, `services/websocket-upload.ts`, or related hooks), **always read the firmware source first** to validate expected request/response formats, parameter names, and error codes before planning changes. Ask user where the firmware source code is at. If they don't provide that info then ask user specific question.
 - **UDP discovery**: Send "hello" to `255.255.255.255:8134`, parse response matching `crosspoint (on <hostname>);<wsPort>`
 - **HTTP REST API** (port 80): `GET /api/status`, `GET /api/files?path=`, `POST /mkdir`, `POST /delete`, `GET /download?path=`
 - **WebSocket upload** (port 81): `START:filename:size:path` → `READY` → binary chunks (64KB) → `PROGRESS:received:total` → `DONE`

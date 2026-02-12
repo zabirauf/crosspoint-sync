@@ -30,7 +30,8 @@ export function useFileBrowser() {
         log('api', `Loaded ${result.length} items from ${targetPath}`);
         setFiles(result);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load files');
+        log('api', `Load files error: ${err instanceof Error ? err.message : String(err)}`);
+        setError("Couldn't load files. Pull down to retry.");
         setFiles([]);
       } finally {
         setIsLoading(false);
@@ -75,7 +76,8 @@ export function useFileBrowser() {
         await createFolder(connectedDevice.ip, name, currentPath);
         await loadFiles();
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to create folder');
+        log('api', `Create folder error: ${err instanceof Error ? err.message : String(err)}`);
+        setError("Couldn't create folder. Please try again.");
       }
     },
     [connectedDevice, currentPath, loadFiles],
@@ -93,11 +95,17 @@ export function useFileBrowser() {
         await deleteItem(
           connectedDevice.ip,
           fullPath,
-          file.isDirectory ? 'dir' : 'file',
+          file.isDirectory ? 'folder' : 'file',
         );
         await loadFiles();
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to delete');
+        const raw = err instanceof Error ? err.message : String(err);
+        log('api', `Delete error: ${raw}`);
+        if (raw.toLowerCase().includes('not empty')) {
+          setError("This folder isn't empty. Delete the files inside it first.");
+        } else {
+          setError(`Couldn't delete "${file.name}". Please try again.`);
+        }
       }
     },
     [connectedDevice, currentPath, loadFiles],
