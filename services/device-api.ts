@@ -68,12 +68,12 @@ export async function getFiles(ip: string, path: string): Promise<DeviceFile[]> 
         `${baseUrl(ip)}/api/files?path=${encodeURIComponent(path)}`,
       );
       if (!res.ok) throw new Error(`File listing failed: ${res.status}`);
-      const data: Array<{ name: string; size: number; dir: boolean }> = await res.json();
+      const data: Array<{ name: string; size: number; isDirectory: boolean }> = await res.json();
       return data.map((f) => ({
         name: f.name,
         size: f.size,
-        isDirectory: f.dir,
-        isEpub: !f.dir && f.name.toLowerCase().endsWith('.epub'),
+        isDirectory: f.isDirectory,
+        isEpub: !f.isDirectory && f.name.toLowerCase().endsWith('.epub'),
       }));
     },
   });
