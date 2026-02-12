@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Sheet, YStack, XStack, Text, H4, Button, Separator, Input, Label } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { useDeviceStore } from '@/stores/device-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import { useDeviceDiscovery } from '@/hooks/use-device-discovery';
+import { DEFAULT_DEVICE_ADDRESS } from '@/constants/Protocol';
 import { DeviceCard } from '@/components/DeviceCard';
 import { ScanningIndicator } from '@/components/ScanningIndicator';
 
@@ -16,7 +17,7 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
   const { connectionStatus, connectedDevice, deviceStatus, lastDeviceIp, error: deviceError } =
     useDeviceStore();
   const deviceScanEnabled = useSettingsStore((s) => s.deviceScanEnabled);
-  const [manualIp, setManualIp] = useState(lastDeviceIp ?? '');
+  const [manualIp, setManualIp] = useState(lastDeviceIp ?? DEFAULT_DEVICE_ADDRESS);
   const disconnect = useDeviceStore((s) => s.disconnect);
 
   const {
@@ -39,12 +40,16 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
   const isConnected = connectionStatus === 'connected';
   const error = deviceError || scanError;
 
-  // Auto-close after successful connection
+  // Auto-close only on fresh connection (transition from disconnected → connected)
+  const wasConnected = useRef(isConnected);
+
   useEffect(() => {
-    if (isConnected && open) {
+    if (isConnected && !wasConnected.current && open) {
       const timer = setTimeout(() => onOpenChange(false), 600);
+      wasConnected.current = true;
       return () => clearTimeout(timer);
     }
+    wasConnected.current = isConnected;
   }, [isConnected, open, onOpenChange]);
 
   return (

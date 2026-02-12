@@ -1,5 +1,4 @@
 import { XStack, YStack, Text, Card, Progress, Button } from 'tamagui';
-import { FontAwesome } from '@expo/vector-icons';
 import { UploadJob } from '@/types/upload';
 
 interface UploadJobCardProps {
@@ -117,8 +116,8 @@ export function UploadJobCard({ job, onCancel, onRetry, onRemove, onOverwrite }:
           )}
           {(job.status === 'pending' || job.status === 'completed' || job.status === 'failed' || job.status === 'cancelled') &&
             onRemove && (
-              <Button size="$2" chromeless onPress={onRemove}>
-                <FontAwesome name="times" size={14} />
+              <Button size="$2" theme="gray" onPress={onRemove}>
+                Remove
               </Button>
             )}
         </XStack>
