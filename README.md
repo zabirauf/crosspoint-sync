@@ -2,6 +2,8 @@
 
 Book syncing app for the [XTEink X4](https://xteink.com) e-ink reader. Discovers devices on your local WiFi, browses files on the device, and uploads EPUBs/PDFs via WebSocket.
 
+![CrossPoint Sync — Web Clipper, Library, and Upload Queue](docs/images/crosspoint-sync_overview.png)
+
 ## Features
 
 - **Device Discovery** — Automatically finds your XTEink X4 on the local network via UDP broadcast, or connect manually by IP address
@@ -126,6 +128,10 @@ npx expo run:ios --device
 ```
 
 The content script (`content.js`) is bundled via esbuild at prebuild time — `defuddle` and `dompurify` are combined into a single file for the extension.
+
+## Disclaimer
+
+This project is not affiliated with [CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader). It was built as a companion app inspired by that project.
 
 ## License
 
