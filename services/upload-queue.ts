@@ -1,5 +1,6 @@
 import { useDeviceStore } from '@/stores/device-store';
 import { useUploadStore } from '@/stores/upload-store';
+import { File as FSFile } from 'expo-file-system';
 import { uploadFileViaWebSocket } from './websocket-upload';
 import { getFiles, ensureRemotePath, clearValidatedPaths } from './device-api';
 import { log } from './logger';
@@ -115,6 +116,13 @@ async function processNextJob() {
             deviceScheduler.setExternalBusy(false);
             log('queue', `Completed: ${nextJob.fileName}`);
             updateJobStatus(nextJob.id, 'completed');
+            // Clean up sleep background BMP after successful upload
+            if (nextJob.jobType === 'sleep-background') {
+              try {
+                const uploadedFile = new FSFile(nextJob.fileUri);
+                if (uploadedFile.exists) uploadedFile.delete();
+              } catch {}
+            }
             dirListingCache.clear();
             scheduleDelayedProcessing(DEVICE_RECOVERY_DELAY_MS);
           },

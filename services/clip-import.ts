@@ -88,6 +88,7 @@ export async function importClippedArticles(): Promise<number> {
         fileUri: epubUri,
         fileSize: epubSize,
         destinationPath,
+        jobType: 'clip',
       });
 
       log('clip', `Imported clip: "${manifest.title}" → ${fileName} (${epubSize} bytes)`);

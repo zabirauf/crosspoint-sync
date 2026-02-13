@@ -68,6 +68,7 @@ export async function importSharedFiles(): Promise<number> {
         fileUri: destFile.uri,
         fileSize: manifest.fileSize,
         destinationPath: manifest.destinationPath,
+        jobType: 'book',
       });
 
       imported++;
