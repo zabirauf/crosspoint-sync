@@ -3,7 +3,8 @@ import { YStack, XStack, Text, ScrollView } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { useColorScheme, Alert, RefreshControl, FlatList } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { useNavigation } from 'expo-router';
+import { useNavigation, router } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 import { useDeviceStore } from '@/stores/device-store';
 import { useUploadStore } from '@/stores/upload-store';
 import { useSettingsStore } from '@/stores/settings-store';
@@ -15,7 +16,7 @@ import { ConnectionPill } from '@/components/ConnectionPill';
 import { ConnectionSheet } from '@/components/ConnectionSheet';
 import { UploadStatusBar } from '@/components/UploadStatusBar';
 import { UploadQueueSheet } from '@/components/UploadQueueSheet';
-import { AddBookFAB } from '@/components/AddBookFAB';
+import { ActionFAB } from '@/components/ActionFAB';
 import { SwipeBackGesture } from '@/components/SwipeBackGesture';
 import { DeviceFile } from '@/types/device';
 
@@ -115,6 +116,17 @@ export default function LibraryScreen() {
       'plain-text',
     );
   };
+
+  const handleSleepBackground = useCallback(async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 1,
+      allowsEditing: false,
+    });
+    if (result.canceled || !result.assets?.length) return;
+    const asset = result.assets[0];
+    router.push({ pathname: '/sleep-preview', params: { imageUri: asset.uri } });
+  }, []);
 
   const pathParts = currentPath.split('/').filter(Boolean);
   const breadcrumbRef = useRef<any>(null);
@@ -251,9 +263,10 @@ export default function LibraryScreen() {
       <UploadStatusBar onPress={() => setQueueSheetOpen(true)} />
 
       {/* Floating action button */}
-      <AddBookFAB
+      <ActionFAB
         onAddBook={() => pickAndQueueFiles(isConnected ? currentPath : defaultUploadPath)}
         onNewFolder={handleNewFolder}
+        onSleepBackground={handleSleepBackground}
         showNewFolder={isConnected}
         bottomOffset={hasActiveUploads ? 72 : 16}
       />
