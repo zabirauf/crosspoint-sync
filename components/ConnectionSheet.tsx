@@ -139,19 +139,25 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
             {/* Disconnected state */}
             {!isConnected && !isScanning && connectionStatus !== 'connecting' && (
               <>
-                <YStack
-                  backgroundColor="$blue2"
-                  borderRadius="$4"
-                  padding="$3"
-                  gap="$2"
-                >
+                <YStack backgroundColor="$blue2" borderRadius="$4" padding="$3" gap="$2">
                   <Text fontWeight="600" fontSize="$4">How to connect</Text>
                   <Text color="$gray11" fontSize="$3">
-                    Make sure your XTEink device is in File Transfer mode and on the same WiFi network, or connect your phone to the device's hotspot:
+                    On your device, open File Transfer and choose:
                   </Text>
-                  <Text color="$gray11" fontSize="$3" fontWeight="500">
-                    SSID: CrossPoint-Reader (no password)
-                  </Text>
+                  <YStack gap="$1.5" paddingLeft="$1">
+                    <YStack>
+                      <Text fontSize="$3" fontWeight="600">Join a Network</Text>
+                      <Text color="$gray11" fontSize="$2">
+                        Connect your device to the same WiFi as your phone.
+                      </Text>
+                    </YStack>
+                    <YStack>
+                      <Text fontSize="$3" fontWeight="600">Create Hotspot</Text>
+                      <Text color="$gray11" fontSize="$2">
+                        Connect your phone to the device's WiFi network.
+                      </Text>
+                    </YStack>
+                  </YStack>
                 </YStack>
 
                 <YStack gap="$2">

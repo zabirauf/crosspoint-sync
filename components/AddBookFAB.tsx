@@ -93,8 +93,7 @@ export function AddBookFAB({ onAddBook, onNewFolder, showNewFolder = true, botto
 
       {/* FAB */}
       <Pressable
-        onPress={() => { Haptics.selectionAsync(); onAddBook(); }}
-        onLongPress={openMenu}
+        onPress={openMenu}
         style={[styles.fab, { bottom: bottomOffset }]}
       >
         <FontAwesome name="plus" size={22} color="#fff" />
