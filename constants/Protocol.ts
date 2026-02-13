@@ -16,3 +16,6 @@ export const UPLOAD_TIMEOUT_MS = 30_000;
 export const DEVICE_RECOVERY_DELAY_MS = 2000;
 export const ENSURE_PATH_MAX_RETRIES = 2;
 export const ENSURE_PATH_RETRY_DELAY_MS = 3000;
+export const SLEEP_SCREEN_WIDTH = 480;
+export const SLEEP_SCREEN_HEIGHT = 800;
+export const SLEEP_UPLOAD_PATH = '/sleep';

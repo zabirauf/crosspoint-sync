@@ -10,14 +10,15 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 
-interface AddBookFABProps {
+interface ActionFABProps {
   onAddBook: () => void;
   onNewFolder: () => void;
+  onSleepBackground: () => void;
   showNewFolder?: boolean;
   bottomOffset?: number;
 }
 
-export function AddBookFAB({ onAddBook, onNewFolder, showNewFolder = true, bottomOffset = 16 }: AddBookFABProps) {
+export function ActionFAB({ onAddBook, onNewFolder, onSleepBackground, showNewFolder = true, bottomOffset = 16 }: ActionFABProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -88,6 +89,16 @@ export function AddBookFAB({ onAddBook, onNewFolder, showNewFolder = true, botto
               </Pressable>
             </>
           )}
+          <YStack height={0.5} backgroundColor={isDark ? '$gray6' : '$gray4'} />
+          <Pressable
+            onPress={() => handleOption(onSleepBackground)}
+            style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
+          >
+            <XStack gap="$2.5" alignItems="center" paddingHorizontal="$3" paddingVertical="$2.5">
+              <FontAwesome name="moon-o" size={16} color={isDark ? '#b39ddb' : '#7e57c2'} />
+              <Text fontSize="$3" fontWeight="500">Sleep Background</Text>
+            </XStack>
+          </Pressable>
         </Animated.View>
       )}
 

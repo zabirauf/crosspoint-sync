@@ -162,6 +162,14 @@ function RootLayoutNav() {
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
               <Stack.Screen name="debug-logs" options={{ title: 'Debug Logs' }} />
+              <Stack.Screen
+                name="sleep-preview"
+                options={{
+                  presentation: 'fullScreenModal',
+                  headerShown: false,
+                  animation: 'slide_from_bottom',
+                }}
+              />
             </Stack>
           </ThemeProvider>
         </PortalProvider>
