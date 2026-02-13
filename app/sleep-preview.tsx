@@ -239,63 +239,6 @@ export default function SleepPreviewScreen() {
               />
             </GestureDetector>
           </View>
-
-          {/* Overlay: darkened edges outside crop frame */}
-          <View style={StyleSheet.absoluteFill} pointerEvents="none">
-            {/* Top bar */}
-            <View style={[styles.overlay, { height: (screenH - 180 - frame.height) / 2 + 90 }]} />
-            {/* Bottom bar */}
-            <View
-              style={[
-                styles.overlay,
-                {
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  height: (screenH - 180 - frame.height) / 2 + 90,
-                },
-              ]}
-            />
-            {/* Left bar */}
-            <View
-              style={[
-                styles.overlay,
-                {
-                  position: 'absolute',
-                  top: (screenH - 180 - frame.height) / 2 + 90,
-                  left: 0,
-                  width: (screenW - frame.width) / 2,
-                  height: frame.height,
-                },
-              ]}
-            />
-            {/* Right bar */}
-            <View
-              style={[
-                styles.overlay,
-                {
-                  position: 'absolute',
-                  top: (screenH - 180 - frame.height) / 2 + 90,
-                  right: 0,
-                  width: (screenW - frame.width) / 2,
-                  height: frame.height,
-                },
-              ]}
-            />
-            {/* Frame border */}
-            <View
-              style={[
-                styles.frameBorder,
-                {
-                  top: (screenH - 180 - frame.height) / 2 + 90,
-                  left: (screenW - frame.width) / 2,
-                  width: frame.width,
-                  height: frame.height,
-                },
-              ]}
-            />
-          </View>
         </View>
       ) : (
         <YStack flex={1} alignItems="center" justifyContent="center">
@@ -338,15 +281,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  overlay: {
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    width: '100%',
-  },
-  frameBorder: {
-    position: 'absolute',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     borderRadius: 2,
   },
   processingOverlay: {

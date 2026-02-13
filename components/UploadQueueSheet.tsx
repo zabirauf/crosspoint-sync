@@ -64,7 +64,7 @@ export function UploadQueueSheet({ open, onOpenChange }: UploadQueueSheetProps) 
             {(activeJob || pendingJobs.length > 0) && (
               <XStack gap="$2" alignItems="center" paddingVertical="$1">
                 <FontAwesome name="info-circle" size={14} color="#f5a623" />
-                <Text color="$gray10" fontSize="$2">
+                <Text color="$gray10" fontSize="$2" flexShrink={1}>
                   Keep the app open while uploading. Backgrounding will pause and restart transfers.
                 </Text>
               </XStack>

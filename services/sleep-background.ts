@@ -6,6 +6,22 @@ import { useUploadStore } from '@/stores/upload-store';
 import { SLEEP_SCREEN_WIDTH, SLEEP_SCREEN_HEIGHT, SLEEP_UPLOAD_PATH } from '@/constants/Protocol';
 import { log } from './logger';
 
+const WORDS: string[] = [
+  'amber', 'aspen', 'birch', 'bloom', 'bluff', 'brook', 'cedar', 'cliff',
+  'cloud', 'coral', 'crane', 'creek', 'dawn', 'delta', 'dune', 'dusk',
+  'eagle', 'elm', 'ember', 'fawn', 'fern', 'finch', 'fjord', 'flame',
+  'flint', 'forge', 'frost', 'glade', 'grove', 'hawk', 'hazel', 'heath',
+  'heron', 'holly', 'iris', 'ivory', 'jade', 'lake', 'lark', 'leaf',
+  'lilac', 'lily', 'linen', 'lotus', 'lunar', 'lynx', 'maple', 'marsh',
+  'mesa', 'mist', 'moon', 'moss', 'north', 'oak', 'opal', 'orca',
+  'otter', 'pearl', 'petal', 'pine', 'plum', 'pond', 'poppy', 'quail',
+  'rain', 'raven', 'reef', 'ridge', 'river', 'robin', 'rose', 'ruby',
+  'sage', 'sand', 'shore', 'slate', 'snow', 'solar', 'spark', 'spruce',
+  'star', 'stone', 'storm', 'swift', 'terra', 'thorn', 'tide', 'tulip',
+  'vale', 'vine', 'violet', 'wave', 'wheat', 'wild', 'willow', 'wolf',
+  'wren', 'yarrow', 'yew', 'zen',
+];
+
 export interface CropRegion {
   originX: number;
   originY: number;
@@ -76,13 +92,22 @@ export async function processAndQueueSleepBackground(
   const bmpData = encodeRGBAToBmp(rgba, width, height, true);
   log('queue', `Encoded BMP: ${bmpData.length} bytes`);
 
-  // Write BMP to cache directory
-  const fileName = `sleep-${Date.now()}.bmp`;
-  const cacheDir = new Directory(Paths.cache);
-  const bmpFile = new FSFile(cacheDir, fileName);
+  // Write BMP to documents directory (cache can be purged by iOS mid-session)
+  const word = WORDS[Math.floor(Math.random() * WORDS.length)];
+  const date = new Date().toISOString().slice(0, 10);
+  const fileName = `sleep-${date}-${word}.bmp`;
+  const sleepDir = new Directory(Paths.document, 'sleep-backgrounds');
+  if (!sleepDir.exists) {
+    sleepDir.create();
+  }
+  const bmpFile = new FSFile(sleepDir, fileName);
 
   // Write raw bytes using the File API
-  bmpFile.bytes = bmpData;
+  bmpFile.write(bmpData);
+
+  if (!bmpFile.exists) {
+    throw new Error(`Failed to write BMP file: ${bmpFile.uri}`);
+  }
 
   log('queue', `Saved BMP to ${bmpFile.uri}`);
 
@@ -92,6 +117,7 @@ export async function processAndQueueSleepBackground(
     fileUri: bmpFile.uri,
     fileSize: bmpData.length,
     destinationPath: SLEEP_UPLOAD_PATH,
+    jobType: 'sleep-background',
   });
 
   log('queue', `Queued sleep background: ${fileName} → ${SLEEP_UPLOAD_PATH}`);

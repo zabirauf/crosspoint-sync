@@ -35,6 +35,7 @@ export function useDocumentPicker() {
           fileUri: asset.uri,
           fileSize,
           destinationPath: destPath,
+          jobType: 'book',
         });
       }
     },

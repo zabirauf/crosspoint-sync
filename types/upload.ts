@@ -6,6 +6,8 @@ export type UploadJobStatus =
   | 'cancelled'
   | 'conflict';
 
+export type UploadJobType = 'book' | 'sleep-background' | 'clip';
+
 export interface UploadJob {
   id: string;
   fileName: string;
@@ -19,4 +21,5 @@ export interface UploadJob {
   createdAt: number;
   completedAt?: number;
   forceUpload?: boolean;
+  jobType?: UploadJobType;
 }
