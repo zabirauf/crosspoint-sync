@@ -6,7 +6,11 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "version:bump": "npm version --no-git-tag-version",
+    "postversion": "node -e \"const fs=require('fs');const p=require('./package.json');const a=JSON.parse(fs.readFileSync('app.json','utf8'));a.expo.version=p.version;fs.writeFileSync('app.json',JSON.stringify(a,null,2)+'\\n')\"",
+    "release": "./scripts/release.sh",
+    "release:rc": "./scripts/release-rc.sh"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
