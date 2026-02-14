@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState, useLayoutEffect, useEffect } from 'react';
 import { YStack, XStack, Text, ScrollView } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
-import { useColorScheme, Alert, RefreshControl, FlatList } from 'react-native';
+import { useColorScheme, Alert, Platform, BackHandler, RefreshControl, FlatList } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useNavigation, router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -18,6 +18,7 @@ import { UploadStatusBar } from '@/components/UploadStatusBar';
 import { UploadQueueSheet } from '@/components/UploadQueueSheet';
 import { ActionFAB } from '@/components/ActionFAB';
 import { SwipeBackGesture } from '@/components/SwipeBackGesture';
+import { PromptDialog } from '@/components/PromptDialog';
 import { DeviceFile } from '@/types/device';
 
 export default function LibraryScreen() {
@@ -30,6 +31,7 @@ export default function LibraryScreen() {
 
   const [connectionSheetOpen, setConnectionSheetOpen] = useState(false);
   const [queueSheetOpen, setQueueSheetOpen] = useState(false);
+  const [folderPromptOpen, setFolderPromptOpen] = useState(false);
 
   const {
     currentPath,
@@ -99,23 +101,26 @@ export default function LibraryScreen() {
   };
 
   const handleNewFolder = () => {
-    Alert.prompt(
-      'New Folder',
-      'Enter a name for the new folder:',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Create',
-          onPress: (name?: string) => {
-            if (name?.trim()) {
-              createNewFolder(name.trim());
-            }
-          },
-        },
-      ],
-      'plain-text',
-    );
+    setFolderPromptOpen(true);
   };
+
+  // Android hardware back button navigates up in file browser
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS !== 'android') return;
+
+      const onBackPress = () => {
+        if (isConnected && currentPath !== '/') {
+          navigateUp();
+          return true;
+        }
+        return false;
+      };
+
+      const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => sub.remove();
+    }, [isConnected, currentPath, navigateUp])
+  );
 
   const handleSleepBackground = useCallback(async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -278,6 +283,20 @@ export default function LibraryScreen() {
       {queueSheetOpen && (
         <UploadQueueSheet open={queueSheetOpen} onOpenChange={setQueueSheetOpen} />
       )}
+
+      {/* New folder prompt */}
+      <PromptDialog
+        open={folderPromptOpen}
+        onOpenChange={setFolderPromptOpen}
+        title="New Folder"
+        message="Enter a name for the new folder:"
+        onSubmit={(name) => {
+          if (name.trim()) {
+            createNewFolder(name.trim());
+          }
+        }}
+        submitLabel="Create"
+      />
     </YStack>
   );
 }
