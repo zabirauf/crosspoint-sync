@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect } from 'react';
-import { StyleSheet, useWindowDimensions } from 'react-native';
+import { Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
@@ -28,6 +28,11 @@ export function SwipeBackGesture({
   resetKey,
   children,
 }: SwipeBackGestureProps) {
+  // Android has native back gesture — skip the custom swipe wrapper
+  if (Platform.OS !== 'ios') {
+    return <View style={styles.container}>{children}</View>;
+  }
+
   const translateX = useSharedValue(0);
   const startedInEdge = useSharedValue(false);
   const { width: screenWidth } = useWindowDimensions();

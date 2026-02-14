@@ -1,0 +1,12 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+android {
+  namespace "com.crosspointsync.multicastlock"
+  defaultConfig {
+    versionCode 1
+    versionName "1.0.0"
+  }
+}

@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { YStack, XStack, Text, H4, Separator, Button, useTheme } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
-import { useColorScheme, Alert, ScrollView, Linking } from 'react-native';
+import { useColorScheme, Alert, Platform, ScrollView, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useDeviceStore } from '@/stores/device-store';
 import { useSettingsStore } from '@/stores/settings-store';
+import { PromptDialog } from '@/components/PromptDialog';
 
 
 function SettingsRow({
@@ -55,46 +57,15 @@ export default function SettingsScreen() {
 
   const isConnected = connectionStatus === 'connected';
 
+  const [uploadPathPromptOpen, setUploadPathPromptOpen] = useState(false);
+  const [clipPathPromptOpen, setClipPathPromptOpen] = useState(false);
+
   const handleChangeUploadPath = () => {
-    Alert.prompt(
-      'Upload Path',
-      'Enter the destination folder on the device (e.g. / or /Books)',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Save',
-          onPress: (value?: string) => {
-            if (value != null) {
-              const path = value.trim() || '/';
-              setDefaultUploadPath(path.startsWith('/') ? path : `/${path}`);
-            }
-          },
-        },
-      ],
-      'plain-text',
-      defaultUploadPath,
-    );
+    setUploadPathPromptOpen(true);
   };
 
   const handleChangeClipPath = () => {
-    Alert.prompt(
-      'Clip Upload Path',
-      'Enter the destination folder for clipped articles (e.g. /Articles)',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Save',
-          onPress: (value?: string) => {
-            if (value != null) {
-              const path = value.trim() || '/Articles';
-              setClipUploadPath(path.startsWith('/') ? path : `/${path}`);
-            }
-          },
-        },
-      ],
-      'plain-text',
-      clipUploadPath,
-    );
+    setClipPathPromptOpen(true);
   };
 
   const handleOpenExtensionSettings = () => {
@@ -133,11 +104,15 @@ export default function SettingsScreen() {
       <Separator />
 
       <YStack gap="$2" paddingHorizontal="$2">
-        <H4>Web Clipper</H4>
+        <H4>{Platform.OS === 'ios' ? 'Web Clipper' : 'Article Clipper'}</H4>
         <Separator marginVertical="$1" />
         <SettingsRow icon="folder-o" label="Clip upload path" value={clipUploadPath} onPress={handleChangeClipPath} />
-        <Separator />
-        <SettingsRow icon="safari" label="Enable in Safari" value="Safari → Extensions" onPress={handleOpenExtensionSettings} />
+        {Platform.OS === 'ios' && (
+          <>
+            <Separator />
+            <SettingsRow icon="safari" label="Enable in Safari" value="Safari → Extensions" onPress={handleOpenExtensionSettings} />
+          </>
+        )}
       </YStack>
 
       <Separator />
@@ -210,6 +185,29 @@ export default function SettingsScreen() {
         />
       </YStack>
 
+      {/* Prompt dialogs (cross-platform replacement for Alert.prompt) */}
+      <PromptDialog
+        open={uploadPathPromptOpen}
+        onOpenChange={setUploadPathPromptOpen}
+        title="Upload Path"
+        message="Enter the destination folder on the device (e.g. / or /Books)"
+        defaultValue={defaultUploadPath}
+        onSubmit={(value) => {
+          const path = value.trim() || '/';
+          setDefaultUploadPath(path.startsWith('/') ? path : `/${path}`);
+        }}
+      />
+      <PromptDialog
+        open={clipPathPromptOpen}
+        onOpenChange={setClipPathPromptOpen}
+        title="Clip Upload Path"
+        message="Enter the destination folder for clipped articles (e.g. /Articles)"
+        defaultValue={clipUploadPath}
+        onSubmit={(value) => {
+          const path = value.trim() || '/Articles';
+          setClipUploadPath(path.startsWith('/') ? path : `/${path}`);
+        }}
+      />
     </ScrollView>
   );
 }

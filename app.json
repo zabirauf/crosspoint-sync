@@ -30,7 +30,12 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.crosspointsync.app"
+      "package": "com.crosspointsync.app",
+      "permissions": [
+        "android.permission.CHANGE_WIFI_MULTICAST_STATE",
+        "android.permission.ACCESS_WIFI_STATE",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -41,7 +46,8 @@
       "expo-router",
       "expo-document-picker",
       "./plugins/withShareExtension",
-      "./plugins/withWebExtension"
+      "./plugins/withWebExtension",
+      "./plugins/withAndroidShareIntent"
     ],
     "experiments": {
       "typedRoutes": true

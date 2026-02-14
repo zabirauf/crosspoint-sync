@@ -1,7 +1,9 @@
+import { Platform } from 'react-native';
 import dgram from 'react-native-udp';
 import { DeviceInfo } from '@/types/device';
 import { getDeviceStatus } from './device-api';
 import { log } from './logger';
+import { acquireMulticastLock, releaseMulticastLock } from '@/modules/multicast-lock';
 import {
   UDP_DISCOVERY_PORT,
   WS_PORT,
@@ -21,6 +23,11 @@ export function discoverDevices(
       ),
     );
     return () => {};
+  }
+
+  // Android requires a MulticastLock for UDP broadcast to work
+  if (Platform.OS === 'android') {
+    acquireMulticastLock();
   }
 
   const seen = new Set<string>();
@@ -78,6 +85,9 @@ export function discoverDevices(
       socket.close();
     } catch {
       // socket may already be closed
+    }
+    if (Platform.OS === 'android') {
+      releaseMulticastLock();
     }
   }
 
