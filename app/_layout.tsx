@@ -19,6 +19,10 @@ import { useDeviceStore } from '@/stores/device-store';
 import { validateDeviceIP } from '@/services/device-discovery';
 import { importSharedFiles } from '@/services/share-import';
 import { importClippedArticles } from '@/services/clip-import';
+import {
+  importAndroidSharedFiles,
+  subscribeToAndroidShareIntent,
+} from '@/services/android-share-import';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -122,11 +126,12 @@ function RootLayoutNav() {
     return () => sub.remove();
   }, []);
 
-  // Import files shared via iOS Share Extension + Safari Web Clipper
+  // Import files shared via iOS Share Extension, Safari Web Clipper, or Android Share Intent
   useEffect(() => {
     const importAll = () => {
       importSharedFiles();
       importClippedArticles();
+      importAndroidSharedFiles();
     };
 
     // Import on launch (after store hydration)
@@ -144,9 +149,13 @@ function RootLayoutNav() {
       }
     });
 
+    // Subscribe to Android share intent events (new intents while app is running)
+    const unsubShareIntent = subscribeToAndroidShareIntent();
+
     return () => {
       unsub();
       sub.remove();
+      unsubShareIntent();
     };
   }, []);
 

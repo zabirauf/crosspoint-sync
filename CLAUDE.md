@@ -9,14 +9,16 @@ Book syncing app for the XTEink X4 e-ink reader. Discovers devices on local WiFi
 - **expo-router** v6 with tab-based navigation
 - **Zustand** for state management, persisted via AsyncStorage
 - **react-native-udp** for UDP device discovery (requires dev build, not Expo Go)
-- Primary target: **iOS**. Bundle ID: `com.crosspointsync.app`
+- Targets: **iOS** and **Android**. Bundle ID / Package: `com.crosspointsync.app`
 
 ## Commands
 
 ```bash
-npm start          # Start Expo dev server
-npx expo run:ios   # Build and run on iOS (required for native UDP module)
-npx expo export --platform ios  # Test Metro bundling
+npm start              # Start Expo dev server
+npx expo run:ios       # Build and run on iOS (required for native UDP module)
+npx expo run:android   # Build and run on Android
+npx expo export --platform ios      # Test Metro bundling (iOS)
+npx expo export --platform android  # Test Metro bundling (Android)
 ```
 
 ### Visual Testing
@@ -50,13 +52,15 @@ constants/
   Protocol.ts          # UDP/HTTP/WS ports, chunk size, timeouts
   Colors.ts            # Light/dark theme colors
 services/
-  device-api.ts        # REST client (fetch-based) for XTEink HTTP API
-  device-discovery.ts  # UDP broadcast discovery + manual IP validation
-  websocket-upload.ts  # WebSocket binary upload with chunked FileHandle reads
-  upload-queue.ts      # Sequential job processor subscribing to stores
-  share-import.ts      # Imports files shared via iOS Share Extension into upload queue
-  clip-import.ts       # Imports clipped articles from Safari Web Extension, generates EPUBs
-  epub-generator.ts    # Converts HTML + images into EPUB 3.0 via JSZip
+  device-api.ts           # REST client (fetch-based) for XTEink HTTP API
+  device-discovery.ts     # UDP broadcast discovery + manual IP validation
+  websocket-upload.ts     # WebSocket binary upload with chunked FileHandle reads
+  upload-queue.ts         # Sequential job processor subscribing to stores
+  share-import.ts         # Imports files shared via iOS Share Extension into upload queue
+  clip-import.ts          # Imports clipped articles from Safari Web Extension, generates EPUBs
+  epub-generator.ts       # Converts HTML + images into EPUB 3.0 via JSZip
+  android-share-import.ts # Imports files/URLs shared via Android share intent
+  url-article-extractor.ts # Fetch+heuristic article extraction for Android article clipping
 stores/
   device-store.ts      # Connection state, persists lastDeviceIp
   upload-store.ts      # Upload job queue, persists pending/failed jobs
@@ -72,11 +76,15 @@ components/
   UploadJobCard.tsx    # Upload progress bar, cancel/retry
   ScanningIndicator.tsx # Animated scanning indicator
   EmptyState.tsx       # Generic empty state
+  PromptDialog.tsx     # Cross-platform text input dialog (replaces iOS-only Alert.prompt)
 modules/
-  app-group-path/      # Local Expo module — exposes iOS App Group container path to JS
+  app-group-path/      # Local Expo module — exposes iOS App Group container path to JS (iOS only)
+  multicast-lock/      # Local Expo module — WiFi MulticastLock for UDP broadcast (Android only)
+  share-intent-receiver/ # Local Expo module — reads Android share intent extras (Android only)
 plugins/
-  withShareExtension.js # Config plugin — adds iOS Share Extension target + App Groups entitlement
-  withWebExtension.js   # Config plugin — adds Safari Web Extension target + native handler
+  withShareExtension.js    # Config plugin — adds iOS Share Extension target + App Groups entitlement
+  withWebExtension.js      # Config plugin — adds Safari Web Extension target + native handler
+  withAndroidShareIntent.js # Config plugin — adds ACTION_SEND intent filters to Android manifest
 extension-src/           # Safari Web Extension source files (bundled at prebuild)
   content.js            # Content script — Defuddle + DOMPurify article extraction
   background.js         # Background script — image downloads + native messaging
@@ -118,6 +126,26 @@ extension-src/           # Safari Web Extension source files (bundled at prebuil
 - **App Group**: `group.com.crosspointsync.app` — shared container between main app and extension.
 - **Flow**: Extension copies file to App Group container + writes JSON manifest → main app picks up manifests on launch/foreground via `services/share-import.ts` → files added to Zustand upload queue.
 - Extension bundle ID: `com.crosspointsync.app.ShareExtension`
+
+## Android Share Intent
+
+- Users can share EPUB/PDF files from any Android app into the upload queue, or share URLs from browsers to clip articles.
+- **Config plugin** (`plugins/withAndroidShareIntent.js`) adds `ACTION_SEND` / `ACTION_SEND_MULTIPLE` intent filters for `application/epub+zip`, `application/pdf`, and `text/plain` MIME types.
+- **Native module** (`modules/share-intent-receiver/`) reads intent extras via `Activity.getIntent()`, resolves `content://` URIs for display name + size, and fires `onShareIntent` events for new intents while the app is running.
+- **Flow**: Android share sheet → native module reads intent → `services/android-share-import.ts` copies files to cache + adds to upload queue. For text/URL shares → `services/url-article-extractor.ts` fetches + extracts article → `services/epub-generator.ts` generates EPUB → upload queue.
+
+## Android Article Clipper
+
+- On Android there is no Safari Web Extension equivalent. Instead, users share a URL from any browser via the share sheet.
+- **Extraction**: `services/url-article-extractor.ts` uses fetch + heuristics (og:title, meta author, `<article>`/`<main>` tags, image downloading). Quality is ~70-80% vs the iOS Defuddle-based extraction (~95%).
+- No WebView or DOM required — pure fetch + regex.
+
+## Android Multicast Lock
+
+- Android silently drops UDP broadcast packets without a `WifiManager.MulticastLock`.
+- **Native module** (`modules/multicast-lock/`) exposes `acquire()` / `release()` methods.
+- `services/device-discovery.ts` acquires the lock before scanning and releases it in cleanup. Platform-guarded to Android only.
+- Requires `CHANGE_WIFI_MULTICAST_STATE` permission (declared in `app.json`).
 
 ## Visual Testing
 
@@ -206,7 +234,11 @@ The mock server provides a fake file system with sample books at `/Books/`.
 - `react-native-udp` requires a dev build (`npx expo run:ios`). Won't work in Expo Go.
 - Node v21.7.3 triggers EBADENGINE warnings for some deps. Non-blocking — use Node 20 or >=22 to silence.
 - New Architecture is enabled (`newArchEnabled: true`). If `react-native-udp` has TurboModule issues, manual IP entry works as a full fallback.
-- `Alert.prompt` is iOS-only. The new folder feature in the Library tab uses it.
+- `Alert.prompt` is iOS-only. All text input prompts use `components/PromptDialog.tsx` (Tamagui Dialog) for cross-platform support.
 - **Local Expo modules** (`modules/` dir) require a `.podspec` in the `ios/` subdirectory for CocoaPods autolinking. Without it, `expo-modules-autolinking search` finds the module but `resolve` skips it → "Cannot find native module" at runtime.
 - Safari Web Extension requires `npx expo prebuild --clean` after changes to `extension-src/` or `plugins/withWebExtension.js`. The extension's content.js is bundled via esbuild during prebuild — if esbuild isn't available, prebuild will fail.
 - The Safari Web Extension must be enabled manually: iOS Settings → Safari → Extensions → CrossPoint Web Clipper.
+- **Android MulticastLock**: UDP broadcast won't work without it. The `multicast-lock` module handles this automatically during discovery scans.
+- **Android share intent**: Files shared via `content://` URIs must be copied to app cache before the URI expires. `android-share-import.ts` handles this.
+- `SwipeBackGesture` is disabled on Android (renders a plain `View`) since Android has its own predictive back gesture.
+- Android hardware back button is wired to navigate up in the file browser via `BackHandler`.
