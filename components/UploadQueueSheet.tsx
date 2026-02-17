@@ -21,6 +21,7 @@ export function UploadQueueSheet({ open, onOpenChange }: UploadQueueSheetProps) 
   const { pickAndQueueFiles } = useDocumentPicker();
 
   const isConnected = connectionStatus === 'connected';
+  const processingJobs = jobs.filter((j) => j.status === 'processing');
   const activeJob = jobs.find((j) => j.status === 'uploading');
   const pendingJobs = jobs.filter((j) => j.status === 'pending');
   const conflictJobs = jobs.filter((j) => j.status === 'conflict');
@@ -53,6 +54,15 @@ export function UploadQueueSheet({ open, onOpenChange }: UploadQueueSheetProps) 
 
             <Separator />
 
+            {/* Processing jobs (article clipping in progress) */}
+            {processingJobs.map((job) => (
+              <UploadJobCard
+                key={job.id}
+                job={job}
+                onRemove={() => removeJob(job.id)}
+              />
+            ))}
+
             {/* Active upload */}
             {activeJob && (
               <UploadJobCard
@@ -61,7 +71,7 @@ export function UploadQueueSheet({ open, onOpenChange }: UploadQueueSheetProps) 
               />
             )}
 
-            {(activeJob || pendingJobs.length > 0) && (
+            {(activeJob || processingJobs.length > 0 || pendingJobs.length > 0) && (
               <XStack gap="$2" alignItems="center" paddingVertical="$1">
                 <FontAwesome name="info-circle" size={14} color="#f5a623" />
                 <Text color="$gray10" fontSize="$2" flexShrink={1}>
@@ -107,7 +117,7 @@ export function UploadQueueSheet({ open, onOpenChange }: UploadQueueSheetProps) 
               />
             ))}
 
-            {!activeJob && pendingJobs.length === 0 && conflictJobs.length === 0 && failedJobs.length === 0 && (
+            {!activeJob && processingJobs.length === 0 && pendingJobs.length === 0 && conflictJobs.length === 0 && failedJobs.length === 0 && (
               <Text color="$gray10" fontSize="$3" textAlign="center" paddingVertical="$2">
                 No uploads in queue
               </Text>

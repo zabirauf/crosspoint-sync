@@ -54,7 +54,7 @@ export default function LibraryScreen() {
 
   const isConnected = connectionStatus === 'connected';
   const hasActiveUploads = jobs.some(j =>
-    j.status === 'uploading' || j.status === 'pending' ||
+    j.status === 'processing' || j.status === 'uploading' || j.status === 'pending' ||
     j.status === 'conflict' || j.status === 'failed' || j.status === 'cancelled'
   );
 

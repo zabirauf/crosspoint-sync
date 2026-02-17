@@ -1,4 +1,5 @@
 export type UploadJobStatus =
+  | 'processing'
   | 'pending'
   | 'uploading'
   | 'completed'

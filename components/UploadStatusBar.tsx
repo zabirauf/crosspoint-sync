@@ -13,11 +13,12 @@ export function UploadStatusBar({ onPress }: UploadStatusBarProps) {
   const { jobs } = useUploadStore();
 
   const activeJob = jobs.find((j) => j.status === 'uploading');
+  const processingCount = jobs.filter((j) => j.status === 'processing').length;
   const pendingCount = jobs.filter((j) => j.status === 'pending').length;
   const conflictCount = jobs.filter((j) => j.status === 'conflict').length;
   const failedCount = jobs.filter((j) => j.status === 'failed' || j.status === 'cancelled').length;
 
-  const hasActionable = activeJob || pendingCount > 0 || conflictCount > 0 || failedCount > 0;
+  const hasActionable = activeJob || processingCount > 0 || pendingCount > 0 || conflictCount > 0 || failedCount > 0;
   if (!hasActionable) return null;
 
   let label: string;
@@ -34,6 +35,10 @@ export function UploadStatusBar({ onPress }: UploadStatusBarProps) {
     label = `${failedCount} upload${failedCount > 1 ? 's' : ''} failed`;
     iconName = 'exclamation-circle';
     iconColor = '#f44336';
+  } else if (processingCount > 0) {
+    label = processingCount === 1 ? 'Clipping article...' : `Clipping ${processingCount} articles...`;
+    iconName = 'link';
+    iconColor = isDark ? '#ce93d8' : '#9c27b0';
   } else {
     label = `${pendingCount} upload${pendingCount > 1 ? 's' : ''} waiting`;
   }

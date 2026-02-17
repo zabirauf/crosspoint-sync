@@ -11,6 +11,8 @@ interface UploadJobCardProps {
 
 function statusLabel(status: UploadJob['status']): string {
   switch (status) {
+    case 'processing':
+      return 'Clipping';
     case 'pending':
       return 'Waiting';
     case 'uploading':
@@ -28,6 +30,8 @@ function statusLabel(status: UploadJob['status']): string {
 
 function statusColor(status: UploadJob['status']): string {
   switch (status) {
+    case 'processing':
+      return '$purple10';
     case 'pending':
       return '$gray10';
     case 'uploading':
@@ -64,6 +68,12 @@ export function UploadJobCard({ job, onCancel, onRetry, onRemove, onOverwrite }:
         <Text color="$gray10" fontSize="$2" numberOfLines={1}>
           {job.destinationPath}
         </Text>
+
+        {job.status === 'processing' && (
+          <Progress size="$2">
+            <Progress.Indicator animation="bouncy" width="30%" />
+          </Progress>
+        )}
 
         {job.status === 'uploading' && (
           <YStack gap="$1">
@@ -114,7 +124,7 @@ export function UploadJobCard({ job, onCancel, onRetry, onRemove, onOverwrite }:
               Retry
             </Button>
           )}
-          {(job.status === 'pending' || job.status === 'completed' || job.status === 'failed' || job.status === 'cancelled') &&
+          {(job.status === 'processing' || job.status === 'pending' || job.status === 'completed' || job.status === 'failed' || job.status === 'cancelled') &&
             onRemove && (
               <Button size="$2" theme="gray" onPress={onRemove}>
                 Remove

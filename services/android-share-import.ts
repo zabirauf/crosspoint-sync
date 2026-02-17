@@ -23,6 +23,10 @@ export async function importAndroidSharedFiles(): Promise<number> {
   const items = getSharedItems();
   if (items.length === 0) return 0;
 
+  // Clear immediately so concurrent calls (AppState + onShareIntent listener)
+  // don't re-process the same items
+  clearIntent();
+
   let imported = 0;
 
   for (const item of items) {
@@ -36,8 +40,6 @@ export async function importAndroidSharedFiles(): Promise<number> {
       log('queue', `Failed to import Android shared item: ${e}`);
     }
   }
-
-  clearIntent();
 
   if (imported > 0) {
     log('queue', `Imported ${imported} file(s) from Android share intent`);
@@ -71,6 +73,15 @@ async function importFileItem(item: SharedItem): Promise<number> {
   return 1;
 }
 
+function extractDomainForDisplay(url: string): string {
+  try {
+    const hostname = new URL(url).hostname;
+    return hostname.replace(/^www\./, '');
+  } catch {
+    return 'article';
+  }
+}
+
 async function handleTextItem(text: string): Promise<void> {
   // Check if the text contains a URL
   const urlMatch = text.match(/https?:\/\/[^\s]+/);
@@ -81,6 +92,11 @@ async function handleTextItem(text: string): Promise<void> {
 
   const url = urlMatch[0];
   log('clip', `Android share: extracting article from ${url}`);
+
+  // Create a processing job immediately so the user sees feedback
+  const jobId = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  const displayName = extractDomainForDisplay(url);
+  useUploadStore.getState().addProcessingJob(jobId, `Clipping ${displayName}...`, 'clip');
 
   try {
     const article = await extractViaWebViewWithFallback(url);
@@ -101,16 +117,21 @@ async function handleTextItem(text: string): Promise<void> {
     const fileName = `${safeTitle}.epub`;
     const destinationPath = useSettingsStore.getState().clipUploadPath;
 
-    useUploadStore.getState().addJob({
+    // Finalize the processing job → transitions to 'pending'
+    useUploadStore.getState().finalizeProcessingJob(jobId, {
       fileName,
       fileUri: epubUri,
       fileSize: epubSize,
       destinationPath,
-      jobType: 'clip',
     });
 
     log('clip', `Android clip: "${article.title}" → ${fileName} (${epubSize} bytes)`);
   } catch (e) {
+    useUploadStore.getState().updateJobStatus(
+      jobId,
+      'failed',
+      `Clip failed: ${e instanceof Error ? e.message : String(e)}`,
+    );
     log('clip', `Android clip failed for ${url}: ${e}`);
   }
 }
