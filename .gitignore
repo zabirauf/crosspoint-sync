@@ -44,3 +44,11 @@ yarn-error.*
 test-runs/local-*/
 test-screenshots/
 test-runs/latest
+
+# Local Expo module build artifacts
+**/android/build/
+
+# Build outputs
+*.aab
+*.apk
+*.ipa
