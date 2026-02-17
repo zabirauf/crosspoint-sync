@@ -6,6 +6,8 @@ import { UploadJob, UploadJobStatus } from '@/types/upload';
 interface UploadState {
   jobs: UploadJob[];
   addJob: (job: Omit<UploadJob, 'id' | 'status' | 'progress' | 'bytesTransferred' | 'createdAt'>) => void;
+  addProcessingJob: (id: string, fileName: string, jobType: UploadJob['jobType']) => void;
+  finalizeProcessingJob: (id: string, details: { fileName: string; fileUri: string; fileSize: number; destinationPath: string }) => void;
   updateJobProgress: (id: string, bytesTransferred: number, totalBytes: number) => void;
   updateJobStatus: (id: string, status: UploadJobStatus, error?: string) => void;
   removeJob: (id: string) => void;
@@ -35,6 +37,34 @@ export const useUploadStore = create<UploadState>()(
               createdAt: Date.now(),
             },
           ],
+        })),
+
+      addProcessingJob: (id, fileName, jobType) =>
+        set((state) => ({
+          jobs: [
+            ...state.jobs,
+            {
+              id,
+              fileName,
+              fileUri: '',
+              fileSize: 0,
+              destinationPath: '',
+              status: 'processing' as const,
+              progress: 0,
+              bytesTransferred: 0,
+              createdAt: Date.now(),
+              jobType,
+            },
+          ],
+        })),
+
+      finalizeProcessingJob: (id, details) =>
+        set((state) => ({
+          jobs: state.jobs.map((j) =>
+            j.id === id
+              ? { ...j, ...details, status: 'pending' as const }
+              : j,
+          ),
         })),
 
       updateJobProgress: (id, bytesTransferred, totalBytes) =>
