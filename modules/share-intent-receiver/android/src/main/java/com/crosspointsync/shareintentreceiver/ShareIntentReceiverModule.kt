@@ -8,21 +8,29 @@ import expo.modules.kotlin.modules.ModuleDefinition
 
 class ShareIntentReceiverModule : Module() {
 
+  private var cachedItems: List<Map<String, Any?>>? = null
+
   override fun definition() = ModuleDefinition {
     Name("ShareIntentReceiver")
 
     Events("onShareIntent")
 
     Function("getSharedItems") {
-      val activity = appContext.currentActivity
-      if (activity != null) {
-        extractItemsFromIntent(activity.intent)
-      } else {
-        emptyList<Map<String, Any?>>()
+      // Return cache if already extracted (e.g. from OnNewIntent), else extract now
+      cachedItems ?: run {
+        val activity = appContext.currentActivity
+        if (activity != null) {
+          val items = extractItemsFromIntent(activity.intent)
+          cachedItems = items
+          items
+        } else {
+          emptyList<Map<String, Any?>>()
+        }
       }
     }
 
     Function("clearIntent") {
+      cachedItems = null
       val activity = appContext.currentActivity
       if (activity != null) {
         activity.intent = Intent()
@@ -34,7 +42,9 @@ class ShareIntentReceiverModule : Module() {
       val activity = appContext.currentActivity
       val intent = activity?.intent
       if (intent != null && (intent.action == Intent.ACTION_SEND || intent.action == Intent.ACTION_SEND_MULTIPLE)) {
+        cachedItems = null
         val items = extractItemsFromIntent(intent)
+        cachedItems = items
         if (items.isNotEmpty()) {
           sendEvent("onShareIntent", mapOf("items" to items))
         }
@@ -42,7 +52,9 @@ class ShareIntentReceiverModule : Module() {
     }
 
     OnNewIntent { intent ->
+      cachedItems = null
       val items = extractItemsFromIntent(intent)
+      cachedItems = items
       if (items.isNotEmpty()) {
         appContext.currentActivity?.intent = intent
         sendEvent("onShareIntent", mapOf("items" to items))
@@ -112,11 +124,25 @@ class ShareIntentReceiverModule : Module() {
       name = uri.lastPathSegment ?: "unknown"
     }
 
+    // Copy content:// to file:// in app cache so expo-file-system can read it
+    val cacheDir = java.io.File(context.cacheDir, "shared-imports")
+    if (!cacheDir.exists()) cacheDir.mkdirs()
+    val destFile = java.io.File(cacheDir, "${System.currentTimeMillis()}-${name}")
+
+    try {
+      resolver.openInputStream(uri)?.use { input ->
+        destFile.outputStream().use { output -> input.copyTo(output) }
+      } ?: return null
+    } catch (e: Exception) {
+      destFile.delete()
+      return null
+    }
+
     return mapOf(
       "type" to "file",
-      "uri" to uri.toString(),
+      "uri" to Uri.fromFile(destFile).toString(),
       "name" to name,
-      "size" to (size ?: 0L),
+      "size" to (if (size != null && size!! > 0) size else destFile.length()),
       "mimeType" to (resolver.getType(uri) ?: mimeType)
     )
   }

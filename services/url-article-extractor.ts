@@ -177,6 +177,51 @@ async function downloadImages(
   return { rewrittenHtml, downloaded };
 }
 
+/**
+ * Downloads images from a pre-extracted list of absolute URLs.
+ * Used by the WebView extraction path which already has resolved image URLs.
+ */
+export async function downloadImagesFromUrls(
+  imageUrls: string[],
+): Promise<Array<ClipImage & { data: Uint8Array }>> {
+  const downloaded: Array<ClipImage & { data: Uint8Array }> = [];
+
+  const imgDir = new Directory(Paths.cache, 'clip-images-tmp');
+  if (!imgDir.exists) {
+    imgDir.create();
+  }
+
+  for (const url of imageUrls.slice(0, MAX_IMAGES)) {
+    try {
+      const response = await fetch(url, { signal: AbortSignal.timeout(10_000) });
+      if (!response.ok) continue;
+
+      const contentType = response.headers.get('content-type') ?? 'image/jpeg';
+      const mimeType = contentType.split(';')[0].trim();
+
+      if (!mimeType.startsWith('image/')) continue;
+
+      const buffer = await response.arrayBuffer();
+      const data = new Uint8Array(buffer);
+
+      if (data.length === 0) continue;
+
+      const localPath = `clip-images-tmp/img-${downloaded.length}`;
+
+      downloaded.push({
+        originalUrl: url,
+        localPath,
+        mimeType,
+        data,
+      });
+    } catch {
+      // Skip failed images
+    }
+  }
+
+  return downloaded;
+}
+
 function resolveUrl(src: string, baseUrl: string): string {
   if (src.startsWith('http://') || src.startsWith('https://')) {
     return src;

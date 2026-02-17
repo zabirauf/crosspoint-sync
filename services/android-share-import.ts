@@ -1,5 +1,5 @@
 import { Platform } from 'react-native';
-import { File, Directory, Paths } from 'expo-file-system';
+import { File } from 'expo-file-system';
 import { useUploadStore } from '@/stores/upload-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import { log } from '@/services/logger';
@@ -9,7 +9,8 @@ import {
   addShareIntentListener,
   type SharedItem,
 } from '@/modules/share-intent-receiver';
-import { extractArticleFromUrl } from '@/services/url-article-extractor';
+import { extractArticleFromUrl, downloadImagesFromUrls } from '@/services/url-article-extractor';
+import { extractArticleViaWebView } from '@/services/webview-article-extractor';
 import { generateEpub } from '@/services/epub-generator';
 
 /**
@@ -48,16 +49,12 @@ export async function importAndroidSharedFiles(): Promise<number> {
 async function importFileItem(item: SharedItem): Promise<number> {
   if (!item.uri || !item.name) return 0;
 
-  const cacheDir = new Directory(Paths.cache, 'android-shared-imports');
-  if (!cacheDir.exists) {
-    cacheDir.create();
-  }
-
-  const destFile = new File(cacheDir, `${Date.now()}-${item.name}`);
-
-  // Copy from content:// URI to app cache
+  // Native module already copied content:// to a file:// path in app cache
   const sourceFile = new File(item.uri);
-  sourceFile.copy(destFile);
+  if (!sourceFile.exists) {
+    log('queue', `Android share: cached file missing at ${item.uri}`);
+    return 0;
+  }
 
   const { defaultUploadPath } = useSettingsStore.getState();
 
@@ -65,7 +62,7 @@ async function importFileItem(item: SharedItem): Promise<number> {
 
   useUploadStore.getState().addJob({
     fileName: item.name,
-    fileUri: destFile.uri,
+    fileUri: item.uri,
     fileSize: item.size ?? 0,
     destinationPath: defaultUploadPath,
     jobType: 'book',
@@ -86,7 +83,7 @@ async function handleTextItem(text: string): Promise<void> {
   log('clip', `Android share: extracting article from ${url}`);
 
   try {
-    const article = await extractArticleFromUrl(url);
+    const article = await extractViaWebViewWithFallback(url);
 
     const { uri: epubUri, size: epubSize } = await generateEpub({
       title: article.title,
@@ -115,6 +112,37 @@ async function handleTextItem(text: string): Promise<void> {
     log('clip', `Android clip: "${article.title}" → ${fileName} (${epubSize} bytes)`);
   } catch (e) {
     log('clip', `Android clip failed for ${url}: ${e}`);
+  }
+}
+
+interface ExtractedArticleWithImages {
+  title: string;
+  author: string;
+  sourceUrl: string;
+  html: string;
+  images: Array<{ originalUrl: string; localPath: string; mimeType: string; data: Uint8Array }>;
+}
+
+async function extractViaWebViewWithFallback(url: string): Promise<ExtractedArticleWithImages> {
+  // Try WebView extraction first for better quality on JS-rendered pages
+  try {
+    log('clip', `Trying WebView extraction for ${url}`);
+    const webViewResult = await extractArticleViaWebView(url);
+
+    // Download images from the pre-extracted URLs
+    const images = await downloadImagesFromUrls(webViewResult.images);
+    log('clip', `WebView extraction complete: "${webViewResult.title}" (${images.length} images)`);
+
+    return {
+      title: webViewResult.title,
+      author: webViewResult.author,
+      sourceUrl: webViewResult.sourceUrl,
+      html: webViewResult.html,
+      images,
+    };
+  } catch (e) {
+    log('clip', `WebView extraction failed, falling back to fetch+regex: ${e}`);
+    return extractArticleFromUrl(url);
   }
 }
 

@@ -77,6 +77,22 @@ git commit -m "chore: bump version to x.y.z"
 3. Update `CHANGELOG.md` with the fix under the new version.
 4. Commit, then run `npm run release`.
 
+## Building & Publishing
+
+### Android
+
+1. Build the production `.aab` locally via EAS:
+   ```bash
+   eas build --platform android --profile production --local
+   ```
+2. Upload the resulting `.aab` file to [Google Play Console](https://play.google.com/console).
+
+### iOS
+
+1. Open `ios/CrossPointSync.xcworkspace` in Xcode.
+2. Select **Product → Archive**.
+3. In the Xcode Organizer, click **Distribute App** to upload to App Store Connect.
+
 ## Commit Message Convention
 
 Lightweight prefixes (not enforced, just a guideline):
