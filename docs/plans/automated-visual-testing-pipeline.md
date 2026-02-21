@@ -122,9 +122,15 @@ Using Claude's vision capabilities to compare test screenshots against reference
 - Can run entirely self-hosted with just an API key
 - Supports comparing against historical baselines stored in the repo
 
-### Pixel-Level Backup: **pixelmatch** (npm package)
+### Hybrid Architecture: **pixelmatch** Pre-Filter + LLM Judge
 
-For cases where LLM judgment is overkill (e.g., exact icon rendering, color accuracy), use `pixelmatch` for fast, deterministic pixel-level comparison with a configurable threshold.
+The emerging best practice is a **layered approach** that minimizes cost and maximizes accuracy:
+
+1. **Fast pixel-diff first** (`pixelmatch`) — if the diff is zero, the test passes instantly with no LLM call needed. This saves cost and latency for screenshots that haven't changed at all.
+2. **LLM vision judge second** — only when pixel diff detects changes, send both images to Claude to determine if the changes are *meaningful* (vs. anti-aliasing, sub-pixel rendering, platform rendering differences).
+3. **Human review third** — for ambiguous cases where the LLM flags low confidence.
+
+This hybrid approach reduces false positives from pixel-based tools while keeping LLM costs proportional to actual UI changes.
 
 ---
 
@@ -354,52 +360,98 @@ Respond with this exact JSON structure:
 }`;
 ```
 
-**API call structure (using Anthropic SDK):**
+**API call structure — Structured Outputs via Tool Use (guaranteed JSON schema):**
+
+Using Claude's `tool_choice` with a forced tool call guarantees the response conforms to our exact JSON schema — no parsing failures or malformed output:
 
 ```typescript
 import Anthropic from '@anthropic-ai/sdk';
+import { readFileSync } from 'fs';
+import { PNG } from 'pngjs';
+import pixelmatch from 'pixelmatch';
 
+// Tool definition that enforces our judgment schema
+const VISUAL_TEST_TOOL = {
+  name: 'report_visual_test_result',
+  description: 'Report the results of a visual UI comparison test',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      verdict: { type: 'string', enum: ['pass', 'fail', 'warning'] },
+      confidence: { type: 'number', description: '0.0-1.0' },
+      criteria: {
+        type: 'object',
+        properties: {
+          layout:       { type: 'object', properties: { pass: { type: 'boolean' }, notes: { type: 'string' } }, required: ['pass', 'notes'] },
+          content:      { type: 'object', properties: { pass: { type: 'boolean' }, notes: { type: 'string' } }, required: ['pass', 'notes'] },
+          visual_state: { type: 'object', properties: { pass: { type: 'boolean' }, notes: { type: 'string' } }, required: ['pass', 'notes'] },
+          elements:     { type: 'object', properties: { pass: { type: 'boolean' }, notes: { type: 'string' } }, required: ['pass', 'notes'] },
+          defects:      { type: 'object', properties: { pass: { type: 'boolean' }, notes: { type: 'string' } }, required: ['pass', 'notes'] },
+        },
+        required: ['layout', 'content', 'visual_state', 'elements', 'defects'],
+      },
+      summary: { type: 'string' },
+      differences: { type: 'array', items: { type: 'string' } },
+    },
+    required: ['verdict', 'confidence', 'criteria', 'summary', 'differences'],
+  },
+};
+
+// Step 1: Fast pixel-diff pre-filter
+function pixelDiffCheck(refPath: string, testPath: string): { diffPixels: number; diffPercent: number } {
+  const ref = PNG.sync.read(readFileSync(refPath));
+  const test = PNG.sync.read(readFileSync(testPath));
+  const { width, height } = ref;
+  const diff = new PNG({ width, height });
+  const diffPixels = pixelmatch(ref.data, test.data, diff.data, width, height, { threshold: 0.1 });
+  return { diffPixels, diffPercent: (diffPixels / (width * height)) * 100 };
+}
+
+// Step 2: LLM judge (only called when pixel diff detects changes)
 async function judgeScreenshot(
   testScreenshotPath: string,
   referenceScreenshotPath: string,
   testName: string,
-  context: string  // What the test is checking
+  context: string
 ): Promise<JudgmentResult> {
-  const client = new Anthropic();
+  // Pre-filter: skip LLM call if screenshots are identical
+  const { diffPercent } = pixelDiffCheck(referenceScreenshotPath, testScreenshotPath);
+  if (diffPercent === 0) {
+    return { verdict: 'pass', confidence: 1.0, criteria: { /* all pass */ }, summary: 'Pixel-identical to reference', differences: [] };
+  }
 
-  const testImage = fs.readFileSync(testScreenshotPath);
-  const refImage = fs.readFileSync(referenceScreenshotPath);
+  const client = new Anthropic();
+  const refImage = readFileSync(referenceScreenshotPath).toString('base64');
+  const testImage = readFileSync(testScreenshotPath).toString('base64');
 
   const response = await client.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 1024,
     system: JUDGE_SYSTEM_PROMPT,
+    tools: [VISUAL_TEST_TOOL],
+    tool_choice: { type: 'tool', name: 'report_visual_test_result' },
     messages: [{
       role: 'user',
       content: [
-        {
-          type: 'image',
-          source: { type: 'base64', media_type: 'image/png', data: refImage.toString('base64') }
-        },
-        {
-          type: 'text',
-          text: `REFERENCE screenshot (expected state) ↑`
-        },
-        {
-          type: 'image',
-          source: { type: 'base64', media_type: 'image/png', data: testImage.toString('base64') }
-        },
-        {
-          type: 'text',
-          text: `TEST screenshot (current state) ↑\n\nTest: "${testName}"\nContext: ${context}\n\nCompare the test screenshot against the reference. Return your judgment as JSON.`
-        }
-      ]
-    }]
+        { type: 'text', text: 'REFERENCE screenshot (expected state):' },
+        { type: 'image', source: { type: 'base64', media_type: 'image/png', data: refImage } },
+        { type: 'text', text: 'TEST screenshot (current state):' },
+        { type: 'image', source: { type: 'base64', media_type: 'image/png', data: testImage } },
+        { type: 'text', text: `Test: "${testName}"\nContext: ${context}\n\nPixel diff: ${diffPercent.toFixed(2)}% of pixels differ.\nCompare the screenshots and determine if the visual differences are meaningful regressions or acceptable variations (anti-aliasing, sub-pixel rendering).` },
+      ],
+    }],
   });
 
-  return JSON.parse(response.content[0].text);
+  const toolUse = response.content.find(b => b.type === 'tool_use');
+  if (toolUse?.type === 'tool_use') return toolUse.input as JudgmentResult;
+  throw new Error('No structured result from Claude');
 }
 ```
+
+**Key advantages of tool_choice approach:**
+- **Guaranteed schema compliance** — no JSON.parse failures
+- **Hybrid pre-filter** — pixelmatch skips the LLM call when screenshots are identical
+- **Pixel diff context** — tells Claude the % of changed pixels so it can calibrate its judgment
 
 **Test manifest file (`test-manifest.json`):**
 
@@ -854,6 +906,36 @@ curl -Ls "https://get.maestro.mobile.dev" | bash
 - **Claude API (Sonnet):** ~$0.003 per image pair comparison. 19 tests × 2 themes = ~$0.12 per full run.
 - **GitHub Actions:** macOS runners cost 10x Linux. Budget ~5 min macOS per run.
 - **Maestro Cloud:** Optional. Self-hosted Maestro is free. Cloud adds AI assertions and device farms.
+
+---
+
+## LLM Vision Judge — Prompt Engineering Notes
+
+**Image placement:** Always place images *before* text/instructions. Claude works best with image-then-text structure. Label each image clearly with a text block ("REFERENCE:" / "TEST:").
+
+**Tolerance calibration in the system prompt:**
+```
+You should PASS differences that are:
+- Sub-pixel rendering variations between platforms
+- Minor anti-aliasing differences
+- Dynamic content expected to change (timestamps, counters)
+- Slight color variations due to color space/gamma differences
+
+You should FAIL differences that are:
+- Text truncation, missing text, or changed text content
+- Layout shifts where elements moved significantly
+- Missing or additional UI elements
+- Color changes that alter the visual design intent
+- Overlapping elements or broken images/icons
+```
+
+**Structured criteria:** Define explicit, enumerable criteria rather than open-ended "find all differences." Our 5-criteria system (layout, content, visual_state, elements, defects) keeps judgments focused and consistent.
+
+**Resolution:** Capture at 2x Retina. Resize to stay under 1568px on the long edge to avoid Claude's internal downscaling. iPhone screenshots at 2x (~1170x2532) work well at ~1600 tokens per image.
+
+**Temperature:** Use `temperature: 0` for maximum determinism in CI pipelines.
+
+**Confidence thresholds:** Treat `confidence < 0.7` as "needs human review" rather than auto-fail.
 
 ---
 
