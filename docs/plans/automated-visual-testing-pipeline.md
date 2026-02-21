@@ -105,11 +105,14 @@ A fully automated testing pipeline that runs UI scenarios on iOS and Android sim
 | Flakiness | Low (built-in retry/tolerance) | Low (gray-box sync) | High |
 
 **Key Maestro features we use:**
-- `takeScreenshot` — captures PNGs at any point in a flow
-- `assertWithAI` — built-in LLM assertion for quick semantic checks
-- `assertNoDefectsWithAI` — automatic UI defect detection
+- `takeScreenshot` — captures PNGs at any point in a flow (supports `cropOn` to crop to a specific element)
+- `assertScreenshot` — **built-in visual regression** (v2.2.0+) that compares against reference images with a configurable `thresholdPercentage` (default 95%). Supports `cropOn` for element-level comparison. This handles pixel-level regression natively inside Maestro — no external pixel-diff tool needed for basic cases.
+- `assertWithAI` — built-in LLM assertion for semantic checks (requires Maestro Cloud API key or direct `MAESTRO_CLI_AI_KEY` for OpenAI/Anthropic)
+- `assertNoDefectsWithAI` — automatic UI defect detection (truncation, overlap, misalignment)
+- `extractTextWithAI` — extract text/values from screenshots into variables for subsequent assertions
 - YAML flows — human-readable, easy to maintain
 - `testID`-based element selection (via `accessibilityLabel` in React Native)
+- **MCP Server** (`maestro mcp`) — exposes 14 device automation tools to LLM agents, enabling Claude to directly interact with the running app, take screenshots, and inspect the view hierarchy
 
 ### LLM Vision Judge: **Claude API (claude-sonnet-4-6)**
 
@@ -122,15 +125,26 @@ Using Claude's vision capabilities to compare test screenshots against reference
 - Can run entirely self-hosted with just an API key
 - Supports comparing against historical baselines stored in the repo
 
-### Hybrid Architecture: **pixelmatch** Pre-Filter + LLM Judge
+### Three-Layer Validation Architecture
 
-The emerging best practice is a **layered approach** that minimizes cost and maximizes accuracy:
+The pipeline uses a **layered approach** that minimizes cost and maximizes accuracy:
 
-1. **Fast pixel-diff first** (`pixelmatch`) — if the diff is zero, the test passes instantly with no LLM call needed. This saves cost and latency for screenshots that haven't changed at all.
-2. **LLM vision judge second** — only when pixel diff detects changes, send both images to Claude to determine if the changes are *meaningful* (vs. anti-aliasing, sub-pixel rendering, platform rendering differences).
-3. **Human review third** — for ambiguous cases where the LLM flags low confidence.
+1. **Layer 1 — Maestro `assertScreenshot`** (built-in, fast, runs during flow execution):
+   Pixel-level visual regression with configurable threshold. If the screenshot matches the reference at ≥95%, it passes instantly. Handles the majority of cases with zero external dependencies.
 
-This hybrid approach reduces false positives from pixel-based tools while keeping LLM costs proportional to actual UI changes.
+2. **Layer 2 — LLM Vision Judge** (Claude API, runs post-flow):
+   For screenshots that fail `assertScreenshot` OR for semantic checks that pixel comparison can't handle (e.g., "does this screen look like a file browser?", "is the device card showing connected status?"). Uses Claude's tool_choice for guaranteed JSON schema compliance.
+
+3. **Layer 3 — Human review** (flagged in PR comments):
+   For ambiguous cases where the LLM flags low confidence (<0.7). The Markdown report includes side-by-side images and LLM reasoning for quick triage.
+
+**When each layer fires:**
+- Pixel-identical → Layer 1 passes, done (free, instant)
+- Pixel diff <5% → Layer 1 passes at 95% threshold, done (free, instant)
+- Pixel diff >5% → Layer 1 fails, Layer 2 (LLM) determines if changes are meaningful vs. rendering artifacts
+- LLM confidence <0.7 → Layer 3, flagged for human review in PR comment
+
+This means LLM API costs are only incurred for genuine visual changes — in steady state (no UI changes), the cost is $0.
 
 ---
 
@@ -203,9 +217,6 @@ name: "Library - Disconnected State"
 # Verify we're on the Library tab
 - assertVisible: "Library"
 
-# Take screenshot of disconnected empty state
-- takeScreenshot: library-disconnected
-
 # Verify empty state message is shown
 - assertVisible: "Connect to a device"
 
@@ -213,7 +224,13 @@ name: "Library - Disconnected State"
 - assertVisible:
     id: "Library.ConnectionPill"
 
-# AI assertion for overall layout correctness
+# Layer 1: Pixel-level visual regression against reference
+- takeScreenshot: library-disconnected
+- assertScreenshot:
+    path: test-references/ios/library-disconnected.png
+    thresholdPercentage: 95
+
+# Layer 1b: AI defect detection (optional, requires API key)
 - assertNoDefectsWithAI
 ```
 
@@ -230,9 +247,6 @@ tags:
 # Navigate to Library tab
 - runFlow: helpers/navigate-to-library.yaml
 
-# Take screenshot of file list
-- takeScreenshot: library-connected-files
-
 # Verify file list is populated
 - assertVisible:
     id: "Library.FileList"
@@ -241,11 +255,21 @@ tags:
 - assertVisible:
     id: "Library.ConnectionPill"
 
-# AI check: verify the screen looks like a file browser
-- assertWithAI: "The screen shows a file browser with a list of files and folders. There is a connected status indicator in the header and a floating action button in the bottom right."
+# Layer 1: Pixel-level visual regression
+- takeScreenshot: library-connected-files
+- assertScreenshot:
+    path: test-references/ios/library-connected-files.png
+    thresholdPercentage: 95
 
-# Take screenshot for visual comparison
-- takeScreenshot: library-connected-full
+# Layer 1b: Element-level cropped comparison (e.g., just the device card)
+- assertScreenshot:
+    path: test-references/ios/connection-pill-connected.png
+    thresholdPercentage: 99
+    cropOn:
+      id: "Library.ConnectionPill"
+
+# Layer 2: Semantic AI check (LLM judge)
+- assertWithAI: "The screen shows a file browser with a list of files and folders. There is a connected status indicator in the header and a floating action button in the bottom right."
 ```
 
 **Example flow — `08-settings-screen.yaml`:**
@@ -892,12 +916,41 @@ ANTHROPIC_API_KEY=sk-... npx tsx scripts/visual-judge.ts \
 ## Dependencies to Add
 
 ```bash
-# Dev dependencies for the visual judge pipeline
-npm install -D @anthropic-ai/sdk pixelmatch pngjs tsx
+# Dev dependencies for the LLM vision judge script (Layer 2)
+npm install -D @anthropic-ai/sdk tsx
 
-# Maestro is installed via curl, not npm
+# Maestro is installed via curl, not npm (handles Layer 1 pixel regression natively)
 curl -Ls "https://get.maestro.mobile.dev" | bash
 ```
+
+Note: `pixelmatch` and `pngjs` are no longer required as external deps — Maestro's built-in `assertScreenshot` handles pixel-level visual regression natively with configurable thresholds. The LLM judge script only needs the Anthropic SDK.
+
+---
+
+## Maestro MCP for Exploratory Testing
+
+Beyond the automated CI pipeline, Maestro's MCP server enables **LLM-driven exploratory testing** during development:
+
+```json
+// Add to .claude/mcp-server-config.json
+{
+  "mcpServers": {
+    "maestro": {
+      "command": "maestro",
+      "args": ["mcp", "--working-dir", "/path/to/crosspoint-sync"]
+    }
+  }
+}
+```
+
+This gives Claude direct access to:
+- `take_screenshot` — see the current device screen
+- `tap_on` / `input_text` — interact with the app
+- `inspect_view_hierarchy` — read the UI tree to find elements
+- `run_flow` — execute inline YAML commands
+- `run_flow_files` — run saved flow files
+
+Use case: Ask Claude to "explore the app and find any visual issues" — it will navigate screens, take screenshots, and report anomalies using its vision capabilities. This complements the deterministic CI pipeline with open-ended exploratory coverage.
 
 ---
 
