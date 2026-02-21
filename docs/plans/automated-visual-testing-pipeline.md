@@ -203,6 +203,21 @@ Create `.maestro/` directory with YAML flows for each screen and user journey.
   helpers/
     navigate-to-library.yaml  # Reusable: ensure Library tab is active
     navigate-to-settings.yaml # Reusable: ensure Settings tab is active
+  visual-tests/               # LLM judge specs (YAML, human + agent authored)
+    library-disconnected.yaml
+    library-connected.yaml
+    settings-main.yaml
+    upload-queue-active.yaml
+    connection-sheet.yaml
+    ...                       # One file per screen/scenario
+test-runs/                    # Run history (last N=2 runs, committed by CI)
+  latest -> run-<timestamp>   # Symlink to most recent
+  run-<timestamp>/            # Each run's full artifacts
+    meta.json                 # Git SHA, branch, platform, summary stats
+    report.json               # Per-test LLM judge results
+    report.md                 # Markdown summary (posted to PR)
+    screenshots/              # All captured screenshots
+    maestro-output/           # Raw Maestro output (JUnit XML, logs)
 ```
 
 **Example flow — `02-library-disconnected.yaml`:**
@@ -477,42 +492,565 @@ async function judgeScreenshot(
 - **Hybrid pre-filter** — pixelmatch skips the LLM call when screenshots are identical
 - **Pixel diff context** — tells Claude the % of changed pixels so it can calibrate its judgment
 
-**Test manifest file (`test-manifest.json`):**
+**Visual test specs (`.maestro/visual-tests/*.yaml`):**
 
-Each test case is defined with metadata for the judge:
+Instead of a flat JSON manifest, each screen/scenario gets its own **YAML visual test spec** that declaratively defines what the LLM judge should evaluate. These specs are the single source of truth for Layer 2 assertions — writable by both humans and agents.
+
+See [Step 3b: Visual Test Spec Format](#step-3b-visual-test-spec-format) for the full schema, examples, and agent authoring workflow.
+
+---
+
+### Step 3b: Visual Test Spec Format
+
+Each visual test is defined as a YAML file in `.maestro/visual-tests/`. The spec declares **what** the LLM judge should look for — separate from the Maestro flow that navigates to the screen and captures the screenshot. This separation means:
+
+- Maestro flows handle **navigation + screenshot capture** (Layer 1)
+- Visual test specs handle **semantic LLM evaluation** (Layer 2)
+- Agents can create new specs without touching Maestro flows
+
+**Directory structure:**
+
+```
+.maestro/
+  visual-tests/
+    library-disconnected.yaml
+    library-connected.yaml
+    settings-main.yaml
+    upload-queue-active.yaml
+    connection-sheet.yaml
+    ...
+```
+
+**Full YAML schema:**
+
+```yaml
+# .maestro/visual-tests/<test-id>.yaml
+# ─────────────────────────────────────
+
+# Required: unique test identifier (matches screenshot filename)
+id: library-disconnected
+
+# Required: human-readable name
+name: "Library - Disconnected Empty State"
+
+# Required: which Maestro flow produces the screenshot for this test
+flow: flows/02-library-disconnected.yaml
+
+# Required: screenshot filenames (without extension) produced by the flow
+# that this spec evaluates. Each gets its own LLM judge call.
+screenshots:
+  - library-disconnected
+
+# Optional: platforms and themes this test applies to.
+# The judge runner uses these to locate the correct reference image.
+# Defaults to [ios] and [light] if omitted.
+platforms: [ios, android]
+themes: [light, dark]
+
+# ─── LLM Judge Configuration ───
+
+# Required: what the screen should look like — fed to the LLM as context.
+# This is the primary prompt text the judge uses to understand the expected state.
+description: |
+  Library tab with no device connected.
+  Shows an empty state illustration with "Connect to a device" message.
+  Header contains the "Library" title and a disconnected connection pill (gray).
+  Tab bar at bottom with Library (selected), Sync, and Settings tabs.
+
+# Optional: explicit pass/fail assertions the LLM evaluates.
+# Each assertion is a natural-language statement that should be true.
+# The LLM returns pass/fail + reasoning for each one individually.
+assertions:
+  - text: "The connection pill in the header shows 'Disconnected' in gray"
+    severity: fail        # fail | warning (default: fail)
+  - text: "An empty state illustration is centered in the main content area"
+    severity: fail
+  - text: "The text 'Connect to a device' is visible below the illustration"
+    severity: fail
+  - text: "The tab bar shows three tabs: Library, Sync, Settings"
+    severity: fail
+  - text: "The Library tab is visually selected/highlighted"
+    severity: fail
+  - text: "No loading spinners or error messages are visible"
+    severity: warning
+
+# Optional: elements to focus on via cropOn (for element-level comparison).
+# The judge can crop screenshots to these regions for closer inspection.
+focus_elements:
+  - id: "Library.ConnectionPill"
+    label: "Connection status pill"
+  - id: "Library.EmptyState"
+    label: "Empty state container"
+
+# Optional: things the LLM should IGNORE (not flag as failures).
+# Useful for dynamic content that changes between runs.
+ignore:
+  - "Exact timestamp or time display in the status bar"
+  - "Battery percentage or signal strength indicators"
+  - "Any system UI elements outside the app frame"
+
+# Optional: custom criteria to evaluate IN ADDITION to the 5 defaults.
+# These are screen-specific checks beyond layout/content/visual_state/elements/defects.
+custom_criteria:
+  - name: "empty_state_messaging"
+    description: "The empty state message clearly communicates what action the user should take"
+  - name: "accessibility"
+    description: "Text has sufficient contrast and interactive elements have adequate touch targets"
+
+# Optional: tags for filtering which tests to run
+tags: [smoke, library, disconnected]
+
+# Optional: metadata about who/what created this spec
+created_by: human            # human | agent
+created_at: "2026-02-21"
+notes: "Initial spec for library empty state"
+```
+
+**More examples:**
+
+```yaml
+# .maestro/visual-tests/library-connected.yaml
+id: library-connected
+name: "Library - Connected with Files"
+flow: flows/04-library-connected.yaml
+screenshots:
+  - library-connected-files
+platforms: [ios]
+themes: [light]
+tags: [smoke, library, connected, requires-device]
+
+description: |
+  Library tab connected to a device, showing a file browser with files and folders.
+  Header shows "Library" title with a green "Connected" pill.
+  File list displays entries with file type icons, names, and sizes.
+  A floating action button (FAB) is visible in the bottom-right corner.
+  Upload status bar may appear at the top if uploads are active.
+
+assertions:
+  - text: "The connection pill shows 'Connected' with a green/success color"
+    severity: fail
+  - text: "At least one file or folder is visible in the list"
+    severity: fail
+  - text: "Each file row shows an icon, filename, and file size"
+    severity: fail
+  - text: "The FAB button is visible in the bottom-right corner"
+    severity: fail
+  - text: "Folder entries are visually distinct from file entries (folder icon)"
+    severity: warning
+  - text: "File sizes are displayed in human-readable format (KB, MB)"
+    severity: warning
+
+focus_elements:
+  - id: "Library.ConnectionPill"
+    label: "Connected pill"
+  - id: "Library.FileList"
+    label: "File list"
+  - id: "Library.FAB"
+    label: "Floating action button"
+
+ignore:
+  - "Specific file names and sizes (these vary by test data)"
+  - "Number of files in the list"
+  - "Exact upload progress percentage"
+
+created_by: human
+created_at: "2026-02-21"
+```
+
+```yaml
+# .maestro/visual-tests/settings-main.yaml
+id: settings-main
+name: "Settings Screen"
+flow: flows/08-settings-screen.yaml
+screenshots:
+  - settings-main
+platforms: [ios, android]
+themes: [light, dark]
+tags: [smoke, settings]
+
+description: |
+  Settings tab showing app configuration options in grouped sections.
+  "Transfer" section: Upload Path and Clip Path rows with current values.
+  "Debug" section: Debug Logs toggle switch.
+  "Device" section: shows device info when connected, hidden when disconnected.
+  "About" section: CrossPoint Sync name, version number, and About row.
+
+assertions:
+  - text: "The Settings title is visible in the header"
+    severity: fail
+  - text: "'Upload Path' row is visible with a path value"
+    severity: fail
+  - text: "'Clip Path' row is visible with a path value"
+    severity: fail
+  - text: "'Debug Logs' row has a toggle switch"
+    severity: fail
+  - text: "'About' section shows 'CrossPoint Sync' app name"
+    severity: fail
+  - text: "A version number is displayed in the About section"
+    severity: warning
+  - text: "Sections are visually grouped with headers"
+    severity: warning
+
+custom_criteria:
+  - name: "settings_values"
+    description: "All settings rows show their current value, not placeholder text"
+
+created_by: human
+created_at: "2026-02-21"
+```
+
+**How `scripts/visual-judge.ts` consumes these specs:**
+
+```typescript
+import { readFileSync, readdirSync } from 'fs';
+import { parse as parseYaml } from 'yaml';
+
+interface VisualTestSpec {
+  id: string;
+  name: string;
+  flow: string;
+  screenshots: string[];
+  platforms?: string[];
+  themes?: string[];
+  description: string;
+  assertions?: Array<{ text: string; severity?: 'fail' | 'warning' }>;
+  focus_elements?: Array<{ id: string; label: string }>;
+  ignore?: string[];
+  custom_criteria?: Array<{ name: string; description: string }>;
+  tags?: string[];
+  created_by?: 'human' | 'agent';
+  created_at?: string;
+  notes?: string;
+}
+
+function loadVisualTestSpecs(dir: string): VisualTestSpec[] {
+  return readdirSync(dir)
+    .filter(f => f.endsWith('.yaml'))
+    .map(f => parseYaml(readFileSync(`${dir}/${f}`, 'utf-8')) as VisualTestSpec);
+}
+
+// Build the LLM prompt from the spec
+function buildJudgePrompt(spec: VisualTestSpec): string {
+  let prompt = `Screen: "${spec.name}"\n\n`;
+  prompt += `Expected state:\n${spec.description}\n\n`;
+
+  if (spec.assertions?.length) {
+    prompt += `Evaluate each assertion individually:\n`;
+    spec.assertions.forEach((a, i) => {
+      prompt += `  ${i + 1}. [${a.severity || 'fail'}] ${a.text}\n`;
+    });
+    prompt += '\n';
+  }
+
+  if (spec.ignore?.length) {
+    prompt += `IGNORE these (do not flag as failures):\n`;
+    spec.ignore.forEach(ig => { prompt += `  - ${ig}\n`; });
+    prompt += '\n';
+  }
+
+  if (spec.custom_criteria?.length) {
+    prompt += `Additional criteria to evaluate:\n`;
+    spec.custom_criteria.forEach(c => {
+      prompt += `  - ${c.name}: ${c.description}\n`;
+    });
+  }
+
+  return prompt;
+}
+```
+
+The tool schema is also extended to return per-assertion results:
+
+```typescript
+const VISUAL_TEST_TOOL = {
+  name: 'report_visual_test_result',
+  description: 'Report the results of a visual UI comparison test',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      verdict: { type: 'string', enum: ['pass', 'fail', 'warning'] },
+      confidence: { type: 'number', description: '0.0-1.0' },
+      criteria: { /* ... same 5 default criteria ... */ },
+      // NEW: per-assertion results from the spec
+      assertion_results: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            index: { type: 'number' },
+            text: { type: 'string' },
+            pass: { type: 'boolean' },
+            reasoning: { type: 'string' },
+          },
+          required: ['index', 'text', 'pass', 'reasoning'],
+        },
+      },
+      custom_criteria_results: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            pass: { type: 'boolean' },
+            notes: { type: 'string' },
+          },
+          required: ['name', 'pass', 'notes'],
+        },
+      },
+      summary: { type: 'string' },
+      differences: { type: 'array', items: { type: 'string' } },
+    },
+    required: ['verdict', 'confidence', 'criteria', 'assertion_results', 'summary', 'differences'],
+  },
+};
+```
+
+---
+
+### Step 3c: Agent-Authored Visual Test Specs
+
+Agents (e.g., Claude via Maestro MCP) can **create new visual test specs** after exploring a screen. The workflow:
+
+1. Agent navigates to a screen using MCP tools (`tap_on`, `launch_app`, etc.)
+2. Agent takes a screenshot via `take_screenshot`
+3. Agent inspects the view hierarchy via `inspect_view_hierarchy` to discover element IDs
+4. Agent analyzes the screenshot with its vision capabilities
+5. Agent writes a new `.maestro/visual-tests/<test-id>.yaml` spec based on what it observed
+
+**Example agent interaction:**
+
+```
+User: "Create a visual test spec for the upload queue sheet"
+
+Agent:
+1. Launches app, navigates to upload queue
+2. Takes screenshot, sees the upload queue UI
+3. Inspects hierarchy, finds testIDs: UploadQueue.Sheet, UploadQueue.JobList, etc.
+4. Writes .maestro/visual-tests/upload-queue-active.yaml:
+```
+
+```yaml
+# Auto-generated by agent on 2026-02-21
+# Review assertions before committing to CI
+id: upload-queue-active
+name: "Upload Queue - Active Uploads"
+flow: flows/07-upload-queue.yaml
+screenshots:
+  - upload-queue-active
+platforms: [ios]
+themes: [light]
+tags: [upload, queue]
+
+description: |
+  Upload queue sheet showing active and pending upload jobs.
+  Each job card displays the filename, progress bar, and status text.
+  An active upload shows a blue progress bar with percentage.
+  Pending uploads show "Waiting..." status.
+  Cancel button (X) is available on each job card.
+
+assertions:
+  - text: "The sheet title shows 'Upload Queue' or similar header"
+    severity: fail
+  - text: "At least one upload job card is visible"
+    severity: fail
+  - text: "The active upload shows a progress bar with percentage text"
+    severity: fail
+  - text: "Each job card shows the filename"
+    severity: fail
+  - text: "Each job card has a cancel/close button"
+    severity: warning
+  - text: "Pending jobs are visually distinct from active jobs"
+    severity: warning
+
+focus_elements:
+  - id: "UploadQueue.Sheet"
+    label: "Queue sheet container"
+  - id: "UploadQueue.JobList"
+    label: "Job list"
+
+ignore:
+  - "Exact filenames (vary by test data)"
+  - "Exact progress percentages"
+  - "Upload speed numbers"
+
+created_by: agent
+created_at: "2026-02-21"
+notes: "Auto-generated from screen inspection. Human review recommended."
+```
+
+**Agent guidelines for spec creation:**
+- Always set `created_by: agent` so humans can easily find auto-generated specs for review
+- Include `notes` explaining what the agent observed
+- Use `severity: warning` (not `fail`) for assertions the agent is less confident about
+- Prefer testID-based `focus_elements` over position-based selectors
+- Keep `description` factual based on what's actually visible, not aspirational
+
+---
+
+### Step 3d: Test Run History Storage
+
+Each test run's artifacts are stored in the repo under `test-runs/`, keeping the **last N runs** (configurable, default N=2) for comparison and debugging.
+
+**Directory structure:**
+
+```
+test-runs/
+  latest -> run-2026-02-21T14-30-00Z   # symlink to most recent
+  run-2026-02-21T14-30-00Z/            # current run
+    meta.json                           # run metadata
+    report.json                         # full LLM judge report
+    report.md                           # markdown summary
+    screenshots/                        # all captured screenshots
+      library-disconnected.png
+      library-connected-files.png
+      settings-main.png
+      ...
+    maestro-output/                     # raw Maestro test output
+      junit.xml
+      debug-log.txt
+  run-2026-02-20T09-15-00Z/            # previous run (kept for comparison)
+    meta.json
+    report.json
+    report.md
+    screenshots/
+      ...
+    maestro-output/
+      ...
+```
+
+**`meta.json` — run metadata:**
 
 ```json
 {
-  "tests": [
-    {
-      "id": "library-disconnected",
-      "name": "Library - Disconnected Empty State",
-      "flow": "02-library-disconnected.yaml",
-      "screenshots": ["library-disconnected"],
-      "context": "Library tab with no device connected. Should show empty state with 'Connect to a device' message, disconnected connection pill in header, and tab bar at bottom.",
-      "platform": ["ios", "android"],
-      "theme": ["light", "dark"]
-    },
-    {
-      "id": "library-connected",
-      "name": "Library - Connected with Files",
-      "flow": "04-library-connected.yaml",
-      "screenshots": ["library-connected-files", "library-connected-full"],
-      "context": "Library tab connected to device showing file list. Should display files/folders with icons, sizes, connected pill, FAB button, and upload status bar if uploads are active.",
-      "platform": ["ios"],
-      "theme": ["light"]
-    },
-    {
-      "id": "settings-main",
-      "name": "Settings Screen",
-      "flow": "08-settings-screen.yaml",
-      "screenshots": ["settings-main", "settings-full"],
-      "context": "Settings tab showing upload path, clip path, debug logs toggle, device info section, and about section. All values should be visible and correctly formatted.",
-      "platform": ["ios", "android"],
-      "theme": ["light", "dark"]
-    }
-  ]
+  "run_id": "run-2026-02-21T14-30-00Z",
+  "timestamp": "2026-02-21T14:30:00Z",
+  "platform": "ios",
+  "device": "iPhone 16 Pro",
+  "theme": "light",
+  "git_sha": "abc123f",
+  "git_branch": "feature/new-settings-ui",
+  "git_author": "developer@example.com",
+  "trigger": "pull_request",
+  "pr_number": 42,
+  "maestro_version": "2.2.0",
+  "total_tests": 13,
+  "passed": 11,
+  "failed": 1,
+  "warnings": 1,
+  "llm_api_calls": 3,
+  "llm_cost_usd": 0.009,
+  "duration_seconds": 127
 }
+```
+
+**Run history management in `scripts/visual-judge.ts`:**
+
+```typescript
+const MAX_RUNS_TO_KEEP = Number(process.env.VISUAL_TEST_MAX_RUNS || 2);
+
+function createRunDirectory(): string {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('Z', 'Z');
+  const runId = `run-${timestamp}`;
+  const runDir = `test-runs/${runId}`;
+  mkdirSync(`${runDir}/screenshots`, { recursive: true });
+  mkdirSync(`${runDir}/maestro-output`, { recursive: true });
+  return runDir;
+}
+
+function pruneOldRuns(): void {
+  const runs = readdirSync('test-runs')
+    .filter(d => d.startsWith('run-'))
+    .sort()
+    .reverse();
+
+  // Keep only the N most recent
+  for (const oldRun of runs.slice(MAX_RUNS_TO_KEEP)) {
+    rmSync(`test-runs/${oldRun}`, { recursive: true });
+  }
+
+  // Update 'latest' symlink
+  if (runs.length > 0) {
+    const latestLink = 'test-runs/latest';
+    if (existsSync(latestLink)) unlinkSync(latestLink);
+    symlinkSync(runs[0], latestLink);
+  }
+}
+```
+
+**Accessing run history:**
+
+```bash
+# View the latest run's report
+cat test-runs/latest/report.md
+
+# Compare screenshots between last two runs
+# (useful for spotting regressions introduced between runs)
+diff <(ls test-runs/latest/screenshots/) \
+     <(ls test-runs/run-2026-02-20T09-15-00Z/screenshots/)
+
+# See what changed
+cat test-runs/latest/meta.json | jq '.git_sha, .passed, .failed'
+```
+
+**CI integration — commit run artifacts:**
+
+```yaml
+# In .github/workflows/visual-tests.yml
+- name: Store Run Artifacts
+  run: |
+    # visual-judge.ts already creates the run directory and prunes old ones
+    git add test-runs/
+    git diff --cached --quiet || \
+      git commit -m "Visual test run $(date -u +%Y-%m-%dT%H:%M:%SZ) [skip ci]"
+    git push
+
+- name: Upload as CI Artifact (backup)
+  uses: actions/upload-artifact@v4
+  with:
+    name: visual-test-run-${{ github.sha }}
+    path: test-runs/latest/
+    retention-days: 30
+```
+
+**`.gitignore` considerations:**
+
+```gitignore
+# Keep run history in the repo (committed by CI)
+# But ignore local scratch runs
+test-runs/local-*/
+```
+
+**Run-to-run comparison in PR comments:**
+
+When a previous run exists, the PR comment includes a comparison:
+
+```markdown
+## Visual Test Results — Run 2026-02-21T14:30:00Z
+
+| # | Test | Current | Previous | Delta |
+|---|------|---------|----------|-------|
+| 1 | Library - Disconnected | ✅ Pass (95%) | ✅ Pass (97%) | -2% confidence |
+| 2 | Settings Screen | ❌ Fail (88%) | ✅ Pass (93%) | **Regression** |
+| 3 | Upload Queue | ✅ Pass (91%) | ⚠️ Warning (72%) | **Improved** |
+
+**Summary: 11/13 passed, 1 failed, 1 warning**
+**vs. Previous: 12/13 passed, 0 failed, 1 warning — 1 new failure**
+
+<details>
+<summary>❌ Settings Screen — Regression Details</summary>
+
+This test PASSED in the previous run (run-2026-02-20T09-15-00Z) but FAILS now.
+
+| Previous | Current |
+|----------|---------|
+| ![prev](test-runs/run-2026-02-20.../settings-main.png) | ![curr](test-runs/latest/settings-main.png) |
+
+**Assertion results:**
+1. ✅ "The Settings title is visible in the header"
+2. ❌ "'Upload Path' row is visible with a path value" — *Path value is truncated, showing "..." instead of full path*
+3. ✅ "'Debug Logs' row has a toggle switch"
+...
+</details>
 ```
 
 ---
@@ -675,30 +1213,42 @@ jobs:
       - name: Run LLM Visual Judge
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          VISUAL_TEST_MAX_RUNS: "2"
         run: |
           npx tsx scripts/visual-judge.ts \
             --screenshots test-screenshots/ \
             --references test-references/ios/iphone-16-pro/light/ \
-            --manifest test-manifest.json \
-            --output test-results/
+            --specs .maestro/visual-tests/ \
+            --run-dir test-runs/ \
+            --git-sha ${{ github.sha }} \
+            --git-branch ${{ github.head_ref || github.ref_name }} \
+            --platform ios \
+            --device "iPhone 16 Pro"
 
       - name: Post PR Comment
         if: github.event_name == 'pull_request'
         run: |
           gh pr comment ${{ github.event.pull_request.number }} \
-            --body-file test-results/report.md
+            --body-file test-runs/latest/report.md
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Test Artifacts
+      - name: Commit Run History
+        run: |
+          git add test-runs/
+          git diff --cached --quiet || \
+            git commit -m "Visual test run $(date -u +%Y-%m-%dT%H:%M:%SZ) [skip ci]"
+          git push
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Test Artifacts (backup)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: visual-test-results-ios
-          path: |
-            test-results/
-            test-screenshots/
-            test-debug/
+          name: visual-test-run-${{ github.sha }}
+          path: test-runs/latest/
+          retention-days: 30
 
       - name: Update Baselines (if requested)
         if: github.event.inputs.update_baselines == 'true'
@@ -711,12 +1261,12 @@ jobs:
       - name: Check Results
         run: |
           node -e "
-            const report = require('./test-results/report.json');
+            const report = require('./test-runs/latest/report.json');
             if (report.summary.failed > 0) {
-              console.error('${report.summary.failed} visual tests failed');
+              console.error(report.summary.failed + ' visual tests failed');
               process.exit(1);
             }
-            console.log('All ${report.summary.total} visual tests passed');
+            console.log('All ' + report.summary.total + ' visual tests passed');
           "
 
   visual-tests-android:
@@ -774,8 +1324,10 @@ jobs:
             npx tsx scripts/visual-judge.ts \
               --screenshots test-screenshots/ \
               --references test-references/android/pixel-8/light/ \
-              --manifest test-manifest.json \
-              --output test-results/
+              --specs .maestro/visual-tests/ \
+              --run-dir test-runs/ \
+              --platform android \
+              --device "Pixel 8"
 ```
 
 ---
@@ -874,10 +1426,18 @@ maestro studio
 # Capture new baselines
 npm run test:visual:update-baselines
 
-# Run LLM judge locally
+# Run LLM judge locally (creates run in test-runs/, prunes old runs)
 ANTHROPIC_API_KEY=sk-... npx tsx scripts/visual-judge.ts \
   --screenshots test-screenshots/ \
-  --references test-references/ios/iphone-16-pro/light/
+  --references test-references/ios/iphone-16-pro/light/ \
+  --specs .maestro/visual-tests/ \
+  --run-dir test-runs/
+
+# View latest run results
+cat test-runs/latest/report.md
+
+# Compare with previous run
+diff test-runs/latest/meta.json test-runs/run-*/meta.json
 ```
 
 **package.json scripts:**
@@ -885,11 +1445,12 @@ ANTHROPIC_API_KEY=sk-... npx tsx scripts/visual-judge.ts \
 ```json
 {
   "scripts": {
-    "test:visual": "maestro test .maestro/flows/ && npx tsx scripts/visual-judge.ts",
+    "test:visual": "maestro test .maestro/flows/ && npx tsx scripts/visual-judge.ts --specs .maestro/visual-tests/ --run-dir test-runs/",
     "test:visual:flows": "maestro test .maestro/flows/",
-    "test:visual:judge": "npx tsx scripts/visual-judge.ts",
+    "test:visual:judge": "npx tsx scripts/visual-judge.ts --specs .maestro/visual-tests/ --run-dir test-runs/",
     "test:visual:update-baselines": "scripts/update-baselines.sh",
-    "test:visual:studio": "maestro studio"
+    "test:visual:studio": "maestro studio",
+    "test:visual:report": "cat test-runs/latest/report.md"
   }
 }
 ```
@@ -902,14 +1463,15 @@ ANTHROPIC_API_KEY=sk-... npx tsx scripts/visual-judge.ts \
 |-------|------|--------|
 | **1** | Add `testID` props to all components | Small |
 | **2** | Create `.maestro/` config and first 3 flows (app launch, library disconnected, settings) | Small |
-| **3** | Capture initial reference screenshots, commit to `test-references/` | Small |
-| **4** | Build `scripts/visual-judge.ts` with Claude Vision API integration | Medium |
-| **5** | Create `test-manifest.json` with all test definitions | Small |
-| **6** | Add report generation (JSON + Markdown + JUnit) | Medium |
-| **7** | Write remaining Maestro flows (all 13 scenarios) | Medium |
-| **8** | Set up GitHub Actions workflow | Medium |
+| **3** | Write visual test specs (`.maestro/visual-tests/*.yaml`) for initial flows | Small |
+| **4** | Capture initial reference screenshots, commit to `test-references/` | Small |
+| **5** | Build `scripts/visual-judge.ts` — spec loader, LLM judge, run history management | Medium |
+| **6** | Add report generation (JSON + Markdown + JUnit) with run-to-run comparison | Medium |
+| **7** | Write remaining Maestro flows + corresponding visual test specs (all 19 scenarios) | Medium |
+| **8** | Set up GitHub Actions workflow (with run history commit step) | Medium |
 | **9** | Add Android emulator job to CI | Small (once iOS works) |
 | **10** | (Optional) Build mock device server for connected-state tests | Medium |
+| **11** | (Optional) Configure Maestro MCP for agent-driven exploratory testing + spec creation | Small |
 
 ---
 
@@ -917,7 +1479,7 @@ ANTHROPIC_API_KEY=sk-... npx tsx scripts/visual-judge.ts \
 
 ```bash
 # Dev dependencies for the LLM vision judge script (Layer 2)
-npm install -D @anthropic-ai/sdk tsx
+npm install -D @anthropic-ai/sdk yaml tsx
 
 # Maestro is installed via curl, not npm (handles Layer 1 pixel regression natively)
 curl -Ls "https://get.maestro.mobile.dev" | bash
