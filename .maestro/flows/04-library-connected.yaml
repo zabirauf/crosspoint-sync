@@ -1,0 +1,15 @@
+appId: com.crosspointsync.app
+name: "Library Tab - Connected with Files"
+tags:
+  - requires-device
+---
+# Verify library tab shows file list when device is connected
+- runFlow: ../helpers/ensure-connected.yaml
+
+- assertVisible:
+    id: "Library.FileList"
+
+- assertVisible:
+    id: "Library.ConnectionPill"
+
+- takeScreenshot: library-connected-files

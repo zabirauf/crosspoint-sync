@@ -1,0 +1,14 @@
+appId: com.crosspointsync.app
+name: "Settings - Edit Upload Path"
+tags:
+  - requires-interaction
+---
+# Tap the upload path setting to enter edit mode
+- runFlow: ../helpers/navigate-to-settings.yaml
+
+- tapOn:
+    id: "Settings.UploadPath"
+
+- waitForAnimationToEnd
+
+- takeScreenshot: settings-upload-path-edit

@@ -1,0 +1,18 @@
+appId: com.crosspointsync.app
+name: "Settings Screen - Main View"
+---
+# Navigate to settings and verify all expected options are visible
+- runFlow: ../helpers/navigate-to-settings.yaml
+
+- waitForAnimationToEnd
+
+- assertVisible:
+    text: "Upload path"
+
+- assertVisible:
+    text: "Clip upload path"
+
+- assertVisible:
+    text: "Debug Logging"
+
+- takeScreenshot: settings-main

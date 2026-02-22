@@ -1,0 +1,45 @@
+id: library-connected
+name: "Library - Connected with Files"
+flow: flows/04-library-connected.yaml
+screenshots:
+  - library-connected-files
+platforms: [ios]
+themes: [light]
+tags: [smoke, library, connected, requires-device]
+
+description: |
+  Library tab connected to a device, showing a file browser with files and folders.
+  Header shows "Library" title with a green "Connected" pill.
+  Breadcrumb navigation shows current path (at least "Device" root).
+  File list displays entries with file type icons, names, and sizes.
+  A floating action button (FAB) is visible in the bottom-right corner.
+
+assertions:
+  - text: "The connection pill shows 'Connected' with a green status dot"
+    severity: fail
+  - text: "At least one file or folder is visible in the list"
+    severity: fail
+  - text: "Each file row shows an icon, filename, and file size or chevron"
+    severity: fail
+  - text: "The FAB button is visible in the bottom-right corner"
+    severity: fail
+  - text: "Folder entries are visually distinct from file entries (folder icon)"
+    severity: warning
+  - text: "A breadcrumb navigation bar is visible above the file list"
+    severity: fail
+
+focus_elements:
+  - id: "Library.ConnectionPill"
+    label: "Connected pill"
+  - id: "Library.FileList"
+    label: "File list"
+  - id: "Library.FAB"
+    label: "Floating action button"
+
+ignore:
+  - "Specific file names and sizes (these vary by test data)"
+  - "Number of files in the list"
+  - "Exact upload progress percentage"
+
+created_by: human
+created_at: "2026-02-20"

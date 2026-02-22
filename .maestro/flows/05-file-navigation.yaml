@@ -1,0 +1,19 @@
+appId: com.crosspointsync.app
+name: "File Navigation - Browse Folders"
+tags:
+  - requires-device
+---
+# Browse into a subfolder and verify navigation
+- runFlow: ../helpers/ensure-connected.yaml
+
+- assertVisible:
+    id: "Library.FileList"
+
+# Tap the Articles folder using its testID (text is not accessible
+# when parent Pressable has a testID on iOS)
+- tapOn:
+    id: "Library.FileRow.Articles"
+
+- waitForAnimationToEnd
+
+- takeScreenshot: file-navigation-subfolder

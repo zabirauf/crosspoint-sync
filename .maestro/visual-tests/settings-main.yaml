@@ -1,0 +1,43 @@
+id: settings-main
+name: "Settings Screen"
+flow: flows/08-settings-screen.yaml
+screenshots:
+  - settings-main
+platforms: [ios]
+themes: [light]
+tags: [smoke, settings]
+
+description: |
+  Settings tab showing app configuration options in grouped sections.
+  "Sync Settings" section: Upload path row with current value.
+  "Web Clipper" section: Clip upload path row with current value, and "Enable in Safari" row.
+  "Device" section: shows Device hostname, IP Address, and Firmware rows.
+  "Debug" section: Debug Logging toggle and View Logs row.
+
+assertions:
+  - text: "The Settings title is visible in the header"
+    severity: fail
+  - text: "'Upload path' row is visible with a path value"
+    severity: fail
+  - text: "'Clip upload path' row is visible with a path value"
+    severity: fail
+  - text: "'Debug Logging' toggle is visible"
+    severity: fail
+  - text: "A 'Device' section shows device, IP address, and firmware rows"
+    severity: fail
+  - text: "Sections are visually grouped with headers"
+    severity: warning
+  - text: "'View Logs' row is visible"
+    severity: warning
+
+custom_criteria:
+  - name: "settings_values"
+    description: "All settings rows show their current value, not placeholder text"
+
+ignore:
+  - "Specific path values (vary by user preferences)"
+  - "Device hostname and IP (varies by connection state)"
+  - "Firmware version number"
+
+created_by: human
+created_at: "2026-02-20"

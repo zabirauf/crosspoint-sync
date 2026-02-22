@@ -1,0 +1,50 @@
+id: library-disconnected
+name: "Library - Disconnected Empty State"
+flow: flows/02-library-disconnected.yaml
+screenshots:
+  - library-disconnected
+platforms: [ios]
+themes: [light]
+tags: [smoke, library, disconnected]
+
+description: |
+  Library tab with no device connected.
+  Shows an empty state with plug icon and "No Device Connected" message.
+  Subtitle reads "Connect to your e-ink reader to browse and manage books."
+  A "Connect" button is shown below the subtitle.
+  Header contains the "Library" title and a connection pill showing "Connect" with gray dot.
+  Tab bar at bottom with Library (selected) and Settings tabs.
+
+assertions:
+  - text: "The connection pill in the header shows 'Connect' with a gray status dot"
+    severity: fail
+  - text: "An empty state icon is centered in the main content area"
+    severity: fail
+  - text: "The text 'No Device Connected' is visible"
+    severity: fail
+  - text: "A subtitle explaining how to connect is visible below the title"
+    severity: warning
+  - text: "A 'Connect' action button is visible"
+    severity: fail
+  - text: "The tab bar shows Library and Settings tabs with Library selected"
+    severity: fail
+  - text: "No loading spinners or error messages are visible"
+    severity: warning
+
+focus_elements:
+  - id: "Library.ConnectionPill"
+    label: "Connection status pill"
+  - id: "EmptyState"
+    label: "Empty state container"
+
+ignore:
+  - "Exact timestamp or time display in the status bar"
+  - "Battery percentage or signal strength indicators"
+  - "Any system UI elements outside the app frame"
+
+custom_criteria:
+  - name: "empty_state_messaging"
+    description: "The empty state message clearly communicates what action the user should take"
+
+created_by: human
+created_at: "2026-02-20"

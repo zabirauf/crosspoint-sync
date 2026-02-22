@@ -1,0 +1,32 @@
+id: app-launch
+name: "App Launch - Initial State"
+flow: flows/01-app-launch.yaml
+screenshots:
+  - app-launch
+platforms: [ios]
+themes: [light]
+tags: [smoke, launch]
+
+description: |
+  App just launched, showing the Library tab in disconnected state.
+  Header shows "Library" title with a connection pill showing "Connect".
+  Main content shows empty state with plug icon and "No Device Connected" message.
+  Tab bar at bottom with Library (selected) and Settings tabs.
+
+assertions:
+  - text: "The Library tab title is visible in the header"
+    severity: fail
+  - text: "The connection pill in the header shows 'Connect' text"
+    severity: fail
+  - text: "The tab bar shows Library and Settings tabs"
+    severity: fail
+  - text: "No loading spinners or crash dialogs are visible"
+    severity: fail
+
+ignore:
+  - "Exact timestamp or time display in the status bar"
+  - "Battery percentage or signal strength indicators"
+  - "Any system UI elements outside the app frame"
+
+created_by: human
+created_at: "2026-02-20"

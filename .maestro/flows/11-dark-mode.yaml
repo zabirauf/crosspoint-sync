@@ -1,0 +1,17 @@
+appId: com.crosspointsync.app
+name: "Dark Mode - Library Disconnected"
+---
+# NOTE: Maestro cannot programmatically toggle iOS system dark mode.
+# Before running this flow, manually enable dark mode:
+#   iOS Settings -> Display & Brightness -> Dark
+# Or use the Control Center dark mode toggle.
+#
+# This flow captures the library disconnected state in dark mode
+# for visual regression comparison.
+
+- runFlow: ../helpers/ensure-disconnected.yaml
+
+- assertVisible:
+    text: "Library"
+
+- takeScreenshot: library-disconnected-dark

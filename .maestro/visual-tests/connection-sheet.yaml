@@ -1,0 +1,40 @@
+id: connection-sheet
+name: "Connection Sheet - Idle"
+flow: flows/03-device-connection.yaml
+screenshots:
+  - connection-sheet-idle
+platforms: [ios]
+themes: [light]
+tags: [smoke, connection]
+
+description: |
+  Connection bottom sheet is open, showing the disconnected state.
+  Header shows "Device" title with a "Not connected" status badge (gray dot).
+  A "How to connect" info card explains connection methods (Join a Network, Create Hotspot).
+  Below the card, a device address input field with a "Connect" button.
+  Optionally a "Scan for Devices" button below that.
+
+assertions:
+  - text: "The sheet header shows 'Device' title"
+    severity: fail
+  - text: "The connection status shows 'Not connected' with a gray dot"
+    severity: fail
+  - text: "A 'How to connect' info card is visible with instructions"
+    severity: fail
+  - text: "A device address input field is visible"
+    severity: fail
+  - text: "A 'Connect' button is visible next to the input"
+    severity: fail
+
+focus_elements:
+  - id: "Connection.Sheet"
+    label: "Connection sheet"
+  - id: "Connection.ConnectButton"
+    label: "Connect button"
+
+ignore:
+  - "System status bar elements"
+  - "Background dimming opacity variations"
+
+created_by: human
+created_at: "2026-02-20"

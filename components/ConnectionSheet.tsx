@@ -64,7 +64,7 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
     >
       <Sheet.Overlay animation="lazy" opacity={0.5} enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
       <Sheet.Handle />
-      <Sheet.Frame padding="$4">
+      <Sheet.Frame padding="$4" testID="Connection.Sheet">
         <Sheet.ScrollView>
           <YStack gap="$3">
             <XStack justifyContent="space-between" alignItems="center">
@@ -110,7 +110,7 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
                     </Text>
                   </YStack>
                 )}
-                <Button size="$4" theme="red" onPress={disconnect}>
+                <Button size="$4" theme="red" onPress={disconnect} testID="Connection.DisconnectButton">
                   Disconnect
                 </Button>
               </>
@@ -181,6 +181,7 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
                       theme="blue"
                       disabled={!manualIp.trim()}
                       onPress={() => connectManualIP(manualIp.trim())}
+                      testID="Connection.ConnectButton"
                     >
                       Connect
                     </Button>
@@ -190,7 +191,7 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
                 {deviceScanEnabled && (
                   <>
                     <Separator />
-                    <Button size="$4" theme="blue" onPress={startScan}>
+                    <Button size="$4" theme="blue" onPress={startScan} testID="Connection.ScanButton">
                       Scan for Devices
                     </Button>
                   </>

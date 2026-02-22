@@ -69,6 +69,7 @@ export function ActionFAB({ onAddBook, onNewFolder, onSleepBackground, showNewFo
           <Pressable
             onPress={() => handleOption(onAddBook)}
             style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
+            testID="FAB.UploadBook"
           >
             <XStack gap="$2.5" alignItems="center" paddingHorizontal="$3" paddingVertical="$2.5">
               <FontAwesome name="book" size={16} color={isDark ? '#81d4fa' : '#1a73e8'} />
@@ -81,6 +82,7 @@ export function ActionFAB({ onAddBook, onNewFolder, onSleepBackground, showNewFo
               <Pressable
                 onPress={() => handleOption(onNewFolder)}
                 style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
+                testID="FAB.NewFolder"
               >
                 <XStack gap="$2.5" alignItems="center" paddingHorizontal="$3" paddingVertical="$2.5">
                   <FontAwesome name="folder" size={16} color={isDark ? '#ffb74d' : '#f5a623'} />
@@ -106,6 +108,7 @@ export function ActionFAB({ onAddBook, onNewFolder, onSleepBackground, showNewFo
       <Pressable
         onPress={openMenu}
         style={[styles.fab, { bottom: bottomOffset }]}
+        testID="Library.FAB"
       >
         <FontAwesome name="plus" size={22} color="#fff" />
       </Pressable>

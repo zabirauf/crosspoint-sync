@@ -1,0 +1,37 @@
+id: fab-menu
+name: "FAB Menu - Open"
+flow: flows/10-fab-menu.yaml
+screenshots:
+  - fab-menu-open
+platforms: [ios]
+themes: [light]
+tags: [smoke, library, fab]
+
+description: |
+  The floating action button (FAB) menu is expanded, showing action options.
+  Options include "Upload Book" with a book icon and "Sleep Background" with a moon icon.
+  When connected, also shows "New Folder" with a folder icon.
+  A semi-transparent backdrop covers the rest of the screen.
+
+assertions:
+  - text: "'Upload Book' option is visible with a book icon"
+    severity: fail
+  - text: "'Sleep Background' option is visible with a moon icon"
+    severity: fail
+  - text: "The FAB button (plus icon) is visible at the bottom right"
+    severity: fail
+  - text: "Menu items have clear separation between them"
+    severity: warning
+
+focus_elements:
+  - id: "Library.FAB"
+    label: "FAB button"
+  - id: "FAB.UploadBook"
+    label: "Upload book option"
+
+ignore:
+  - "Background content behind the overlay"
+  - "System status bar"
+
+created_by: human
+created_at: "2026-02-20"

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="visual-tests" tests="7" failures="0" errors="0" skipped="7">
+  <testsuite name="visual-judge" tests="7" failures="0" errors="0" skipped="7">
+    <testcase name="App Launch - Initial State" classname="visual-tests.app-launch">
+      <system-out>Test screenshot not found: test-screenshots/app-launch.png</system-out>
+    </testcase>
+    <testcase name="Connection Sheet - Idle" classname="visual-tests.connection-sheet">
+      <system-out>Test screenshot not found: test-screenshots/connection-sheet-idle.png</system-out>
+    </testcase>
+    <testcase name="FAB Menu - Open" classname="visual-tests.fab-menu">
+      <system-out>Test screenshot not found: test-screenshots/fab-menu-open.png</system-out>
+    </testcase>
+    <testcase name="Library - Connected with Files" classname="visual-tests.library-connected">
+      <system-out>Test screenshot not found: test-screenshots/library-connected-files.png</system-out>
+    </testcase>
+    <testcase name="Library - Disconnected Empty State" classname="visual-tests.library-disconnected">
+      <system-out>Test screenshot not found: test-screenshots/library-disconnected.png</system-out>
+    </testcase>
+    <testcase name="Settings Screen" classname="visual-tests.settings-main">
+      <system-out>Test screenshot not found: test-screenshots/settings-main.png</system-out>
+    </testcase>
+    <testcase name="Upload Queue Sheet" classname="visual-tests.upload-queue">
+      <system-out>Test screenshot not found: test-screenshots/upload-queue-active.png</system-out>
+    </testcase>
+  </testsuite>
+</testsuites>

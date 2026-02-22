@@ -11,11 +11,13 @@ function SettingsRow({
   label,
   value,
   onPress,
+  testID,
 }: {
   icon: React.ComponentProps<typeof FontAwesome>['name'];
   label: string;
   value: string;
   onPress?: () => void;
+  testID?: string;
 }) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -27,6 +29,7 @@ function SettingsRow({
       paddingVertical="$2"
       onPress={onPress}
       pressStyle={onPress ? { opacity: 0.7 } : undefined}
+      testID={testID}
     >
       <XStack gap="$3" alignItems="center">
         <FontAwesome name={icon} size={16} color={isDark ? '#aaa' : '#666'} />
@@ -123,11 +126,11 @@ export default function SettingsScreen() {
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: theme.background.val }} contentContainerStyle={{ padding: 16, gap: 24 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: theme.background.val }} contentContainerStyle={{ padding: 16, gap: 24 }} testID="Settings.Screen">
       <YStack gap="$2" paddingHorizontal="$2">
         <H4>Sync Settings</H4>
         <Separator marginVertical="$1" />
-        <SettingsRow icon="upload" label="Upload path" value={defaultUploadPath} onPress={handleChangeUploadPath} />
+        <SettingsRow icon="upload" label="Upload path" value={defaultUploadPath} onPress={handleChangeUploadPath} testID="Settings.UploadPath" />
       </YStack>
 
       <Separator />
@@ -135,7 +138,7 @@ export default function SettingsScreen() {
       <YStack gap="$2" paddingHorizontal="$2">
         <H4>Web Clipper</H4>
         <Separator marginVertical="$1" />
-        <SettingsRow icon="folder-o" label="Clip upload path" value={clipUploadPath} onPress={handleChangeClipPath} />
+        <SettingsRow icon="folder-o" label="Clip upload path" value={clipUploadPath} onPress={handleChangeClipPath} testID="Settings.ClipPath" />
         <Separator />
         <SettingsRow icon="safari" label="Enable in Safari" value="Safari → Extensions" onPress={handleOpenExtensionSettings} />
       </YStack>
@@ -173,7 +176,7 @@ export default function SettingsScreen() {
         {(isConnected || lastDeviceIp) && (
           <>
             <Separator />
-            <Button size="$3" theme="red" marginTop="$2" onPress={handleForgetDevice}>
+            <Button size="$3" theme="red" marginTop="$2" onPress={handleForgetDevice} testID="Settings.ForgetDevice">
               Forget Device
             </Button>
           </>
@@ -207,6 +210,7 @@ export default function SettingsScreen() {
           label="View Logs"
           value=""
           onPress={() => router.push('/debug-logs')}
+          testID="Settings.ViewLogs"
         />
       </YStack>
 

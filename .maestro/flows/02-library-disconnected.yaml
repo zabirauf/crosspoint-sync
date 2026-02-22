@@ -1,0 +1,19 @@
+appId: com.crosspointsync.app
+name: "Library Tab - Disconnected State"
+---
+# Verify library tab shows disconnected empty state
+- runFlow: ../helpers/ensure-disconnected.yaml
+
+- assertVisible:
+    text: "Library"
+
+- assertVisible:
+    text: "No Device Connected"
+
+- assertVisible:
+    id: "Library.ConnectionPill"
+
+- assertVisible:
+    id: "EmptyState"
+
+- takeScreenshot: library-disconnected

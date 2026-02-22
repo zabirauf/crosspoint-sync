@@ -51,7 +51,7 @@ function formatSize(bytes: number): string {
 
 export function UploadJobCard({ job, onCancel, onRetry, onRemove, onOverwrite }: UploadJobCardProps) {
   return (
-    <Card bordered padded size="$3">
+    <Card bordered padded size="$3" testID={`UploadQueue.Job.${job.id}`}>
       <YStack gap="$2">
         <XStack justifyContent="space-between" alignItems="center">
           <Text fontSize="$4" fontWeight="500" flex={1} numberOfLines={1}>

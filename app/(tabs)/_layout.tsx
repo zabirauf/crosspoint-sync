@@ -30,6 +30,7 @@ export default function TabLayout() {
         options={{
           title: 'Library',
           tabBarIcon: ({ color }) => <TabBarIcon name="book" color={color} />,
+          tabBarTestID: 'TabBar.Library',
         }}
       />
       <Tabs.Screen
@@ -37,6 +38,7 @@ export default function TabLayout() {
         options={{
           title: 'Settings',
           tabBarIcon: ({ color }) => <TabBarIcon name="gear" color={color} />,
+          tabBarTestID: 'TabBar.Settings',
         }}
       />
     </Tabs>

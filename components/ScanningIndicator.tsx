@@ -28,7 +28,7 @@ export function ScanningIndicator() {
   }));
 
   return (
-    <YStack alignItems="center" gap="$2" paddingVertical="$4">
+    <YStack alignItems="center" gap="$2" paddingVertical="$4" testID="Connection.ScanningIndicator">
       <Animated.View style={animatedStyle}>
         <FontAwesome name="wifi" size={32} color={isDark ? '#81d4fa' : '#1a73e8'} />
       </Animated.View>

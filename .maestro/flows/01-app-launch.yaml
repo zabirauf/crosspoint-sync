@@ -1,0 +1,13 @@
+appId: com.crosspointsync.app
+name: "App Launch - Cold Start"
+---
+# Capture the app in disconnected state (the true initial experience)
+- runFlow: ../helpers/ensure-disconnected.yaml
+
+- assertVisible:
+    text: "Library"
+
+- assertVisible:
+    text: "No Device Connected"
+
+- takeScreenshot: app-launch

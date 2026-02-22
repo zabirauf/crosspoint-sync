@@ -39,7 +39,7 @@ export function UploadStatusBar({ onPress }: UploadStatusBarProps) {
   }
 
   return (
-    <Pressable onPress={onPress}>
+    <Pressable onPress={onPress} testID="Library.UploadStatusBar">
       <XStack
         paddingHorizontal="$3"
         paddingVertical="$2.5"

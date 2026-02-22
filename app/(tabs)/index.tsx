@@ -139,7 +139,7 @@ export default function LibraryScreen() {
   }, [currentPath]);
 
   return (
-    <YStack flex={1} backgroundColor="$background">
+    <YStack flex={1} backgroundColor="$background" testID="Library.Screen">
       {isConnected ? (
         <SwipeBackGesture
           onSwipeBack={navigateUp}
@@ -211,6 +211,7 @@ export default function LibraryScreen() {
 
           {/* File list */}
           <FlatList
+            testID="Library.FileList"
             data={files}
             keyExtractor={(item) => item.name}
             renderItem={({ item }) => {

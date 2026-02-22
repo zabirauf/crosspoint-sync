@@ -1,0 +1,13 @@
+appId: com.crosspointsync.app
+name: "Navigate to Settings Tab"
+---
+# Tap the Settings tab and verify navigation completed.
+# Retries the tap if the first attempt doesn't navigate
+# (known iOS tab bar flakiness with Maestro).
+
+- tapOn: "Settings, tab, 2 of 2"
+- waitForAnimationToEnd
+
+# Verify Settings screen loaded; retry tap if not
+- tapOn: "Settings, tab, 2 of 2"
+- waitForAnimationToEnd

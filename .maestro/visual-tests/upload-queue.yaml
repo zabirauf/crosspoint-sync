@@ -1,0 +1,36 @@
+id: upload-queue
+name: "Upload Queue Sheet"
+flow: flows/07-upload-queue.yaml
+screenshots:
+  - upload-queue-active
+platforms: [ios]
+themes: [light]
+tags: [upload, queue, requires-device]
+
+description: |
+  Upload queue bottom sheet showing upload job cards.
+  Header shows "Upload Queue" title, optionally with completed count.
+  Each job card shows filename, destination path, status, and progress.
+  Active uploads show a progress bar with percentage.
+  An "Add Books" button at the bottom.
+  Warning message about keeping app open during uploads.
+
+assertions:
+  - text: "The sheet header shows 'Upload Queue'"
+    severity: fail
+  - text: "An 'Add Books' button is visible"
+    severity: fail
+  - text: "Job cards show filename and status information"
+    severity: warning
+
+focus_elements:
+  - id: "UploadQueue.Sheet"
+    label: "Queue sheet container"
+
+ignore:
+  - "Exact filenames (vary by test data)"
+  - "Exact progress percentages"
+  - "Upload speed numbers"
+
+created_by: human
+created_at: "2026-02-20"

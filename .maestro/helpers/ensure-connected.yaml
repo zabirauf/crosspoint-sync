@@ -1,0 +1,20 @@
+appId: com.crosspointsync.app
+name: "Ensure Connected State"
+---
+# Ensure the app is connected to a device.
+# Forces a fresh app launch to trigger auto-reconnect via lastDeviceIp.
+
+- stopApp
+- launchApp
+
+# Wait for the app to load
+- extendedWaitUntil:
+    visible:
+      id: "Library.ConnectionPill"
+    timeout: 10000
+
+# Wait for auto-reconnect to complete — the FileList appears when connected
+- extendedWaitUntil:
+    visible:
+      id: "Library.FileList"
+    timeout: 15000

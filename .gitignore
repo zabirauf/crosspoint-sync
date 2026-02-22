@@ -39,3 +39,8 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Visual testing
+test-runs/local-*/
+test-screenshots/
+test-runs/latest

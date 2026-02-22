@@ -1,0 +1,20 @@
+appId: com.crosspointsync.app
+name: "FAB Menu - Expanded State"
+---
+# Open the FAB menu from disconnected state and verify menu items
+- runFlow: ../helpers/ensure-disconnected.yaml
+
+- tapOn:
+    id: "Library.FAB"
+
+- waitForAnimationToEnd
+
+# Wait for the Reanimated menu animation to finish
+- extendedWaitUntil:
+    visible:
+      id: "FAB.UploadBook"
+    timeout: 3000
+
+# Note: FAB.NewFolder is only visible when connected (showNewFolder={isConnected})
+
+- takeScreenshot: fab-menu-open

@@ -43,6 +43,7 @@ export function DeviceCard({ device, status, rssi, onPress }: DeviceCardProps) {
       animation="bouncy"
       pressStyle={onPress ? { scale: 0.97, opacity: 0.9 } : undefined}
       onPress={onPress}
+      testID="Connection.DeviceCard"
     >
       <XStack gap="$3" alignItems="center">
         <YStack

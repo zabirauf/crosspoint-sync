@@ -15,7 +15,7 @@ export function EmptyState({ icon, title, subtitle, actionLabel, onAction }: Emp
   const isDark = colorScheme === 'dark';
 
   return (
-    <YStack flex={1} alignItems="center" justifyContent="center" padding="$6" gap="$3">
+    <YStack flex={1} alignItems="center" justifyContent="center" padding="$6" gap="$3" testID="EmptyState">
       <FontAwesome name={icon} size={48} color={isDark ? '#555' : '#ccc'} />
       <Text fontSize="$5" fontWeight="600" textAlign="center">
         {title}

@@ -1,0 +1,61 @@
+appId: com.crosspointsync.app
+name: "Ensure Disconnected State"
+---
+# Ensure the app is in a fully disconnected state.
+# Opens the ConnectionSheet and taps Disconnect if connected.
+# Does two passes to handle the case where auto-reconnect
+# completes between the first check and the sheet interaction.
+
+- launchApp
+
+# Wait for the app to fully load
+- extendedWaitUntil:
+    visible:
+      id: "Library.ConnectionPill"
+    timeout: 10000
+
+# Wait for auto-reconnect to complete (or fail)
+- evalScript: |-
+    const delayMs = 5000;
+    const start = Date.now();
+    while (Date.now() - start < delayMs) {}
+    output.result = "waited"
+
+# === First disconnect attempt ===
+- tapOn:
+    id: "Library.ConnectionPill"
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Disconnect"
+    optional: true
+- waitForAnimationToEnd
+
+# Close the sheet
+- swipe:
+    start: "50%, 30%"
+    end: "50%, 90%"
+- waitForAnimationToEnd
+
+# Brief pause then check again (auto-reconnect may have re-triggered)
+- evalScript: |-
+    const delayMs = 2000;
+    const start = Date.now();
+    while (Date.now() - start < delayMs) {}
+    output.result = "waited"
+
+# === Second disconnect attempt (handles race condition) ===
+- tapOn:
+    id: "Library.ConnectionPill"
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Disconnect"
+    optional: true
+- waitForAnimationToEnd
+
+# Close the sheet
+- swipe:
+    start: "50%, 30%"
+    end: "50%, 90%"
+- waitForAnimationToEnd

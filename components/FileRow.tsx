@@ -61,7 +61,7 @@ export function FileRow({ file, onPress, onLongPress, downloadStatus }: FileRowP
   };
 
   return (
-    <Pressable onPress={onPress} onLongPress={onLongPress}>
+    <Pressable onPress={onPress} onLongPress={onLongPress} testID={`Library.FileRow.${file.name}`}>
       <XStack
         paddingVertical="$3"
         paddingHorizontal="$2"

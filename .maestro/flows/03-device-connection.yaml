@@ -1,0 +1,22 @@
+appId: com.crosspointsync.app
+name: "Device Connection - Connection Sheet"
+---
+# Open the connection sheet from disconnected state
+# to capture the idle connect form
+- runFlow: ../helpers/ensure-disconnected.yaml
+
+- tapOn:
+    id: "Library.ConnectionPill"
+
+- waitForAnimationToEnd
+
+# Assert the sheet opened with the idle connect form
+- extendedWaitUntil:
+    visible:
+      text: "Device"
+    timeout: 3000
+
+- assertVisible:
+    id: "Connection.ConnectButton"
+
+- takeScreenshot: connection-sheet-idle

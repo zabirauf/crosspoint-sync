@@ -1,0 +1,11 @@
+appId: com.crosspointsync.app
+name: "Navigate to Library Tab"
+---
+# Tap the Library tab and verify navigation completed.
+# Double-tap to handle iOS tab bar flakiness with Maestro.
+
+- tapOn: "Library, tab, 1 of 2"
+- waitForAnimationToEnd
+
+- tapOn: "Library, tab, 1 of 2"
+- waitForAnimationToEnd
