@@ -2,7 +2,7 @@ const { withAndroidManifest } = require("expo/config-plugins");
 
 /**
  * Config plugin that adds intent filters to MainActivity for receiving
- * shared EPUB/PDF files and text/URLs from other Android apps.
+ * shared EPUB files and text/URLs from other Android apps.
  */
 function withAndroidShareIntent(config) {
   return withAndroidManifest(config, (mod) => {
@@ -29,17 +29,16 @@ function withAndroidShareIntent(config) {
     );
     if (hasShareFilter) return mod;
 
-    // ACTION_SEND for single EPUB/PDF files
+    // ACTION_SEND for single EPUB files
     existingFilters.push({
       action: [{ $: { "android:name": "android.intent.action.SEND" } }],
       category: [{ $: { "android:name": "android.intent.category.DEFAULT" } }],
       data: [
         { $: { "android:mimeType": "application/epub+zip" } },
-        { $: { "android:mimeType": "application/pdf" } },
       ],
     });
 
-    // ACTION_SEND_MULTIPLE for multiple EPUB/PDF files
+    // ACTION_SEND_MULTIPLE for multiple EPUB files
     existingFilters.push({
       action: [
         { $: { "android:name": "android.intent.action.SEND_MULTIPLE" } },
@@ -47,7 +46,6 @@ function withAndroidShareIntent(config) {
       category: [{ $: { "android:name": "android.intent.category.DEFAULT" } }],
       data: [
         { $: { "android:mimeType": "application/epub+zip" } },
-        { $: { "android:mimeType": "application/pdf" } },
       ],
     });
 

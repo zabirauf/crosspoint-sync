@@ -47,7 +47,6 @@ class ShareViewController: UIViewController {
 
         let validUTIs: [UTType] = [
             UTType("org.idpf.epub-container") ?? .epub,
-            .pdf,
         ]
 
         var pending = 0

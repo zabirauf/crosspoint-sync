@@ -1,6 +1,6 @@
 # CrossPoint Sync
 
-Book syncing app for the XTEink X4 e-ink reader. Discovers devices on local WiFi, browses files, and uploads EPUBs/PDFs via WebSocket.
+Book syncing app for the XTEink X4 e-ink reader. Discovers devices on local WiFi, browses files, and uploads EPUBs via WebSocket.
 
 ## Stack
 
@@ -69,7 +69,7 @@ hooks/
   use-device-discovery.ts  # Scan/connect state machine
   use-device-status.ts     # Polls /api/status every 10s while connected
   use-file-browser.ts      # Path navigation, file CRUD
-  use-document-picker.ts   # EPUB/PDF picker → upload queue
+  use-document-picker.ts   # EPUB picker → upload queue
 components/
   DeviceCard.tsx       # Device info display with signal/status
   FileRow.tsx          # File/folder row with icons and size
@@ -121,7 +121,7 @@ extension-src/           # Safari Web Extension source files (bundled at prebuil
 
 ## iOS Share Extension
 
-- Users can share EPUB/PDF files from any app (Files, Safari, etc.) into CrossPoint Sync's upload queue.
+- Users can share EPUB files from any app (Files, Safari, etc.) into CrossPoint Sync's upload queue.
 - **Config plugin** (`plugins/withShareExtension.js`) generates the native extension at prebuild time: Swift source, Info.plist, entitlements, and Xcode target.
 - **App Group**: `group.com.crosspointsync.app` — shared container between main app and extension.
 - **Flow**: Extension copies file to App Group container + writes JSON manifest → main app picks up manifests on launch/foreground via `services/share-import.ts` → files added to Zustand upload queue.
@@ -129,8 +129,8 @@ extension-src/           # Safari Web Extension source files (bundled at prebuil
 
 ## Android Share Intent
 
-- Users can share EPUB/PDF files from any Android app into the upload queue, or share URLs from browsers to clip articles.
-- **Config plugin** (`plugins/withAndroidShareIntent.js`) adds `ACTION_SEND` / `ACTION_SEND_MULTIPLE` intent filters for `application/epub+zip`, `application/pdf`, and `text/plain` MIME types.
+- Users can share EPUB files from any Android app into the upload queue, or share URLs from browsers to clip articles.
+- **Config plugin** (`plugins/withAndroidShareIntent.js`) adds `ACTION_SEND` / `ACTION_SEND_MULTIPLE` intent filters for `application/epub+zip` and `text/plain` MIME types.
 - **Native module** (`modules/share-intent-receiver/`) reads intent extras via `Activity.getIntent()`, resolves `content://` URIs for display name + size, and fires `onShareIntent` events for new intents while the app is running.
 - **Flow**: Android share sheet → native module reads intent → `services/android-share-import.ts` copies files to cache + adds to upload queue. For text/URL shares → `services/url-article-extractor.ts` fetches + extracts article → `services/epub-generator.ts` generates EPUB → upload queue.
 

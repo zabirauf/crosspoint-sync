@@ -1,6 +1,6 @@
 # CrossPoint Sync
 
-Book syncing app for the [XTEink X4](https://xteink.com) e-ink reader. Discovers devices on your local WiFi, browses files on the device, and uploads EPUBs/PDFs via WebSocket.
+Book syncing app for the [XTEink X4](https://xteink.com) e-ink reader. Discovers devices on your local WiFi, browses files on the device, and uploads EPUBs via WebSocket.
 
 ![CrossPoint Sync — Web Clipper, Library, and Upload Queue](docs/images/crosspoint-sync_overview.png)
 
@@ -8,7 +8,7 @@ Book syncing app for the [XTEink X4](https://xteink.com) e-ink reader. Discovers
 
 - **Device Discovery** — Automatically finds your XTEink X4 on the local network via UDP broadcast, or connect manually by IP address
 - **File Browser** — Browse, create folders, and manage files directly on your e-ink reader
-- **Book Uploads** — Pick EPUBs and PDFs from your phone and upload them over WebSocket with progress tracking
+- **Book Uploads** — Pick EPUBs from your phone and upload them over WebSocket with progress tracking
 - **Upload Queue** — Queue multiple uploads, retry failures, and track progress for each job
 - **Format Preferences** — Configure preferred upload format and destination path on the device
 - **Safari Web Clipper** — Clip web articles from Safari, automatically converted to EPUB and synced to your device

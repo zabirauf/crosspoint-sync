@@ -18,9 +18,9 @@ All copy and metadata for the App Store Connect submission. Character counts are
 
 _170 character limit. Can be updated without a new app version._
 
-> Wirelessly transfer EPUBs and PDFs to your XTEink X4 e-ink reader. Browse files, manage your library, and clip web articles for offline reading — all from your iPhone.
+> Wirelessly transfer EPUBs to your XTEink X4 e-ink reader. Browse files, manage your library, and clip web articles for offline reading — all from your iPhone.
 
-**Character count: 167**
+**Character count: 158**
 
 ---
 
@@ -31,7 +31,7 @@ _4,000 character limit._
 CrossPoint Sync is a wireless companion app for the XTEink X4 e-ink reader. Transfer books, manage your device library, and clip web articles — all over your local WiFi network, no cables required.
 
 WIRELESS FILE TRANSFER
-Send EPUBs and PDFs to your e-ink reader over WiFi. CrossPoint Sync discovers your device automatically on the local network, or you can connect manually by IP address. Uploads are chunked and streamed over WebSocket for reliable, fast transfers.
+Send EPUBs to your e-ink reader over WiFi. CrossPoint Sync discovers your device automatically on the local network, or you can connect manually by IP address. Uploads are chunked and streamed over WebSocket for reliable, fast transfers.
 
 DEVICE FILE BROWSER
 Browse the full file system on your e-ink reader directly from your iPhone. Navigate folders with breadcrumb navigation, create new folders, delete files, and download books back to your phone. Swipe actions make file management quick and intuitive.
@@ -43,7 +43,7 @@ SAFARI WEB CLIPPER
 Save any web article for your e-ink reader with the built-in Safari extension. CrossPoint Web Clipper extracts the article text, downloads images, and converts everything into a clean EPUB that's ready to read on your device. Clips sync automatically the next time you open the app.
 
 iOS SHARE EXTENSION
-Share EPUBs and PDFs from any app — Files, Safari, email — directly into CrossPoint Sync's upload queue. Files are picked up automatically and transferred to your device.
+Share EPUBs from any app — Files, Safari, email — directly into CrossPoint Sync's upload queue. Files are picked up automatically and transferred to your device.
 
 SLEEP BACKGROUND CUSTOMIZATION
 Set a custom sleep screen image on your e-ink reader. Pick any photo from your library, preview it in grayscale, and upload it to your device as the sleep background.
@@ -65,7 +65,7 @@ ADDITIONAL FEATURES
 
 _100 character limit. Comma-separated, no spaces after commas._
 
-> ebook,e-ink,epub,pdf,transfer,sync,reader,wireless,xteink,library,books,clipper,upload,wifi
+> ebook,e-ink,epub,transfer,sync,reader,wireless,xteink,library,books,clipper,upload,wifi
 
 **Character count: 91** (limit: 100)
 
@@ -111,7 +111,7 @@ _Visible only to the App Review team. Explain how to test the app and any specia
 > 1. Ensure the XTEink X4 is powered on with Transfer mode enabled and connected to the same WiFi network as the iPhone.
 > 2. Open the app and tap Connect → Scan. The device should appear within a few seconds.
 > 3. Once connected, the Library tab shows the device file system. You can browse folders, create new folders, and delete files.
-> 4. Tap the + button → Upload Book to pick an EPUB or PDF. The file uploads with a progress bar.
+> 4. Tap the + button → Upload Book to pick an EPUB. The file uploads with a progress bar.
 > 5. The Safari Web Clipper extension (Settings → Enable in Safari) can save web articles as EPUBs.
 >
 > LOCAL NETWORK PERMISSION:

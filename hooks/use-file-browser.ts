@@ -155,9 +155,7 @@ export function useFileBrowser() {
           const localUri = await downloadFile(device.ip, fullPath);
           const mimeType = nextFile.toLowerCase().endsWith('.epub')
             ? 'application/epub+zip'
-            : nextFile.toLowerCase().endsWith('.pdf')
-              ? 'application/pdf'
-              : 'application/octet-stream';
+            : 'application/octet-stream';
           await Sharing.shareAsync(localUri, { mimeType });
         } catch (err) {
           setError(err instanceof Error ? err.message : 'Failed to download file');

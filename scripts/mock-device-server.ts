@@ -55,7 +55,7 @@ function seedFileSystem() {
   mockFiles.set('/Books', [
     { name: 'The Great Gatsby.epub', path: '/Books/The Great Gatsby.epub', size: 2_450_000, isDirectory: false, isEpub: true, lastModified: Date.now() - 86400000 },
     { name: 'Dune.epub', path: '/Books/Dune.epub', size: 1_890_000, isDirectory: false, isEpub: true, lastModified: Date.now() - 172800000 },
-    { name: 'Clean Code.pdf', path: '/Books/Clean Code.pdf', size: 5_120_000, isDirectory: false, isEpub: false, lastModified: Date.now() - 259200000 },
+    { name: 'Clean Code.epub', path: '/Books/Clean Code.epub', size: 5_120_000, isDirectory: false, isEpub: true, lastModified: Date.now() - 259200000 },
     { name: 'Fiction', path: '/Books/Fiction', size: 0, isDirectory: true, isEpub: false, lastModified: Date.now() },
   ]);
 

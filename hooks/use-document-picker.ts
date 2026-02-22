@@ -12,7 +12,6 @@ export function useDocumentPicker() {
       const result = await DocumentPicker.getDocumentAsync({
         type: [
           'application/epub+zip',
-          'application/pdf',
         ],
         multiple: true,
         copyToCacheDirectory: true,

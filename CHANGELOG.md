@@ -17,12 +17,12 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Swipe-to-delete and file download support
 - New folder creation via `Alert.prompt`
 - Sync tab with device discovery/connection and upload queue
-- EPUB and PDF file upload via WebSocket with chunked binary transfer
+- EPUB file upload via WebSocket with chunked binary transfer
 - Upload queue with offline queuing (queue files without device connected)
 - Sequential job processor with progress tracking
 - Cancel and retry support for upload jobs
 - Keep-awake during active uploads
-- iOS Share Extension for importing EPUBs/PDFs from any app
+- iOS Share Extension for importing EPUBs from any app
 - Safari Web Clipper Extension using Defuddle + DOMPurify for article extraction
 - Clipped articles converted to EPUB and uploaded to device
 - Configurable upload paths for books and clipped articles
