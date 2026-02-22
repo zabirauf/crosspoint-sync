@@ -1,0 +1,5 @@
+appId: com.crosspointsync.app
+name: "Assert Enable in Safari row visible"
+---
+- assertVisible:
+    text: "Enable in Safari"

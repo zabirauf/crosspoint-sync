@@ -1,6 +1,6 @@
 {
-  "run_id": "run-2026-02-21T06-14-42-900Z",
-  "timestamp": "2026-02-21T06:14:42.902Z",
+  "run_id": "run-2026-02-22T06-48-56-825Z",
+  "timestamp": "2026-02-22T06:48:56.829Z",
   "platform": "ios",
   "device": "iPhone 16 Pro",
   "theme": "light",
@@ -11,7 +11,7 @@
     "passed": 0,
     "failed": 0,
     "warnings": 7,
-    "skipped": 7
+    "skipped": 1
   },
   "llm_api_calls": 0,
   "tests": [
@@ -26,9 +26,9 @@
         "test": "test-screenshots/app-launch.png",
         "reference": "test-references/ios/iphone-16-pro/light/app-launch.png"
       },
-      "summary": "Test screenshot not found: test-screenshots/app-launch.png",
+      "summary": "No reference screenshot found at test-references/ios/iphone-16-pro/light/app-launch.png",
       "differences": [
-        "Test screenshot missing"
+        "Reference screenshot missing — needs baseline capture"
       ]
     },
     {
@@ -42,9 +42,9 @@
         "test": "test-screenshots/connection-sheet-idle.png",
         "reference": "test-references/ios/iphone-16-pro/light/connection-sheet-idle.png"
       },
-      "summary": "Test screenshot not found: test-screenshots/connection-sheet-idle.png",
+      "summary": "No reference screenshot found at test-references/ios/iphone-16-pro/light/connection-sheet-idle.png",
       "differences": [
-        "Test screenshot missing"
+        "Reference screenshot missing — needs baseline capture"
       ]
     },
     {
@@ -58,9 +58,9 @@
         "test": "test-screenshots/fab-menu-open.png",
         "reference": "test-references/ios/iphone-16-pro/light/fab-menu-open.png"
       },
-      "summary": "Test screenshot not found: test-screenshots/fab-menu-open.png",
+      "summary": "No reference screenshot found at test-references/ios/iphone-16-pro/light/fab-menu-open.png",
       "differences": [
-        "Test screenshot missing"
+        "Reference screenshot missing — needs baseline capture"
       ]
     },
     {
@@ -74,9 +74,9 @@
         "test": "test-screenshots/library-connected-files.png",
         "reference": "test-references/ios/iphone-16-pro/light/library-connected-files.png"
       },
-      "summary": "Test screenshot not found: test-screenshots/library-connected-files.png",
+      "summary": "No reference screenshot found at test-references/ios/iphone-16-pro/light/library-connected-files.png",
       "differences": [
-        "Test screenshot missing"
+        "Reference screenshot missing — needs baseline capture"
       ]
     },
     {
@@ -90,9 +90,9 @@
         "test": "test-screenshots/library-disconnected.png",
         "reference": "test-references/ios/iphone-16-pro/light/library-disconnected.png"
       },
-      "summary": "Test screenshot not found: test-screenshots/library-disconnected.png",
+      "summary": "No reference screenshot found at test-references/ios/iphone-16-pro/light/library-disconnected.png",
       "differences": [
-        "Test screenshot missing"
+        "Reference screenshot missing — needs baseline capture"
       ]
     },
     {
@@ -106,9 +106,9 @@
         "test": "test-screenshots/settings-main.png",
         "reference": "test-references/ios/iphone-16-pro/light/settings-main.png"
       },
-      "summary": "Test screenshot not found: test-screenshots/settings-main.png",
+      "summary": "No reference screenshot found at test-references/ios/iphone-16-pro/light/settings-main.png",
       "differences": [
-        "Test screenshot missing"
+        "Reference screenshot missing — needs baseline capture"
       ]
     },
     {

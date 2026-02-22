@@ -21,6 +21,8 @@ assertions:
     severity: fail
   - text: "'Clip upload path' row is visible with a path value"
     severity: fail
+  - text: "'Enable in Safari' row is visible in the Web Clipper section (iOS only)"
+    severity: fail
   - text: "'Debug Logging' toggle is visible"
     severity: fail
   - text: "A 'Device' section shows device, IP address, and firmware rows"

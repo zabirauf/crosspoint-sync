@@ -12,6 +12,11 @@ name: "Settings Screen - Main View"
 - assertVisible:
     text: "Clip upload path"
 
+- runFlow:
+    when:
+      platform: iOS
+    file: ../helpers/assert-safari-extension.yaml
+
 - assertVisible:
     text: "Debug Logging"
 

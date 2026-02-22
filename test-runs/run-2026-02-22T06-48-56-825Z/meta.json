@@ -1,6 +1,6 @@
 {
-  "run_id": "run-2026-02-21T06-14-42-900Z",
-  "timestamp": "2026-02-21T06:14:42.902Z",
+  "run_id": "run-2026-02-22T06-48-56-825Z",
+  "timestamp": "2026-02-22T06:48:56.829Z",
   "platform": "ios",
   "device": "iPhone 16 Pro",
   "theme": "light",
@@ -10,6 +10,6 @@
   "passed": 0,
   "failed": 0,
   "warnings": 7,
-  "skipped": 7,
+  "skipped": 1,
   "llm_api_calls": 0
 }
