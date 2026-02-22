@@ -5,6 +5,7 @@ import { uploadFileViaWebSocket } from './websocket-upload';
 import { getFiles, ensureRemotePath, clearValidatedPaths } from './device-api';
 import { log } from './logger';
 import { deviceScheduler } from './device-request-scheduler';
+import { recordUploadSuccess, onQueueDrained } from './feedback-request';
 import {
   DEVICE_RECOVERY_DELAY_MS,
   ENSURE_PATH_MAX_RETRIES,
@@ -116,6 +117,7 @@ async function processNextJob() {
             deviceScheduler.setExternalBusy(false);
             log('queue', `Completed: ${nextJob.fileName}`);
             updateJobStatus(nextJob.id, 'completed');
+            recordUploadSuccess();
             // Clean up sleep background BMP after successful upload
             if (nextJob.jobType === 'sleep-background') {
               try {
@@ -146,10 +148,21 @@ async function processNextJob() {
 export function startQueueProcessor(): () => void {
   // Subscribe to upload store — only react to job count or status changes, not progress updates
   let prevJobKey = '';
+  let hadActiveWork = false;
   const unsubUpload = useUploadStore.subscribe((state) => {
     const jobKey = state.jobs.map((j) => `${j.id}:${j.status}`).join(',');
     if (jobKey === prevJobKey) return;
     prevJobKey = jobKey;
+
+    // Detect queue drain: had pending/uploading jobs, now has none
+    const hasActiveWork = state.jobs.some(
+      (j) => j.status === 'pending' || j.status === 'uploading',
+    );
+    if (hadActiveWork && !hasActiveWork) {
+      onQueueDrained();
+    }
+    hadActiveWork = hasActiveWork;
+
     dirListingCache.clear();
     processNextJob();
   });
