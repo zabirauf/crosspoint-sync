@@ -45,6 +45,7 @@
     "plugins": [
       "expo-router",
       "expo-document-picker",
+      ["expo-build-properties", { "android": { "usesCleartextTraffic": true } }],
       "./plugins/withShareExtension",
       "./plugins/withWebExtension",
       "./plugins/withAndroidShareIntent"
