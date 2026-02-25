@@ -92,11 +92,10 @@ extension-src/             # Safari Web Extension source (content script, popup,
 
 ## How It Works
 
-CrossPoint Sync communicates with the XTEink X4 using three protocols:
+CrossPoint Sync communicates with the XTEink X4 using two protocols:
 
-1. **UDP Discovery** (port 8134) — Broadcasts a `hello` message on the local network and listens for the device's response
-2. **HTTP REST API** (port 80) — Fetches device status, lists files, creates/deletes folders, and downloads files
-3. **WebSocket Upload** (port 81) — Streams books to the device in 64KB binary chunks with progress reporting
+1. **HTTP REST API** (port 80) — Fetches device status, lists files, creates/deletes folders, and downloads files
+2. **WebSocket Upload** (port 81) — Streams books to the device in 64KB binary chunks with progress reporting
 
 ## Safari Web Clipper
 

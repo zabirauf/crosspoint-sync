@@ -1334,13 +1334,12 @@ jobs:
 
 ### Step 6: Device Mocking Strategy
 
-Since CrossPoint Sync communicates with a physical XTEink device via UDP/HTTP/WebSocket, tests need a mock device server for connected-state tests.
+Since CrossPoint Sync communicates with a physical XTEink device via HTTP/WebSocket, tests need a mock device server for connected-state tests.
 
 **Option A: Test-only mock server (recommended)**
 
 Create `scripts/mock-device-server.ts` — a lightweight Node.js server that:
-- Responds to UDP discovery broadcasts on port 8134
-- Serves mock HTTP API responses (GET /api/status, GET /api/files)
+- Serves mock HTTP API responses (GET /api/status, GET /api/files, POST /mkdir, etc.)
 - Accepts WebSocket upload connections and acknowledges chunks
 - Runs on localhost, reachable from the simulator
 
