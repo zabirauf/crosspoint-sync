@@ -211,7 +211,7 @@ export async function ensureRemotePath(ip: string, remotePath: string): Promise<
 
     try {
       const files = await getFiles(ip, currentPath);
-      const exists = files.some((f) => f.isDirectory && f.name === segment);
+      const exists = files.some((f) => f.isDirectory && f.name.toLowerCase() === segment.toLowerCase());
       if (!exists) {
         await createFolder(ip, segment, currentPath);
         log('api', `Created folder: ${segment} at ${currentPath}`);

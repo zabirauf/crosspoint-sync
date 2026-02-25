@@ -160,7 +160,7 @@ const httpServer = http.createServer((req, res) => {
 
         // Add to parent
         const parentFiles = mockFiles.get(parentPath) || [];
-        if (!parentFiles.find(f => f.name === folderName)) {
+        if (!parentFiles.find(f => f.name.toLowerCase() === folderName.toLowerCase())) {
           parentFiles.push({
             name: folderName,
             path,
@@ -197,7 +197,7 @@ const httpServer = http.createServer((req, res) => {
         const fileName = path.substring(path.lastIndexOf('/') + 1);
 
         const parentFiles = mockFiles.get(parentPath) || [];
-        const idx = parentFiles.findIndex(f => f.name === fileName);
+        const idx = parentFiles.findIndex(f => f.name.toLowerCase() === fileName.toLowerCase());
         if (idx !== -1) {
           parentFiles.splice(idx, 1);
           mockFiles.set(parentPath, parentFiles);
@@ -277,7 +277,7 @@ wss.on('connection', (ws: WebSocket) => {
 
         // Add file to mock filesystem
         const parentFiles = mockFiles.get(destPath) || [];
-        const existingIdx = parentFiles.findIndex(f => f.name === fileName);
+        const existingIdx = parentFiles.findIndex(f => f.name.toLowerCase() === fileName.toLowerCase());
         const fileEntry: MockFile = {
           name: fileName,
           path: `${destPath === '/' ? '' : destPath}/${fileName}`,

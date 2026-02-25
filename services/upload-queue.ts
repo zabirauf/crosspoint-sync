@@ -68,7 +68,7 @@ async function processNextJob() {
       // Conflict check: skip if forceUpload is set
       if (!nextJob.forceUpload) {
         const remoteNames = await getRemoteFileNames(connectedDevice.ip, nextJob.destinationPath);
-        if (remoteNames.includes(nextJob.fileName)) {
+        if (remoteNames.some((n) => n.toLowerCase() === nextJob.fileName.toLowerCase())) {
           log('queue', `Conflict: ${nextJob.fileName} already exists at ${nextJob.destinationPath}`);
           updateJobStatus(nextJob.id, 'conflict');
           continue; // Check next job
