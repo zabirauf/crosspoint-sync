@@ -1,11 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
-import { ScrollView, Pressable, ActivityIndicator, useColorScheme } from 'react-native';
-import { Sheet, XStack, YStack, Text, H4, Button } from 'tamagui';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { ScrollView, Pressable, ActivityIndicator, useColorScheme, TextInput } from 'react-native';
+import { Sheet, XStack, YStack, Text, H4, Button, Input } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { DeviceFile } from '@/types/device';
 import { getFiles } from '@/services/device-api';
 import { useDeviceStore } from '@/stores/device-store';
-import { PromptDialog } from '@/components/PromptDialog';
 
 interface MoveFileSheetProps {
   open: boolean;
@@ -32,13 +31,33 @@ export function MoveFileSheet({
   const [directories, setDirectories] = useState<DeviceFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [folderPromptOpen, setFolderPromptOpen] = useState(false);
+  const [folderName, setFolderName] = useState('');
+  const folderInputRef = useRef<TextInput>(null);
+  const breadcrumbRef = useRef<ScrollView>(null);
 
-  // Reset to root when sheet opens
+  const pathParts = browsePath.split('/').filter(Boolean);
+
+  // Auto-scroll breadcrumbs to the end when path changes
+  useEffect(() => {
+    setTimeout(() => {
+      breadcrumbRef.current?.scrollToEnd?.({ animated: true });
+    }, 50);
+  }, [browsePath]);
+
+  // Focus the folder name input after it mounts inside the sheet
+  useEffect(() => {
+    if (folderPromptOpen) {
+      const timer = setTimeout(() => folderInputRef.current?.focus(), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [folderPromptOpen]);
+
+  // Start from the user's current folder when sheet opens
   useEffect(() => {
     if (open) {
-      setBrowsePath('/');
+      setBrowsePath(sourceDir);
     }
-  }, [open]);
+  }, [open, sourceDir]);
 
   const loadDirectories = useCallback(
     async (path: string) => {
@@ -71,12 +90,6 @@ export function MoveFileSheet({
     setBrowsePath(newPath);
   };
 
-  const navigateUp = () => {
-    if (browsePath === '/') return;
-    const parent = browsePath.substring(0, browsePath.lastIndexOf('/')) || '/';
-    setBrowsePath(parent);
-  };
-
   // Normalize paths for comparison (strip trailing slashes)
   const normSourceDir = sourceDir.endsWith('/') ? sourceDir.slice(0, -1) : sourceDir;
   const normBrowsePath = browsePath.endsWith('/') ? browsePath.slice(0, -1) : browsePath;
@@ -96,21 +109,25 @@ export function MoveFileSheet({
     onOpenChange(false);
   };
 
-  const handleCreateFolder = async (name: string) => {
-    const trimmed = name.trim();
+  const handleCreateFolder = async () => {
+    const trimmed = folderName.trim();
     if (!trimmed) return;
     try {
       await onCreateFolder(trimmed, browsePath);
+      setFolderPromptOpen(false);
+      setFolderName('');
       await loadDirectories(browsePath);
     } catch {
       // Error handled by caller
     }
   };
 
-  const displayPath = browsePath === '/' ? '/ (root)' : browsePath;
+  const cancelFolderPrompt = () => {
+    setFolderPromptOpen(false);
+    setFolderName('');
+  };
 
   return (
-    <>
       <Sheet
         modal
         open={open}
@@ -164,32 +181,94 @@ export function MoveFileSheet({
               </XStack>
             </XStack>
 
-            {/* Current path */}
-            <XStack paddingHorizontal="$4" paddingBottom="$2">
-              <Text color="$gray10" fontSize="$2" numberOfLines={1}>
-                {displayPath}
-              </Text>
-            </XStack>
+            {/* Breadcrumb navigation */}
+            <YStack borderBottomWidth={0.5} borderBottomColor={isDark ? '$gray5' : '$gray4'}>
+              <ScrollView
+                ref={breadcrumbRef}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 10, alignItems: 'center' }}
+              >
+                <XStack alignItems="center" gap="$1.5">
+                  {/* Root segment */}
+                  {pathParts.length > 0 ? (
+                    <Text
+                      color="$blue10"
+                      fontSize="$3"
+                      fontWeight="500"
+                      onPress={() => setBrowsePath('/')}
+                    >
+                      <FontAwesome name="tablet" size={13} color={isDark ? '#6cb4ee' : '#2089dc'} />{' '}
+                      Device
+                    </Text>
+                  ) : (
+                    <Text color="$colorFocus" fontSize="$3" fontWeight="600">
+                      <FontAwesome name="tablet" size={13} />{' '}
+                      Device
+                    </Text>
+                  )}
+
+                  {/* Path segments */}
+                  {pathParts.map((part, index) => {
+                    const isLast = index === pathParts.length - 1;
+                    const segmentPath = '/' + pathParts.slice(0, index + 1).join('/');
+                    return (
+                      <XStack key={segmentPath} alignItems="center" gap="$1.5">
+                        <Text color={isDark ? '$gray8' : '$gray9'} fontSize="$3">
+                          ›
+                        </Text>
+                        {isLast ? (
+                          <Text color="$colorFocus" fontSize="$3" fontWeight="600">
+                            {part}
+                          </Text>
+                        ) : (
+                          <Text
+                            color="$blue10"
+                            fontSize="$3"
+                            fontWeight="500"
+                            onPress={() => setBrowsePath(segmentPath)}
+                          >
+                            {part}
+                          </Text>
+                        )}
+                      </XStack>
+                    );
+                  })}
+                </XStack>
+              </ScrollView>
+            </YStack>
+
+            {/* Inline new folder input */}
+            {folderPromptOpen && (
+              <XStack
+                paddingHorizontal="$4"
+                paddingBottom="$2"
+                gap="$2"
+                alignItems="center"
+              >
+                <Input
+                  ref={folderInputRef as any}
+                  flex={1}
+                  size="$4"
+                  placeholder="Folder name"
+                  value={folderName}
+                  onChangeText={setFolderName}
+                  onSubmitEditing={handleCreateFolder}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  testID="MoveFile.FolderNameInput"
+                />
+                <Button size="$3" theme="blue" onPress={handleCreateFolder} testID="MoveFile.CreateFolderButton">
+                  Create
+                </Button>
+                <Button size="$3" chromeless onPress={cancelFolderPrompt}>
+                  <FontAwesome name="times" size={14} color="#999" />
+                </Button>
+              </XStack>
+            )}
 
             {/* Directory list */}
             <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16 }}>
-              {browsePath !== '/' && (
-                <Pressable onPress={navigateUp} testID="MoveFile.BackButton">
-                  <XStack
-                    paddingVertical="$3"
-                    gap="$3"
-                    alignItems="center"
-                    borderBottomWidth={0.5}
-                    borderBottomColor={isDark ? '$gray5' : '$gray4'}
-                  >
-                    <FontAwesome name="arrow-left" size={18} color={isDark ? '#aaa' : '#555'} style={{ width: 24, textAlign: 'center' }} />
-                    <Text fontSize="$4" color="$gray10">
-                      Back
-                    </Text>
-                  </XStack>
-                </Pressable>
-              )}
-
               {isLoading && (
                 <YStack alignItems="center" paddingVertical="$4">
                   <ActivityIndicator size="small" />
@@ -253,14 +332,5 @@ export function MoveFileSheet({
         </Sheet.Frame>
       </Sheet>
 
-      <PromptDialog
-        open={folderPromptOpen}
-        onOpenChange={setFolderPromptOpen}
-        title="New Folder"
-        message={`Create a new folder in ${displayPath}:`}
-        onSubmit={handleCreateFolder}
-        submitLabel="Create"
-      />
-    </>
   );
 }
