@@ -2,12 +2,12 @@
 id: BUG-007
 type: bug
 title: Upload queue delete/retry buttons unresponsive on Android — list bounces instead
-status: open
+status: closed
 priority: high
 source: reddit-beta
 reporter: tegenligger
 date_reported: 2025-06-25
-date_closed:
+date_closed: 2026-02-24
 labels: [android, upload-queue]
 blocked_by: ""
 related: []

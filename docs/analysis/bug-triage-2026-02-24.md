@@ -7,7 +7,7 @@
 
 Analyzed all 8 open bugs/UX issues. Excluded feature requests (FEAT-009, FEAT-010) since those are new capabilities, not fixes. Categorized each as either a **Bug** (broken behavior) or **QoL** (quality-of-life improvement), assessed complexity, and stack ranked by priority.
 
-**3 of 8 issues have been fixed** — BUG-001, BUG-005, and BUG-008 are now closed.
+**4 of 8 issues have been fixed** — BUG-001, BUG-005, BUG-007, and BUG-008 are now closed.
 
 ---
 
@@ -25,6 +25,10 @@ Analyzed all 8 open bugs/UX issues. Excluded feature requests (FEAT-009, FEAT-01
 - **Commit:** `6c62fb1` — Fix case-sensitive comparisons vs FAT32 filesystem
 - **Closed in:** `52ce946`
 
+### ~~2. BUG-007 — Upload queue delete/retry buttons unresponsive (Android)~~ FIXED
+- **Commit:** `ac0762d` — Fix Android sheet button taps intercepted by gesture handler
+- **Closed in:** issue tracker updated 2026-02-24
+
 ---
 
 ## Remaining Issues (highest priority first)
@@ -35,13 +39,6 @@ Analyzed all 8 open bugs/UX issues. Excluded feature requests (FEAT-009, FEAT-01
 - **Why #1:** This is a showstopper. The app becomes completely unusable after a basic operation (creating a folder) and requires a full restart. Worst user experience of any open bug.
 - **Files:** `hooks/use-file-browser.ts`, `services/device-api.ts`, possibly `app/(tabs)/index.tsx`
 - **Root cause:** Likely a stale closure or race condition in `createNewFolder` — it calls `loadFiles()` without explicitly passing `currentPath`, and there may be a cache invalidation issue with the device scheduler.
-
-### 2. BUG-007 — Upload queue delete/retry buttons unresponsive (Android)
-- **Category:** Bug (broken controls)
-- **Complexity:** Medium — 2 files, ~40-60 lines
-- **Why #2:** Core upload management buttons don't work at all on Android. Users can't retry failed uploads or clear their queue. The list bounces instead of responding to taps.
-- **Files:** `components/UploadJobCard.tsx`, `components/UploadQueueSheet.tsx`
-- **Root cause:** Gesture conflict — `Sheet.ScrollView` intercepts touch events before they reach child `Button` components. Android's touch propagation differs from iOS. Fix likely involves replacing Tamagui `Button` with `react-native-gesture-handler`'s `RectButton`, or disabling scroll during button press.
 
 ### 3. BUG-003 — Connection fails on iPhone hotspot (172.x.x.x subnet)
 - **Category:** Bug (connectivity edge case)
@@ -69,7 +66,7 @@ Analyzed all 8 open bugs/UX issues. Excluded feature requests (FEAT-009, FEAT-01
 | Rank | ID | Description | Type | Complexity | Status |
 |------|----|-------------|------|------------|--------|
 | 1 | BUG-006 | Folder browsing breaks after mkdir | Bug | Medium | **Open** |
-| 2 | BUG-007 | Upload queue buttons broken (Android) | Bug | Medium | **Open** |
+| 2 | BUG-007 | Upload queue buttons broken (Android) | Bug | Medium | **Fixed** |
 | 3 | BUG-008 | File list no refresh after upload | QoL | Low | **Fixed** |
 | 4 | BUG-005 | Back button doesn't close sheet | Bug | Low | **Fixed** |
 | 5 | BUG-001 | Sleep folder case sensitivity | Bug | Low | **Fixed** |
@@ -77,4 +74,4 @@ Analyzed all 8 open bugs/UX issues. Excluded feature requests (FEAT-009, FEAT-01
 | 7 | UX-001 | Swipe actions not discoverable | QoL | Low-Med | **Open** |
 | 8 | BUG-004 | Clipper misses collapsed content | QoL | Low-Med | **Open** |
 
-**Next up:** BUG-006 and BUG-007 are the two remaining high-priority Android bugs. Both are medium complexity.
+**Next up:** BUG-006 is the last remaining high-priority Android bug (medium complexity). After that, BUG-003 (hotspot connectivity) is the next open bug.

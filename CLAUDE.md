@@ -247,5 +247,6 @@ When committing a fix or feature that corresponds to a tracked issue in `docs/is
 - The Safari Web Extension must be enabled manually: iOS Settings → Safari → Extensions → CrossPoint Web Clipper.
 - **Android MulticastLock**: UDP broadcast won't work without it. The `multicast-lock` module handles this automatically during discovery scans.
 - **Android share intent**: Files shared via `content://` URIs must be copied to app cache before the URI expires. `android-share-import.ts` handles this.
+- **Tamagui Sheet buttons on Android**: `Sheet.ScrollView` wraps children in a RNGH gesture tree, which intercepts button taps on Android (the list bounces instead of firing `onPress`). Use plain RN `ScrollView` inside `Sheet.Frame` instead. All sheets should also include an explicit `X` close button in the header (chromeless circular `Button` with `FontAwesome name="times"`) since the drag-to-dismiss handle is not always obvious.
 - `SwipeBackGesture` is disabled on Android (renders a plain `View`) since Android has its own predictive back gesture.
 - Android hardware back button is wired to navigate up in the file browser via `BackHandler`.
