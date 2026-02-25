@@ -3,6 +3,7 @@ import * as Sharing from 'expo-sharing';
 import { DeviceFile } from '@/types/device';
 import { getFiles, createFolder, deleteItem, downloadFile, renameFile } from '@/services/device-api';
 import { useDeviceStore } from '@/stores/device-store';
+import { useUploadStore } from '@/stores/upload-store';
 import { DEFAULT_UPLOAD_PATH } from '@/constants/Protocol';
 import { log } from '@/services/logger';
 import { getDeviceCapabilities } from '@/services/firmware-version';
@@ -13,6 +14,12 @@ export function useFileBrowser() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { connectedDevice, connectionStatus, deviceStatus } = useDeviceStore();
+  const lastCompletionEvent = useUploadStore((s) => s.lastCompletionEvent);
+  const hasPendingUploadsToPath = useUploadStore((s) =>
+    s.jobs.some(
+      (j) => j.status === 'pending' && j.destinationPath === currentPath,
+    ),
+  );
   const loadingPathRef = useRef<string | null>(null);
   const capabilities = useMemo(
     () => getDeviceCapabilities(deviceStatus?.version),
@@ -219,6 +226,20 @@ export function useFileBrowser() {
       setFiles([]);
     }
   }, [connectionStatus]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-refresh file list after upload completion
+  useEffect(() => {
+    if (!lastCompletionEvent) return;
+    if (lastCompletionEvent.path !== currentPath) return;
+    if (hasPendingUploadsToPath) return;
+
+    const timer = setTimeout(() => {
+      log('api', `Auto-refresh after upload to ${currentPath}`);
+      loadFiles();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [lastCompletionEvent, currentPath, hasPendingUploadsToPath, loadFiles]);
 
   return {
     currentPath,

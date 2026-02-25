@@ -5,6 +5,7 @@ import { UploadJob, UploadJobStatus } from '@/types/upload';
 
 interface UploadState {
   jobs: UploadJob[];
+  lastCompletionEvent: { path: string; timestamp: number } | null;
   addJob: (job: Omit<UploadJob, 'id' | 'status' | 'progress' | 'bytesTransferred' | 'createdAt'>) => void;
   addProcessingJob: (id: string, fileName: string, jobType: UploadJob['jobType']) => void;
   finalizeProcessingJob: (id: string, details: { fileName: string; fileUri: string; fileSize: number; destinationPath: string }) => void;
@@ -23,6 +24,7 @@ export const useUploadStore = create<UploadState>()(
   persist(
     (set, get) => ({
       jobs: [],
+      lastCompletionEvent: null,
 
       addJob: (job) =>
         set((state) => ({
@@ -81,18 +83,25 @@ export const useUploadStore = create<UploadState>()(
         })),
 
       updateJobStatus: (id, status, error) =>
-        set((state) => ({
-          jobs: state.jobs.map((j) =>
-            j.id === id
-              ? {
-                  ...j,
-                  status,
-                  error,
-                  completedAt: status === 'completed' ? Date.now() : j.completedAt,
-                }
-              : j,
-          ),
-        })),
+        set((state) => {
+          const job = state.jobs.find((j) => j.id === id);
+          return {
+            jobs: state.jobs.map((j) =>
+              j.id === id
+                ? {
+                    ...j,
+                    status,
+                    error,
+                    completedAt: status === 'completed' ? Date.now() : j.completedAt,
+                  }
+                : j,
+            ),
+            lastCompletionEvent:
+              status === 'completed' && job
+                ? { path: job.destinationPath, timestamp: Date.now() }
+                : state.lastCompletionEvent,
+          };
+        }),
 
       removeJob: (id) =>
         set((state) => ({
