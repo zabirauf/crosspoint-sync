@@ -9,14 +9,14 @@ All issues live in `docs/issues/`. Each issue is a markdown file with YAML front
 Interpret the user's `$ARGUMENTS` to determine what they want. Common actions:
 
 ### Create a new issue
-1. Read `docs/issues/README.md` to find the current highest number for the issue type (BUG, FEAT, UX, PERF).
+1. Read `docs/issues/README.md` to find the current highest number for the issue type (BUG, FEAT, UX, PERF, TODO).
 2. Assign the next sequential number (do NOT reuse deleted numbers — always increment past the highest ever used). Zero-pad to 3 digits.
 3. Create the file `docs/issues/{TYPE}-{NNN}-{short-slug}.md` with this front matter:
 
 ```yaml
 ---
 id: {TYPE}-{NNN}
-type: bug | feature | ux | performance
+type: bug | feature | ux | performance | todo
 title: Short descriptive title
 status: open
 priority: critical | high | medium | low
@@ -32,7 +32,7 @@ reddit_thread: ""
 ```
 
 4. Write a description section with all relevant details the user provides.
-5. Add the issue to the correct summary table in `docs/issues/README.md`, preserving the existing row order. Bugs go in the Bugs table, features in Feature Requests.
+5. Add the issue to the correct summary table in `docs/issues/README.md`, preserving the existing row order. Bugs go in the Bugs table, features in Feature Requests, TODOs in the TODOs table.
 6. Show the user the created issue ID and filename.
 
 ### List issues
@@ -63,5 +63,6 @@ reddit_thread: ""
 - When creating issues, ask the user for any missing details (title, priority, type) rather than guessing.
 - Use the naming convention `{TYPE}-{NNN}-{short-slug}.md` where the slug is lowercase, hyphen-separated, and descriptive.
 - Today's date for `date_reported` or `date_closed` should use YYYY-MM-DD format.
-- When the user says "bug" use type BUG, "feature" use FEAT, "ux issue" use UX, "perf issue" use PERF.
+- When the user says "bug" use type BUG, "feature" use FEAT, "ux issue" use UX, "perf issue" use PERF, "todo" use TODO.
+- Use TODO for internal technical tasks, migrations, follow-ups, and maintenance work (not user-facing features).
 - If the user just describes a problem or request without specifying an action, default to creating a new issue.

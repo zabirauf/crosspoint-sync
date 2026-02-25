@@ -18,6 +18,7 @@ interface SwipeableFileRowProps {
   onPress: () => void;
   onDelete: (file: DeviceFile) => void;
   onDownload: (file: DeviceFile) => void;
+  onRename?: (file: DeviceFile) => void;
   onSwipeOpen: (methods: SwipeableMethods) => void;
   downloadStatus?: 'downloading' | 'queued';
 }
@@ -28,16 +29,20 @@ function RightActions({
   file,
   onDelete,
   onDownload,
+  onRename,
   translation,
   closeFn,
 }: {
   file: DeviceFile;
   onDelete: (file: DeviceFile) => void;
   onDownload: (file: DeviceFile) => void;
+  onRename?: (file: DeviceFile) => void;
   translation: SharedValue<number>;
   closeFn: () => void;
 }) {
-  const totalWidth = file.isDirectory ? ACTION_WIDTH : ACTION_WIDTH * 2;
+  const showRename = !file.isDirectory && onRename;
+  const fileActions = showRename ? 3 : 2;
+  const totalWidth = file.isDirectory ? ACTION_WIDTH : ACTION_WIDTH * fileActions;
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -49,6 +54,18 @@ function RightActions({
 
   return (
     <Reanimated.View style={[styles.actionsContainer, { width: totalWidth }, animatedStyle]}>
+      {showRename && (
+        <RectButton
+          style={[styles.actionButton, styles.renameButton]}
+          onPress={() => {
+            closeFn();
+            onRename(file);
+          }}
+        >
+          <FontAwesome name="pencil" size={20} color="#fff" />
+          <Text style={styles.actionText}>Rename</Text>
+        </RectButton>
+      )}
       {!file.isDirectory && (
         <RectButton
           style={[styles.actionButton, styles.downloadButton]}
@@ -80,6 +97,7 @@ export function SwipeableFileRow({
   onPress,
   onDelete,
   onDownload,
+  onRename,
   onSwipeOpen,
   downloadStatus,
 }: SwipeableFileRowProps) {
@@ -95,6 +113,7 @@ export function SwipeableFileRow({
           file={file}
           onDelete={onDelete}
           onDownload={onDownload}
+          onRename={onRename}
           translation={translation}
           closeFn={() => swipeableRef.current?.close()}
         />
@@ -124,6 +143,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 4,
+  },
+  renameButton: {
+    backgroundColor: '#FF9500',
   },
   downloadButton: {
     backgroundColor: '#007AFF',

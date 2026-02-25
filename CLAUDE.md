@@ -229,6 +229,10 @@ npm run mock-device     # Start mock server (UDP:8134, HTTP:8080, WS:8081)
 
 The mock server provides a fake file system with sample books at `/Books/`.
 
+## Analysis Reports
+
+When asked to produce analysis, triage, or research reports, save them in `docs/analysis/` with a descriptive filename including the date (e.g., `bug-triage-2026-02-24.md`). This keeps analysis artifacts organized and accessible for future reference.
+
 ## Gotchas
 
 - `react-native-udp` requires a dev build (`npx expo run:ios`). Won't work in Expo Go.

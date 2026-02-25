@@ -32,18 +32,21 @@ export default function LibraryScreen() {
   const [connectionSheetOpen, setConnectionSheetOpen] = useState(false);
   const [queueSheetOpen, setQueueSheetOpen] = useState(false);
   const [folderPromptOpen, setFolderPromptOpen] = useState(false);
+  const [renameTarget, setRenameTarget] = useState<DeviceFile | null>(null);
 
   const {
     currentPath,
     files,
     isLoading,
     error,
+    capabilities,
     loadFiles,
     navigateToFolder,
     navigateUp,
     navigateToPath,
     createNewFolder,
     deleteFileOrFolder,
+    renameFileOnDevice,
     downloadingFile,
     queuedDownloads,
     queueDownload,
@@ -235,6 +238,7 @@ export default function LibraryScreen() {
                   }}
                   onDelete={handleDelete}
                   onDownload={queueDownload}
+                  onRename={capabilities.rename ? (file) => setRenameTarget(file) : undefined}
                   onSwipeOpen={handleSwipeOpen}
                   downloadStatus={downloadStatus}
                 />
@@ -297,6 +301,22 @@ export default function LibraryScreen() {
           }
         }}
         submitLabel="Create"
+      />
+
+      {/* Rename file prompt */}
+      <PromptDialog
+        open={renameTarget !== null}
+        onOpenChange={(open) => { if (!open) setRenameTarget(null); }}
+        title="Rename File"
+        message={`Enter a new name for "${renameTarget?.name ?? ''}":`}
+        defaultValue={renameTarget?.name ?? ''}
+        onSubmit={(newName) => {
+          const trimmed = newName.trim();
+          if (renameTarget && trimmed && trimmed !== renameTarget.name) {
+            renameFileOnDevice(renameTarget, trimmed);
+          }
+        }}
+        submitLabel="Rename"
       />
     </YStack>
   );

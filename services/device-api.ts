@@ -3,6 +3,8 @@ import { DeviceStatus, DeviceFile } from '@/types/device';
 import { HTTP_PORT, REQUEST_TIMEOUT_MS } from '@/constants/Protocol';
 import { log } from './logger';
 import { deviceScheduler, type RequestPriority } from './device-request-scheduler';
+import { getDeviceCapabilities } from './firmware-version';
+import { useDeviceStore } from '@/stores/device-store';
 
 const validatedPaths = new Set<string>();
 
@@ -105,19 +107,84 @@ export async function deleteItem(
 ): Promise<void> {
   return deviceScheduler.schedule({
     execute: async () => {
-      const formData = new FormData();
-      formData.append('path', path);
-      formData.append('type', type);
+      const version = useDeviceStore.getState().deviceStatus?.version;
+      const caps = getDeviceCapabilities(version);
+
+      let body: FormData | string;
+      let headers: Record<string, string> | undefined;
+
+      if (caps.batchDelete) {
+        body = JSON.stringify({ paths: [path] });
+        headers = { 'Content-Type': 'application/json' };
+      } else {
+        const formData = new FormData();
+        formData.append('path', path);
+        formData.append('type', type);
+        body = formData;
+      }
+
       const res = await fetchWithTimeout(`${baseUrl(ip)}/delete`, {
+        method: 'POST',
+        body,
+        headers,
+      });
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        log('api', `Delete failed (${res.status}): ${text}`);
+        throw new Error(text || 'Failed to delete item');
+      }
+      if (type === 'folder') invalidatePath(path);
+    },
+  });
+}
+
+export async function renameFile(
+  ip: string,
+  filePath: string,
+  newName: string,
+): Promise<void> {
+  return deviceScheduler.schedule({
+    execute: async () => {
+      const formData = new FormData();
+      formData.append('path', filePath);
+      formData.append('name', newName);
+      const res = await fetchWithTimeout(`${baseUrl(ip)}/rename`, {
         method: 'POST',
         body: formData,
       });
       if (!res.ok) {
-        const body = await res.text().catch(() => '');
-        log('api', `Delete failed (${res.status}): ${body}`);
-        throw new Error(body || 'Failed to delete item');
+        const text = await res.text().catch(() => '');
+        log('api', `Rename failed (${res.status}): ${text}`);
+        if (res.status === 409) throw new Error('A file with that name already exists');
+        if (res.status === 403) throw new Error('This file is protected and cannot be renamed');
+        if (res.status === 404) throw new Error('File not found');
+        throw new Error(text || 'Failed to rename file');
       }
-      if (type === 'folder') invalidatePath(path);
+    },
+  });
+}
+
+export async function moveFile(
+  ip: string,
+  filePath: string,
+  destFolder: string,
+): Promise<void> {
+  return deviceScheduler.schedule({
+    execute: async () => {
+      const formData = new FormData();
+      formData.append('path', filePath);
+      formData.append('dest', destFolder);
+      const res = await fetchWithTimeout(`${baseUrl(ip)}/move`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        log('api', `Move failed (${res.status}): ${text}`);
+        if (res.status === 409) throw new Error('A file with that name already exists in the destination');
+        if (res.status === 404) throw new Error('File not found');
+        throw new Error(text || 'Failed to move file');
+      }
     },
   });
 }

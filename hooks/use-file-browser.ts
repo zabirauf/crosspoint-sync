@@ -1,18 +1,23 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import * as Sharing from 'expo-sharing';
 import { DeviceFile } from '@/types/device';
-import { getFiles, createFolder, deleteItem, downloadFile } from '@/services/device-api';
+import { getFiles, createFolder, deleteItem, downloadFile, renameFile } from '@/services/device-api';
 import { useDeviceStore } from '@/stores/device-store';
 import { DEFAULT_UPLOAD_PATH } from '@/constants/Protocol';
 import { log } from '@/services/logger';
+import { getDeviceCapabilities } from '@/services/firmware-version';
 
 export function useFileBrowser() {
   const [currentPath, setCurrentPath] = useState(DEFAULT_UPLOAD_PATH);
   const [files, setFiles] = useState<DeviceFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { connectedDevice, connectionStatus } = useDeviceStore();
+  const { connectedDevice, connectionStatus, deviceStatus } = useDeviceStore();
   const loadingPathRef = useRef<string | null>(null);
+  const capabilities = useMemo(
+    () => getDeviceCapabilities(deviceStatus?.version),
+    [deviceStatus?.version],
+  );
 
   const loadFiles = useCallback(
     async (path?: string) => {
@@ -115,6 +120,30 @@ export function useFileBrowser() {
     [connectedDevice, currentPath, loadFiles],
   );
 
+  const renameFileOnDevice = useCallback(
+    async (file: DeviceFile, newName: string) => {
+      if (!connectedDevice) return;
+      if (/[/\\]/.test(newName)) {
+        setError('File names cannot contain / or \\ characters.');
+        return;
+      }
+      const fullPath =
+        currentPath === '/'
+          ? `/${file.name}`
+          : `${currentPath}/${file.name}`;
+      log('api', `Rename: ${fullPath} → ${newName}`);
+      try {
+        await renameFile(connectedDevice.ip, fullPath, newName);
+        await loadFiles();
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        log('api', `Rename error: ${msg}`);
+        setError(msg);
+      }
+    },
+    [connectedDevice, currentPath, loadFiles],
+  );
+
   const [downloadingFile, setDownloadingFile] = useState<string | null>(null);
   const [queuedDownloads, setQueuedDownloads] = useState<string[]>([]);
   const isProcessingRef = useRef(false);
@@ -196,12 +225,14 @@ export function useFileBrowser() {
     files,
     isLoading,
     error,
+    capabilities,
     loadFiles,
     navigateToFolder,
     navigateUp,
     navigateToPath,
     createNewFolder,
     deleteFileOrFolder,
+    renameFileOnDevice,
     downloadingFile,
     queuedDownloads,
     queueDownload,
