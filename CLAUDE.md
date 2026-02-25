@@ -233,6 +233,10 @@ The mock server provides a fake file system with sample books at `/Books/`.
 
 When asked to produce analysis, triage, or research reports, save them in `docs/analysis/` with a descriptive filename including the date (e.g., `bug-triage-2026-02-24.md`). This keeps analysis artifacts organized and accessible for future reference.
 
+## Commit Conventions
+
+When committing a fix or feature that corresponds to a tracked issue in `docs/issues/`, include the issue ID in the commit message (e.g., `Fix sleep folder case-sensitivity (BUG-001)`). When closing the issue via `/issue`, the commit that updates the issue tracker does not need to repeat the ID.
+
 ## Gotchas
 
 - `react-native-udp` requires a dev build (`npx expo run:ios`). Won't work in Expo Go.
