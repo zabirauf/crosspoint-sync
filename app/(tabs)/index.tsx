@@ -107,12 +107,24 @@ export default function LibraryScreen() {
     setFolderPromptOpen(true);
   };
 
-  // Android hardware back button navigates up in file browser
+  // Android hardware back button: close sheets first, then navigate folders
   useFocusEffect(
     useCallback(() => {
       if (Platform.OS !== 'android') return;
 
       const onBackPress = () => {
+        if (connectionSheetOpen) {
+          setConnectionSheetOpen(false);
+          return true;
+        }
+        if (queueSheetOpen) {
+          setQueueSheetOpen(false);
+          return true;
+        }
+        if (folderPromptOpen) {
+          setFolderPromptOpen(false);
+          return true;
+        }
         if (isConnected && currentPath !== '/') {
           navigateUp();
           return true;
@@ -122,7 +134,14 @@ export default function LibraryScreen() {
 
       const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
       return () => sub.remove();
-    }, [isConnected, currentPath, navigateUp])
+    }, [
+      connectionSheetOpen,
+      queueSheetOpen,
+      folderPromptOpen,
+      isConnected,
+      currentPath,
+      navigateUp,
+    ])
   );
 
   const handleSleepBackground = useCallback(async () => {
