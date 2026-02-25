@@ -23,6 +23,33 @@ import WebSocket from 'ws';
 // ─── CLI Args ───
 
 const args = process.argv.slice(2);
+
+if (args.includes('--help') || args.includes('-h')) {
+  console.log(`Mock CrossPoint Device Server — simulates an XTEink X4 e-ink reader
+
+Usage:
+  npx tsx scripts/mock-device-server.ts [options]
+
+Options:
+  --http-port <port>         HTTP REST API port (default: 80)
+  --ws-port <port>           WebSocket upload port (default: 81)
+  --firmware-version <ver>   Firmware version to report (default: 1.1.0)
+                             Controls capability gates:
+                               >=1.0.0  rename, move
+                               >=1.1.0  settings API
+                               >=1.2.0  batch delete
+  --data-dir <path>          Serve files from disk instead of in-memory.
+                             If omitted, uses a seeded in-memory filesystem.
+  -h, --help                 Show this help message
+
+Examples:
+  npx tsx scripts/mock-device-server.ts
+  npx tsx scripts/mock-device-server.ts --http-port 8080 --ws-port 8081
+  npx tsx scripts/mock-device-server.ts --firmware-version 0.9.0
+  npx tsx scripts/mock-device-server.ts --data-dir ~/my-epubs`);
+  process.exit(0);
+}
+
 function getArg(flag: string, defaultVal: string): string {
   const idx = args.indexOf(flag);
   return idx !== -1 && args[idx + 1] ? args[idx + 1] : defaultVal;
