@@ -2,12 +2,12 @@
 id: BUG-008
 type: bug
 title: File list doesn't auto-refresh after successful upload
-status: open
+status: closed
 priority: medium
 source: reddit-beta
 reporter: agljmpse
 date_reported: 2025-06-25
-date_closed:
+date_closed: 2026-02-24
 labels: [file-browser, upload]
 blocked_by: ""
 related: []

@@ -45,13 +45,10 @@ reddit_thread: ""
 
 | ID | Title | Priority | Status |
 |----|-------|----------|--------|
-| [BUG-001](BUG-001-sleep-folder-case-sensitivity.md) | Sleep background upload fails with uppercase "Sleep" folder | medium | open |
 | [BUG-003](BUG-003-hotspot-connection-failure.md) | Connection fails on iPhone hotspot (172.x.x.x subnet) | medium | open |
 | [BUG-004](BUG-004-web-clipper-collapsed-content.md) | Web clipper misses collapsed/lazy-loaded content | low | open |
-| [BUG-005](BUG-005-android-back-button-connection-sheet.md) | Android back button on connection status sheet navigates folders instead of closing | medium | open |
 | [BUG-006](BUG-006-folder-browsing-breaks-after-mkdir.md) | Folder browsing breaks after creating a new folder (Android) | high | open |
 | [BUG-007](BUG-007-upload-queue-buttons-not-working-android.md) | Upload queue delete/retry buttons unresponsive on Android — list bounces instead | high | open |
-| [BUG-008](BUG-008-file-list-no-refresh-after-upload.md) | File list doesn't auto-refresh after successful upload | medium | open |
 
 ## UX Issues
 
@@ -89,3 +86,6 @@ Internal technical tasks, migrations, and maintenance follow-ups.
 | File delete | Already exists (swipe gesture) |
 | Reading progress sync | Declined — would require full e-reader app |
 | + button long-press UX | Resolved — always shows options menu now |
+| [BUG-001](BUG-001-sleep-folder-case-sensitivity.md) | Fixed — case-insensitive folder comparison for FAT32 |
+| [BUG-005](BUG-005-android-back-button-connection-sheet.md) | Fixed — back button now closes sheets before navigating folders |
+| [BUG-008](BUG-008-file-list-no-refresh-after-upload.md) | Fixed — file list auto-refreshes after upload completion |

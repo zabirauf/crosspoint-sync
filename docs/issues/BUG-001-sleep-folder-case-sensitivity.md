@@ -2,12 +2,12 @@
 id: BUG-001
 type: bug
 title: Sleep background upload fails with uppercase "Sleep" folder
-status: open
+status: closed
 priority: medium
 source: reddit-appstore
 reporter: u/wmacphail
 date_reported: 2026-02-01
-date_closed:
+date_closed: 2026-02-24
 labels: [sleep-background, case-sensitivity]
 blocked_by: ""
 related: []

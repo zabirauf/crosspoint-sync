@@ -2,12 +2,12 @@
 id: BUG-005
 type: bug
 title: Android back button on connection status sheet navigates folders instead of closing
-status: open
+status: closed
 priority: medium
 source: reddit-beta
 reporter: Outrageous_Theme_319
 date_reported: 2025-06-25
-date_closed:
+date_closed: 2026-02-24
 labels: [android, navigation]
 blocked_by: ""
 related: []
