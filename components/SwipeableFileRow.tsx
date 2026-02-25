@@ -19,6 +19,8 @@ interface SwipeableFileRowProps {
   onDelete: (file: DeviceFile) => void;
   onDownload: (file: DeviceFile) => void;
   onRename?: (file: DeviceFile) => void;
+  onLongPress?: (file: DeviceFile) => void;
+  onMorePress?: (file: DeviceFile) => void;
   onSwipeOpen: (methods: SwipeableMethods) => void;
   downloadStatus?: 'downloading' | 'queued';
 }
@@ -28,21 +30,19 @@ const ACTION_WIDTH = 80;
 function RightActions({
   file,
   onDelete,
-  onDownload,
   onRename,
   translation,
   closeFn,
 }: {
   file: DeviceFile;
   onDelete: (file: DeviceFile) => void;
-  onDownload: (file: DeviceFile) => void;
   onRename?: (file: DeviceFile) => void;
   translation: SharedValue<number>;
   closeFn: () => void;
 }) {
   const showRename = !file.isDirectory && onRename;
-  const fileActions = showRename ? 3 : 2;
-  const totalWidth = file.isDirectory ? ACTION_WIDTH : ACTION_WIDTH * fileActions;
+  const fileActions = showRename ? 2 : 1;
+  const totalWidth = ACTION_WIDTH * fileActions;
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -66,18 +66,6 @@ function RightActions({
           <Text style={styles.actionText}>Rename</Text>
         </RectButton>
       )}
-      {!file.isDirectory && (
-        <RectButton
-          style={[styles.actionButton, styles.downloadButton]}
-          onPress={() => {
-            closeFn();
-            onDownload(file);
-          }}
-        >
-          <FontAwesome name="download" size={20} color="#fff" />
-          <Text style={styles.actionText}>Save</Text>
-        </RectButton>
-      )}
       <RectButton
         style={[styles.actionButton, styles.deleteButton]}
         onPress={() => {
@@ -96,8 +84,9 @@ export function SwipeableFileRow({
   file,
   onPress,
   onDelete,
-  onDownload,
   onRename,
+  onLongPress,
+  onMorePress,
   onSwipeOpen,
   downloadStatus,
 }: SwipeableFileRowProps) {
@@ -112,7 +101,6 @@ export function SwipeableFileRow({
         <RightActions
           file={file}
           onDelete={onDelete}
-          onDownload={onDownload}
           onRename={onRename}
           translation={translation}
           closeFn={() => swipeableRef.current?.close()}
@@ -126,7 +114,13 @@ export function SwipeableFileRow({
       }}
     >
       <View style={{ backgroundColor: theme.background.val }}>
-        <FileRow file={file} onPress={onPress} downloadStatus={downloadStatus} />
+        <FileRow
+          file={file}
+          onPress={onPress}
+          onLongPress={onLongPress ? () => onLongPress(file) : undefined}
+          onMorePress={onMorePress ? () => onMorePress(file) : undefined}
+          downloadStatus={downloadStatus}
+        />
       </View>
     </ReanimatedSwipeable>
   );
@@ -146,9 +140,6 @@ const styles = StyleSheet.create({
   },
   renameButton: {
     backgroundColor: '#FF9500',
-  },
-  downloadButton: {
-    backgroundColor: '#007AFF',
   },
   deleteButton: {
     backgroundColor: '#FF3B30',

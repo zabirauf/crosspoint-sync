@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import * as Sharing from 'expo-sharing';
 import { DeviceFile } from '@/types/device';
-import { getFiles, createFolder, deleteItem, downloadFile, renameFile } from '@/services/device-api';
+import { getFiles, createFolder, deleteItem, downloadFile, renameFile, moveFile } from '@/services/device-api';
 import { useDeviceStore } from '@/stores/device-store';
 import { useUploadStore } from '@/stores/upload-store';
 import { DEFAULT_UPLOAD_PATH } from '@/constants/Protocol';
@@ -151,6 +151,40 @@ export function useFileBrowser() {
     [connectedDevice, currentPath, loadFiles],
   );
 
+  const moveFileOnDevice = useCallback(
+    async (file: DeviceFile, destFolder: string) => {
+      if (!connectedDevice) return;
+      const fullPath =
+        currentPath === '/'
+          ? `/${file.name}`
+          : `${currentPath}/${file.name}`;
+      log('api', `Move: ${fullPath} → ${destFolder}`);
+      try {
+        await moveFile(connectedDevice.ip, fullPath, destFolder);
+        await loadFiles();
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        log('api', `Move error: ${msg}`);
+        setError(msg);
+      }
+    },
+    [connectedDevice, currentPath, loadFiles],
+  );
+
+  const createFolderAtPath = useCallback(
+    async (name: string, parentPath: string) => {
+      if (!connectedDevice) return;
+      log('api', `Create folder: ${name} at ${parentPath}`);
+      try {
+        await createFolder(connectedDevice.ip, name, parentPath);
+      } catch (err) {
+        log('api', `Create folder error: ${err instanceof Error ? err.message : String(err)}`);
+        throw err;
+      }
+    },
+    [connectedDevice],
+  );
+
   const [downloadingFile, setDownloadingFile] = useState<string | null>(null);
   const [queuedDownloads, setQueuedDownloads] = useState<string[]>([]);
   const isProcessingRef = useRef(false);
@@ -254,6 +288,8 @@ export function useFileBrowser() {
     createNewFolder,
     deleteFileOrFolder,
     renameFileOnDevice,
+    moveFileOnDevice,
+    createFolderAtPath,
     downloadingFile,
     queuedDownloads,
     queueDownload,

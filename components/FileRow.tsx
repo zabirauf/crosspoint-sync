@@ -7,6 +7,7 @@ interface FileRowProps {
   file: DeviceFile;
   onPress: () => void;
   onLongPress?: () => void;
+  onMorePress?: () => void;
   downloadStatus?: 'downloading' | 'queued';
 }
 
@@ -29,7 +30,7 @@ function fileColor(file: DeviceFile, isDark: boolean): string {
   return isDark ? '#ccc' : '#666';
 }
 
-export function FileRow({ file, onPress, onLongPress, downloadStatus }: FileRowProps) {
+export function FileRow({ file, onPress, onLongPress, onMorePress, downloadStatus }: FileRowProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 
@@ -81,6 +82,16 @@ export function FileRow({ file, onPress, onLongPress, downloadStatus }: FileRowP
           </Text>
         </YStack>
         {renderTrailing()}
+        {onMorePress && (
+          <Pressable
+            onPress={onMorePress}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            testID={`Library.FileRow.${file.name}.More`}
+            style={{ paddingLeft: 8 }}
+          >
+            <FontAwesome name="ellipsis-v" size={18} color={isDark ? '#999' : '#666'} />
+          </Pressable>
+        )}
       </XStack>
     </Pressable>
   );

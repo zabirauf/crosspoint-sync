@@ -19,6 +19,8 @@ import { UploadQueueSheet } from '@/components/UploadQueueSheet';
 import { ActionFAB } from '@/components/ActionFAB';
 import { SwipeBackGesture } from '@/components/SwipeBackGesture';
 import { PromptDialog } from '@/components/PromptDialog';
+import { FileActionSheet } from '@/components/FileActionSheet';
+import { MoveFileSheet } from '@/components/MoveFileSheet';
 import { DeviceFile } from '@/types/device';
 
 export default function LibraryScreen() {
@@ -33,6 +35,8 @@ export default function LibraryScreen() {
   const [queueSheetOpen, setQueueSheetOpen] = useState(false);
   const [folderPromptOpen, setFolderPromptOpen] = useState(false);
   const [renameTarget, setRenameTarget] = useState<DeviceFile | null>(null);
+  const [fileActionTarget, setFileActionTarget] = useState<DeviceFile | null>(null);
+  const [moveTarget, setMoveTarget] = useState<DeviceFile | null>(null);
 
   const {
     currentPath,
@@ -47,6 +51,8 @@ export default function LibraryScreen() {
     createNewFolder,
     deleteFileOrFolder,
     renameFileOnDevice,
+    moveFileOnDevice,
+    createFolderAtPath,
     downloadingFile,
     queuedDownloads,
     queueDownload,
@@ -107,12 +113,33 @@ export default function LibraryScreen() {
     setFolderPromptOpen(true);
   };
 
+  const handleFileAction = (file: DeviceFile) => {
+    // Close any open swipeable before opening the action sheet
+    if (openSwipeableRef.current) {
+      openSwipeableRef.current.close();
+      openSwipeableRef.current = null;
+    }
+    setFileActionTarget(file);
+  };
+
+  const handleMoveConfirm = (file: DeviceFile, destFolder: string) => {
+    moveFileOnDevice(file, destFolder);
+  };
+
   // Android hardware back button: close sheets first, then navigate folders
   useFocusEffect(
     useCallback(() => {
       if (Platform.OS !== 'android') return;
 
       const onBackPress = () => {
+        if (moveTarget) {
+          setMoveTarget(null);
+          return true;
+        }
+        if (fileActionTarget) {
+          setFileActionTarget(null);
+          return true;
+        }
         if (connectionSheetOpen) {
           setConnectionSheetOpen(false);
           return true;
@@ -135,6 +162,8 @@ export default function LibraryScreen() {
       const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
       return () => sub.remove();
     }, [
+      moveTarget,
+      fileActionTarget,
       connectionSheetOpen,
       queueSheetOpen,
       folderPromptOpen,
@@ -258,6 +287,8 @@ export default function LibraryScreen() {
                   onDelete={handleDelete}
                   onDownload={queueDownload}
                   onRename={capabilities.rename ? (file) => setRenameTarget(file) : undefined}
+                  onLongPress={handleFileAction}
+                  onMorePress={handleFileAction}
                   onSwipeOpen={handleSwipeOpen}
                   downloadStatus={downloadStatus}
                 />
@@ -306,6 +337,28 @@ export default function LibraryScreen() {
       )}
       {queueSheetOpen && (
         <UploadQueueSheet open={queueSheetOpen} onOpenChange={setQueueSheetOpen} />
+      )}
+      {fileActionTarget !== null && (
+        <FileActionSheet
+          open={fileActionTarget !== null}
+          onOpenChange={(open) => { if (!open) setFileActionTarget(null); }}
+          file={fileActionTarget}
+          capabilities={capabilities}
+          onSave={(file) => queueDownload(file)}
+          onMove={(file) => setMoveTarget(file)}
+          onRename={(file) => setRenameTarget(file)}
+          onDelete={(file) => handleDelete(file)}
+        />
+      )}
+      {moveTarget !== null && (
+        <MoveFileSheet
+          open={moveTarget !== null}
+          onOpenChange={(open) => { if (!open) setMoveTarget(null); }}
+          file={moveTarget}
+          sourceDir={currentPath}
+          onMove={handleMoveConfirm}
+          onCreateFolder={createFolderAtPath}
+        />
       )}
 
       {/* New folder prompt */}
