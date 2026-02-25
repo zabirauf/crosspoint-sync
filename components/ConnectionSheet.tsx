@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { ScrollView } from 'react-native';
 import { Sheet, YStack, XStack, Text, H4, Button, Separator, Input, Label } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { useDeviceStore } from '@/stores/device-store';
@@ -65,7 +66,7 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
       <Sheet.Overlay animation="lazy" opacity={0.5} enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
       <Sheet.Handle />
       <Sheet.Frame padding="$4" testID="Connection.Sheet">
-        <Sheet.ScrollView>
+        <ScrollView>
           <YStack gap="$3">
             <XStack justifyContent="space-between" alignItems="center">
               <H4>Device</H4>
@@ -87,6 +88,15 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
                         ? 'Scanning...'
                         : 'Not connected'}
                 </Text>
+                <Button
+                  chromeless
+                  circular
+                  size="$3"
+                  onPress={() => onOpenChange(false)}
+                  testID="Connection.CloseButton"
+                >
+                  <FontAwesome name="times" size={18} color="#999" />
+                </Button>
               </XStack>
             </XStack>
 
@@ -214,7 +224,7 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
               </Text>
             )}
           </YStack>
-        </Sheet.ScrollView>
+        </ScrollView>
       </Sheet.Frame>
     </Sheet>
   );

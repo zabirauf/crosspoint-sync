@@ -41,15 +41,26 @@ export function UploadQueueSheet({ open, onOpenChange }: UploadQueueSheetProps) 
       <Sheet.Overlay animation="lazy" opacity={0.5} enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
       <Sheet.Handle />
       <Sheet.Frame padding="$4" testID="UploadQueue.Sheet">
-        <Sheet.ScrollView>
+        <ScrollView>
           <YStack gap="$3">
             <XStack justifyContent="space-between" alignItems="center">
               <H4>Upload Queue</H4>
-              {completedCount > 0 && (
-                <Text color="$gray10" fontSize="$2">
-                  {completedCount} completed
-                </Text>
-              )}
+              <XStack gap="$2" alignItems="center">
+                {completedCount > 0 && (
+                  <Text color="$gray10" fontSize="$2">
+                    {completedCount} completed
+                  </Text>
+                )}
+                <Button
+                  chromeless
+                  circular
+                  size="$3"
+                  onPress={() => onOpenChange(false)}
+                  testID="UploadQueue.CloseButton"
+                >
+                  <FontAwesome name="times" size={18} color="#999" />
+                </Button>
+              </XStack>
             </XStack>
 
             <Separator />
@@ -140,7 +151,7 @@ export function UploadQueueSheet({ open, onOpenChange }: UploadQueueSheetProps) 
 
 
           </YStack>
-        </Sheet.ScrollView>
+        </ScrollView>
       </Sheet.Frame>
     </Sheet>
   );
