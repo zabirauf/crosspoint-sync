@@ -53,7 +53,6 @@ reddit_thread: ""
 
 | ID | Title | Priority | Status |
 |----|-------|----------|--------|
-| [UX-001](UX-001-swipe-actions-not-discoverable.md) | File row swipe actions (delete/save) not discoverable | low | open |
 
 ## Feature Requests
 
@@ -89,3 +88,4 @@ Internal technical tasks, migrations, and maintenance follow-ups.
 | [BUG-005](BUG-005-android-back-button-connection-sheet.md) | Fixed — back button now closes sheets before navigating folders |
 | [BUG-007](BUG-007-upload-queue-buttons-not-working-android.md) | Fixed — sheet button taps no longer intercepted by gesture handler on Android |
 | [BUG-008](BUG-008-file-list-no-refresh-after-upload.md) | Fixed — file list auto-refreshes after upload completion |
+| [UX-001](UX-001-swipe-actions-not-discoverable.md) | Fixed — added `...` icon, long-press, and FileActionSheet for all file actions |

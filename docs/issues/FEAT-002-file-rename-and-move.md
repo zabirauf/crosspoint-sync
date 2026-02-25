@@ -41,10 +41,12 @@ Users want the ability to rename files and move files between folders, both indi
 - **Rename swipe action** (`components/SwipeableFileRow.tsx`): Orange pencil button on files when firmware supports rename.
 - **Rename prompt** (`app/(tabs)/index.tsx`): PromptDialog pre-fills current filename, validates input.
 - **Capability gating**: Rename action only appears when `capabilities.rename` is true (firmware >= 1.0.0).
+- **Move UI** (`components/MoveFileSheet.tsx`): Full-screen folder picker with independent browsing, back navigation, new-folder creation, and "Move Here" button. Wired through `moveFileOnDevice` hook to the existing `moveFile` API.
+- **FileActionSheet** (`components/FileActionSheet.tsx`): Bottom sheet with Save/Move/Rename/Delete actions, accessible via `...` icon or long-press on any file row. Replaces swipe-only discoverability.
 
 ### Remaining
 
-- **Move UI**: Folder picker for destination selection (needs design work).
+- ~~**Move UI**: Folder picker for destination selection (needs design work).~~ — Done (ec8e413)
 - **Bulk select mode**: Multi-select for bulk move/delete operations.
 - **Directory rename**: Firmware rejects directory rename — may be supported in future firmware.
 

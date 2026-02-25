@@ -2,12 +2,12 @@
 id: UX-001
 type: ux
 title: File row swipe actions (delete/save) not discoverable
-status: open
+status: closed
 priority: low
 source: reddit-beta
 reporter: Outrageous_Theme_319
 date_reported: 2025-06-25
-date_closed:
+date_closed: 2026-02-24
 labels: [file-browser, discoverability]
 blocked_by: ""
 related: []
