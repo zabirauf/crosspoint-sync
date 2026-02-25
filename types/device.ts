@@ -22,7 +22,6 @@ export interface DeviceFile {
 
 export type ConnectionStatus =
   | 'disconnected'
-  | 'scanning'
   | 'connecting'
   | 'connected'
   | 'error';

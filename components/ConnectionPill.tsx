@@ -13,7 +13,7 @@ export function ConnectionPill({ onPress }: ConnectionPillProps) {
   const { connectionStatus, connectedDevice } = useDeviceStore();
 
   const isConnected = connectionStatus === 'connected';
-  const isActive = connectionStatus === 'connecting' || connectionStatus === 'scanning';
+  const isActive = connectionStatus === 'connecting';
 
   const dotColor = isConnected ? '#4caf50' : isActive ? '#ff9800' : '#999';
   const label = isConnected ? 'Connected' : 'Connect';

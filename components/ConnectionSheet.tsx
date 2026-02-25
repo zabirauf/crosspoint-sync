@@ -3,11 +3,9 @@ import { ScrollView } from 'react-native';
 import { Sheet, YStack, XStack, Text, H4, Button, Separator, Input, Label } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { useDeviceStore } from '@/stores/device-store';
-import { useSettingsStore } from '@/stores/settings-store';
 import { useDeviceDiscovery } from '@/hooks/use-device-discovery';
 import { DEFAULT_DEVICE_ADDRESS } from '@/constants/Protocol';
 import { DeviceCard } from '@/components/DeviceCard';
-import { ScanningIndicator } from '@/components/ScanningIndicator';
 
 interface ConnectionSheetProps {
   open: boolean;
@@ -17,19 +15,10 @@ interface ConnectionSheetProps {
 export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
   const { connectionStatus, connectedDevice, deviceStatus, lastDeviceIp, error: deviceError } =
     useDeviceStore();
-  const deviceScanEnabled = useSettingsStore((s) => s.deviceScanEnabled);
   const [manualIp, setManualIp] = useState(lastDeviceIp ?? DEFAULT_DEVICE_ADDRESS);
   const disconnect = useDeviceStore((s) => s.disconnect);
 
-  const {
-    devices,
-    isScanning,
-    error: scanError,
-    startScan,
-    stopScan,
-    connectToDevice,
-    connectManualIP,
-  } = useDeviceDiscovery();
+  const { error: connectError, connectManualIP } = useDeviceDiscovery();
 
   // Prefill manual IP when store hydrates
   useEffect(() => {
@@ -39,7 +28,7 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
   }, [lastDeviceIp]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isConnected = connectionStatus === 'connected';
-  const error = deviceError || scanError;
+  const error = deviceError || connectError;
 
   // Auto-close only on fresh connection (transition from disconnected → connected)
   const wasConnected = useRef(isConnected);
@@ -84,9 +73,7 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
                     ? 'Connected'
                     : connectionStatus === 'connecting'
                       ? 'Connecting...'
-                      : connectionStatus === 'scanning'
-                        ? 'Scanning...'
-                        : 'Not connected'}
+                      : 'Not connected'}
                 </Text>
                 <Button
                   chromeless
@@ -126,28 +113,8 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
               </>
             )}
 
-            {/* Scanning state */}
-            {deviceScanEnabled && isScanning && (
-              <>
-                <ScanningIndicator />
-                {devices.map((device) => (
-                  <DeviceCard
-                    key={device.ip}
-                    device={device}
-                    onPress={() => {
-                      stopScan();
-                      connectToDevice(device);
-                    }}
-                  />
-                ))}
-                <Button size="$3" chromeless onPress={stopScan}>
-                  Stop Scanning
-                </Button>
-              </>
-            )}
-
             {/* Disconnected state */}
-            {!isConnected && !isScanning && connectionStatus !== 'connecting' && (
+            {!isConnected && connectionStatus !== 'connecting' && (
               <>
                 <YStack backgroundColor="$blue2" borderRadius="$4" padding="$3" gap="$2">
                   <Text fontWeight="600" fontSize="$4">How to connect</Text>
@@ -197,15 +164,6 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
                     </Button>
                   </XStack>
                 </YStack>
-
-                {deviceScanEnabled && (
-                  <>
-                    <Separator />
-                    <Button size="$4" theme="blue" onPress={startScan} testID="Connection.ScanButton">
-                      Scan for Devices
-                    </Button>
-                  </>
-                )}
               </>
             )}
 

@@ -122,7 +122,7 @@ export function FileActionSheet({
                   isDark={isDark}
                 />
               )}
-              {capabilities.move && (
+              {!file?.isDirectory && capabilities.move && (
                 <ActionRow
                   icon="folder-open"
                   label="Move"
