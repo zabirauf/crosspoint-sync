@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { ScrollView, Pressable, ActivityIndicator, useColorScheme, TextInput } from 'react-native';
+import { ScrollView, Pressable, ActivityIndicator, useColorScheme, TextInput, View } from 'react-native';
 import { Sheet, XStack, YStack, Text, H4, Button, Input } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { DeviceFile } from '@/types/device';
@@ -29,6 +29,7 @@ export function MoveFileSheet({
 
   const [browsePath, setBrowsePath] = useState('/');
   const [directories, setDirectories] = useState<DeviceFile[]>([]);
+  const [files, setFiles] = useState<DeviceFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [folderPromptOpen, setFolderPromptOpen] = useState(false);
   const [folderName, setFolderName] = useState('');
@@ -68,9 +69,14 @@ export function MoveFileSheet({
         const dirs = allFiles
           .filter((f) => f.isDirectory)
           .sort((a, b) => a.name.localeCompare(b.name));
+        const nonDirs = allFiles
+          .filter((f) => !f.isDirectory)
+          .sort((a, b) => a.name.localeCompare(b.name));
         setDirectories(dirs);
+        setFiles(nonDirs);
       } catch {
         setDirectories([]);
+        setFiles([]);
       } finally {
         setIsLoading(false);
       }
@@ -275,7 +281,7 @@ export function MoveFileSheet({
                 </YStack>
               )}
 
-              {!isLoading && directories.length === 0 && (
+              {!isLoading && directories.length === 0 && files.length === 0 && (
                 <YStack alignItems="center" paddingVertical="$4">
                   <Text color="$gray9" fontSize="$3">No subfolders</Text>
                 </YStack>
@@ -307,6 +313,44 @@ export function MoveFileSheet({
                       <FontAwesome name="chevron-right" size={12} color={isDark ? '#666' : '#ccc'} />
                     </XStack>
                   </Pressable>
+                ))}
+
+              {!isLoading &&
+                files.map((f) => (
+                  <View
+                    key={f.name}
+                    style={{ opacity: 0.35 }}
+                    testID={`MoveFile.GhostedFile.${f.name}`}
+                  >
+                    <XStack
+                      paddingVertical="$3"
+                      gap="$3"
+                      alignItems="center"
+                      borderBottomWidth={0.5}
+                      borderBottomColor={isDark ? '$gray5' : '$gray4'}
+                    >
+                      <FontAwesome
+                        name={f.isEpub ? 'book' : f.name.toLowerCase().endsWith('.pdf') ? 'file-pdf-o' : 'file-o'}
+                        size={20}
+                        color={
+                          f.isEpub
+                            ? (isDark ? '#81d4fa' : '#1a73e8')
+                            : (isDark ? '#ccc' : '#666')
+                        }
+                        style={{ width: 24, textAlign: 'center' }}
+                      />
+                      <Text flex={1} fontSize="$4" numberOfLines={1}>
+                        {f.name}
+                      </Text>
+                      <Text color="$gray10" fontSize="$2">
+                        {f.size < 1024
+                          ? `${f.size} B`
+                          : f.size < 1024 * 1024
+                            ? `${(f.size / 1024).toFixed(1)} KB`
+                            : `${(f.size / (1024 * 1024)).toFixed(1)} MB`}
+                      </Text>
+                    </XStack>
+                  </View>
                 ))}
             </ScrollView>
 
