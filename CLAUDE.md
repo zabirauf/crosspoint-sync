@@ -222,7 +222,7 @@ You can also run `/test settings` or `/test library` to test a specific screen, 
 Flows tagged `requires-device` need a device (real or mock). To test connected states locally:
 
 ```bash
-npm run mock-device     # Start mock server (HTTP:8080, WS:8081)
+npm run mock-device     # Start mock server (HTTP:8082, WS:8083)
 # In another terminal, run the app and connect to the mock device via manual IP
 ```
 

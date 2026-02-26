@@ -16,7 +16,7 @@
     "test:visual:judge": "npx tsx scripts/visual-judge.ts --specs .maestro/visual-tests/ --run-dir test-runs/",
     "test:visual:report": "cat test-runs/latest/report.md",
     "test:visual:studio": "maestro studio",
-    "mock-device": "npx tsx scripts/mock-device-server.ts --http-port 8080 --ws-port 8081"
+    "mock-device": "npx tsx scripts/mock-device-server.ts --http-port 8082 --ws-port 8083 --data-dir test-mock-filesystem"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

@@ -16,30 +16,28 @@ Run Maestro visual test flows against the running iOS simulator, then run the LL
    ```
 4. Wait a few seconds for the app to fully initialize before running flows.
 5. Verify Maestro is available at `~/.maestro/bin/maestro` (or on PATH).
-6. For connected-state tests (`requires-device` tag), check if the mock device server is running. If not, note that `requires-device` flows will be skipped — this is fine for a normal test run.
+6. For connected-state tests (`requires-device` tag), check if the mock device server is running on port 8082:
+   - Run `lsof -i :8082` to check if something is listening.
+   - If listening, verify it's the mock server by hitting `curl -s http://localhost:8082/api/status` — it should return valid JSON with device info.
+   - If not running, note that `requires-device` flows will be skipped — this is fine for a normal test run. To start the mock server: `npm run mock-device`.
 
 ## Step 1: Run Maestro Flows
 
 Run the Maestro test flows to capture screenshots:
 
 ```bash
-# First clear old screenshots from working dir
-rm -f *.png
-
-~/.maestro/bin/maestro test .maestro/flows/
-```
-
-After the run completes, move any `.png` screenshots from the project root into `test-screenshots/`:
-```bash
+# Clear stale screenshots before each run
+rm -rf test-screenshots/*
 mkdir -p test-screenshots
-mv *.png test-screenshots/ 2>/dev/null || true
+
+~/.maestro/bin/maestro test .maestro/flows/ --test-output-dir test-screenshots/
 ```
 
 If `$ARGUMENTS` specifies a specific flow or screen name, run only that flow:
 ```bash
-rm -f *.png
-~/.maestro/bin/maestro test .maestro/flows/<matching-flow>.yaml
-mv *.png test-screenshots/ 2>/dev/null || true
+rm -rf test-screenshots/*
+mkdir -p test-screenshots
+~/.maestro/bin/maestro test .maestro/flows/<matching-flow>.yaml --test-output-dir test-screenshots/
 ```
 
 If `$ARGUMENTS` says "smoke" or "quick", run only smoke-tagged flows (01, 02, 08, 10).
@@ -54,9 +52,7 @@ Maestro flows can be flaky (animation timing, simulator lag, tap not registering
 2. Exclude flows that failed because they are tagged `requires-device` and the mock server isn't running — those are expected failures, not flakiness.
 3. For each remaining failed flow, re-run it individually:
    ```bash
-   rm -f *.png
-   ~/.maestro/bin/maestro test .maestro/flows/<failed-flow>.yaml
-   mv *.png test-screenshots/ 2>/dev/null || true
+   ~/.maestro/bin/maestro test .maestro/flows/<failed-flow>.yaml --test-output-dir test-screenshots/
    ```
 4. If a flow **passes on retry**, treat it as flaky — it is not a real failure. Use the screenshots from the successful retry.
 5. If a flow **fails again on retry**, treat it as a real failure and continue to Step 2 and Step 3 for diagnosis.
