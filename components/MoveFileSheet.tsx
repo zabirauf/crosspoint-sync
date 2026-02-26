@@ -27,7 +27,7 @@ export function MoveFileSheet({
   const isDark = colorScheme === 'dark';
   const connectedDevice = useDeviceStore((s) => s.connectedDevice);
 
-  const [browsePath, setBrowsePath] = useState('/');
+  const [browsePath, setBrowsePath] = useState(sourceDir);
   const [directories, setDirectories] = useState<DeviceFile[]>([]);
   const [files, setFiles] = useState<DeviceFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,9 +53,11 @@ export function MoveFileSheet({
     }
   }, [folderPromptOpen]);
 
-  // Start from the user's current folder when sheet opens
+  // Reset to the user's current folder when sheet opens
   useEffect(() => {
     if (open) {
+      setDirectories([]);
+      setFiles([]);
       setBrowsePath(sourceDir);
     }
   }, [open, sourceDir]);
