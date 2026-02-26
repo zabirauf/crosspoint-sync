@@ -4,12 +4,12 @@
  * for connected-state Maestro testing.
  *
  * Provides:
- *   - HTTP REST API on port 80 (status, files, mkdir, delete, rename, move, upload, download, settings)
- *   - WebSocket upload endpoint on port 81
+ *   - HTTP REST API on port 8080 (status, files, mkdir, delete, rename, move, upload, download, settings)
+ *   - WebSocket upload endpoint on port 8081
  *
  * Usage:
  *   npx tsx scripts/mock-device-server.ts
- *   npx tsx scripts/mock-device-server.ts --http-port 8080 --ws-port 8081
+ *   npx tsx scripts/mock-device-server.ts --http-port 9090 --ws-port 9091
  *   npx tsx scripts/mock-device-server.ts --firmware-version 0.9.0
  *   npx tsx scripts/mock-device-server.ts --data-dir ~/my-epubs
  */
@@ -31,20 +31,20 @@ Usage:
   npx tsx scripts/mock-device-server.ts [options]
 
 Options:
-  --http-port <port>         HTTP REST API port (default: 80)
-  --ws-port <port>           WebSocket upload port (default: 81)
+  --http-port <port>         HTTP REST API port (default: 8080)
+  --ws-port <port>           WebSocket upload port (default: 8081)
   --firmware-version <ver>   Firmware version to report (default: 1.1.0)
                              Controls capability gates:
                                >=1.0.0  rename, move
                                >=1.1.0  settings API
                                >=1.2.0  batch delete
-  --data-dir <path>          Serve files from disk instead of in-memory.
-                             If omitted, uses a seeded in-memory filesystem.
+  --data-dir <path>          Serve files from disk (default: ./test-mock-filesystem).
+                             Use --data-dir "" for a seeded in-memory filesystem.
   -h, --help                 Show this help message
 
 Examples:
   npx tsx scripts/mock-device-server.ts
-  npx tsx scripts/mock-device-server.ts --http-port 8080 --ws-port 8081
+  npx tsx scripts/mock-device-server.ts --http-port 9090 --ws-port 9091
   npx tsx scripts/mock-device-server.ts --firmware-version 0.9.0
   npx tsx scripts/mock-device-server.ts --data-dir ~/my-epubs`);
   process.exit(0);
@@ -55,11 +55,11 @@ function getArg(flag: string, defaultVal: string): string {
   return idx !== -1 && args[idx + 1] ? args[idx + 1] : defaultVal;
 }
 
-const HTTP_PORT = parseInt(getArg('--http-port', '80'), 10);
-const WS_PORT = parseInt(getArg('--ws-port', '81'), 10);
+const HTTP_PORT = parseInt(getArg('--http-port', '8080'), 10);
+const WS_PORT = parseInt(getArg('--ws-port', '8081'), 10);
 const HOSTNAME = 'crosspoint-mock';
 const FIRMWARE_VERSION = getArg('--firmware-version', '1.1.0');
-const DATA_DIR = getArg('--data-dir', '');
+const DATA_DIR = getArg('--data-dir', './test-mock-filesystem');
 
 // ─── Firmware Version Helper ───
 

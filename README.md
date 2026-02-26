@@ -90,6 +90,28 @@ plugins/                   # Expo config plugins for Share Extension and Safari 
 extension-src/             # Safari Web Extension source (content script, popup, background)
 ```
 
+## Testing with the Mock Server
+
+You can test the app in the iOS simulator without a physical XTEink device using the built-in mock server.
+
+1. Start the mock server in one terminal:
+
+```bash
+npm run mock-device
+```
+
+2. Run the app in the simulator:
+
+```bash
+npx expo run:ios
+```
+
+3. Open the connection sheet, enter `localhost:8080`, and tap **Connect**
+
+The mock server runs on HTTP port 8080 and WebSocket port 8081 (macOS requires root for the standard ports 80/81). The app parses the `host:port` format automatically and derives the WebSocket port as `httpPort + 1`.
+
+The mock server provides a fake file system with sample books, so you can test file browsing, uploads, and the full connection lifecycle.
+
 ## How It Works
 
 CrossPoint Sync communicates with the XTEink X4 using two protocols:
