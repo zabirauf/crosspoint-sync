@@ -13,8 +13,14 @@ name: "Ensure Connected State"
       id: "Library.ConnectionPill"
     timeout: 10000
 
-# Wait for auto-reconnect to complete — the FileList appears when connected
+# Wait for auto-reconnect to complete — wait for actual file rows to populate
 - extendedWaitUntil:
     visible:
       id: "Library.FileList"
     timeout: 15000
+
+# Wait for files to load — "Articles" folder exists in the mock filesystem root
+- extendedWaitUntil:
+    visible:
+      id: "Library.FileRow.Articles"
+    timeout: 10000

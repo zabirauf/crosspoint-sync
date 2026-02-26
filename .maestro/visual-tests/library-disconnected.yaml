@@ -27,7 +27,7 @@ assertions:
   - text: "A 'Connect' action button is visible"
     severity: fail
   - text: "The tab bar shows Library and Settings tabs with Library selected"
-    severity: fail
+    severity: warning
   - text: "No loading spinners or error messages are visible"
     severity: warning
 

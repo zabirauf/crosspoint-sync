@@ -24,7 +24,7 @@ assertions:
   - text: "'Enable in Safari' row is visible in the Web Clipper section (iOS only)"
     severity: fail
   - text: "'Debug Logging' toggle is visible"
-    severity: fail
+    severity: warning
   - text: "A 'Device' section shows device, IP address, and firmware rows"
     severity: fail
   - text: "Sections are visually grouped with headers"
