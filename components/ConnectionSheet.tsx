@@ -20,13 +20,6 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
 
   const { error: connectError, connectManualIP } = useDeviceDiscovery();
 
-  // Prefill manual IP when store hydrates
-  useEffect(() => {
-    if (lastDeviceIp && !manualIp) {
-      setManualIp(lastDeviceIp);
-    }
-  }, [lastDeviceIp]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const isConnected = connectionStatus === 'connected';
   const error = deviceError || connectError;
 
@@ -143,11 +136,12 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
                   </Label>
                   <XStack gap="$2">
                     <Input
+                      key={lastDeviceIp ?? 'default'}
                       id="device-address"
                       flex={1}
                       size="$4"
                       placeholder="crosspoint.local"
-                      value={manualIp}
+                      defaultValue={lastDeviceIp ?? DEFAULT_DEVICE_ADDRESS}
                       onChangeText={setManualIp}
                       keyboardType="url"
                       autoCapitalize="none"

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { TextInput } from 'react-native';
 import { Dialog, XStack, Button, Input, Text } from 'tamagui';
 
@@ -23,13 +23,15 @@ export function PromptDialog({
   onSubmit,
   submitLabel = 'Save',
 }: PromptDialogProps) {
-  const [value, setValue] = useState(defaultValue);
+  const valueRef = useRef(defaultValue);
   const inputRef = useRef<TextInput>(null);
+  const [inputKey, setInputKey] = useState(0);
 
-  // Reset value when dialog opens
+  // Remount input with fresh defaultValue when dialog opens
   useEffect(() => {
     if (open) {
-      setValue(defaultValue);
+      valueRef.current = defaultValue;
+      setInputKey((k) => k + 1);
     }
   }, [open, defaultValue]);
 
@@ -39,10 +41,14 @@ export function PromptDialog({
       const timer = setTimeout(() => inputRef.current?.focus(), 300);
       return () => clearTimeout(timer);
     }
-  }, [open]);
+  }, [open, inputKey]);
+
+  const handleChangeText = useCallback((text: string) => {
+    valueRef.current = text;
+  }, []);
 
   const handleSubmit = () => {
-    onSubmit(value);
+    onSubmit(valueRef.current);
     onOpenChange(false);
   };
 
@@ -76,10 +82,11 @@ export function PromptDialog({
             {message}
           </Text>
           <Input
+            key={inputKey}
             testID="PromptDialog.Input"
             size="$4"
-            value={value}
-            onChangeText={setValue}
+            defaultValue={defaultValue}
+            onChangeText={handleChangeText}
             placeholder={placeholder}
             ref={inputRef as any}
             onSubmitEditing={handleSubmit}
