@@ -1,0 +1,43 @@
+id: move-new-folder
+name: "Move Sheet - New Folder Dialog"
+flow: flows/15-move-new-folder.yaml
+screenshots:
+  - move-new-folder
+platforms: [ios]
+themes: [light]
+tags: [library, connected, requires-device, file-actions]
+
+description: |
+  Move file sheet with the new folder input row visible.
+  The input row appears below the header, containing a text input
+  with "Folder name" placeholder, a "Create" button, and an X dismiss button.
+  The folder list and "Move Here" button remain visible below.
+
+assertions:
+  - text: "The 'Move to...' sheet is visible"
+    severity: fail
+  - text: "A text input with 'Folder name' placeholder is visible"
+    severity: fail
+  - text: "A 'Create' button is visible next to the input"
+    severity: fail
+  - text: "An X dismiss button is visible next to the Create button"
+    severity: warning
+  - text: "The folder list is still visible below the input row"
+    severity: fail
+  - text: "The 'Move Here' button is visible at the bottom"
+    severity: fail
+
+focus_elements:
+  - id: "MoveFile.FolderNameInput"
+    label: "Folder name input"
+  - id: "MoveFile.CreateFolderButton"
+    label: "Create button"
+  - id: "MoveFile.MoveHereButton"
+    label: "Move here button"
+
+ignore:
+  - "Specific folder and file names in the list"
+  - "Background content behind the sheet overlay"
+
+created_by: human
+created_at: "2026-02-25"

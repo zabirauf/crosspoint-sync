@@ -1,0 +1,31 @@
+appId: com.crosspointsync.app
+name: "Move Sheet"
+tags:
+  - requires-device
+---
+# Open move sheet for a file in the Books folder
+- runFlow: ../helpers/ensure-connected.yaml
+
+# Tap the more button on Frankestein.epub (root-level file in mock filesystem)
+- tapOn:
+    id: "Library.FileRow.Frankestein.epub.More"
+
+# Wait for file action sheet
+- extendedWaitUntil:
+    visible:
+      id: "FileActions.Sheet"
+    timeout: 3000
+
+# Tap Move
+- tapOn:
+    id: "FileActions.Move"
+
+# Wait for move sheet to appear
+- extendedWaitUntil:
+    visible:
+      id: "MoveFile.Sheet"
+    timeout: 3000
+
+- waitForAnimationToEnd
+
+- takeScreenshot: move-sheet

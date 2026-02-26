@@ -1,0 +1,48 @@
+id: move-sheet
+name: "Move Sheet"
+flow: flows/14-move-sheet.yaml
+screenshots:
+  - move-sheet
+platforms: [ios]
+themes: [light]
+tags: [library, connected, requires-device, file-actions]
+
+description: |
+  Move file sheet shown after selecting "Move" from the file action sheet.
+  A bottom sheet with "Move to..." title, cancel button, and X close button in the header.
+  Breadcrumb navigation showing current location (starts at "Device" root).
+  Folder list with navigable folder entries and ghosted (dimmed) file entries.
+  A "New Folder" button to create a destination folder.
+  A "Move Here" button at the bottom to confirm the move destination.
+
+assertions:
+  - text: "The sheet is visible with a 'Move to...' title"
+    severity: fail
+  - text: "A breadcrumb shows the current location starting with 'Device'"
+    severity: fail
+  - text: "Folder entries are visible and navigable"
+    severity: fail
+  - text: "Ghosted/dimmed file entries are visible (non-selectable)"
+    severity: warning
+  - text: "A 'Move Here' button is visible at the bottom"
+    severity: fail
+  - text: "A 'New Folder' button is visible"
+    severity: fail
+  - text: "Cancel or X close button is visible in the header"
+    severity: fail
+
+focus_elements:
+  - id: "MoveFile.Sheet"
+    label: "Move file sheet"
+  - id: "MoveFile.MoveHereButton"
+    label: "Move here button"
+  - id: "MoveFile.NewFolderButton"
+    label: "New folder button"
+
+ignore:
+  - "Specific folder and file names in the list"
+  - "Number of entries in the folder list"
+  - "Background content behind the sheet overlay"
+
+created_by: human
+created_at: "2026-02-25"

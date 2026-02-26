@@ -1,0 +1,21 @@
+appId: com.crosspointsync.app
+name: "File Action Sheet"
+tags:
+  - requires-device
+---
+# Open file action sheet from a file in the Books folder
+- runFlow: ../helpers/ensure-connected.yaml
+
+# Tap the more button on Frankestein.epub (root-level file in mock filesystem)
+- tapOn:
+    id: "Library.FileRow.Frankestein.epub.More"
+
+# Wait for sheet to appear
+- extendedWaitUntil:
+    visible:
+      id: "FileActions.Sheet"
+    timeout: 3000
+
+- waitForAnimationToEnd
+
+- takeScreenshot: file-action-sheet

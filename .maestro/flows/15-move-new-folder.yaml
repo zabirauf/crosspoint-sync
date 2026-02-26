@@ -1,0 +1,43 @@
+appId: com.crosspointsync.app
+name: "Move Sheet - New Folder Dialog"
+tags:
+  - requires-device
+---
+# Open move sheet and trigger the new folder input
+- runFlow: ../helpers/ensure-connected.yaml
+
+# Tap the more button on Frankestein.epub (root-level file in mock filesystem)
+- tapOn:
+    id: "Library.FileRow.Frankestein.epub.More"
+
+# Wait for file action sheet
+- extendedWaitUntil:
+    visible:
+      id: "FileActions.Sheet"
+    timeout: 3000
+
+# Tap Move
+- tapOn:
+    id: "FileActions.Move"
+
+# Wait for move sheet to appear
+- extendedWaitUntil:
+    visible:
+      id: "MoveFile.Sheet"
+    timeout: 3000
+
+- waitForAnimationToEnd
+
+# Tap New Folder button
+- tapOn:
+    id: "MoveFile.NewFolderButton"
+
+# Wait for folder name input to appear
+- extendedWaitUntil:
+    visible:
+      id: "MoveFile.FolderNameInput"
+    timeout: 3000
+
+- waitForAnimationToEnd
+
+- takeScreenshot: move-new-folder

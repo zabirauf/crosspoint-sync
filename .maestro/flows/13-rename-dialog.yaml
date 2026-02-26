@@ -1,0 +1,31 @@
+appId: com.crosspointsync.app
+name: "Rename Dialog"
+tags:
+  - requires-device
+---
+# Open rename dialog for a file in the Books folder
+- runFlow: ../helpers/ensure-connected.yaml
+
+# Tap the more button on Frankestein.epub (root-level file in mock filesystem)
+- tapOn:
+    id: "Library.FileRow.Frankestein.epub.More"
+
+# Wait for file action sheet
+- extendedWaitUntil:
+    visible:
+      id: "FileActions.Sheet"
+    timeout: 3000
+
+# Tap Rename
+- tapOn:
+    id: "FileActions.Rename"
+
+# Wait for sheet to close (200ms) + dialog to appear and auto-focus (300ms)
+- extendedWaitUntil:
+    visible:
+      id: "PromptDialog.Content"
+    timeout: 3000
+
+- waitForAnimationToEnd
+
+- takeScreenshot: rename-dialog

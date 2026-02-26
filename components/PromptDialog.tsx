@@ -60,6 +60,7 @@ export function PromptDialog({
           bordered
           elevate
           key="content"
+          testID="PromptDialog.Content"
           animation={[
             'quick',
             { opacity: { overshootClamping: true } },
@@ -75,6 +76,7 @@ export function PromptDialog({
             {message}
           </Text>
           <Input
+            testID="PromptDialog.Input"
             size="$4"
             value={value}
             onChangeText={setValue}
@@ -86,11 +88,11 @@ export function PromptDialog({
           />
           <XStack gap="$3" justifyContent="flex-end">
             <Dialog.Close displayWhenAdapted asChild>
-              <Button size="$3" chromeless>
+              <Button testID="PromptDialog.CancelButton" size="$3" chromeless>
                 Cancel
               </Button>
             </Dialog.Close>
-            <Button size="$3" theme="blue" onPress={handleSubmit}>
+            <Button testID="PromptDialog.SubmitButton" size="$3" theme="blue" onPress={handleSubmit}>
               {submitLabel}
             </Button>
           </XStack>

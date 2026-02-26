@@ -21,14 +21,18 @@ export function useDeviceStatusPolling() {
     }
 
     let active = true;
+    let isFirstPoll = true;
 
     async function poll() {
       if (!active || !connectedDevice) return;
       try {
-        const status = await getDeviceStatus(connectedDevice.ip, {
-          priority: 'low',
-          droppable: true,
-        });
+        // First poll after connection uses high priority (non-droppable) to
+        // populate firmware version and capabilities as fast as possible.
+        const status = await getDeviceStatus(connectedDevice.ip, isFirstPoll
+          ? { priority: 'high', droppable: false }
+          : { priority: 'low', droppable: true },
+        );
+        isFirstPoll = false;
         if (active) {
           log('connection', `Status poll OK: RSSI ${status.rssi ?? 'N/A'}, heap ${status.freeHeap ?? 'N/A'}, uptime ${status.uptime ?? 'N/A'}s`);
           updateDeviceStatus(status);
@@ -39,6 +43,7 @@ export function useDeviceStatusPolling() {
           log('connection', 'Poll skipped (device busy)');
           return;
         }
+        isFirstPoll = false;
         failureCount.current++;
         log('connection', `Status poll failed (${failureCount.current}/${MAX_CONSECUTIVE_FAILURES})`);
         if (failureCount.current >= MAX_CONSECUTIVE_FAILURES && active) {

@@ -1,0 +1,47 @@
+id: file-action-sheet
+name: "File Action Sheet"
+flow: flows/12-file-action-sheet.yaml
+screenshots:
+  - file-action-sheet
+platforms: [ios]
+themes: [light]
+tags: [library, connected, requires-device, file-actions]
+
+description: |
+  File action sheet shown after tapping the more button on a file row.
+  A bottom sheet with the file name in the header and an X close button.
+  Action options listed vertically: Save, Move, Rename, and Delete.
+  Delete option is styled in red/destructive color to indicate danger.
+
+assertions:
+  - text: "The sheet is visible with a file name header"
+    severity: fail
+  - text: "A 'Save' action option is visible"
+    severity: fail
+  - text: "A 'Move' action option is visible"
+    severity: fail
+  - text: "A 'Rename' action option is visible"
+    severity: fail
+  - text: "A 'Delete' action option is visible and styled in red/destructive color"
+    severity: fail
+  - text: "An X close button is visible in the sheet header"
+    severity: fail
+  - text: "Action options have icons next to their labels"
+    severity: warning
+
+focus_elements:
+  - id: "FileActions.Sheet"
+    label: "File action sheet"
+  - id: "FileActions.Move"
+    label: "Move action"
+  - id: "FileActions.Rename"
+    label: "Rename action"
+  - id: "FileActions.Delete"
+    label: "Delete action"
+
+ignore:
+  - "Specific file name and size in the header"
+  - "Background content behind the sheet overlay"
+
+created_by: human
+created_at: "2026-02-25"

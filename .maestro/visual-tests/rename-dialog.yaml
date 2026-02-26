@@ -1,0 +1,41 @@
+id: rename-dialog
+name: "Rename Dialog"
+flow: flows/13-rename-dialog.yaml
+screenshots:
+  - rename-dialog
+platforms: [ios]
+themes: [light]
+tags: [library, connected, requires-device, file-actions]
+
+description: |
+  Rename dialog shown after selecting "Rename" from the file action sheet.
+  A centered modal dialog with "Rename File" title and descriptive message.
+  A text input field pre-filled with the current filename.
+  Cancel and Rename buttons at the bottom right of the dialog.
+
+assertions:
+  - text: "The dialog is visible with a 'Rename File' title"
+    severity: fail
+  - text: "A text input field is visible and pre-filled with a filename"
+    severity: fail
+  - text: "A 'Cancel' button is visible"
+    severity: fail
+  - text: "A 'Rename' submit button is visible"
+    severity: fail
+  - text: "The dialog has a semi-transparent overlay behind it"
+    severity: warning
+
+focus_elements:
+  - id: "PromptDialog.Content"
+    label: "Rename dialog"
+  - id: "PromptDialog.Input"
+    label: "Filename input"
+  - id: "PromptDialog.SubmitButton"
+    label: "Rename button"
+
+ignore:
+  - "Exact filename text in the input field"
+  - "Background content behind the dialog overlay"
+
+created_by: human
+created_at: "2026-02-25"
