@@ -40,13 +40,16 @@ Options:
                                >=1.2.0  batch delete
   --data-dir <path>          Serve files from disk (default: ./test-mock-filesystem).
                              Use --data-dir "" for a seeded in-memory filesystem.
+  --latency <ms>             Simulated response latency in ms (default: 0).
+                             Adds a random ±30% jitter around the value.
   -h, --help                 Show this help message
 
 Examples:
   npx tsx scripts/mock-device-server.ts
   npx tsx scripts/mock-device-server.ts --http-port 9090 --ws-port 9091
   npx tsx scripts/mock-device-server.ts --firmware-version 0.9.0
-  npx tsx scripts/mock-device-server.ts --data-dir ~/my-epubs`);
+  npx tsx scripts/mock-device-server.ts --data-dir ~/my-epubs
+  npx tsx scripts/mock-device-server.ts --latency 200`);
   process.exit(0);
 }
 
@@ -60,6 +63,22 @@ const WS_PORT = parseInt(getArg('--ws-port', '8081'), 10);
 const HOSTNAME = 'crosspoint-mock';
 const FIRMWARE_VERSION = getArg('--firmware-version', '1.1.0');
 const DATA_DIR = getArg('--data-dir', './test-mock-filesystem');
+const LATENCY_MS = parseInt(getArg('--latency', '0'), 10);
+
+// ─── Latency Simulation ───
+
+/** Returns a delay with ±30% jitter around the configured latency. */
+function randomLatency(): number {
+  if (LATENCY_MS <= 0) return 0;
+  const jitter = 0.3;
+  const min = Math.round(LATENCY_MS * (1 - jitter));
+  const max = Math.round(LATENCY_MS * (1 + jitter));
+  return min + Math.floor(Math.random() * (max - min + 1));
+}
+
+function delay(ms: number): Promise<void> {
+  return ms > 0 ? new Promise((r) => setTimeout(r, ms)) : Promise.resolve();
+}
 
 // ─── Firmware Version Helper ───
 
@@ -587,6 +606,8 @@ const httpServer = http.createServer(async (req, res) => {
   console.log(`[HTTP] ${req.method} ${pathname}${url.search}`);
 
   try {
+    // Simulate network latency
+    await delay(randomLatency());
     // GET /api/status
     if (pathname === '/api/status' && req.method === 'GET') {
       deviceStatus.uptime += 1000;
@@ -948,6 +969,7 @@ console.log(`  Data dir:      ${DATA_DIR ? `${DATA_DIR} (disk-backed)` : 'in-mem
 console.log(`  Capabilities:  ${capList.length ? capList.join(', ') : 'none (pre-1.0.0)'}`);
 console.log(`  HTTP API:      port ${HTTP_PORT}`);
 console.log(`  WebSocket:     port ${WS_PORT}`);
+console.log(`  Latency:       ${LATENCY_MS > 0 ? `~${LATENCY_MS}ms (±30% jitter)` : 'none'}`);
 console.log(`  Hostname:      ${HOSTNAME}`);
 console.log('');
 console.log('Press Ctrl+C to stop');

@@ -24,7 +24,7 @@ export async function validateDeviceIP(
     log('discovery', `Device ${host}:${httpPort} validated`);
     return {
       device: {
-        ip: status.ip || host,
+        ip: host,
         hostname: `XTEink (${host})`,
         httpPort,
         wsPort,
