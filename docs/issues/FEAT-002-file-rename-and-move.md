@@ -43,6 +43,10 @@ Users want the ability to rename files and move files between folders, both indi
 - **Capability gating**: Rename action only appears when `capabilities.rename` is true (firmware >= 1.0.0).
 - **Move UI** (`components/MoveFileSheet.tsx`): Full-screen folder picker with independent browsing, back navigation, new-folder creation, and "Move Here" button. Wired through `moveFileOnDevice` hook to the existing `moveFile` API.
 - **FileActionSheet** (`components/FileActionSheet.tsx`): Bottom sheet with Save/Move/Rename/Delete actions, accessible via `...` icon or long-press on any file row. Replaces swipe-only discoverability.
+- **Breadcrumb navigation** (`9631325`): MoveFileSheet shows breadcrumb path for easier folder navigation.
+- **Ghosted files for folder context** (`fa3c1d7`): Move sheet displays non-selectable (ghosted) files alongside folders so users can see what's in each directory.
+- **Flash fix on open** (`0ffc0ef`): Fixed Move sheet briefly flashing root folder contents before navigating to the correct starting path.
+- **Hide Move for directories** (`ddad6d0`): Move action hidden for directories since the firmware doesn't support moving folders.
 
 ### Remaining
 
