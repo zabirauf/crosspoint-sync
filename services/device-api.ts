@@ -22,7 +22,8 @@ function invalidatePath(path: string): void {
 }
 
 function baseUrl(ip: string): string {
-  return `http://${ip}:${HTTP_PORT}`;
+  const port = useDeviceStore.getState().connectedDevice?.httpPort ?? HTTP_PORT;
+  return `http://${ip}:${port}`;
 }
 
 async function fetchWithTimeout(
@@ -49,13 +50,15 @@ async function fetchWithTimeout(
 
 export async function getDeviceStatus(
   ip: string,
-  opts?: { priority?: RequestPriority; droppable?: boolean },
+  opts?: { priority?: RequestPriority; droppable?: boolean; httpPort?: number },
 ): Promise<DeviceStatus> {
   return deviceScheduler.schedule({
     priority: opts?.priority,
     droppable: opts?.droppable,
     execute: async () => {
-      const res = await fetchWithTimeout(`${baseUrl(ip)}/api/status`);
+      const port = opts?.httpPort ?? useDeviceStore.getState().connectedDevice?.httpPort ?? HTTP_PORT;
+      const url = `http://${ip}:${port}/api/status`;
+      const res = await fetchWithTimeout(url);
       if (!res.ok) throw new Error(`Status request failed: ${res.status}`);
       return res.json();
     },

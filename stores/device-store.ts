@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DeviceInfo, DeviceStatus, ConnectionStatus } from '@/types/device';
-import { DEFAULT_DEVICE_ADDRESS } from '@/constants/Protocol';
+import { DEFAULT_DEVICE_ADDRESS, HTTP_PORT } from '@/constants/Protocol';
 import { log } from '@/services/logger';
 
 interface DeviceState {
@@ -28,11 +28,14 @@ export const useDeviceStore = create<DeviceState>()(
       error: null,
 
       connectDevice: (device) => {
-        log('store', `Connected: ${device.hostname} (${device.ip})`);
+        log('store', `Connected: ${device.hostname} (${device.ip}:${device.httpPort})`);
+        const lastDeviceIp = device.httpPort !== HTTP_PORT
+          ? `${device.ip}:${device.httpPort}`
+          : device.ip;
         set({
           connectionStatus: 'connected',
           connectedDevice: device,
-          lastDeviceIp: device.ip,
+          lastDeviceIp,
           error: null,
         });
       },

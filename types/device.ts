@@ -1,6 +1,7 @@
 export interface DeviceInfo {
   ip: string;
   hostname: string;
+  httpPort: number;
   wsPort: number;
 }
 

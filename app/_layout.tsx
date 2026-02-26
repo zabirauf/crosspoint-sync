@@ -73,9 +73,9 @@ function RootLayoutNav() {
         const { setConnectionStatus, connectDevice } = useDeviceStore.getState();
         setConnectionStatus('connecting');
         try {
-          const device = await validateDeviceIP(lastDeviceIp);
-          if (device) {
-            connectDevice(device);
+          const result = await validateDeviceIP(lastDeviceIp);
+          if (result) {
+            connectDevice(result.device);
           } else {
             setConnectionStatus('disconnected');
           }
