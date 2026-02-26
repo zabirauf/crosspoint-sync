@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { TextInput } from 'react-native';
 import { Dialog, XStack, Button, Input, Text } from 'tamagui';
 
 interface PromptDialogProps {
@@ -23,6 +24,7 @@ export function PromptDialog({
   submitLabel = 'Save',
 }: PromptDialogProps) {
   const [value, setValue] = useState(defaultValue);
+  const inputRef = useRef<TextInput>(null);
 
   // Reset value when dialog opens
   useEffect(() => {
@@ -30,6 +32,14 @@ export function PromptDialog({
       setValue(defaultValue);
     }
   }, [open, defaultValue]);
+
+  // Focus input after dialog animation completes
+  useEffect(() => {
+    if (open) {
+      const timer = setTimeout(() => inputRef.current?.focus(), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
 
   const handleSubmit = () => {
     onSubmit(value);
@@ -69,7 +79,7 @@ export function PromptDialog({
             value={value}
             onChangeText={setValue}
             placeholder={placeholder}
-            autoFocus
+            ref={inputRef as any}
             onSubmitEditing={handleSubmit}
             autoCapitalize="none"
             autoCorrect={false}
