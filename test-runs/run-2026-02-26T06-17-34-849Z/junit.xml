@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="visual-tests" tests="7" failures="0" errors="0" skipped="1">
+  <testsuite name="visual-judge" tests="7" failures="0" errors="0" skipped="1">
+    <testcase name="App Launch - Initial State" classname="visual-tests.app-launch" />
+    <testcase name="Connection Sheet - Idle" classname="visual-tests.connection-sheet" />
+    <testcase name="FAB Menu - Open" classname="visual-tests.fab-menu" />
+    <testcase name="Library - Connected with Files" classname="visual-tests.library-connected" />
+    <testcase name="Library - Disconnected Empty State" classname="visual-tests.library-disconnected" />
+    <testcase name="Settings Screen" classname="visual-tests.settings-main" />
+    <testcase name="Upload Queue Sheet" classname="visual-tests.upload-queue">
+      <system-out>Test screenshot not found: test-screenshots/upload-queue-active.png</system-out>
+    </testcase>
+  </testsuite>
+</testsuites>

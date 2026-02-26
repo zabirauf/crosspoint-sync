@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="visual-tests" tests="7" failures="2" errors="0" skipped="1">
+  <testsuite name="visual-judge" tests="7" failures="2" errors="0" skipped="1">
+    <testcase name="App Launch - Initial State" classname="visual-tests.app-launch" />
+    <testcase name="Connection Sheet - Idle" classname="visual-tests.connection-sheet" />
+    <testcase name="FAB Menu - Open" classname="visual-tests.fab-menu" />
+    <testcase name="Library - Connected with Files" classname="visual-tests.library-connected" />
+    <testcase name="Library - Disconnected Empty State" classname="visual-tests.library-disconnected">
+      <failure message="The test screenshot is virtually identical to the reference screenshot. All UI elements — the Library header, connection pill with gray dot, plug icon, 'No Device Connected' heading, subtitle, Connect button, blue FAB, and debug warning banner — are present and correctly rendered. The only assertion that did not fully pass (tab bar visibility) is a pre-existing condition present in both the reference and test screenshots due to the debug banner overlapping the tab bar area, and is therefore not a regression. No meaningful visual differences were found."></failure>
+    </testcase>
+    <testcase name="Settings Screen" classname="visual-tests.settings-main">
+      <failure message="The test screenshot is visually identical to the reference screenshot. All visible UI elements, text content, layout, colors, and icons match perfectly. The two assertion failures (Debug Logging toggle and View Logs row) are not regressions — both elements are below the visible scroll area in both the reference and test screenshots equally. The Settings screen is rendering correctly."></failure>
+    </testcase>
+    <testcase name="Upload Queue Sheet" classname="visual-tests.upload-queue">
+      <system-out>Test screenshot not found: test-screenshots/upload-queue-active.png</system-out>
+    </testcase>
+  </testsuite>
+</testsuites>
