@@ -16,7 +16,8 @@
     "test:visual:judge": "npx tsx scripts/visual-judge.ts --specs .maestro/visual-tests/ --run-dir test-runs/",
     "test:visual:report": "cat test-runs/latest/report.md",
     "test:visual:studio": "maestro studio",
-    "mock-device": "npx tsx scripts/mock-device-server.ts --http-port 8082 --ws-port 8083 --data-dir test-mock-filesystem"
+    "mock-device": "npx tsx scripts/mock-device-server.ts --http-port 8082 --ws-port 8083 --data-dir test-mock-filesystem",
+    "build:webview-bundle": "node scripts/bundle-webview-extractor.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -61,7 +62,7 @@
     "@anthropic-ai/sdk": "^0.78.0",
     "@types/react": "~19.1.0",
     "@types/ws": "^8.18.1",
-    "defuddle": "^0.6.6",
+    "defuddle": "^0.7.0",
     "dompurify": "^3.3.1",
     "react-test-renderer": "19.1.0",
     "tsx": "^4.21.0",

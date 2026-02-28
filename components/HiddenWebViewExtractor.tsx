@@ -10,13 +10,27 @@ import {
   rejectExtraction,
 } from '@/services/webview-article-extractor';
 import { EXTRACTION_SCRIPT } from '@/services/webview-extraction-script';
+import { DEFUDDLE_EXTRACTION_SCRIPT } from '@/services/generated/defuddle-webview-bundle';
 import { log } from '@/services/logger';
 
-const SETTLE_DELAY_MS = 2000;
+const SETTLE_DELAY_DEFAULT_MS = 2000;
+const SETTLE_DELAY_X_MS = 5000;
+
+function isXTwitterUrl(url: string): boolean {
+  return url.includes('x.com/') || url.includes('twitter.com/');
+}
+
+function getSettleDelay(url: string): number {
+  return isXTwitterUrl(url) ? SETTLE_DELAY_X_MS : SETTLE_DELAY_DEFAULT_MS;
+}
 
 /**
  * Renders a zero-size offscreen WebView on Android when an extraction is requested.
  * Returns null on iOS or when idle.
+ *
+ * Uses the Defuddle bundle (if available) for high-quality extraction with
+ * site-specific extractors (Twitter threads, X Articles, etc.). Falls back
+ * to the generic extraction script otherwise.
  */
 export function HiddenWebViewExtractor() {
   const { extractionUrl, requestId } = useWebViewExtractorStore();
@@ -25,12 +39,6 @@ export function HiddenWebViewExtractor() {
   const handleLoadEnd = useCallback(() => {
     if (injectedRef.current) return;
     injectedRef.current = true;
-
-    // Delay injection to let JS-rendered content settle
-    setTimeout(() => {
-      // The script is injected via injectedJavaScript prop — onLoadEnd just confirms page loaded
-      // We use onLoadEnd + injectedJavaScript timing approach instead
-    }, SETTLE_DELAY_MS);
   }, []);
 
   const handleMessage = useCallback((event: WebViewMessageEvent) => {
@@ -71,11 +79,17 @@ export function HiddenWebViewExtractor() {
     return null;
   }
 
-  // Wrap the extraction script in a setTimeout so the page JS has time to settle
+  // Use Defuddle bundle if available (includes site-specific extractors),
+  // otherwise fall back to generic extraction script
+  const script = DEFUDDLE_EXTRACTION_SCRIPT ?? EXTRACTION_SCRIPT;
+  const settleDelay = getSettleDelay(extractionUrl);
+
+  // Wrap the extraction script in a setTimeout so the page JS has time to settle.
+  // X/Twitter gets a longer delay (5s) because its React bundle is heavy.
   const delayedScript = `
     setTimeout(function() {
-      ${EXTRACTION_SCRIPT}
-    }, ${SETTLE_DELAY_MS});
+      ${script}
+    }, ${settleDelay});
     true;
   `;
 
