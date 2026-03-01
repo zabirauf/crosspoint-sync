@@ -1,5 +1,6 @@
 import { XStack, YStack, Text, Card, Progress, Button } from 'tamagui';
 import { UploadJob } from '@/types/upload';
+import { formatSize } from '@/utils/format';
 
 interface UploadJobCardProps {
   job: UploadJob;
@@ -45,12 +46,6 @@ function statusColor(status: UploadJob['status']): string {
     case 'conflict':
       return '$yellow10';
   }
-}
-
-function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 export function UploadJobCard({ job, onCancel, onRetry, onRemove, onOverwrite }: UploadJobCardProps) {

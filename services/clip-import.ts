@@ -4,13 +4,10 @@ import { useUploadStore } from '@/stores/upload-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import { generateEpub } from '@/services/epub-generator';
 import { log } from '@/services/logger';
+import { pathToUri } from '@/utils/format';
 import type { ClipManifest, ClipImage } from '@/types/clip';
 
 const APP_GROUP_ID = 'group.com.crosspointsync.app';
-
-function pathToUri(p: string): string {
-  return p.startsWith('file://') ? p : `file://${p}`;
-}
 
 /**
  * Imports clipped articles from the Safari Web Extension via App Groups.

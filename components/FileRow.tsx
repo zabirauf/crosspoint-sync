@@ -2,6 +2,7 @@ import { XStack, YStack, Text } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { ActivityIndicator, Pressable, useColorScheme } from 'react-native';
 import { DeviceFile } from '@/types/device';
+import { formatSize } from '@/utils/format';
 
 interface FileRowProps {
   file: DeviceFile;
@@ -9,12 +10,6 @@ interface FileRowProps {
   onLongPress?: () => void;
   onMorePress?: () => void;
   downloadStatus?: 'downloading' | 'queued';
-}
-
-function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 function fileIcon(file: DeviceFile): React.ComponentProps<typeof FontAwesome>['name'] {

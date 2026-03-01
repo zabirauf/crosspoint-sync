@@ -2,6 +2,7 @@ import { File, Directory, Paths } from 'expo-file-system';
 import { getAppGroupPath } from '@/modules/app-group-path';
 import { useUploadStore } from '@/stores/upload-store';
 import { log } from '@/services/logger';
+import { pathToUri } from '@/utils/format';
 
 const APP_GROUP_ID = 'group.com.crosspointsync.app';
 
@@ -11,10 +12,6 @@ interface ShareManifest {
   fileSize: number;
   destinationPath: string;
   createdAt: number;
-}
-
-function pathToUri(p: string): string {
-  return p.startsWith('file://') ? p : `file://${p}`;
 }
 
 export async function importSharedFiles(): Promise<number> {

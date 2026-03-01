@@ -2,6 +2,7 @@ import { ScrollView, Pressable, useColorScheme } from 'react-native';
 import { Sheet, XStack, YStack, Text, H4, Button } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { DeviceFile } from '@/types/device';
+import { formatSize } from '@/utils/format';
 
 interface FileActionSheetProps {
   open: boolean;
@@ -49,12 +50,6 @@ function ActionRow({
       </XStack>
     </Pressable>
   );
-}
-
-function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 export function FileActionSheet({
