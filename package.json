@@ -17,7 +17,10 @@
     "test:visual:report": "cat test-runs/latest/report.md",
     "test:visual:studio": "maestro studio",
     "mock-device": "npx tsx scripts/mock-device-server.ts --http-port 8082 --ws-port 8083 --data-dir test-mock-filesystem",
-    "build:webview-bundle": "node scripts/bundle-webview-extractor.js"
+    "build:webview-bundle": "node scripts/bundle-webview-extractor.js",
+    "test:epub": "npx tsx scripts/epub-test.ts",
+    "test:epub:unit": "npx tsx scripts/epub-test.ts --unit",
+    "test:epub:integration": "npx tsx scripts/epub-test.ts --integration"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

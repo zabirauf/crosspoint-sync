@@ -169,10 +169,8 @@ async function downloadImages(
     }
   }
 
-  // Rewrite image src URLs in HTML (same pattern as epub-generator)
-  for (const img of downloaded) {
-    rewrittenHtml = rewrittenHtml.split(img.originalUrl).join(img.originalUrl);
-  }
+  // No URL rewriting needed here — epub-generator.ts handles rewriting
+  // originalUrl → local path when building the EPUB.
 
   return { rewrittenHtml, downloaded };
 }
@@ -191,8 +189,10 @@ export async function downloadImagesFromUrls(
     imgDir.create();
   }
 
-  for (const url of imageUrls.slice(0, MAX_IMAGES)) {
+  for (const rawUrl of imageUrls.slice(0, MAX_IMAGES)) {
     try {
+      // Resolve protocol-relative URLs before fetching
+      const url = rawUrl.startsWith('//') ? 'https:' + rawUrl : rawUrl;
       const response = await fetch(url, { signal: AbortSignal.timeout(10_000) });
       if (!response.ok) continue;
 
@@ -209,7 +209,7 @@ export async function downloadImagesFromUrls(
       const localPath = `clip-images-tmp/img-${downloaded.length}`;
 
       downloaded.push({
-        originalUrl: url,
+        originalUrl: rawUrl,
         localPath,
         mimeType,
         data,
@@ -223,6 +223,10 @@ export async function downloadImagesFromUrls(
 }
 
 function resolveUrl(src: string, baseUrl: string): string {
+  // Protocol-relative URLs
+  if (src.startsWith('//')) {
+    return 'https:' + src;
+  }
   if (src.startsWith('http://') || src.startsWith('https://')) {
     return src;
   }

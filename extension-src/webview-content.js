@@ -33,30 +33,45 @@ import DOMPurify from 'dompurify';
         'details', 'summary',
       ],
       ALLOWED_ATTR: [
-        'href', 'src', 'alt', 'title', 'class',
+        'href', 'src', 'srcset', 'alt', 'title', 'class',
         'width', 'height', 'colspan', 'rowspan',
       ],
       ALLOW_DATA_ATTR: false,
     });
 
-    // Collect all image URLs from the sanitized content
+    // Parse sanitized HTML, resolve all image URLs to absolute, and re-serialize.
+    // This ensures the HTML string and the collected image URLs match exactly,
+    // so epub-generator's find-and-replace can rewrite them to local paths.
     const parser = new DOMParser();
     const doc = parser.parseFromString(cleanHtml, 'text/html');
     const images = [];
     doc.querySelectorAll('img[src]').forEach((img) => {
-      if (images.length >= 20) return;
-      const src = img.getAttribute('src');
-      if (src && src.startsWith('http')) {
-        images.push(src);
+      let src = img.getAttribute('src');
+      if (!src || src.startsWith('data:')) return;
+      // Protocol-relative
+      if (src.startsWith('//')) src = 'https:' + src;
+      // Resolve relative to absolute
+      if (!src.startsWith('http://') && !src.startsWith('https://')) {
+        try { src = new URL(src, window.location.href).href; } catch { return; }
       }
+      // Write absolute URL back so serialized HTML matches
+      img.setAttribute('src', src);
+      const srcset = img.getAttribute('srcset');
+      if (srcset) {
+        img.removeAttribute('srcset');
+      }
+      if (images.length < 20) images.push(src);
     });
+
+    // Re-serialize HTML with absolute URLs
+    const resolvedHtml = doc.body.innerHTML;
 
     window.ReactNativeWebView.postMessage(JSON.stringify({
       success: true,
       title: defuddled.title || document.title || 'Untitled',
       author: defuddled.author || defuddled.site || '',
       sourceUrl: window.location.href,
-      html: cleanHtml,
+      html: resolvedHtml,
       images: images,
     }));
   } catch (e) {

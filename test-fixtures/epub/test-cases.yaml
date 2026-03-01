@@ -1,0 +1,144 @@
+# EPUB Generator Test Cases
+# Used by scripts/epub-test.ts
+
+- name: "Text-only article"
+  description: "Basic article with no images produces valid EPUB structure"
+  input:
+    title: "Hello World"
+    author: "Test Author"
+    sourceUrl: "https://example.com/hello"
+    html: "<h2>Introduction</h2><p>This is a simple article with no images.</p><p>Second paragraph.</p>"
+    images: []
+  expect:
+    hasValidStructure: true
+    imageCount: 0
+    bodyContains:
+      - "Introduction"
+      - "simple article"
+    noExternalImageUrls: true
+
+- name: "Absolute URL images"
+  description: "Images with absolute URLs are correctly rewritten to local paths"
+  input:
+    title: "Image Test"
+    author: "Photographer"
+    sourceUrl: "https://example.com/photos"
+    html: '<p>Look at this:</p><img src="https://cdn.example.com/photo1.jpg" alt="Photo 1"><p>And this:</p><img src="https://cdn.example.com/photo2.png" alt="Photo 2">'
+    images:
+      - originalUrl: "https://cdn.example.com/photo1.jpg"
+        mimeType: "image/jpeg"
+      - originalUrl: "https://cdn.example.com/photo2.png"
+        mimeType: "image/png"
+  expect:
+    hasValidStructure: true
+    imageCount: 2
+    imagesRewritten: true
+    noExternalImageUrls: true
+    manifestHasAllImages: true
+
+- name: "Relative URL images"
+  description: "Images with relative URLs are correctly matched and rewritten"
+  input:
+    title: "Relative URLs"
+    author: "Author"
+    sourceUrl: "https://example.com/articles/test"
+    html: '<p>Image:</p><img src="/images/photo.jpg" alt="Photo"><p>Another:</p><img src="assets/banner.png" alt="Banner">'
+    images:
+      - originalUrl: "/images/photo.jpg"
+        mimeType: "image/jpeg"
+      - originalUrl: "assets/banner.png"
+        mimeType: "image/png"
+  expect:
+    hasValidStructure: true
+    imageCount: 2
+    imagesRewritten: true
+    noExternalImageUrls: true
+
+- name: "Protocol-relative URLs"
+  description: "Protocol-relative URLs (//cdn.example.com/img.jpg) are handled"
+  input:
+    title: "Protocol Relative"
+    author: "Author"
+    sourceUrl: "https://example.com/article"
+    html: '<p>Image:</p><img src="//cdn.example.com/hero.webp" alt="Hero">'
+    images:
+      - originalUrl: "//cdn.example.com/hero.webp"
+        mimeType: "image/webp"
+  expect:
+    hasValidStructure: true
+    imageCount: 1
+    imagesRewritten: true
+    noExternalImageUrls: true
+
+- name: "Multiple images"
+  description: "All images are embedded and referenced correctly"
+  input:
+    title: "Gallery"
+    author: "Gallery Author"
+    sourceUrl: "https://example.com/gallery"
+    html: '<img src="https://img.example.com/a.jpg" alt="A"><img src="https://img.example.com/b.png" alt="B"><img src="https://img.example.com/c.gif" alt="C"><img src="https://img.example.com/d.webp" alt="D">'
+    images:
+      - originalUrl: "https://img.example.com/a.jpg"
+        mimeType: "image/jpeg"
+      - originalUrl: "https://img.example.com/b.png"
+        mimeType: "image/png"
+      - originalUrl: "https://img.example.com/c.gif"
+        mimeType: "image/gif"
+      - originalUrl: "https://img.example.com/d.webp"
+        mimeType: "image/webp"
+  expect:
+    hasValidStructure: true
+    imageCount: 4
+    imagesRewritten: true
+    noExternalImageUrls: true
+    manifestHasAllImages: true
+
+- name: "Special characters in title and author"
+  description: "XML special characters in title/author are properly escaped"
+  input:
+    title: 'Tom & Jerry: "Best" <Friends>'
+    author: "O'Brien & Associates"
+    sourceUrl: "https://example.com/special"
+    html: "<p>Content here.</p>"
+    images: []
+  expect:
+    hasValidStructure: true
+    imageCount: 0
+    xmlWellFormed: true
+    bodyContains:
+      - "Content here"
+
+- name: "Duplicate image URLs"
+  description: "Duplicate image URLs are deduplicated — only one copy embedded"
+  input:
+    title: "Duplicates"
+    author: "Author"
+    sourceUrl: "https://example.com/dupes"
+    html: '<img src="https://cdn.example.com/same.jpg" alt="First"><p>text</p><img src="https://cdn.example.com/same.jpg" alt="Second">'
+    images:
+      - originalUrl: "https://cdn.example.com/same.jpg"
+        mimeType: "image/jpeg"
+  expect:
+    hasValidStructure: true
+    imageCount: 1
+    imagesRewritten: true
+    noExternalImageUrls: true
+
+- name: "XHTML fixup"
+  description: "Void elements are self-closed and bare ampersands escaped"
+  input:
+    title: "XHTML Test"
+    author: "Author"
+    sourceUrl: "https://example.com/xhtml"
+    html: "<p>Line one<br>Line two</p><hr><p>Tom & Jerry</p><img src=\"https://example.com/img.jpg\" alt=\"test\">"
+    images:
+      - originalUrl: "https://example.com/img.jpg"
+        mimeType: "image/jpeg"
+  expect:
+    hasValidStructure: true
+    imageCount: 1
+    xhtmlValid: true
+    bodyContains:
+      - "<br/>"
+      - "<hr/>"
+      - "Tom &amp; Jerry"

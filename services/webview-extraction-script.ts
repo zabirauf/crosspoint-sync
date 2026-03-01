@@ -91,7 +91,7 @@ export const EXTRACTION_SCRIPT = `
       'DETAILS':1,'SUMMARY':1,
     };
     var ALLOWED_ATTRS = {
-      'href':1,'src':1,'alt':1,'title':1,'class':1,
+      'href':1,'src':1,'srcset':1,'alt':1,'title':1,'class':1,
       'width':1,'height':1,'colspan':1,'rowspan':1,
     };
 
@@ -132,24 +132,41 @@ export const EXTRACTION_SCRIPT = `
       sanitizeNode(topChildren[k]);
     }
 
-    var html = clone.innerHTML;
-
-    // --- Collect image URLs ---
+    // --- Resolve all img[src] to absolute URLs before serializing ---
+    // This ensures the HTML string and the collected image URLs match exactly.
     var images = [];
     var seen = {};
     clone.querySelectorAll('img[src]').forEach(function(img) {
-      if (images.length >= 20) return;
       var src = img.getAttribute('src');
-      if (src && !src.startsWith('data:') && !seen[src]) {
-        try {
-          var abs = new URL(src, document.location.href).href;
-          if (abs.startsWith('http://') || abs.startsWith('https://')) {
-            images.push(abs);
-            seen[abs] = true;
+      if (!src || src.startsWith('data:')) return;
+      // Protocol-relative
+      if (src.startsWith('//')) src = 'https:' + src;
+      // Resolve relative to absolute
+      if (!src.startsWith('http://') && !src.startsWith('https://')) {
+        try { src = new URL(src, document.location.href).href; } catch(e) { return; }
+      }
+      // Promote srcset to src for lazy-loaded images
+      if (!src && img.getAttribute('srcset')) {
+        var srcsetFirst = img.getAttribute('srcset').split(',')[0].trim().split(/\\s+/)[0];
+        if (srcsetFirst) {
+          if (srcsetFirst.startsWith('//')) srcsetFirst = 'https:' + srcsetFirst;
+          if (!srcsetFirst.startsWith('http://') && !srcsetFirst.startsWith('https://')) {
+            try { srcsetFirst = new URL(srcsetFirst, document.location.href).href; } catch(e) {}
           }
-        } catch(e) {}
+          src = srcsetFirst;
+        }
+      }
+      // Write absolute URL back into the DOM so innerHTML matches
+      img.setAttribute('src', src);
+      img.removeAttribute('srcset');
+      // Collect for download
+      if (images.length < 20 && !seen[src]) {
+        images.push(src);
+        seen[src] = true;
       }
     });
+
+    var html = clone.innerHTML;
 
     window.ReactNativeWebView.postMessage(JSON.stringify({
       success: true,

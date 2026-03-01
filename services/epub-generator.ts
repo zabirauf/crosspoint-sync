@@ -1,28 +1,34 @@
 import JSZip from 'jszip';
-import { File, Directory, Paths } from 'expo-file-system';
-import { log } from '@/services/logger';
 import type { ClipImage } from '@/types/clip';
 
 // ──────────────────────────────────────────────────────
 // Public API
 // ──────────────────────────────────────────────────────
 
-interface EpubOptions {
+export interface EpubBuildOptions {
   title: string;
   author: string;
   sourceUrl: string;
   html: string; // Pre-sanitized HTML content (from DOMPurify in extension)
   images: Array<ClipImage & { data: Uint8Array }>; // Images with binary data loaded
   clippedAt: number;
+  bookId?: string; // Optional — auto-generated if not provided
+}
+
+export interface EpubBuildResult {
+  buffer: Uint8Array;
+  rewrittenHtml: string;
+  imageEntries: ImageEntry[];
+  bookId: string;
 }
 
 /**
- * Generates an EPUB file from clipped article HTML + images.
- * Returns the file URI of the generated EPUB in the cache directory.
+ * Pure function — builds an EPUB ZIP buffer from article HTML + images.
+ * No expo-file-system dependency, so it can run in Node.js for testing.
  */
-export async function generateEpub(options: EpubOptions): Promise<{ uri: string; size: number }> {
+export async function buildEpubZip(options: EpubBuildOptions): Promise<EpubBuildResult> {
   const { title, author, sourceUrl, html, images, clippedAt } = options;
-  const bookId = `crosspointsync-clip-${clippedAt}-${Math.random().toString(36).slice(2, 9)}`;
+  const bookId = options.bookId ?? `crosspointsync-clip-${clippedAt}-${Math.random().toString(36).slice(2, 9)}`;
   const sanitizedTitle = escapeXml(title);
   const sanitizedAuthor = escapeXml(author);
 
@@ -63,19 +69,36 @@ export async function generateEpub(options: EpubOptions): Promise<{ uri: string;
   // Generate the zip buffer
   const buffer = await zip.generateAsync({ type: 'uint8array', mimeType: 'application/epub+zip' });
 
+  return { buffer, rewrittenHtml, imageEntries, bookId };
+}
+
+interface EpubOptions extends EpubBuildOptions {}
+
+/**
+ * Generates an EPUB file from clipped article HTML + images.
+ * Returns the file URI of the generated EPUB in the cache directory.
+ * Uses dynamic import for expo-file-system to keep buildEpubZip() Node.js compatible.
+ */
+export async function generateEpub(options: EpubOptions): Promise<{ uri: string; size: number }> {
+  const result = await buildEpubZip(options);
+
+  // Dynamic import — only loaded at runtime on device, not in Node.js tests
+  const { File, Directory, Paths } = await import('expo-file-system');
+  const { log } = await import('@/services/logger');
+
   // Write to cache directory
   const outputDir = new Directory(Paths.cache, 'generated-epubs');
   if (!outputDir.exists) {
     outputDir.create();
   }
 
-  const safeFilename = title.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '-').slice(0, 80) || 'article';
+  const safeFilename = options.title.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '-').slice(0, 80) || 'article';
   const outputFile = new File(outputDir, `${safeFilename}-${Date.now()}.epub`);
-  outputFile.write(buffer);
+  outputFile.write(result.buffer);
 
-  log('clip', `Generated EPUB: ${outputFile.name} (${buffer.length} bytes, ${imageEntries.length} images)`);
+  log('clip', `Generated EPUB: ${outputFile.name} (${result.buffer.length} bytes, ${result.imageEntries.length} images)`);
 
-  return { uri: outputFile.uri, size: buffer.length };
+  return { uri: outputFile.uri, size: result.buffer.length };
 }
 
 // ──────────────────────────────────────────────────────
@@ -83,7 +106,7 @@ export async function generateEpub(options: EpubOptions): Promise<{ uri: string;
 // ──────────────────────────────────────────────────────
 
 /** Lightweight XHTML fixup for content that's already been through DOMPurify */
-function fixupXhtml(html: string): string {
+export function fixupXhtml(html: string): string {
   // Self-close void elements
   const voidElements = ['br', 'hr', 'img', 'input', 'meta', 'link', 'area', 'base', 'col', 'embed', 'source', 'track', 'wbr'];
   let result = html;
@@ -119,13 +142,13 @@ function wrapInXhtml(title: string, bodyHtml: string): string {
 // Image rewriting
 // ──────────────────────────────────────────────────────
 
-interface ImageEntry {
+export interface ImageEntry {
   filename: string;
   mimeType: string;
   data: Uint8Array;
 }
 
-function rewriteImageSources(
+export function rewriteImageSources(
   html: string,
   images: Array<ClipImage & { data: Uint8Array }>
 ): { rewrittenHtml: string; imageEntries: ImageEntry[] } {
@@ -144,7 +167,7 @@ function rewriteImageSources(
   return { rewrittenHtml, imageEntries };
 }
 
-function mimeToExtension(mime: string): string {
+export function mimeToExtension(mime: string): string {
   const map: Record<string, string> = {
     'image/jpeg': '.jpg',
     'image/png': '.png',
@@ -328,7 +351,7 @@ figcaption {
 }
 `;
 
-function escapeXml(str: string): string {
+export function escapeXml(str: string): string {
   return str
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
