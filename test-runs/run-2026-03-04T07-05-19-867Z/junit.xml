@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="visual-tests" tests="11" failures="1" errors="0" skipped="1">
+  <testsuite name="visual-judge" tests="11" failures="1" errors="0" skipped="1">
+    <testcase name="App Launch - Initial State" classname="visual-tests.app-launch">
+      <failure message="The test screenshot largely matches the reference with correct layout, content, and visual states for the main UI elements. However, one meaningful regression is detected: the tab bar (showing Library and Settings tabs) visible at the bottom of the reference screenshot is absent in the test screenshot. Instead, only an iOS home indicator bar is shown. This suggests the tab bar may be hidden, clipped, or not rendered in the test build. All other elements — the Library header, Connect pill, plug icon, empty state text, Connect button, FAB (+), and debug warning banner — are present and correct.">Tab bar (Library and Settings tabs) is visible in the reference but missing in the test screenshot
+Test screenshot shows an iOS home indicator swipe bar at the very bottom instead of the tab bar
+Status bar time differs (20:16 vs 23:00) — ignored per instructions</failure>
+    </testcase>
+    <testcase name="Connection Sheet - Idle" classname="visual-tests.connection-sheet" />
+    <testcase name="FAB Menu - Open" classname="visual-tests.fab-menu" />
+    <testcase name="File Action Sheet" classname="visual-tests.file-action-sheet">
+      <system-out>No reference screenshot found at test-references/ios/iphone-16-pro/light/file-action-sheet.png</system-out>
+    </testcase>
+    <testcase name="Library - Connected with Files" classname="visual-tests.library-connected" />
+    <testcase name="Library - Disconnected Empty State" classname="visual-tests.library-disconnected" />
+    <testcase name="Move Sheet - New Folder Dialog" classname="visual-tests.move-new-folder">
+      <system-out>No reference screenshot found at test-references/ios/iphone-16-pro/light/move-new-folder.png</system-out>
+    </testcase>
+    <testcase name="Move Sheet" classname="visual-tests.move-sheet">
+      <system-out>No reference screenshot found at test-references/ios/iphone-16-pro/light/move-sheet.png</system-out>
+    </testcase>
+    <testcase name="Rename Dialog" classname="visual-tests.rename-dialog">
+      <system-out>No reference screenshot found at test-references/ios/iphone-16-pro/light/rename-dialog.png</system-out>
+    </testcase>
+    <testcase name="Settings Screen" classname="visual-tests.settings-main">
+      <system-out>The test screenshot closely matches the reference with no meaningful regressions. The overall layout, content, visual states, and elements are consistent. The primary difference is that the test screenshot shows slightly more of the Debug section (the 'Debug Logging' toggle is partially visible at the bottom), while the reference cuts off just at the Debug section header. The 'View Logs' row is not visible in either screenshot due to scroll position. The timestamp difference (20:17 vs 23:01) is expected dynamic content. A home indicator bar is visible at the bottom of the test screenshot, which is a minor device-level difference. All settings rows correctly display their current values.</system-out>
+    </testcase>
+    <testcase name="Upload Queue Sheet" classname="visual-tests.upload-queue">
+      <system-out>Test screenshot not found: test-screenshots/screenshots/upload-queue-active.png</system-out>
+    </testcase>
+  </testsuite>
+</testsuites>

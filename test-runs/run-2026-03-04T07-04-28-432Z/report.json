@@ -1,0 +1,195 @@
+{
+  "run_id": "run-2026-03-04T07-04-28-432Z",
+  "timestamp": "2026-03-04T07:04:28.461Z",
+  "platform": "ios",
+  "device": "iPhone 16 Pro",
+  "theme": "light",
+  "git_sha": "unknown",
+  "git_branch": "unknown",
+  "summary": {
+    "total": 11,
+    "passed": 0,
+    "failed": 6,
+    "warnings": 5,
+    "skipped": 1
+  },
+  "llm_api_calls": 6,
+  "tests": [
+    {
+      "id": "app-launch",
+      "name": "App Launch - Initial State",
+      "screenshot": "app-launch",
+      "verdict": "fail",
+      "confidence": 0,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/app-launch.png",
+        "reference": "test-references/ios/iphone-16-pro/light/app-launch.png"
+      },
+      "summary": "LLM judge error: Could not resolve authentication method. Expected either apiKey or authToken to be set. Or for one of the \"X-Api-Key\" or \"Authorization\" headers to be explicitly omitted",
+      "differences": [
+        "Judge error: Could not resolve authentication method. Expected either apiKey or authToken to be set. Or for one of the \"X-Api-Key\" or \"Authorization\" headers to be explicitly omitted"
+      ]
+    },
+    {
+      "id": "connection-sheet",
+      "name": "Connection Sheet - Idle",
+      "screenshot": "connection-sheet-idle",
+      "verdict": "fail",
+      "confidence": 0,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/connection-sheet-idle.png",
+        "reference": "test-references/ios/iphone-16-pro/light/connection-sheet-idle.png"
+      },
+      "summary": "LLM judge error: Could not resolve authentication method. Expected either apiKey or authToken to be set. Or for one of the \"X-Api-Key\" or \"Authorization\" headers to be explicitly omitted",
+      "differences": [
+        "Judge error: Could not resolve authentication method. Expected either apiKey or authToken to be set. Or for one of the \"X-Api-Key\" or \"Authorization\" headers to be explicitly omitted"
+      ]
+    },
+    {
+      "id": "fab-menu",
+      "name": "FAB Menu - Open",
+      "screenshot": "fab-menu-open",
+      "verdict": "fail",
+      "confidence": 0,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/fab-menu-open.png",
+        "reference": "test-references/ios/iphone-16-pro/light/fab-menu-open.png"
+      },
+      "summary": "LLM judge error: Could not resolve authentication method. Expected either apiKey or authToken to be set. Or for one of the \"X-Api-Key\" or \"Authorization\" headers to be explicitly omitted",
+      "differences": [
+        "Judge error: Could not resolve authentication method. Expected either apiKey or authToken to be set. Or for one of the \"X-Api-Key\" or \"Authorization\" headers to be explicitly omitted"
+      ]
+    },
+    {
+      "id": "file-action-sheet",
+      "name": "File Action Sheet",
+      "screenshot": "file-action-sheet",
+      "verdict": "warning",
+      "confidence": 0,
+      "method": "reference-missing",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/file-action-sheet.png",
+        "reference": "test-references/ios/iphone-16-pro/light/file-action-sheet.png"
+      },
+      "summary": "No reference screenshot found at test-references/ios/iphone-16-pro/light/file-action-sheet.png",
+      "differences": [
+        "Reference screenshot missing — needs baseline capture"
+      ]
+    },
+    {
+      "id": "library-connected",
+      "name": "Library - Connected with Files",
+      "screenshot": "library-connected-files",
+      "verdict": "fail",
+      "confidence": 0,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/library-connected-files.png",
+        "reference": "test-references/ios/iphone-16-pro/light/library-connected-files.png"
+      },
+      "summary": "LLM judge error: Could not resolve authentication method. Expected either apiKey or authToken to be set. Or for one of the \"X-Api-Key\" or \"Authorization\" headers to be explicitly omitted",
+      "differences": [
+        "Judge error: Could not resolve authentication method. Expected either apiKey or authToken to be set. Or for one of the \"X-Api-Key\" or \"Authorization\" headers to be explicitly omitted"
+      ]
+    },
+    {
+      "id": "library-disconnected",
+      "name": "Library - Disconnected Empty State",
+      "screenshot": "library-disconnected",
+      "verdict": "fail",
+      "confidence": 0,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/library-disconnected.png",
+        "reference": "test-references/ios/iphone-16-pro/light/library-disconnected.png"
+      },
+      "summary": "LLM judge error: Could not resolve authentication method. Expected either apiKey or authToken to be set. Or for one of the \"X-Api-Key\" or \"Authorization\" headers to be explicitly omitted",
+      "differences": [
+        "Judge error: Could not resolve authentication method. Expected either apiKey or authToken to be set. Or for one of the \"X-Api-Key\" or \"Authorization\" headers to be explicitly omitted"
+      ]
+    },
+    {
+      "id": "move-new-folder",
+      "name": "Move Sheet - New Folder Dialog",
+      "screenshot": "move-new-folder",
+      "verdict": "warning",
+      "confidence": 0,
+      "method": "reference-missing",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/move-new-folder.png",
+        "reference": "test-references/ios/iphone-16-pro/light/move-new-folder.png"
+      },
+      "summary": "No reference screenshot found at test-references/ios/iphone-16-pro/light/move-new-folder.png",
+      "differences": [
+        "Reference screenshot missing — needs baseline capture"
+      ]
+    },
+    {
+      "id": "move-sheet",
+      "name": "Move Sheet",
+      "screenshot": "move-sheet",
+      "verdict": "warning",
+      "confidence": 0,
+      "method": "reference-missing",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/move-sheet.png",
+        "reference": "test-references/ios/iphone-16-pro/light/move-sheet.png"
+      },
+      "summary": "No reference screenshot found at test-references/ios/iphone-16-pro/light/move-sheet.png",
+      "differences": [
+        "Reference screenshot missing — needs baseline capture"
+      ]
+    },
+    {
+      "id": "rename-dialog",
+      "name": "Rename Dialog",
+      "screenshot": "rename-dialog",
+      "verdict": "warning",
+      "confidence": 0,
+      "method": "reference-missing",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/rename-dialog.png",
+        "reference": "test-references/ios/iphone-16-pro/light/rename-dialog.png"
+      },
+      "summary": "No reference screenshot found at test-references/ios/iphone-16-pro/light/rename-dialog.png",
+      "differences": [
+        "Reference screenshot missing — needs baseline capture"
+      ]
+    },
+    {
+      "id": "settings-main",
+      "name": "Settings Screen",
+      "screenshot": "settings-main",
+      "verdict": "fail",
+      "confidence": 0,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/settings-main.png",
+        "reference": "test-references/ios/iphone-16-pro/light/settings-main.png"
+      },
+      "summary": "LLM judge error: Could not resolve authentication method. Expected either apiKey or authToken to be set. Or for one of the \"X-Api-Key\" or \"Authorization\" headers to be explicitly omitted",
+      "differences": [
+        "Judge error: Could not resolve authentication method. Expected either apiKey or authToken to be set. Or for one of the \"X-Api-Key\" or \"Authorization\" headers to be explicitly omitted"
+      ]
+    },
+    {
+      "id": "upload-queue",
+      "name": "Upload Queue Sheet",
+      "screenshot": "upload-queue-active",
+      "verdict": "warning",
+      "confidence": 0,
+      "method": "reference-missing",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/upload-queue-active.png",
+        "reference": "test-references/ios/iphone-16-pro/light/upload-queue-active.png"
+      },
+      "summary": "Test screenshot not found: test-screenshots/screenshots/upload-queue-active.png",
+      "differences": [
+        "Test screenshot missing"
+      ]
+    }
+  ]
+}

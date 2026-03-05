@@ -1,0 +1,610 @@
+{
+  "run_id": "run-2026-03-04T07-05-19-867Z",
+  "timestamp": "2026-03-04T07:07:22.289Z",
+  "platform": "ios",
+  "device": "iPhone 16 Pro",
+  "theme": "light",
+  "git_sha": "unknown",
+  "git_branch": "unknown",
+  "summary": {
+    "total": 11,
+    "passed": 4,
+    "failed": 1,
+    "warnings": 6,
+    "skipped": 1
+  },
+  "llm_api_calls": 6,
+  "tests": [
+    {
+      "id": "app-launch",
+      "name": "App Launch - Initial State",
+      "screenshot": "app-launch",
+      "verdict": "fail",
+      "confidence": 0.82,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/app-launch.png",
+        "reference": "test-references/ios/iphone-16-pro/light/app-launch.png"
+      },
+      "criteria": {
+        "layout": {
+          "pass": true,
+          "notes": "All major elements are positioned correctly. The header, central empty state (plug icon, title, subtitle, Connect button), FAB button, and debug banner are all in the same positions. Minor vertical shift in the plug icon is negligible."
+        },
+        "content": {
+          "pass": true,
+          "notes": "All text content matches: 'Library' title, 'Connect' pill, 'No Device Connected', subtitle text, 'Connect' button, and 'Open debugger to view warnings.' banner are all identical."
+        },
+        "visual_state": {
+          "pass": true,
+          "notes": "Colors, icon styles, button states, and enabled/disabled states all match between reference and test screenshots."
+        },
+        "elements": {
+          "pass": false,
+          "notes": "The tab bar (Library and Settings tabs) visible at the bottom in the reference is NOT visible in the test screenshot. The test screenshot shows a home indicator bar instead, suggesting the tab bar may be hidden or scrolled out of view."
+        },
+        "defects": {
+          "pass": true,
+          "notes": "No text truncation, overlapping elements, or rendering artifacts detected."
+        }
+      },
+      "assertion_results": [
+        {
+          "index": 1,
+          "text": "The Library tab title is visible in the header",
+          "pass": true,
+          "reasoning": "The 'Library' title is clearly visible in the navigation header in both the reference and test screenshots."
+        },
+        {
+          "index": 2,
+          "text": "The connection pill in the header shows 'Connect' text",
+          "pass": true,
+          "reasoning": "The connection pill with a gray dot and 'Connect ▾' text is present in the top-right of the header in both screenshots."
+        },
+        {
+          "index": 3,
+          "text": "The tab bar shows Library and Settings tabs",
+          "pass": false,
+          "reasoning": "In the reference screenshot, a tab bar with Library and Settings tabs is visible at the bottom. In the test screenshot, the tab bar is not visible — only a home indicator (swipe bar) is shown at the very bottom, suggesting the tab bar is missing or hidden."
+        },
+        {
+          "index": 4,
+          "text": "No loading spinners or crash dialogs are visible",
+          "pass": true,
+          "reasoning": "Neither screenshot shows any loading spinners or crash dialogs. The UI is in a clean empty/disconnected state."
+        }
+      ],
+      "custom_criteria_results": [
+        {
+          "name": "Tab bar visibility",
+          "pass": false,
+          "notes": "The tab bar present in the reference screenshot (showing Library and Settings tabs) is absent in the test screenshot. This is a meaningful regression as it removes primary navigation from the screen."
+        },
+        {
+          "name": "Empty state rendering",
+          "pass": true,
+          "notes": "The plug icon, 'No Device Connected' heading, subtitle, and 'Connect' button all render correctly and match the reference."
+        }
+      ],
+      "summary": "The test screenshot largely matches the reference with correct layout, content, and visual states for the main UI elements. However, one meaningful regression is detected: the tab bar (showing Library and Settings tabs) visible at the bottom of the reference screenshot is absent in the test screenshot. Instead, only an iOS home indicator bar is shown. This suggests the tab bar may be hidden, clipped, or not rendered in the test build. All other elements — the Library header, Connect pill, plug icon, empty state text, Connect button, FAB (+), and debug warning banner — are present and correct.",
+      "differences": [
+        "Tab bar (Library and Settings tabs) is visible in the reference but missing in the test screenshot",
+        "Test screenshot shows an iOS home indicator swipe bar at the very bottom instead of the tab bar",
+        "Status bar time differs (20:16 vs 23:00) — ignored per instructions"
+      ]
+    },
+    {
+      "id": "connection-sheet",
+      "name": "Connection Sheet - Idle",
+      "screenshot": "connection-sheet-idle",
+      "verdict": "pass",
+      "confidence": 0.97,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/connection-sheet-idle.png",
+        "reference": "test-references/ios/iphone-16-pro/light/connection-sheet-idle.png"
+      },
+      "criteria": {
+        "layout": {
+          "pass": true,
+          "notes": "All elements are positioned consistently between reference and test screenshots. The layout of the header, info card, device address input, and Connect button are all aligned correctly."
+        },
+        "content": {
+          "pass": true,
+          "notes": "All text content matches: 'Device' title, 'Not connected' status, 'How to connect' card with 'Join a Network' and 'Create Hotspot' instructions, 'Device address' label, 'localhost:8082' input value, and 'Connect' button label. The timestamp difference (20:18 vs 23:03) is expected dynamic content."
+        },
+        "visual_state": {
+          "pass": true,
+          "notes": "Gray dot for 'Not connected' status is present. Connect button has the same light blue background. Debugger warning bar at the bottom is present in both. All colors and states match."
+        },
+        "elements": {
+          "pass": true,
+          "notes": "All expected elements are present in the test screenshot: Device header, Not connected badge with X button, How to connect info card, Device address input, and Connect button. The test screenshot also shows a home indicator bar at the bottom, which is a minor platform rendering difference."
+        },
+        "defects": {
+          "pass": true,
+          "notes": "No text truncation, overlapping elements, or rendering artifacts detected. All text is fully visible and properly rendered."
+        }
+      },
+      "assertion_results": [
+        {
+          "index": 1,
+          "text": "The sheet header shows 'Device' title",
+          "pass": true,
+          "reasoning": "The 'Device' title is clearly visible in bold large text in the test screenshot, matching the reference."
+        },
+        {
+          "index": 2,
+          "text": "The connection status shows 'Not connected' with a gray dot",
+          "pass": true,
+          "reasoning": "The 'Not connected' label with a gray dot is present in the test screenshot, matching the reference exactly."
+        },
+        {
+          "index": 3,
+          "text": "A 'How to connect' info card is visible with instructions",
+          "pass": true,
+          "reasoning": "The 'How to connect' info card is visible in the test screenshot with all instructions including 'Join a Network' and 'Create Hotspot' sections, matching the reference."
+        },
+        {
+          "index": 4,
+          "text": "A device address input field is visible",
+          "pass": true,
+          "reasoning": "The device address input field showing 'localhost:8082' is clearly visible in the test screenshot, matching the reference."
+        },
+        {
+          "index": 5,
+          "text": "A 'Connect' button is visible next to the input",
+          "pass": true,
+          "reasoning": "The 'Connect' button with light blue background is visible next to the input field in the test screenshot, matching the reference."
+        }
+      ],
+      "custom_criteria_results": [],
+      "summary": "The test screenshot matches the reference screenshot very closely. All key UI elements are present and correctly rendered: the 'Device' header, 'Not connected' status badge with gray dot, 'How to connect' info card with both connection method descriptions, the device address input field with 'localhost:8082', and the 'Connect' button. The only differences are the system clock (20:18 vs 23:03, expected dynamic content) and the presence of a home indicator bar at the bottom of the test screenshot (a minor platform/device rendering difference). No meaningful regressions detected.",
+      "differences": [
+        "System clock shows 23:03 in test vs 20:18 in reference (expected dynamic content)",
+        "Home indicator bar visible at bottom of test screenshot, not present in reference (minor device rendering difference)"
+      ]
+    },
+    {
+      "id": "fab-menu",
+      "name": "FAB Menu - Open",
+      "screenshot": "fab-menu-open",
+      "verdict": "pass",
+      "confidence": 0.92,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/fab-menu-open.png",
+        "reference": "test-references/ios/iphone-16-pro/light/fab-menu-open.png"
+      },
+      "criteria": {
+        "layout": {
+          "pass": true,
+          "notes": "All elements are positioned correctly. The FAB menu, list items, and bottom bar are all in the same positions. Minor differences in spacing are within acceptable range."
+        },
+        "content": {
+          "pass": true,
+          "notes": "All text content matches: 'Upload Book', 'New Folder', 'Sleep Background', file names and sizes are identical. The truncation of 'A journey to the center of th...' is slightly different (t... vs th...) but this is a minor rendering difference due to screen width."
+        },
+        "visual_state": {
+          "pass": true,
+          "notes": "Icons, colors, and states all match. The FAB blue button, book icons, folder icons, and moon icon all render correctly. Connected status badge is present."
+        },
+        "elements": {
+          "pass": true,
+          "notes": "All expected elements are present: Upload Book, New Folder, Sleep Background menu items with their respective icons, FAB plus button, device list with folders and epub files, debug warning bar."
+        },
+        "defects": {
+          "pass": true,
+          "notes": "No significant defects. The slight difference in text truncation ('t...' vs 'th...') for the journey title is a minor rendering variation, not a meaningful regression. The home indicator bar is visible in the test screenshot at the bottom, which is a device-level UI element."
+        }
+      },
+      "assertion_results": [
+        {
+          "index": 1,
+          "text": "'Upload Book' option is visible with a book icon",
+          "pass": true,
+          "reasoning": "The 'Upload Book' option is clearly visible in the test screenshot with the same blue book icon as in the reference. It appears in the expanded FAB menu at the correct position."
+        },
+        {
+          "index": 2,
+          "text": "'Sleep Background' option is visible with a moon icon",
+          "pass": true,
+          "reasoning": "The 'Sleep Background' option is clearly visible in the test screenshot with the same purple moon/crescent icon as in the reference. It appears as the third item in the FAB menu."
+        },
+        {
+          "index": 3,
+          "text": "The FAB button (plus icon) is visible at the bottom right",
+          "pass": true,
+          "reasoning": "The blue circular FAB button with a white plus icon is clearly visible at the bottom right of the screen in the test screenshot, matching the reference."
+        },
+        {
+          "index": 4,
+          "text": "Menu items have clear separation between them",
+          "pass": true,
+          "reasoning": "The three menu items (Upload Book, New Folder, Sleep Background) have visible divider lines between them in both the reference and test screenshots, providing clear visual separation."
+        }
+      ],
+      "custom_criteria_results": [
+        {
+          "name": "New Folder option visible",
+          "pass": true,
+          "notes": "The 'New Folder' option with an orange folder icon is present in the test screenshot, consistent with the connected state requirement."
+        },
+        {
+          "name": "Text truncation consistency",
+          "pass": true,
+          "notes": "Minor difference in truncation of 'A journey to the center of t...' (reference) vs 'A journey to the center of th...' (test) — this is an acceptable sub-pixel/font rendering variation."
+        }
+      ],
+      "summary": "The test screenshot matches the reference screenshot very closely. All key UI elements are present and correctly rendered: the expanded FAB menu with 'Upload Book', 'New Folder', and 'Sleep Background' options, the FAB plus button, the file list, and the debug warning bar. The only differences are: (1) the system clock shows a different time (23:03 vs 20:17), which is expected dynamic content; (2) a very minor difference in text truncation for the long book title; and (3) the home indicator bar visible at the bottom in the test screenshot (device UI). None of these constitute meaningful regressions.",
+      "differences": [
+        "System clock differs: 20:17 (reference) vs 23:03 (test) — expected dynamic content",
+        "Minor text truncation difference: 'A journey to the center of t...' vs 'A journey to the center of th...' — acceptable rendering variation",
+        "Home indicator bar visible at bottom of test screenshot — device-level UI element"
+      ]
+    },
+    {
+      "id": "file-action-sheet",
+      "name": "File Action Sheet",
+      "screenshot": "file-action-sheet",
+      "verdict": "warning",
+      "confidence": 0,
+      "method": "reference-missing",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/file-action-sheet.png",
+        "reference": "test-references/ios/iphone-16-pro/light/file-action-sheet.png"
+      },
+      "summary": "No reference screenshot found at test-references/ios/iphone-16-pro/light/file-action-sheet.png",
+      "differences": [
+        "Reference screenshot missing — needs baseline capture"
+      ]
+    },
+    {
+      "id": "library-connected",
+      "name": "Library - Connected with Files",
+      "screenshot": "library-connected-files",
+      "verdict": "pass",
+      "confidence": 0.92,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/library-connected-files.png",
+        "reference": "test-references/ios/iphone-16-pro/light/library-connected-files.png"
+      },
+      "criteria": {
+        "layout": {
+          "pass": true,
+          "notes": "All elements are positioned correctly. The header, breadcrumb, file list, FAB, and debug banner are all in the same positions. Minor spacing differences are negligible."
+        },
+        "content": {
+          "pass": true,
+          "notes": "All content matches: 'Library' title, 'Connected' pill, 'Device' breadcrumb, folder names (Articles, sleep), file names and sizes are consistent. The clock shows 23:00 vs 22:13 — this is dynamic content and expected to differ."
+        },
+        "visual_state": {
+          "pass": true,
+          "notes": "Green dot on 'Connected' pill is present. Folder icons are orange/yellow, file icons are blue. FAB is blue with a white '+'. Debug banner is dark with warning icon. All visual states match."
+        },
+        "elements": {
+          "pass": true,
+          "notes": "All expected elements are present: header with Connected pill, Device breadcrumb, two folder rows (Articles, sleep), three file rows, FAB button, and debug banner. No unexpected elements added or removed."
+        },
+        "defects": {
+          "pass": true,
+          "notes": "No text truncation, overlapping, or rendering artifacts detected. The truncation of 'A journey to the center of t...' vs 'A journey to the center of th...' is a minor rendering difference due to slight font/layout variation, not a meaningful regression."
+        }
+      },
+      "assertion_results": [
+        {
+          "index": 1,
+          "text": "The connection pill shows 'Connected' with a green status dot",
+          "pass": true,
+          "reasoning": "Both reference and test screenshots show the 'Connected' pill with a green dot in the top-right of the header. The visual state is identical."
+        },
+        {
+          "index": 2,
+          "text": "At least one file or folder is visible in the list",
+          "pass": true,
+          "reasoning": "The test screenshot shows 5 items: 2 folders (Articles, sleep) and 3 files (A journey..., Frankestein.epub, The war of the worlds.epub), matching the reference."
+        },
+        {
+          "index": 3,
+          "text": "Each file row shows an icon, filename, and file size or chevron",
+          "pass": true,
+          "reasoning": "All rows display the appropriate icon (folder or book), filename, and either a chevron (folders) or file size (files), consistent with the reference."
+        },
+        {
+          "index": 4,
+          "text": "The FAB button is visible in the bottom-right corner",
+          "pass": true,
+          "reasoning": "The blue circular FAB with a white '+' icon is clearly visible in the bottom-right corner in both screenshots."
+        },
+        {
+          "index": 5,
+          "text": "Folder entries are visually distinct from file entries (folder icon)",
+          "pass": true,
+          "reasoning": "Folder entries use an orange/yellow folder icon while file entries use a blue book icon, making them visually distinct. This matches the reference."
+        },
+        {
+          "index": 6,
+          "text": "A breadcrumb navigation bar is visible above the file list",
+          "pass": true,
+          "reasoning": "The 'Device' breadcrumb navigation bar is visible above the file list in both screenshots, with the same styling and position."
+        }
+      ],
+      "custom_criteria_results": [
+        {
+          "name": "Clock time difference",
+          "pass": true,
+          "notes": "Clock shows 23:00 in test vs 22:13 in reference. This is dynamic content and an expected variation."
+        },
+        {
+          "name": "Truncation point of long filename",
+          "pass": true,
+          "notes": "The long filename truncates at slightly different characters ('t...' vs 'th...') between reference and test. This is a minor sub-pixel/font rendering difference and not a meaningful regression."
+        },
+        {
+          "name": "Home indicator bar",
+          "pass": true,
+          "notes": "The test screenshot shows a home indicator bar at the very bottom, which is a device/OS-level UI element and not part of the app UI."
+        }
+      ],
+      "summary": "The test screenshot closely matches the reference. All key UI elements are present and correctly rendered: the Library header with Connected pill, Device breadcrumb, folder and file list entries with correct icons and metadata, the FAB button, and the debug banner. The only differences are: (1) the system clock showing a different time (dynamic content), (2) a very minor difference in the truncation point of the long filename, and (3) a home indicator bar visible at the bottom of the test screenshot. None of these constitute meaningful regressions. All 6 assertions pass.",
+      "differences": [
+        "Clock time differs: 22:13 (reference) vs 23:00 (test) — expected dynamic content change",
+        "Long filename truncation point slightly different: 'center of t...' vs 'center of th...' — minor rendering variation",
+        "Home indicator bar visible at bottom of test screenshot — device-level UI element, not app regression"
+      ]
+    },
+    {
+      "id": "library-disconnected",
+      "name": "Library - Disconnected Empty State",
+      "screenshot": "library-disconnected",
+      "verdict": "pass",
+      "confidence": 0.95,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/library-disconnected.png",
+        "reference": "test-references/ios/iphone-16-pro/light/library-disconnected.png"
+      },
+      "criteria": {
+        "layout": {
+          "pass": true,
+          "notes": "All elements are positioned consistently between reference and test screenshots. The plug icon, 'No Device Connected' heading, subtitle, Connect button, FAB (+), and debug banner are all in the same positions. Minor vertical shift in the empty state content is within acceptable range."
+        },
+        "content": {
+          "pass": true,
+          "notes": "All text content matches exactly: 'Library' title, 'Connect' pill, 'No Device Connected', subtitle text, 'Connect' button label, and 'Open debugger to view warnings.' banner text are all identical."
+        },
+        "visual_state": {
+          "pass": true,
+          "notes": "Colors, icon styles, and states all match. Gray dot in connection pill, blue Connect button background, blue FAB, and dark debug banner all appear consistent between reference and test."
+        },
+        "elements": {
+          "pass": true,
+          "notes": "All expected elements are present in both screenshots: header with Library title and Connect pill, plug icon, empty state text, Connect button, FAB (+) button, and debug warning banner. The test screenshot shows a home indicator bar at the bottom which is a system UI element and should be ignored."
+        },
+        "defects": {
+          "pass": true,
+          "notes": "No text truncation, overlapping elements, or rendering artifacts detected. The home indicator visible in the test screenshot is a system UI element outside the app frame."
+        }
+      },
+      "assertion_results": [
+        {
+          "index": 1,
+          "text": "The connection pill in the header shows 'Connect' with a gray status dot",
+          "pass": true,
+          "reasoning": "Both reference and test screenshots show the connection pill in the top-right of the header with a gray dot and 'Connect' label with a chevron. The pill appears identical in both."
+        },
+        {
+          "index": 2,
+          "text": "An empty state icon is centered in the main content area",
+          "pass": true,
+          "reasoning": "The gray plug icon is centered horizontally in the main content area in both screenshots. The vertical position is consistent."
+        },
+        {
+          "index": 3,
+          "text": "The text 'No Device Connected' is visible",
+          "pass": true,
+          "reasoning": "The bold 'No Device Connected' heading is clearly visible and correctly rendered in both screenshots."
+        },
+        {
+          "index": 4,
+          "text": "A subtitle explaining how to connect is visible below the title",
+          "pass": true,
+          "reasoning": "The subtitle 'Connect to your e-ink reader to browse and manage books.' is present and fully visible in both screenshots with no truncation."
+        },
+        {
+          "index": 5,
+          "text": "A 'Connect' action button is visible",
+          "pass": true,
+          "reasoning": "The light blue 'Connect' button with blue text is visible and correctly positioned below the subtitle in both screenshots."
+        },
+        {
+          "index": 6,
+          "text": "The tab bar shows Library and Settings tabs with Library selected",
+          "pass": true,
+          "reasoning": "The tab bar is partially visible at the very bottom of both screenshots. The debug banner overlaps it in both cases, which is consistent behavior. The tab bar state appears the same in both."
+        },
+        {
+          "index": 7,
+          "text": "No loading spinners or error messages are visible",
+          "pass": true,
+          "reasoning": "No loading spinners are present. The debug warning banner ('Open debugger to view warnings.') is present in both reference and test screenshots equally, so it is not a regression."
+        }
+      ],
+      "custom_criteria_results": [
+        {
+          "name": "empty_state_messaging",
+          "pass": true,
+          "notes": "The empty state clearly communicates the disconnected state with a plug icon, 'No Device Connected' heading, a descriptive subtitle, and a clear 'Connect' call-to-action button. The messaging is identical between reference and test and effectively guides the user on what action to take."
+        }
+      ],
+      "summary": "The test screenshot matches the reference screenshot very closely. All UI elements are present, correctly positioned, and display the correct content. The only differences are the status bar time (20:17 vs 23:03) and the presence of a home indicator bar at the bottom of the test screenshot — both of which are system UI elements explicitly excluded from evaluation. The empty state UI (plug icon, heading, subtitle, Connect button), header (Library title, Connect pill), FAB, and debug banner all render correctly and consistently with the reference.",
+      "differences": [
+        "Status bar time differs: '20:17' in reference vs '23:03' in test (expected dynamic content, ignored)",
+        "Home indicator bar visible at bottom of test screenshot but not reference (system UI element, ignored)"
+      ]
+    },
+    {
+      "id": "move-new-folder",
+      "name": "Move Sheet - New Folder Dialog",
+      "screenshot": "move-new-folder",
+      "verdict": "warning",
+      "confidence": 0,
+      "method": "reference-missing",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/move-new-folder.png",
+        "reference": "test-references/ios/iphone-16-pro/light/move-new-folder.png"
+      },
+      "summary": "No reference screenshot found at test-references/ios/iphone-16-pro/light/move-new-folder.png",
+      "differences": [
+        "Reference screenshot missing — needs baseline capture"
+      ]
+    },
+    {
+      "id": "move-sheet",
+      "name": "Move Sheet",
+      "screenshot": "move-sheet",
+      "verdict": "warning",
+      "confidence": 0,
+      "method": "reference-missing",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/move-sheet.png",
+        "reference": "test-references/ios/iphone-16-pro/light/move-sheet.png"
+      },
+      "summary": "No reference screenshot found at test-references/ios/iphone-16-pro/light/move-sheet.png",
+      "differences": [
+        "Reference screenshot missing — needs baseline capture"
+      ]
+    },
+    {
+      "id": "rename-dialog",
+      "name": "Rename Dialog",
+      "screenshot": "rename-dialog",
+      "verdict": "warning",
+      "confidence": 0,
+      "method": "reference-missing",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/rename-dialog.png",
+        "reference": "test-references/ios/iphone-16-pro/light/rename-dialog.png"
+      },
+      "summary": "No reference screenshot found at test-references/ios/iphone-16-pro/light/rename-dialog.png",
+      "differences": [
+        "Reference screenshot missing — needs baseline capture"
+      ]
+    },
+    {
+      "id": "settings-main",
+      "name": "Settings Screen",
+      "screenshot": "settings-main",
+      "verdict": "warning",
+      "confidence": 0.82,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/settings-main.png",
+        "reference": "test-references/ios/iphone-16-pro/light/settings-main.png"
+      },
+      "criteria": {
+        "layout": {
+          "pass": true,
+          "notes": "Overall layout is consistent between reference and test. All sections (Sync Settings, Web Clipper, Device, Debug) are present and positioned correctly. Spacing and alignment appear consistent."
+        },
+        "content": {
+          "pass": true,
+          "notes": "All text labels match: 'Upload path', 'Clip upload path', 'Enable in Safari', 'Device', 'IP Address', 'Firmware', 'Forget Device', 'Debug'. Values shown (/, /Articles, Not connected, localhost:8082, N/A) are consistent. The test screenshot additionally shows a 'Debug Logging' toggle partially visible at the bottom, which is expected content."
+        },
+        "visual_state": {
+          "pass": true,
+          "notes": "Colors, icons, and states are consistent. The 'Forget Device' button retains its pink background with red text. The Settings tab icon is highlighted in blue in both. The Debug Logging toggle is visible (off state) in the test screenshot."
+        },
+        "elements": {
+          "pass": true,
+          "notes": "All expected elements are present. The test screenshot shows a 'Debug Logging' toggle partially visible at the bottom of the screen, which is part of the Debug section. The reference cuts off before showing this element. The 'View Logs' row is not visible in either screenshot (both cut off the Debug section)."
+        },
+        "defects": {
+          "pass": true,
+          "notes": "No text truncation, overlapping elements, or rendering artifacts detected. The home indicator bar is visible at the bottom of the test screenshot, which is a minor platform/device difference."
+        }
+      },
+      "assertion_results": [
+        {
+          "index": 1,
+          "text": "The Settings title is visible in the header",
+          "pass": true,
+          "reasoning": "The 'Settings' title is clearly visible in the navigation bar header in both the reference and test screenshots."
+        },
+        {
+          "index": 2,
+          "text": "'Upload path' row is visible with a path value",
+          "pass": true,
+          "reasoning": "The 'Upload path' row is visible in the Sync Settings section with the value '/' shown on the right side in both screenshots."
+        },
+        {
+          "index": 3,
+          "text": "'Clip upload path' row is visible with a path value",
+          "pass": true,
+          "reasoning": "The 'Clip upload path' row is visible in the Web Clipper section with the value '/Articles' shown on the right side in both screenshots."
+        },
+        {
+          "index": 4,
+          "text": "'Enable in Safari' row is visible in the Web Clipper section (iOS only)",
+          "pass": true,
+          "reasoning": "The 'Enable in Safari' row is visible in the Web Clipper section in both screenshots, showing 'Safari → Extensions >' as the value."
+        },
+        {
+          "index": 5,
+          "text": "'Debug Logging' toggle is visible",
+          "pass": true,
+          "reasoning": "The 'Debug Logging' toggle is partially visible at the bottom of the test screenshot in the Debug section. It is not visible in the reference screenshot as the page is scrolled slightly differently, but the toggle is present in the test."
+        },
+        {
+          "index": 6,
+          "text": "A 'Device' section shows device, IP address, and firmware rows",
+          "pass": true,
+          "reasoning": "The Device section is fully visible in both screenshots with all three rows: Device (Not connected), IP Address (localhost:8082), and Firmware (N/A)."
+        },
+        {
+          "index": 7,
+          "text": "Sections are visually grouped with headers",
+          "pass": true,
+          "reasoning": "All sections (Sync Settings, Web Clipper, Device, Debug) have bold section headers and are visually separated with dividers, consistent between reference and test."
+        },
+        {
+          "index": 8,
+          "text": "'View Logs' row is visible",
+          "pass": false,
+          "reasoning": "The 'View Logs' row is not visible in either the reference or test screenshot. Both screenshots cut off the Debug section before showing this row. This is likely a scroll position issue rather than a missing element, but it cannot be confirmed as visible."
+        }
+      ],
+      "custom_criteria_results": [
+        {
+          "name": "settings_values",
+          "pass": true,
+          "notes": "All settings rows display their current values rather than placeholder text. Upload path shows '/', Clip upload path shows '/Articles', Device shows 'Not connected', IP Address shows 'localhost:8082', and Firmware shows 'N/A'. No placeholder text is detected."
+        }
+      ],
+      "summary": "The test screenshot closely matches the reference with no meaningful regressions. The overall layout, content, visual states, and elements are consistent. The primary difference is that the test screenshot shows slightly more of the Debug section (the 'Debug Logging' toggle is partially visible at the bottom), while the reference cuts off just at the Debug section header. The 'View Logs' row is not visible in either screenshot due to scroll position. The timestamp difference (20:17 vs 23:01) is expected dynamic content. A home indicator bar is visible at the bottom of the test screenshot, which is a minor device-level difference. All settings rows correctly display their current values.",
+      "differences": [
+        "Timestamp differs: reference shows 20:17, test shows 23:01 (expected dynamic content)",
+        "Test screenshot shows 'Debug Logging' toggle partially visible at bottom; reference cuts off at 'Debug' section header only",
+        "Home indicator bar visible at bottom of test screenshot, not present in reference",
+        "'View Logs' row not visible in either screenshot (scroll position)"
+      ]
+    },
+    {
+      "id": "upload-queue",
+      "name": "Upload Queue Sheet",
+      "screenshot": "upload-queue-active",
+      "verdict": "warning",
+      "confidence": 0,
+      "method": "reference-missing",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/upload-queue-active.png",
+        "reference": "test-references/ios/iphone-16-pro/light/upload-queue-active.png"
+      },
+      "summary": "Test screenshot not found: test-screenshots/screenshots/upload-queue-active.png",
+      "differences": [
+        "Test screenshot missing"
+      ]
+    }
+  ]
+}
