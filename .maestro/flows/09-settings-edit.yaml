@@ -3,7 +3,17 @@ name: "Settings - Edit Upload Path"
 tags:
   - requires-interaction
 ---
-# Tap the upload path setting to enter edit mode
+# Fresh launch to avoid leftover sheet state from prior flows
+- stopApp
+- launchApp
+
+# Wait for app to load
+- extendedWaitUntil:
+    visible:
+      id: "Library.ConnectionPill"
+    timeout: 10000
+
+# Navigate to Settings tab
 - runFlow: ../helpers/navigate-to-settings.yaml
 
 - tapOn:

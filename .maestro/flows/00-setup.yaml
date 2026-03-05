@@ -1,0 +1,49 @@
+appId: com.crosspointsync.app
+name: "Test Suite Setup - Connect Mock Device"
+---
+# Setup flow that runs first (alphabetical ordering).
+# Connects to the mock device at localhost:8082 so that
+# lastDeviceIp is persisted for all subsequent flows.
+
+# Start from a clean disconnected state
+- runFlow: ../helpers/ensure-disconnected.yaml
+
+# Open connection sheet
+- tapOn:
+    id: "Library.ConnectionPill"
+- waitForAnimationToEnd
+
+# Wait for the connect form
+- extendedWaitUntil:
+    visible:
+      id: "Connection.ConnectButton"
+    timeout: 5000
+
+# Clear default address and enter mock device address
+- tapOn:
+    text: "crosspoint.local"
+    optional: true
+- tapOn:
+    text: "localhost:8082"
+    optional: true
+- eraseText: 30
+- inputText: "localhost:8082"
+
+# Dismiss keyboard so Connect button is tappable
+- hideKeyboard
+
+# Tap Connect
+- tapOn:
+    id: "Connection.ConnectButton"
+
+# Verify connection succeeded — file list should appear
+- extendedWaitUntil:
+    visible:
+      id: "Library.FileList"
+    timeout: 15000
+
+# Verify files loaded
+- extendedWaitUntil:
+    visible:
+      id: "Library.FileRow.Articles"
+    timeout: 10000
