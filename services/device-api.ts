@@ -98,7 +98,14 @@ export async function createFolder(
         method: 'POST',
         body: formData,
       });
-      if (!res.ok) throw new Error(`Create folder failed: ${res.status}`);
+      if (!res.ok) {
+        // 400/409 = folder already exists — safe to treat as success (ESP32 firmware only returns these for this reason)
+        if (res.status === 400 || res.status === 409) {
+          log('api', `Folder already exists (${res.status}): ${name} at ${path}`);
+          return;
+        }
+        throw new Error(`Create folder failed: ${res.status}`);
+      }
     },
   });
 }

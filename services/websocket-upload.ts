@@ -121,6 +121,7 @@ export function uploadFileViaWebSocket(
       }
 
       let connectionAlive = true;
+      let uploadCompleted = false;
       let lastLoggedPercent = 0;
       ws.onmessage = (event) => {
         const msg = typeof event.data === 'string' ? event.data : '';
@@ -142,6 +143,7 @@ export function uploadFileViaWebSocket(
           }
         } else if (msg === 'DONE') {
           clearTimeout(uploadTimeoutId);
+          uploadCompleted = true;
           log('upload', `Upload complete: ${fileName}`);
           uploadResolve();
         } else if (msg.startsWith('ERROR:')) {
@@ -168,8 +170,10 @@ export function uploadFileViaWebSocket(
       ws.onclose = () => {
         connectionAlive = false;
         clearTimeout(uploadTimeoutId);
-        log('upload', 'WebSocket closed during upload');
-        uploadReject(new Error('WebSocket closed during upload'));
+        if (!uploadCompleted) {
+          log('upload', 'WebSocket closed during upload');
+          uploadReject(new Error('WebSocket closed during upload'));
+        }
         // Unblock chunk loop so it can exit
         if (progressResolve) {
           progressResolve();

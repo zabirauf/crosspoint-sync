@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 export const HTTP_PORT = 80;
 export const WS_PORT = 81;
 export const CHUNK_SIZE = 4 * 1024; // 4KB — small enough for ESP32 WebSocket frame buffer
@@ -7,7 +9,8 @@ export const DEFAULT_DEVICE_ADDRESS = 'crosspoint.local';
 export const CHUNKS_PER_WINDOW = 16; // 16 × 4KB = 64KB = one PROGRESS interval
 export const PROGRESS_ACK_TIMEOUT_MS = 5000;
 export const STATUS_POLL_INTERVAL_MS = 10000;
-export const REQUEST_TIMEOUT_MS = 5000;
+// Android WiFi stack adds 1-3s latency jitter; 8s gives headroom for ESP32's 2-4s responses
+export const REQUEST_TIMEOUT_MS = Platform.OS === 'android' ? 8000 : 5000;
 export const MAX_CONSECUTIVE_FAILURES = 3;
 export const UPLOAD_TIMEOUT_MS = 30_000;
 export const DEVICE_RECOVERY_DELAY_MS = 2000;

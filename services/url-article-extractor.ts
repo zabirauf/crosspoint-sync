@@ -142,7 +142,9 @@ async function downloadImages(
 
   for (const src of urls) {
     try {
-      const absoluteUrl = resolveUrl(src, baseUrl);
+      // Decode HTML entities in URLs before fetching (src may contain &amp; from raw HTML)
+      const decodedSrc = src.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+      const absoluteUrl = resolveUrl(decodedSrc, baseUrl);
       const response = await fetch(absoluteUrl, { signal: AbortSignal.timeout(10_000) });
       if (!response.ok) continue;
 
@@ -164,10 +166,12 @@ async function downloadImages(
         mimeType,
         data,
       });
-    } catch {
-      // Skip failed images — article text is still readable
+    } catch (err) {
+      log('clip', `Image download failed: ${src} — ${err instanceof Error ? err.message : String(err)}`);
     }
   }
+
+  log('clip', `Images: ${downloaded.length} succeeded, ${urls.size - downloaded.length} failed out of ${urls.size}`);
 
   // No URL rewriting needed here — epub-generator.ts handles rewriting
   // originalUrl → local path when building the EPUB.
@@ -214,10 +218,13 @@ export async function downloadImagesFromUrls(
         mimeType,
         data,
       });
-    } catch {
-      // Skip failed images
+    } catch (err) {
+      log('clip', `Image download failed: ${rawUrl} — ${err instanceof Error ? err.message : String(err)}`);
     }
   }
+
+  const total = imageUrls.slice(0, MAX_IMAGES).length;
+  log('clip', `Images: ${downloaded.length} succeeded, ${total - downloaded.length} failed out of ${total}`);
 
   return downloaded;
 }
