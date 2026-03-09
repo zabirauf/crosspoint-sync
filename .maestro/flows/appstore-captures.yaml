@@ -1,0 +1,119 @@
+appId: com.crosspointsync.app
+name: "App Store Screenshot Captures"
+tags:
+  - requires-device
+  - appstore
+---
+# Captures raw screenshots for App Store marketing images.
+# Requires mock device running on localhost:8082.
+# After running, use scripts/crop-debug-bar.sh to remove the dev-mode debug bar.
+
+# === SETUP: Connect to mock device ===
+- runFlow: ../helpers/ensure-disconnected.yaml
+
+- tapOn:
+    id: "Library.ConnectionPill"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      id: "Connection.ConnectButton"
+    timeout: 5000
+
+# Enter mock device address
+- tapOn:
+    text: "crosspoint.local"
+    optional: true
+- tapOn:
+    text: "localhost:8082"
+    optional: true
+- eraseText: 30
+- inputText: "localhost:8082"
+
+# Dismiss keyboard by tapping the sheet header
+- tapOn:
+    text: "Device"
+
+- tapOn:
+    id: "Connection.ConnectButton"
+
+- extendedWaitUntil:
+    visible:
+      id: "Library.FileList"
+    timeout: 15000
+
+- extendedWaitUntil:
+    visible:
+      id: "Library.FileRow.Articles"
+    timeout: 10000
+
+- waitForAnimationToEnd
+
+# === SCREENSHOT 1: Library connected with files ===
+- takeScreenshot: appstore-01-library
+
+# === SCREENSHOT 3: File action sheet ===
+- tapOn:
+    id: "Library.FileRow.Frankestein.epub.More"
+
+- extendedWaitUntil:
+    visible:
+      id: "FileActions.Sheet"
+    timeout: 3000
+
+- waitForAnimationToEnd
+- takeScreenshot: appstore-03-file-actions
+
+# === SCREENSHOT 4: Move sheet ===
+- tapOn:
+    id: "FileActions.Move"
+
+- extendedWaitUntil:
+    visible:
+      id: "MoveFile.Sheet"
+    timeout: 3000
+
+- waitForAnimationToEnd
+- takeScreenshot: appstore-04-move-sheet
+
+# Close move sheet
+- tapOn:
+    id: "MoveFile.Close"
+    optional: true
+- tapOn:
+    point: "50%,10%"
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      id: "Library.ConnectionPill"
+    timeout: 5000
+
+# === SCREENSHOT 6: Connection sheet (disconnected/idle) ===
+- runFlow: ../helpers/ensure-disconnected.yaml
+
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "Library.ConnectionPill"
+
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      id: "Connection.ConnectButton"
+    timeout: 3000
+
+# Replace localhost:8082 with crosspoint.local for professional appearance
+- tapOn:
+    text: "localhost:8082"
+    optional: true
+- eraseText: 30
+- inputText: "crosspoint.local"
+
+# Dismiss keyboard by tapping the sheet header
+- tapOn:
+    text: "Device"
+
+- waitForAnimationToEnd
+- takeScreenshot: appstore-06-connect

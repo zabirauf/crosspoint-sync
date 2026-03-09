@@ -4,7 +4,10 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { AppState, useColorScheme } from 'react-native';
+import { AppState, LogBox, useColorScheme } from 'react-native';
+
+// Suppress LogBox for clean App Store screenshots
+LogBox.ignoreAllLogs(true);
 import type { AppStateStatus } from 'react-native';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { TamaguiProvider, PortalProvider } from 'tamagui';
