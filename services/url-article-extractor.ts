@@ -145,27 +145,33 @@ async function downloadImages(
       // Decode HTML entities in URLs before fetching (src may contain &amp; from raw HTML)
       const decodedSrc = src.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
       const absoluteUrl = resolveUrl(decodedSrc, baseUrl);
-      const response = await fetch(absoluteUrl, { signal: AbortSignal.timeout(10_000) });
-      if (!response.ok) continue;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10_000);
+      try {
+        const response = await fetch(absoluteUrl, { signal: controller.signal });
+        if (!response.ok) continue;
 
-      const contentType = response.headers.get('content-type') ?? 'image/jpeg';
-      const mimeType = contentType.split(';')[0].trim();
+        const contentType = response.headers.get('content-type') ?? 'image/jpeg';
+        const mimeType = contentType.split(';')[0].trim();
 
-      if (!mimeType.startsWith('image/')) continue;
+        if (!mimeType.startsWith('image/')) continue;
 
-      const buffer = await response.arrayBuffer();
-      const data = new Uint8Array(buffer);
+        const buffer = await response.arrayBuffer();
+        const data = new Uint8Array(buffer);
 
-      if (data.length === 0) continue;
+        if (data.length === 0) continue;
 
-      const localPath = `clip-images-tmp/img-${downloaded.length}`;
+        const localPath = `clip-images-tmp/img-${downloaded.length}`;
 
-      downloaded.push({
-        originalUrl: src,
-        localPath,
-        mimeType,
-        data,
-      });
+        downloaded.push({
+          originalUrl: src,
+          localPath,
+          mimeType,
+          data,
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
     } catch (err) {
       log('clip', `Image download failed: ${src} — ${err instanceof Error ? err.message : String(err)}`);
     }
@@ -197,27 +203,33 @@ export async function downloadImagesFromUrls(
     try {
       // Resolve protocol-relative URLs before fetching
       const url = rawUrl.startsWith('//') ? 'https:' + rawUrl : rawUrl;
-      const response = await fetch(url, { signal: AbortSignal.timeout(10_000) });
-      if (!response.ok) continue;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10_000);
+      try {
+        const response = await fetch(url, { signal: controller.signal });
+        if (!response.ok) continue;
 
-      const contentType = response.headers.get('content-type') ?? 'image/jpeg';
-      const mimeType = contentType.split(';')[0].trim();
+        const contentType = response.headers.get('content-type') ?? 'image/jpeg';
+        const mimeType = contentType.split(';')[0].trim();
 
-      if (!mimeType.startsWith('image/')) continue;
+        if (!mimeType.startsWith('image/')) continue;
 
-      const buffer = await response.arrayBuffer();
-      const data = new Uint8Array(buffer);
+        const buffer = await response.arrayBuffer();
+        const data = new Uint8Array(buffer);
 
-      if (data.length === 0) continue;
+        if (data.length === 0) continue;
 
-      const localPath = `clip-images-tmp/img-${downloaded.length}`;
+        const localPath = `clip-images-tmp/img-${downloaded.length}`;
 
-      downloaded.push({
-        originalUrl: rawUrl,
-        localPath,
-        mimeType,
-        data,
-      });
+        downloaded.push({
+          originalUrl: rawUrl,
+          localPath,
+          mimeType,
+          data,
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
     } catch (err) {
       log('clip', `Image download failed: ${rawUrl} — ${err instanceof Error ? err.message : String(err)}`);
     }

@@ -124,6 +124,24 @@
     imagesRewritten: true
     noExternalImageUrls: true
 
+- name: "Entity-encoded URL images"
+  description: "Images with & in query params (entity-encoded in HTML as &amp;) are correctly embedded"
+  input:
+    title: "Entity Encoded URLs"
+    author: "Author"
+    sourceUrl: "https://example.com/article"
+    html: '<p>Image:</p><img src="https://cdn.example.com/img?w=800&amp;h=600" alt="Resized"><p>Another:</p><img src="https://cdn.example.com/photo?fmt=jpg&amp;quality=80&amp;crop=center" alt="Cropped">'
+    images:
+      - originalUrl: "https://cdn.example.com/img?w=800&h=600"
+        mimeType: "image/jpeg"
+      - originalUrl: "https://cdn.example.com/photo?fmt=jpg&quality=80&crop=center"
+        mimeType: "image/jpeg"
+  expect:
+    hasValidStructure: true
+    imageCount: 2
+    imagesRewritten: true
+    noExternalImageUrls: true
+
 - name: "XHTML fixup"
   description: "Void elements are self-closed and bare ampersands escaped"
   input:

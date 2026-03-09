@@ -161,7 +161,14 @@ export function rewriteImageSources(
     imageEntries.push({ filename, mimeType: img.mimeType, data: img.data });
 
     // Replace all occurrences of the original URL with the local path
-    rewrittenHtml = rewrittenHtml.split(img.originalUrl).join(`images/${filename}`);
+    const localPath = `images/${filename}`;
+    rewrittenHtml = rewrittenHtml.split(img.originalUrl).join(localPath);
+
+    // Also replace HTML-entity-encoded version (innerHTML encodes & as &amp;)
+    const entityEncoded = img.originalUrl.replace(/&/g, '&amp;');
+    if (entityEncoded !== img.originalUrl) {
+      rewrittenHtml = rewrittenHtml.split(entityEncoded).join(localPath);
+    }
   }
 
   return { rewrittenHtml, imageEntries };
