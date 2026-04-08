@@ -1,4 +1,5 @@
 import { File, Directory, Paths } from 'expo-file-system';
+import { Platform } from 'react-native';
 import { DeviceStatus, DeviceFile } from '@/types/device';
 import { HTTP_PORT, REQUEST_TIMEOUT_MS } from '@/constants/Protocol';
 import { log } from './logger';
@@ -242,8 +243,24 @@ export async function downloadFile(
 ): Promise<string> {
   return deviceScheduler.schedule({
     execute: async () => {
+      const url = `${baseUrl(ip)}/download?path=${encodeURIComponent(remotePath)}`;
+
+      if (Platform.OS === 'android') {
+        // Android: use fetch() instead of native download to avoid OkHttp's strict
+        // HTTP protocol enforcement. The ESP32 firmware may omit Content-Length /
+        // Transfer-Encoding headers, causing java.net.ProtocolException on the
+        // native HTTP client.
+        const response = await fetchWithTimeout(url);
+        if (!response.ok) throw new Error(`Download failed: ${response.status}`);
+        const buffer = await response.arrayBuffer();
+        const fileName = remotePath.split('/').pop() || 'download';
+        const dest = new File(new Directory(Paths.cache), fileName);
+        dest.write(new Uint8Array(buffer));
+        return dest.uri;
+      }
+
       const file = await File.downloadFileAsync(
-        `${baseUrl(ip)}/download?path=${encodeURIComponent(remotePath)}`,
+        url,
         new Directory(Paths.cache),
         { idempotent: true },
       );
