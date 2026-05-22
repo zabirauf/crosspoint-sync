@@ -52,7 +52,7 @@ export function getDeviceCapabilities(version: string | undefined): DeviceCapabi
     rename: firmwareAtLeast(version, 1, 0, 0),
     move: firmwareAtLeast(version, 1, 0, 0),
     settingsApi: firmwareAtLeast(version, 1, 1, 0),
-    // Batch delete is unreleased (post-1.1.1 on master). Update gate when firmware ships.
+    // 1.2.0+ /delete expects a `paths` JSON-array form field; older firmware uses `path`.
     batchDelete: firmwareAtLeast(version, 1, 2, 0),
   };
 }

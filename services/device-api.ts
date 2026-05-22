@@ -120,23 +120,20 @@ export async function deleteItem(
       const version = useDeviceStore.getState().deviceStatus?.version;
       const caps = getDeviceCapabilities(version);
 
-      let body: FormData | string;
-      let headers: Record<string, string> | undefined;
-
+      const formData = new FormData();
       if (caps.batchDelete) {
-        body = JSON.stringify({ paths: [path] });
-        headers = { 'Content-Type': 'application/json' };
+        // Firmware >= 1.2.0: /delete reads a `paths` form field whose value is
+        // a JSON-encoded array string (ESP32 WebServer arg, not a JSON body).
+        formData.append('paths', JSON.stringify([path]));
       } else {
-        const formData = new FormData();
+        // Firmware < 1.2.0: single `path` form field plus item `type`.
         formData.append('path', path);
         formData.append('type', type);
-        body = formData;
       }
 
       const res = await fetchWithTimeout(`${baseUrl(ip)}/delete`, {
         method: 'POST',
-        body,
-        headers,
+        body: formData,
       });
       if (!res.ok) {
         const text = await res.text().catch(() => '');
