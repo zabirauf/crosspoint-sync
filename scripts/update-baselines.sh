@@ -11,7 +11,9 @@ PLATFORM="${1:-ios}"
 DEVICE="${2:-iphone-16-pro}"
 THEME="${3:-light}"
 
-SRC_DIR="test-screenshots"
+# Maestro writes takeScreenshot PNGs into a screenshots/ subdirectory of the
+# --test-output-dir passed to `maestro test` (test-screenshots/).
+SRC_DIR="test-screenshots/screenshots"
 DEST_DIR="test-references/${PLATFORM}/${DEVICE}/${THEME}"
 
 if [ ! -d "$SRC_DIR" ]; then
@@ -24,6 +26,10 @@ mkdir -p "$DEST_DIR"
 COUNT=0
 for f in "$SRC_DIR"/*.png; do
   [ -f "$f" ] || continue
+  # Skip App Store marketing captures — they are not visual-test reference specs.
+  case "$(basename "$f")" in
+    appstore-*) continue ;;
+  esac
   cp "$f" "$DEST_DIR/"
   echo "  Updated: $(basename "$f")"
   COUNT=$((COUNT + 1))

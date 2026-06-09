@@ -33,11 +33,13 @@ Usage:
 Options:
   --http-port <port>         HTTP REST API port (default: 8080)
   --ws-port <port>           WebSocket upload port (default: 8081)
-  --firmware-version <ver>   Firmware version to report (default: 1.1.0)
+  --firmware-version <ver>   Firmware version to report (default: 1.3.0)
                              Controls capability gates:
                                >=1.0.0  rename, move
                                >=1.1.0  settings API
-                               >=1.2.0  batch delete
+                               >=1.2.0  batch delete (/delete 'paths' JSON-array
+                                        form field; older firmware uses 'path')
+  --device <X4|X3>           Device model reported by /api/status (default: X4)
   --data-dir <path>          Serve files from disk (default: ./test-mock-filesystem).
                              Use --data-dir "" for a seeded in-memory filesystem.
   --latency <ms>             Simulated response latency in ms (default: 0).
@@ -55,13 +57,19 @@ Examples:
 
 function getArg(flag: string, defaultVal: string): string {
   const idx = args.indexOf(flag);
-  return idx !== -1 && args[idx + 1] ? args[idx + 1] : defaultVal;
+  // Flag present with a following token wins — even when that token is "" (e.g.
+  // `--data-dir ""` selects the in-memory filesystem, as documented above).
+  if (idx !== -1 && idx + 1 < args.length) return args[idx + 1];
+  return defaultVal;
 }
 
 const HTTP_PORT = parseInt(getArg('--http-port', '8080'), 10);
 const WS_PORT = parseInt(getArg('--ws-port', '8081'), 10);
 const HOSTNAME = 'crosspoint-mock';
-const FIRMWARE_VERSION = getArg('--firmware-version', '1.1.0');
+// Default to the current shipping firmware so ad-hoc runs and the visual
+// pipeline exercise the live API. Override with --firmware-version to test gates.
+const FIRMWARE_VERSION = getArg('--firmware-version', '1.3.0');
+const DEVICE_TYPE = getArg('--device', 'X4'); // X4 or X3 — reported by /api/status (firmware >=1.3.0)
 const DATA_DIR = getArg('--data-dir', './test-mock-filesystem');
 const LATENCY_MS = parseInt(getArg('--latency', '0'), 10);
 
@@ -559,13 +567,16 @@ const backend: FileBackend = DATA_DIR
 
 // ─── Device Status ───
 
+// Mirrors firmware handleStatus(): version, ip, mode, rssi, freeHeap, uptime,
+// and (firmware >=1.3.0) the device model field.
 const deviceStatus = {
   version: FIRMWARE_VERSION,
+  ip: '192.168.1.100',
+  mode: 'STA',
+  rssi: -52,
   freeHeap: 128000,
   uptime: 345000,
-  rssi: -52,
-  mode: 'STA',
-  ip: '192.168.1.100',
+  device: DEVICE_TYPE,
 };
 
 // ─── Mock Device Settings (always in-memory) ───
@@ -584,6 +595,14 @@ const deviceSettings: Record<string, string | number | boolean> = {
 function jsonResponse(res: http.ServerResponse, status: number, data: unknown): void {
   res.writeHead(status, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(data));
+}
+
+// The real firmware's /delete handler replies in plain text (e.g.
+// "All items deleted successfully" / "Failed to delete some items: ...").
+// The app reads res.text() for error messages, so mirror that exactly.
+function textResponse(res: http.ServerResponse, status: number, text: string): void {
+  res.writeHead(status, { 'Content-Type': 'text/plain' });
+  res.end(text);
 }
 
 // ─── HTTP REST API ───
@@ -624,174 +643,208 @@ const httpServer = http.createServer(async (req, res) => {
       return;
     }
 
-    // POST /mkdir — FormData with 'name' and 'path' fields
+    // POST /mkdir — firmware reads `name` (+ optional `path`) form fields and
+    // replies in plain text. An existing folder is a 400 (the app treats 400/409
+    // here as "already exists" → success).
     if (pathname === '/mkdir' && req.method === 'POST') {
       const body = await collectBody(req);
       const ct = req.headers['content-type'] || '';
-      let name: string;
-      let parentPath: string;
-
-      if (ct.includes('multipart/form-data')) {
-        const form = parseFormData(ct, body);
-        name = form.fields['name'] || '';
-        parentPath = form.fields['path'] || '/';
-      } else {
-        // Fallback: JSON body (legacy)
-        const json = JSON.parse(body.toString());
-        const fullPath: string = json.path || '';
-        parentPath = fullPath.substring(0, fullPath.lastIndexOf('/')) || '/';
-        name = fullPath.substring(fullPath.lastIndexOf('/') + 1);
-      }
+      const form = ct.includes('multipart/form-data')
+        ? parseFormData(ct, body)
+        : { fields: {} as Record<string, string>, files: [] };
+      const name = form.fields['name'] || '';
+      const parentPath = form.fields['path'] || '/';
 
       if (!name) {
-        jsonResponse(res, 400, { error: 'Missing folder name' });
+        textResponse(res, 400, 'Missing folder name');
+        return;
+      }
+
+      const fullPath = parentPath === '/' ? `/${name}` : `${parentPath.replace(/\/+$/, '')}/${name}`;
+      if (backend.exists(fullPath)) {
+        textResponse(res, 400, 'Folder already exists');
         return;
       }
 
       backend.createFolder(parentPath, name);
-      jsonResponse(res, 200, { success: true });
+      textResponse(res, 200, `Folder created: ${name}`);
       return;
     }
 
-    // POST /delete — FormData (legacy) or JSON (batch)
+    // POST /delete — form-encoded args, mirroring the real firmware handleDelete().
+    //   Firmware <1.2.0:  reads `path` form field (+ optional `type`, which it
+    //                     accepts but ignores for the deletion logic).
+    //   Firmware >=1.2.0: reads `paths` form field whose value is a JSON-encoded
+    //                     array string, e.g. paths=["/Books/a.epub"]. `path` is
+    //                     still accepted for backwards compatibility, but supplying
+    //                     BOTH `path` and `paths` is rejected.
+    // The firmware reads request args (server->arg) — it never parses a JSON
+    // request body. A JSON body therefore populates neither field and 400s, which
+    // is exactly the bug the app fix addresses; the mock reproduces that here.
     if (pathname === '/delete' && req.method === 'POST') {
       const body = await collectBody(req);
       const ct = req.headers['content-type'] || '';
 
-      if (ct.includes('application/json')) {
-        // Batch delete: { paths: ["/Books/file.epub", ...] }
-        if (!CAPABILITIES.batchDelete) {
-          jsonResponse(res, 404, { error: 'Not found' });
+      const form = ct.includes('multipart/form-data')
+        ? parseFormData(ct, body)
+        : { fields: {} as Record<string, string>, files: [] };
+      const hasPath = 'path' in form.fields;
+      const hasPaths = 'paths' in form.fields;
+
+      // Resolve the list of target paths according to firmware capability.
+      let targets: string[];
+      if (CAPABILITIES.batchDelete) {
+        // Firmware >=1.2.0
+        if (!hasPath && !hasPaths) {
+          textResponse(res, 400, 'Missing `path` or `paths` argument');
           return;
         }
-        const json = JSON.parse(body.toString());
-        const paths: string[] = json.paths || [];
-        for (const p of paths) {
-          if (isProtectedPath(p)) {
-            jsonResponse(res, 403, { error: 'Protected path' });
+        if (hasPath && hasPaths) {
+          textResponse(res, 400, "Provide either 'path' or 'paths', not both");
+          return;
+        }
+        if (hasPaths) {
+          try {
+            const parsed = JSON.parse(form.fields['paths']);
+            if (!Array.isArray(parsed)) throw new Error('not an array');
+            targets = parsed.map(String);
+          } catch {
+            textResponse(res, 400, 'Invalid paths format');
             return;
           }
-          if (backend.isDirectory(p) && !backend.isEmpty(p)) {
-            jsonResponse(res, 400, { error: 'Folder not empty' });
-            return;
-          }
-          backend.deleteItem(p);
+        } else {
+          targets = [form.fields['path']];
         }
-        jsonResponse(res, 200, { success: true });
-      } else if (ct.includes('multipart/form-data')) {
-        // Legacy FormData: path + type
-        const form = parseFormData(ct, body);
-        const filePath = form.fields['path'] || '';
-        if (isProtectedPath(filePath)) {
-          jsonResponse(res, 403, { error: 'Protected path' });
-          return;
-        }
-        if (backend.isDirectory(filePath) && !backend.isEmpty(filePath)) {
-          jsonResponse(res, 400, { error: 'Folder not empty' });
-          return;
-        }
-        backend.deleteItem(filePath);
-        jsonResponse(res, 200, { success: true });
       } else {
-        // Fallback: try JSON
-        try {
-          const json = JSON.parse(body.toString());
-          const filePath: string = json.path || '';
-          if (isProtectedPath(filePath)) {
-            jsonResponse(res, 403, { error: 'Protected path' });
-            return;
-          }
-          backend.deleteItem(filePath);
-          jsonResponse(res, 200, { success: true });
-        } catch {
-          jsonResponse(res, 400, { error: 'Invalid request body' });
+        // Firmware <1.2.0 — only `path` is understood. A `paths` field (which a
+        // correct app would never send to old firmware) is unknown → missing arg.
+        if (!hasPath) {
+          textResponse(res, 400, 'Missing `path` argument');
+          return;
         }
+        targets = [form.fields['path']];
+      }
+
+      if (targets.length === 0) {
+        textResponse(res, 400, 'No paths provided');
+        return;
+      }
+
+      const failed: string[] = [];
+      for (const p of targets) {
+        if (isProtectedPath(p)) {
+          failed.push(`${p} (protected file)`);
+          continue;
+        }
+        if (backend.isDirectory(p) && !backend.isEmpty(p)) {
+          failed.push(`${p} (folder not empty)`);
+          continue;
+        }
+        backend.deleteItem(p);
+      }
+
+      if (failed.length === 0) {
+        textResponse(res, 200, 'All items deleted successfully');
+      } else {
+        textResponse(res, 500, `Failed to delete some items: ${failed.join('; ')}`);
       }
       return;
     }
 
-    // POST /rename — FormData with 'path' and 'name' (version-gated ≥1.0.0)
+    // POST /rename — firmware reads `path` + `name` form fields, replies in plain
+    // text. Status codes mirror handleRename(): 403 protected, 404 missing,
+    // 400 directory/invalid, 409 target exists. (Capability-gated >=1.0.0.)
     if (pathname === '/rename' && req.method === 'POST') {
       if (!CAPABILITIES.rename) {
-        jsonResponse(res, 404, { error: 'Not found' });
+        textResponse(res, 404, 'Not found');
         return;
       }
       const body = await collectBody(req);
       const ct = req.headers['content-type'] || '';
-      let filePath: string;
-      let newName: string;
-
-      if (ct.includes('multipart/form-data')) {
-        const form = parseFormData(ct, body);
-        filePath = form.fields['path'] || '';
-        newName = form.fields['name'] || '';
-      } else {
-        const json = JSON.parse(body.toString());
-        filePath = json.path || '';
-        newName = json.name || '';
-      }
+      const form = ct.includes('multipart/form-data')
+        ? parseFormData(ct, body)
+        : { fields: {} as Record<string, string>, files: [] };
+      const filePath = form.fields['path'] || '';
+      const newName = (form.fields['name'] || '').trim();
 
       if (!filePath || !newName) {
-        jsonResponse(res, 400, { error: 'Missing path or name' });
+        textResponse(res, 400, 'Missing path or new name');
         return;
       }
-      if (isProtectedPath(filePath)) {
-        jsonResponse(res, 403, { error: 'Protected path' });
+      if (newName.includes('/') || newName.includes('\\')) {
+        textResponse(res, 400, 'Invalid file name');
+        return;
+      }
+      if (isProtectedPath(filePath) || isProtectedName(newName)) {
+        textResponse(res, 403, 'Cannot rename protected item');
         return;
       }
       if (!backend.exists(filePath)) {
-        jsonResponse(res, 404, { error: 'Not found' });
+        textResponse(res, 404, 'Item not found');
+        return;
+      }
+      if (backend.isDirectory(filePath)) {
+        textResponse(res, 400, 'Only files can be renamed');
         return;
       }
 
       try {
         backend.renameItem(filePath, newName);
-        jsonResponse(res, 200, { success: true });
+        textResponse(res, 200, 'Renamed successfully');
       } catch (err: any) {
-        jsonResponse(res, err.status || 500, { error: err.message || 'Rename failed' });
+        if (err.status === 409) textResponse(res, 409, 'Target already exists');
+        else textResponse(res, err.status || 500, err.message || 'Failed to rename file');
       }
       return;
     }
 
-    // POST /move — FormData with 'path' and 'dest' (version-gated ≥1.0.0)
+    // POST /move — firmware reads `path` + `dest` form fields, replies in plain
+    // text. Status codes mirror handleMove(): 403 protected, 404 missing item/
+    // dest, 400 directory/dest-not-folder, 409 target exists. (Gated >=1.0.0.)
     if (pathname === '/move' && req.method === 'POST') {
       if (!CAPABILITIES.move) {
-        jsonResponse(res, 404, { error: 'Not found' });
+        textResponse(res, 404, 'Not found');
         return;
       }
       const body = await collectBody(req);
       const ct = req.headers['content-type'] || '';
-      let filePath: string;
-      let dest: string;
-
-      if (ct.includes('multipart/form-data')) {
-        const form = parseFormData(ct, body);
-        filePath = form.fields['path'] || '';
-        dest = form.fields['dest'] || '';
-      } else {
-        const json = JSON.parse(body.toString());
-        filePath = json.path || '';
-        dest = json.dest || '';
-      }
+      const form = ct.includes('multipart/form-data')
+        ? parseFormData(ct, body)
+        : { fields: {} as Record<string, string>, files: [] };
+      const filePath = form.fields['path'] || '';
+      const dest = form.fields['dest'] || '';
 
       if (!filePath || !dest) {
-        jsonResponse(res, 400, { error: 'Missing path or dest' });
+        textResponse(res, 400, 'Missing path or destination');
         return;
       }
       if (isProtectedPath(filePath)) {
-        jsonResponse(res, 403, { error: 'Protected path' });
+        textResponse(res, 403, 'Cannot move protected item');
         return;
       }
       if (!backend.exists(filePath)) {
-        jsonResponse(res, 404, { error: 'Not found' });
+        textResponse(res, 404, 'Item not found');
+        return;
+      }
+      if (backend.isDirectory(filePath)) {
+        textResponse(res, 400, 'Only files can be moved');
+        return;
+      }
+      if (!backend.exists(dest)) {
+        textResponse(res, 404, 'Destination not found');
+        return;
+      }
+      if (!backend.isDirectory(dest)) {
+        textResponse(res, 400, 'Destination is not a folder');
         return;
       }
 
       try {
         backend.moveItem(filePath, dest);
-        jsonResponse(res, 200, { success: true });
+        textResponse(res, 200, 'Moved successfully');
       } catch (err: any) {
-        jsonResponse(res, err.status || 500, { error: err.message || 'Move failed' });
+        if (err.status === 409) textResponse(res, 409, 'Target already exists');
+        else textResponse(res, err.status || 500, err.message || 'Failed to move file');
       }
       return;
     }
@@ -803,20 +856,20 @@ const httpServer = http.createServer(async (req, res) => {
       const ct = req.headers['content-type'] || '';
 
       if (!ct.includes('multipart/form-data')) {
-        jsonResponse(res, 400, { error: 'Expected multipart/form-data' });
+        textResponse(res, 400, 'Expected multipart/form-data');
         return;
       }
 
       const form = parseFormData(ct, body);
       if (form.files.length === 0) {
-        jsonResponse(res, 400, { error: 'No file uploaded' });
+        textResponse(res, 400, 'No file uploaded');
         return;
       }
 
       const file = form.files[0];
       backend.writeFile(destPath, file.fileName, file.data);
       console.log(`[HTTP] Upload: ${file.fileName} (${file.data.length} bytes) → ${destPath}`);
-      jsonResponse(res, 200, { success: true });
+      textResponse(res, 200, `File uploaded successfully: ${file.fileName}`);
       return;
     }
 
@@ -854,8 +907,20 @@ const httpServer = http.createServer(async (req, res) => {
     // GET /download?path=
     if (pathname === '/download' && req.method === 'GET') {
       const filePath = url.searchParams.get('path') || '';
-      if (!filePath || !backend.exists(filePath)) {
-        jsonResponse(res, 404, { error: 'Not found' });
+      if (!filePath || filePath === '/') {
+        textResponse(res, 400, 'Invalid path');
+        return;
+      }
+      if (isProtectedPath(filePath)) {
+        textResponse(res, 403, 'Cannot access protected items');
+        return;
+      }
+      if (!backend.exists(filePath)) {
+        textResponse(res, 404, 'Item not found');
+        return;
+      }
+      if (backend.isDirectory(filePath)) {
+        textResponse(res, 400, 'Path is a directory');
         return;
       }
 
@@ -872,7 +937,7 @@ const httpServer = http.createServer(async (req, res) => {
         });
         res.end(data);
       } catch {
-        jsonResponse(res, 500, { error: 'Failed to read file' });
+        textResponse(res, 500, 'Failed to open file');
       }
       return;
     }
@@ -965,6 +1030,7 @@ const capList = Object.entries(CAPABILITIES)
 console.log('');
 console.log('[Mock Device Server]');
 console.log(`  Firmware:      ${FIRMWARE_VERSION}`);
+console.log(`  Device:        ${DEVICE_TYPE}`);
 console.log(`  Data dir:      ${DATA_DIR ? `${DATA_DIR} (disk-backed)` : 'in-memory'}`);
 console.log(`  Capabilities:  ${capList.length ? capList.join(', ') : 'none (pre-1.0.0)'}`);
 console.log(`  HTTP API:      port ${HTTP_PORT}`);

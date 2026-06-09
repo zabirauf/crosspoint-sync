@@ -16,11 +16,12 @@
     "test:visual:judge": "npx tsx scripts/visual-judge.ts --specs .maestro/visual-tests/ --run-dir test-runs/",
     "test:visual:report": "cat test-runs/latest/report.md",
     "test:visual:studio": "maestro studio",
-    "mock-device": "npx tsx scripts/mock-device-server.ts --http-port 8082 --ws-port 8083 --data-dir test-mock-filesystem",
+    "mock-device": "npx tsx scripts/mock-device-server.ts --firmware-version 1.3.0 --http-port 8082 --ws-port 8083 --data-dir test-mock-filesystem",
     "build:webview-bundle": "node scripts/bundle-webview-extractor.js",
     "test:epub": "npx tsx scripts/epub-test.ts",
     "test:epub:unit": "npx tsx scripts/epub-test.ts --unit",
     "test:epub:integration": "npx tsx scripts/epub-test.ts --integration",
+    "test:delete": "npx tsx scripts/delete-protocol-test.ts",
     "appstore:screenshots": "node scripts/generate-appstore-screenshots.js"
   },
   "dependencies": {

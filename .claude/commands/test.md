@@ -4,6 +4,23 @@ Run the visual testing pipeline and handle any failures. Optional arguments: $AR
 
 Run Maestro visual test flows against the running iOS simulator, then run the LLM visual judge to evaluate screenshots against references. If tests fail, diagnose whether failures are expected (due to intentional UI changes) or unexpected (regressions), and take appropriate action.
 
+Some behavior is invisible to screenshots — most notably the device REST/WebSocket request formats, which vary by firmware version. Those are covered by **protocol contract tests** (Step 0.1) that exercise the mock device server directly. Run them whenever device-API code (`services/device-api.ts`, `services/firmware-version.ts`, or the mock server) changes.
+
+## Step 0.1: Protocol Contract Tests (non-visual)
+
+These run headlessly — no simulator needed. They spawn the mock device server at multiple firmware versions and assert request/response behavior.
+
+```bash
+npm run test:delete   # /delete request format across firmware <1.2.0 and >=1.2.0
+```
+
+`test:delete` validates that the app's `/delete` request matches what the firmware accepts:
+- firmware **<1.2.0** → `path` (+ `type`) form field (legacy behavior)
+- firmware **>=1.2.0** → `paths` JSON-array form field (batch delete)
+- regression guards: the pre-fix JSON request body is rejected, `path`+`paths` together is rejected, and old firmware rejects the modern `paths` field (justifying the version gate).
+
+If `$ARGUMENTS` is `delete` or `protocol`, run only this step and stop. Otherwise run it before the visual steps and treat any failure as a real regression (read the failing assertion, then fix `services/device-api.ts` / `services/firmware-version.ts` or the mock server to match the firmware contract).
+
 ## Step 0: Ensure Simulator and App Are Running
 
 1. Check if an iOS simulator is booted: `xcrun simctl list devices | grep Booted`
@@ -18,8 +35,8 @@ Run Maestro visual test flows against the running iOS simulator, then run the LL
 5. Verify Maestro is available at `~/.maestro/bin/maestro` (or on PATH).
 6. For connected-state tests (`requires-device` tag), check if the mock device server is running on port 8082:
    - Run `lsof -i :8082` to check if something is listening.
-   - If listening, verify it's the mock server by hitting `curl -s http://localhost:8082/api/status` — it should return valid JSON with device info.
-   - If not running, note that `requires-device` flows will be skipped — this is fine for a normal test run. To start the mock server: `npm run mock-device`.
+   - If listening, verify it's the mock server AND that it reports the current firmware: `curl -s http://localhost:8082/api/status` should return JSON with `"version":"1.3.0"`. If it reports an older version, stop it and restart with `npm run mock-device` so connected-state flows run against the current 1.3.0 API.
+   - If not running, note that `requires-device` flows will be skipped — this is fine for a normal test run. To start the mock server: `npm run mock-device` (serves the firmware 1.3.0 API on HTTP:8082 / WS:8083).
 
 ## Step 1: Run Maestro Flows
 
@@ -62,11 +79,15 @@ This avoids re-running the entire suite (which is slow) while still catching rea
 
 ## Step 2: Run LLM Visual Judge
 
-If screenshots were captured, run the visual judge:
+If screenshots were captured, run the visual judge. Note: Maestro (run with
+`--test-output-dir test-screenshots/` in Step 1) writes the `takeScreenshot` PNGs
+into a `screenshots/` subdirectory, so point `--screenshots` at
+`test-screenshots/screenshots/` (NOT `test-screenshots/`, which only holds the
+timestamped debug bundle — the judge would find no PNGs there):
 
 ```bash
 ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY} npx tsx scripts/visual-judge.ts \
-  --screenshots test-screenshots/ \
+  --screenshots test-screenshots/screenshots/ \
   --references test-references/ios/iphone-16-pro/light/ \
   --specs .maestro/visual-tests/ \
   --run-dir test-runs/
