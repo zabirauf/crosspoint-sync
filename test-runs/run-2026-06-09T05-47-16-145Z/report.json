@@ -1,0 +1,910 @@
+{
+  "run_id": "run-2026-06-09T05-47-16-145Z",
+  "timestamp": "2026-06-09T05:51:13.269Z",
+  "platform": "ios",
+  "device": "iPhone 16 Pro",
+  "theme": "light",
+  "git_sha": "unknown",
+  "git_branch": "unknown",
+  "summary": {
+    "total": 11,
+    "passed": 2,
+    "failed": 0,
+    "warnings": 9,
+    "skipped": 1
+  },
+  "llm_api_calls": 10,
+  "tests": [
+    {
+      "id": "app-launch",
+      "name": "App Launch - Initial State",
+      "screenshot": "app-launch",
+      "verdict": "warning",
+      "confidence": 0.82,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/app-launch.png",
+        "reference": "test-references/ios/iphone-16-pro/light/app-launch.png"
+      },
+      "criteria": {
+        "layout": {
+          "pass": true,
+          "notes": "Core layout elements (header, center empty state, FAB button) are all correctly positioned. The main content area matches the reference."
+        },
+        "content": {
+          "pass": true,
+          "notes": "All text content matches: 'Library' title, 'Connect' pill, 'No Device Connected' heading, subtitle text, and 'Connect' button label are all present and correct."
+        },
+        "visual_state": {
+          "pass": true,
+          "notes": "Colors, icons, and states all match. The plug icon, blue FAB button, and light blue Connect button all appear correctly."
+        },
+        "elements": {
+          "pass": false,
+          "notes": "The reference screenshot shows a dark debug banner at the bottom ('Open debugger to view warnings.') which is absent in the test screenshot. The test screenshot shows a proper tab bar with 'Library' (selected, blue) and 'Settings' tabs, which is actually the expected production state per the test description. The debug banner in the reference appears to be an artifact obscuring the tab bar."
+        },
+        "defects": {
+          "pass": true,
+          "notes": "No text truncation, overlapping elements, or rendering artifacts detected in the test screenshot."
+        }
+      },
+      "assertion_results": [
+        {
+          "index": 1,
+          "text": "The Library tab title is visible in the header",
+          "pass": true,
+          "reasoning": "The 'Library' title is clearly visible in the navigation header in both the reference and test screenshots, centered at the top of the screen."
+        },
+        {
+          "index": 2,
+          "text": "The connection pill in the header shows 'Connect' text",
+          "pass": true,
+          "reasoning": "The connection pill in the top-right of the header clearly shows '● Connect ▾' in both screenshots, with the same gray dot indicating disconnected state."
+        },
+        {
+          "index": 3,
+          "text": "The tab bar shows Library and Settings tabs",
+          "pass": true,
+          "reasoning": "The test screenshot shows a proper tab bar at the bottom with 'Library' (selected, shown in blue with a book icon) and 'Settings' (with a gear icon) tabs. In the reference, the tab bar is obscured by a debug banner overlay, but the test screenshot correctly shows the expected tab bar."
+        },
+        {
+          "index": 4,
+          "text": "No loading spinners or crash dialogs are visible",
+          "pass": true,
+          "reasoning": "No loading spinners, crash dialogs, or error modals are present in the test screenshot. The screen shows the clean empty state as expected."
+        }
+      ],
+      "custom_criteria_results": [
+        {
+          "name": "Debug banner absent in test",
+          "pass": true,
+          "notes": "The reference screenshot contains a dark debug banner ('Open debugger to view warnings.') at the bottom, which is absent in the test screenshot. This is a positive difference — the test build does not show the debug overlay, revealing the proper tab bar underneath."
+        },
+        {
+          "name": "Tab bar visible and correct",
+          "pass": true,
+          "notes": "The test screenshot correctly shows the tab bar with Library (active/blue) and Settings tabs, matching the expected production state described in the test specification."
+        }
+      ],
+      "summary": "The test screenshot is functionally correct and matches the expected state described in the test specification. All four assertions pass. The primary visual difference between the reference and test screenshots is that the reference has a **debug banner** ('Open debugger to view warnings.') overlaying the bottom of the screen, which obscures the tab bar. The test screenshot correctly shows the tab bar with Library (selected) and Settings tabs without the debug overlay. This is a **positive difference** — the test build is cleaner than the reference. All core UI elements (Library title, Connect pill, plug icon, empty state message, Connect button, FAB) are present and correctly rendered in both screenshots.",
+      "differences": [
+        "Reference screenshot has a dark debug banner at the bottom ('Open debugger to view warnings.') that is absent in the test screenshot",
+        "Test screenshot shows the tab bar (Library + Settings) clearly, while in the reference it is partially obscured by the debug banner",
+        "Status bar time differs (23:00 in reference vs 22:41 in test) — acceptable dynamic content"
+      ]
+    },
+    {
+      "id": "connection-sheet",
+      "name": "Connection Sheet - Idle",
+      "screenshot": "connection-sheet-idle",
+      "verdict": "warning",
+      "confidence": 0.85,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/connection-sheet-idle.png",
+        "reference": "test-references/ios/iphone-16-pro/light/connection-sheet-idle.png"
+      },
+      "criteria": {
+        "layout": {
+          "pass": true,
+          "notes": "All UI elements are positioned correctly and consistently between reference and test screenshots. Layout, spacing, and alignment are identical."
+        },
+        "content": {
+          "pass": true,
+          "notes": "All text content matches: 'Device' title, 'Not connected' status, 'How to connect' card with 'Join a Network' and 'Create Hotspot' instructions, 'Device address' label, and 'localhost:8082' input value are all correct."
+        },
+        "visual_state": {
+          "pass": true,
+          "notes": "Colors, icons, and states are consistent. Gray dot for 'Not connected', blue 'Connect' button, and the info card styling all match the reference."
+        },
+        "elements": {
+          "pass": false,
+          "notes": "The reference screenshot shows a dark toast/snackbar at the bottom reading 'Open debugger to view warnings.' with a warning icon and dismiss button. This element is absent in the test screenshot. This may be an expected transient element, but it is a visible difference."
+        },
+        "defects": {
+          "pass": true,
+          "notes": "No text truncation, overlapping elements, misalignment, or rendering artifacts detected in the test screenshot."
+        }
+      },
+      "assertion_results": [
+        {
+          "index": 1,
+          "text": "The sheet header shows 'Device' title",
+          "pass": true,
+          "reasoning": "The 'Device' title is clearly visible in the top-left of the sheet in the test screenshot, matching the reference exactly."
+        },
+        {
+          "index": 2,
+          "text": "The connection status shows 'Not connected' with a gray dot",
+          "pass": true,
+          "reasoning": "The 'Not connected' label with a gray dot is present in the test screenshot, matching the reference in both position and styling."
+        },
+        {
+          "index": 3,
+          "text": "A 'How to connect' info card is visible with instructions",
+          "pass": true,
+          "reasoning": "The 'How to connect' card is present with all expected instructions: 'Join a Network' and 'Create Hotspot' sections with their respective descriptions."
+        },
+        {
+          "index": 4,
+          "text": "A device address input field is visible",
+          "pass": true,
+          "reasoning": "The device address input field labeled 'Device address' with 'localhost:8082' is visible and correctly positioned in the test screenshot."
+        },
+        {
+          "index": 5,
+          "text": "A 'Connect' button is visible next to the input",
+          "pass": true,
+          "reasoning": "The blue 'Connect' button is visible to the right of the input field, matching the reference in style and position."
+        }
+      ],
+      "custom_criteria_results": [
+        {
+          "name": "Debugger warning toast presence",
+          "pass": false,
+          "notes": "The reference screenshot shows a dark toast bar at the bottom: 'Open debugger to view warnings.' This element is absent in the test screenshot. This is likely a transient/dynamic UI element and may not represent a regression, but it is a notable visual difference."
+        }
+      ],
+      "summary": "The test screenshot matches the reference in all primary UI elements: the 'Device' header, 'Not connected' status badge, 'How to connect' info card, device address input field, and 'Connect' button are all present and correctly rendered. The only difference is the absence of the 'Open debugger to view warnings.' toast notification in the test screenshot, which was visible at the bottom of the reference. Since this is a transient/dynamic debug element and not a core part of the Connection Sheet - Idle state, this is treated as a warning rather than a hard failure. All 5 explicit assertions pass.",
+      "differences": [
+        "The dark debugger warning toast ('Open debugger to view warnings.') visible at the bottom of the reference screenshot is absent in the test screenshot.",
+        "System clock shows different times (23:03 in reference vs 22:45 in test) — expected dynamic difference, ignored per instructions."
+      ]
+    },
+    {
+      "id": "fab-menu",
+      "name": "FAB Menu - Open",
+      "screenshot": "fab-menu-open",
+      "verdict": "warning",
+      "confidence": 0.82,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/fab-menu-open.png",
+        "reference": "test-references/ios/iphone-16-pro/light/fab-menu-open.png"
+      },
+      "criteria": {
+        "layout": {
+          "pass": true,
+          "notes": "All main UI elements are positioned correctly. The FAB menu options (Upload Book, New Folder, Sleep Background) are in the same positions. The FAB button is at the bottom right. The library list items are identically laid out."
+        },
+        "content": {
+          "pass": true,
+          "notes": "All text content matches: 'Upload Book', 'New Folder', 'Sleep Background', file names, and file sizes are identical. The only difference is the system clock (23:03 vs 22:44), which is expected dynamic content."
+        },
+        "visual_state": {
+          "pass": false,
+          "notes": "The reference screenshot shows a dark debug warning banner at the bottom ('Open debugger to view warnings.') which is absent in the test screenshot. The test screenshot shows a bottom navigation bar (Library + Settings tabs) which is absent in the reference. These represent different UI states."
+        },
+        "elements": {
+          "pass": false,
+          "notes": "Reference has a dark debug/warning toast bar at the bottom. Test has a bottom tab navigation bar with 'Library' and 'Settings' tabs. These are mutually exclusive elements present in each respective screenshot."
+        },
+        "defects": {
+          "pass": true,
+          "notes": "No text truncation, overlapping elements, or rendering artifacts detected in either screenshot."
+        }
+      },
+      "assertion_results": [
+        {
+          "index": 1,
+          "text": "'Upload Book' option is visible with a book icon",
+          "pass": true,
+          "reasoning": "The 'Upload Book' option is clearly visible with a blue book icon in both the reference and test screenshots, positioned correctly in the FAB menu."
+        },
+        {
+          "index": 2,
+          "text": "'Sleep Background' option is visible with a moon icon",
+          "pass": true,
+          "reasoning": "The 'Sleep Background' option is clearly visible with a purple moon/crescent icon in both the reference and test screenshots."
+        },
+        {
+          "index": 3,
+          "text": "The FAB button (plus icon) is visible at the bottom right",
+          "pass": true,
+          "reasoning": "The blue circular FAB button with a white plus icon is present at the bottom right in both screenshots."
+        },
+        {
+          "index": 4,
+          "text": "Menu items have clear separation between them",
+          "pass": true,
+          "reasoning": "The three menu items (Upload Book, New Folder, Sleep Background) are clearly separated with visible divider lines between them in both screenshots."
+        }
+      ],
+      "custom_criteria_results": [
+        {
+          "name": "Debug warning banner presence",
+          "pass": false,
+          "notes": "The reference screenshot shows a dark debug warning toast at the bottom ('Open debugger to view warnings.' with a dismiss button). This element is absent in the test screenshot. This may be an intentional removal of a debug artifact, which could actually be a positive change."
+        },
+        {
+          "name": "Bottom navigation bar",
+          "pass": false,
+          "notes": "The test screenshot shows a bottom tab navigation bar with 'Library' (active, blue) and 'Settings' (inactive, gray) tabs. This element is absent in the reference screenshot, which instead shows the debug warning banner. This is a meaningful UI difference — the bottom nav bar is a persistent UI element that appears in the test but not the reference."
+        }
+      ],
+      "summary": "The FAB menu is correctly rendered in the test screenshot with all three options (Upload Book, New Folder, Sleep Background) visible with their correct icons, and the FAB button is present. All four assertions pass. However, there are two notable differences between the screenshots: (1) The reference has a dark debug warning banner at the bottom ('Open debugger to view warnings.'), which is absent in the test — this is likely a positive change (debug artifact removed). (2) The test screenshot shows a bottom tab navigation bar ('Library' + 'Settings') that is absent in the reference. This bottom nav bar is a meaningful UI element difference that warrants a warning, as it may indicate a layout change where the bottom nav is now visible when the FAB menu is open, potentially overlapping or competing with the FAB button area.",
+      "differences": [
+        "Reference has a dark debug warning toast bar at the bottom; test does not.",
+        "Test has a bottom tab navigation bar (Library + Settings) at the bottom; reference does not.",
+        "System clock differs (23:03 in reference vs 22:44 in test) — expected dynamic content."
+      ]
+    },
+    {
+      "id": "file-action-sheet",
+      "name": "File Action Sheet",
+      "screenshot": "file-action-sheet",
+      "verdict": "warning",
+      "confidence": 0.85,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/file-action-sheet.png",
+        "reference": "test-references/ios/iphone-16-pro/light/file-action-sheet.png"
+      },
+      "criteria": {
+        "layout": {
+          "pass": true,
+          "notes": "The action sheet layout is identical between reference and test. All elements are positioned correctly with the same spacing and alignment."
+        },
+        "content": {
+          "pass": true,
+          "notes": "All text content matches: file name 'Frankestein.epub', size '464.8 KB', and all action labels (Save to Device, Move, Rename, Delete) are present and correct."
+        },
+        "visual_state": {
+          "pass": true,
+          "notes": "Delete is styled in red/destructive color in both screenshots. Connected status indicator is green in both. The only difference is the absence of the debug warning banner in the test screenshot."
+        },
+        "elements": {
+          "pass": true,
+          "notes": "All required elements are present: file name header, X close button, Save to Device, Move, Rename, and Delete options with icons. The debug warning toast ('Open debugger to view warnings') present in the reference is absent in the test — this is an acceptable/expected difference."
+        },
+        "defects": {
+          "pass": true,
+          "notes": "No text truncation, overlapping elements, or rendering artifacts detected in either screenshot."
+        }
+      },
+      "assertion_results": [
+        {
+          "index": 1,
+          "text": "The sheet is visible with a file name header",
+          "pass": true,
+          "reasoning": "The bottom action sheet is clearly visible in the test screenshot with 'Frankestein.epub' and '464.8 KB' displayed in the header, matching the reference."
+        },
+        {
+          "index": 2,
+          "text": "A 'Save' action option is visible",
+          "pass": true,
+          "reasoning": "'Save to Device' action option is visible in the test screenshot with the same download icon, matching the reference."
+        },
+        {
+          "index": 3,
+          "text": "A 'Move' action option is visible",
+          "pass": true,
+          "reasoning": "'Move' action option is visible in the test screenshot with the same folder icon, matching the reference."
+        },
+        {
+          "index": 4,
+          "text": "A 'Rename' action option is visible",
+          "pass": true,
+          "reasoning": "'Rename' action option is visible in the test screenshot with the same pencil icon, matching the reference."
+        },
+        {
+          "index": 5,
+          "text": "A 'Delete' action option is visible and styled in red/destructive color",
+          "pass": true,
+          "reasoning": "'Delete' action option is visible in the test screenshot with red text and a red trash icon, matching the reference's destructive styling."
+        },
+        {
+          "index": 6,
+          "text": "An X close button is visible in the sheet header",
+          "pass": true,
+          "reasoning": "The X close button is visible in the top-right corner of the action sheet header in the test screenshot, matching the reference."
+        },
+        {
+          "index": 7,
+          "text": "Action options have icons next to their labels",
+          "pass": true,
+          "reasoning": "All four action options (Save to Device, Move, Rename, Delete) have corresponding icons next to their labels in the test screenshot, matching the reference."
+        }
+      ],
+      "custom_criteria_results": [
+        {
+          "name": "Debug warning banner absence",
+          "pass": true,
+          "notes": "The reference screenshot contains a debug warning toast ('Open debugger to view warnings.') at the bottom, which is absent in the test screenshot. This is a development/debug artifact and its absence in the test is expected and acceptable — not a regression."
+        },
+        {
+          "name": "Clock time difference",
+          "pass": true,
+          "notes": "The status bar shows 23:02 in the reference and 22:43 in the test. This is a dynamic content difference (timestamp) and is an acceptable variation."
+        }
+      ],
+      "summary": "The test screenshot matches the reference screenshot in all meaningful UI aspects. The action sheet for 'Frankestein.epub' is correctly displayed with all required elements: the file name header, X close button, and all four action options (Save to Device, Move, Rename, Delete) with their respective icons. The Delete option is correctly styled in red/destructive color. The only differences are: (1) the clock time in the status bar (dynamic content, acceptable), and (2) the absence of the debug warning toast banner ('Open debugger to view warnings.') which was present in the reference — this is a development artifact and its absence in the test is actually the correct production state. All assertions pass.",
+      "differences": [
+        "Status bar time differs: reference shows 23:02, test shows 22:43 (dynamic content, acceptable)",
+        "Debug warning toast ('Open debugger to view warnings.') is present in the reference but absent in the test (development artifact, acceptable/expected)"
+      ]
+    },
+    {
+      "id": "library-connected",
+      "name": "Library - Connected with Files",
+      "screenshot": "library-connected-files",
+      "verdict": "warning",
+      "confidence": 0.85,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/library-connected-files.png",
+        "reference": "test-references/ios/iphone-16-pro/light/library-connected-files.png"
+      },
+      "criteria": {
+        "layout": {
+          "pass": true,
+          "notes": "Overall layout is consistent between reference and test. File list, header, FAB button are all in the same positions. The main difference is the bottom area: reference has a debug warning banner, test has a tab bar (Library + Settings)."
+        },
+        "content": {
+          "pass": true,
+          "notes": "All file and folder entries are identical: Articles, sleep (folders), A journey to the center of th..., Frankestein.epub, The war of the worlds.epub with matching file sizes. Header shows 'Library' and 'Connected' pill correctly."
+        },
+        "visual_state": {
+          "pass": true,
+          "notes": "Connected pill shows green dot and 'Connected' label. FAB is blue with a '+' icon. Folder icons are orange, file icons are blue. All visual states match."
+        },
+        "elements": {
+          "pass": false,
+          "notes": "Test screenshot shows a bottom tab bar with 'Library' and 'Settings' tabs that is NOT present in the reference. Reference shows a debug warning banner ('Open debugger to view warnings') at the bottom which is NOT present in the test. These are meaningful UI differences."
+        },
+        "defects": {
+          "pass": true,
+          "notes": "No text truncation, overlapping elements, or rendering artifacts detected in either screenshot."
+        }
+      },
+      "assertion_results": [
+        {
+          "index": 1,
+          "text": "The connection pill shows 'Connected' with a green status dot",
+          "pass": true,
+          "reasoning": "Both reference and test screenshots clearly show the 'Connected' pill with a green dot in the top-right of the header. This assertion passes."
+        },
+        {
+          "index": 2,
+          "text": "At least one file or folder is visible in the list",
+          "pass": true,
+          "reasoning": "Both screenshots show 5 items: 2 folders (Articles, sleep) and 3 epub files. Multiple files and folders are clearly visible."
+        },
+        {
+          "index": 3,
+          "text": "Each file row shows an icon, filename, and file size or chevron",
+          "pass": true,
+          "reasoning": "All rows display icons (orange folder or blue book), filenames, and either a chevron (folders) or file size (epub files). This is consistent between both screenshots."
+        },
+        {
+          "index": 4,
+          "text": "The FAB button is visible in the bottom-right corner",
+          "pass": true,
+          "reasoning": "The blue circular FAB with a '+' icon is visible in the bottom-right corner in both reference and test screenshots."
+        },
+        {
+          "index": 5,
+          "text": "Folder entries are visually distinct from file entries (folder icon)",
+          "pass": true,
+          "reasoning": "Folder entries (Articles, sleep) use orange folder icons with a chevron, while file entries use blue book icons with file sizes. The distinction is clear in both screenshots."
+        },
+        {
+          "index": 6,
+          "text": "A breadcrumb navigation bar is visible above the file list",
+          "pass": true,
+          "reasoning": "Both screenshots show a 'Device' breadcrumb/section header above the file list, indicating the current navigation path."
+        }
+      ],
+      "custom_criteria_results": [
+        {
+          "name": "Debug warning banner presence",
+          "pass": false,
+          "notes": "The reference screenshot shows a dark debug warning banner at the bottom ('Open debugger to view warnings.') which is absent in the test screenshot. This is likely an acceptable difference as it's a development-only debug overlay."
+        },
+        {
+          "name": "Bottom tab bar presence",
+          "pass": false,
+          "notes": "The test screenshot shows a bottom tab bar with 'Library' and 'Settings' tabs that is NOT present in the reference screenshot. This is a meaningful UI difference — the reference appears to be hiding the tab bar (possibly due to the debug banner overlapping it), while the test shows the standard tab bar. This could indicate a regression or a different app state."
+        },
+        {
+          "name": "Clock time difference",
+          "pass": true,
+          "notes": "Reference shows 23:00, test shows 22:41. This is expected dynamic content and not a failure."
+        }
+      ],
+      "summary": "The test screenshot is largely consistent with the reference in terms of content, file list, icons, and core UI elements. All 6 assertions effectively pass upon inspection. The primary visual difference is at the bottom of the screen: the reference shows a debug warning banner ('Open debugger to view warnings.') which obscures the tab bar, while the test screenshot shows a proper bottom tab bar with 'Library' and 'Settings' tabs. This difference is likely acceptable — the reference's debug banner is a development artifact, and the test shows the expected production UI with the tab bar. No layout regressions, missing elements, or rendering defects were found in the core UI.",
+      "differences": [
+        "Reference has a dark debug warning banner at the bottom ('Open debugger to view warnings.'); test does not.",
+        "Test has a bottom tab bar with 'Library' (active, blue) and 'Settings' (inactive, gray) tabs; reference does not show this tab bar.",
+        "Clock time differs: reference shows 23:00, test shows 22:41 (expected dynamic content)."
+      ]
+    },
+    {
+      "id": "library-disconnected",
+      "name": "Library - Disconnected Empty State",
+      "screenshot": "library-disconnected",
+      "verdict": "warning",
+      "confidence": 0.82,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/library-disconnected.png",
+        "reference": "test-references/ios/iphone-16-pro/light/library-disconnected.png"
+      },
+      "criteria": {
+        "layout": {
+          "pass": true,
+          "notes": "The main content area layout is identical — plug icon, heading, subtitle, and Connect button are all centered and positioned correctly. The bottom area differs: reference has a debug banner overlay, test has a proper tab bar."
+        },
+        "content": {
+          "pass": true,
+          "notes": "All text content matches: 'Library' title, 'Connect' pill, 'No Device Connected', subtitle text, and 'Connect' button label are all present and correct."
+        },
+        "visual_state": {
+          "pass": true,
+          "notes": "Colors, icon styles, and button appearances are consistent between reference and test. The gray dot in the Connect pill and blue Connect button are both rendered correctly."
+        },
+        "elements": {
+          "pass": true,
+          "notes": "Reference shows a debug warning banner ('Open debugger to view warnings') at the bottom instead of a tab bar. Test shows the proper tab bar with Library (selected, blue) and Settings tabs. The tab bar in the test is the expected production UI element. The debug banner in the reference is a transient development artifact."
+        },
+        "defects": {
+          "pass": true,
+          "notes": "No text truncation, overlapping elements, or rendering artifacts detected in either screenshot."
+        }
+      },
+      "assertion_results": [
+        {
+          "index": 1,
+          "text": "The connection pill in the header shows 'Connect' with a gray status dot",
+          "pass": true,
+          "reasoning": "Both reference and test screenshots show the 'Connect' pill with a gray dot in the top-right of the header. This element is present and correct in the test screenshot."
+        },
+        {
+          "index": 2,
+          "text": "An empty state icon is centered in the main content area",
+          "pass": true,
+          "reasoning": "The gray plug/disconnected icon is centered in the main content area in both screenshots. Position and appearance match."
+        },
+        {
+          "index": 3,
+          "text": "The text 'No Device Connected' is visible",
+          "pass": true,
+          "reasoning": "The bold 'No Device Connected' heading is clearly visible and correctly rendered in the test screenshot, matching the reference."
+        },
+        {
+          "index": 4,
+          "text": "A subtitle explaining how to connect is visible below the title",
+          "pass": true,
+          "reasoning": "The subtitle 'Connect to your e-ink reader to browse and manage books.' is present and fully visible in the test screenshot, matching the reference exactly."
+        },
+        {
+          "index": 5,
+          "text": "A 'Connect' action button is visible",
+          "pass": true,
+          "reasoning": "The light-blue 'Connect' button is present and correctly styled in the test screenshot, matching the reference."
+        },
+        {
+          "index": 6,
+          "text": "The tab bar shows Library and Settings tabs with Library selected",
+          "pass": true,
+          "reasoning": "The test screenshot shows a proper tab bar with 'Library' (blue/selected) and 'Settings' tabs. The reference does not show this tab bar because it is obscured by a debug warning banner — the test state is actually more correct for the expected production UI."
+        },
+        {
+          "index": 7,
+          "text": "No loading spinners or error messages are visible",
+          "pass": true,
+          "reasoning": "No loading spinners are present in the test screenshot. The debug warning banner from the reference ('Open debugger to view warnings') is absent in the test, which is the correct production state."
+        }
+      ],
+      "custom_criteria_results": [
+        {
+          "name": "empty_state_messaging",
+          "pass": true,
+          "notes": "The empty state clearly communicates the disconnected state with a plug icon, 'No Device Connected' heading, an explanatory subtitle, and a prominent 'Connect' action button. The messaging is complete and actionable."
+        }
+      ],
+      "summary": "The test screenshot matches the reference in all meaningful UI aspects. The main content area — plug icon, 'No Device Connected' heading, subtitle, and Connect button — is identical. The key difference is that the reference screenshot has a debug warning banner ('Open debugger to view warnings') overlaying the bottom of the screen, which hides the tab bar. The test screenshot correctly shows the production tab bar with Library (selected) and Settings tabs. This is an improvement over the reference, not a regression. All assertions pass. The empty state messaging is clear and complete.",
+      "differences": [
+        "Reference shows a dark debug warning banner ('Open debugger to view warnings') at the bottom of the screen; test does not — this is expected and correct for production.",
+        "Test shows a proper tab bar with Library (selected, blue icon) and Settings tabs; reference tab bar is hidden behind the debug banner.",
+        "Status bar time differs (23:03 vs 22:44) — acceptable dynamic content."
+      ]
+    },
+    {
+      "id": "move-new-folder",
+      "name": "Move Sheet - New Folder Dialog",
+      "screenshot": "move-new-folder",
+      "verdict": "warning",
+      "confidence": 0.82,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/move-new-folder.png",
+        "reference": "test-references/ios/iphone-16-pro/light/move-new-folder.png"
+      },
+      "criteria": {
+        "layout": {
+          "pass": true,
+          "notes": "The overall layout of the Move to... sheet is consistent between reference and test. The header, input row, folder list, and bottom button are all positioned correctly. The main difference is the keyboard is shown in reference but hidden in test, which causes the sheet to appear taller in the test screenshot."
+        },
+        "content": {
+          "pass": true,
+          "notes": "All text content matches: 'Move to...' title, 'Cancel' button, 'Device' label, 'Folder name' placeholder, 'Create' button, folder names (Articles, sleep), file names and sizes, and 'Move Here' button are all present and correct."
+        },
+        "visual_state": {
+          "pass": true,
+          "notes": "Colors, icons, and states are consistent. The folder icons are orange, file icons are blue/gray, the Create button is blue, and the Cancel button is blue. The text input in the test screenshot shows a cursor (active/focused state), which is a minor dynamic difference."
+        },
+        "elements": {
+          "pass": true,
+          "notes": "All expected elements are present in both screenshots: Move to... header, Cancel button, new folder icon, X button, Device label, Folder name input, Create button, X dismiss button, folder list, file list, and Move Here button. The keyboard is visible in reference but not in test — this is a dynamic state difference."
+        },
+        "defects": {
+          "pass": true,
+          "notes": "No text truncation, overlapping elements, or rendering artifacts detected in either screenshot."
+        }
+      },
+      "assertion_results": [
+        {
+          "index": 1,
+          "text": "The 'Move to...' sheet is visible",
+          "pass": true,
+          "reasoning": "The 'Move to...' sheet is clearly visible in the test screenshot with the title 'Move to...' displayed prominently in the header area."
+        },
+        {
+          "index": 2,
+          "text": "A text input with 'Folder name' placeholder is visible",
+          "pass": true,
+          "reasoning": "The text input with 'Folder name' placeholder is visible in the test screenshot, positioned below the Device label. It also shows a cursor indicating it is focused/active."
+        },
+        {
+          "index": 3,
+          "text": "A 'Create' button is visible next to the input",
+          "pass": true,
+          "reasoning": "The 'Create' button is clearly visible in blue to the right of the Folder name input field in the test screenshot."
+        },
+        {
+          "index": 4,
+          "text": "An X dismiss button is visible next to the Create button",
+          "pass": true,
+          "reasoning": "An X dismiss button is visible to the right of the Create button in the test screenshot, matching the reference."
+        },
+        {
+          "index": 5,
+          "text": "The folder list is still visible below the input row",
+          "pass": true,
+          "reasoning": "The folder list (Articles, sleep) and file list are visible below the input row in the test screenshot, consistent with the reference."
+        },
+        {
+          "index": 6,
+          "text": "The 'Move Here' button is visible at the bottom",
+          "pass": true,
+          "reasoning": "The 'Move Here' button is visible at the bottom of the test screenshot. In the reference, it is hidden behind the keyboard, but in the test it is fully visible since the keyboard is dismissed."
+        }
+      ],
+      "custom_criteria_results": [
+        {
+          "name": "Keyboard visibility",
+          "pass": true,
+          "notes": "The on-screen keyboard is visible in the reference screenshot but not in the test screenshot. This is a dynamic UI state difference (keyboard shown vs. dismissed) and does not constitute a regression — the underlying UI elements are all correctly rendered."
+        },
+        {
+          "name": "Text input cursor state",
+          "pass": true,
+          "notes": "The test screenshot shows a cursor in the Folder name input field, indicating it is focused. This is a dynamic state and acceptable."
+        }
+      ],
+      "summary": "The test screenshot matches the reference in all meaningful UI aspects. All required elements are present and correctly positioned: the 'Move to...' header, Cancel button, Folder name input, Create button, X dismiss button, folder/file list, and Move Here button. The primary difference is that the on-screen keyboard is visible in the reference but dismissed in the test, which causes the Move Here button to be fully visible in the test (it was hidden behind the keyboard in the reference). This is a dynamic UI state difference, not a regression. All 6 assertions pass.",
+      "differences": [
+        "The on-screen keyboard is visible in the reference screenshot but not in the test screenshot — this is a dynamic state difference.",
+        "The 'Move Here' button is fully visible at the bottom in the test screenshot, whereas it was hidden behind the keyboard in the reference.",
+        "The Folder name text input shows a cursor (focused state) in the test screenshot.",
+        "The status bar time differs (23:01 in reference vs. 22:42 in test) — expected dynamic content."
+      ]
+    },
+    {
+      "id": "move-sheet",
+      "name": "Move Sheet",
+      "screenshot": "move-sheet",
+      "verdict": "warning",
+      "confidence": 0.85,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/move-sheet.png",
+        "reference": "test-references/ios/iphone-16-pro/light/move-sheet.png"
+      },
+      "criteria": {
+        "layout": {
+          "pass": true,
+          "notes": "Overall layout is consistent between reference and test. The sheet, header, breadcrumb, folder list, and bottom button are all in the correct positions. The only layout difference is the absence of the debugger warning banner in the test screenshot, which actually improves the layout by fully revealing the 'Move Here' button."
+        },
+        "content": {
+          "pass": true,
+          "notes": "All content matches: 'Move to...' title, 'Cancel' button, X close button, 'Device' breadcrumb, 'Articles' and 'sleep' folders, all three ghosted file entries with correct names and sizes, and 'Move Here' button. Timestamp differs (23:03 vs 22:44) which is expected dynamic content."
+        },
+        "visual_state": {
+          "pass": true,
+          "notes": "Colors, icons, and states are consistent. Folder icons are orange, file icons are blue/ghosted, navigation chevrons are present. 'Move Here' button is visible in both. The debugger warning toast present in the reference is absent in the test — this is actually a cleaner state."
+        },
+        "elements": {
+          "pass": true,
+          "notes": "All expected UI elements are present in the test screenshot. The debugger warning banner ('Open debugger to view warnings') that appears in the reference is absent in the test, which is acceptable as it is a transient debug overlay, not a core UI element."
+        },
+        "defects": {
+          "pass": true,
+          "notes": "No text truncation, overlapping elements, or rendering artifacts detected in the test screenshot."
+        }
+      },
+      "assertion_results": [
+        {
+          "index": 1,
+          "text": "The sheet is visible with a 'Move to...' title",
+          "pass": true,
+          "reasoning": "The 'Move to...' title is clearly visible and correctly rendered in bold in the center of the header in the test screenshot, matching the reference."
+        },
+        {
+          "index": 2,
+          "text": "A breadcrumb shows the current location starting with 'Device'",
+          "pass": true,
+          "reasoning": "The breadcrumb '□ Device' is visible below the header in the test screenshot, matching the reference exactly."
+        },
+        {
+          "index": 3,
+          "text": "Folder entries are visible and navigable",
+          "pass": true,
+          "reasoning": "Both 'Articles' and 'sleep' folder entries are visible with orange folder icons and navigation chevrons ('>') on the right, indicating they are navigable. This matches the reference."
+        },
+        {
+          "index": 4,
+          "text": "Ghosted/dimmed file entries are visible (non-selectable)",
+          "pass": true,
+          "reasoning": "All three ghosted file entries ('A journey to the center of the Ear...', 'Frankestein.epub', 'The war of the worlds.epub') are visible with dimmed/grayed styling in the test screenshot, matching the reference."
+        },
+        {
+          "index": 5,
+          "text": "A 'Move Here' button is visible at the bottom",
+          "pass": true,
+          "reasoning": "The 'Move Here' button is visible at the bottom of the test screenshot. In the reference it was partially obscured by the debugger warning banner; in the test it is fully visible and unobstructed."
+        },
+        {
+          "index": 6,
+          "text": "A 'New Folder' button is visible",
+          "pass": true,
+          "reasoning": "The new folder button (folder icon with '+') is visible in the top-right area of the header in the test screenshot, matching the reference."
+        },
+        {
+          "index": 7,
+          "text": "Cancel or X close button is visible in the header",
+          "pass": true,
+          "reasoning": "Both the 'Cancel' button (top-left, in blue) and the X close button (top-right) are visible in the test screenshot header, matching the reference."
+        }
+      ],
+      "custom_criteria_results": [
+        {
+          "name": "Debugger warning banner absent",
+          "pass": true,
+          "notes": "The 'Open debugger to view warnings' toast/banner present in the reference screenshot is absent in the test screenshot. This is a transient debug overlay and its absence is expected and acceptable — it actually results in a cleaner UI state with the 'Move Here' button fully visible."
+        }
+      ],
+      "summary": "The test screenshot matches the reference very closely. All core UI elements of the 'Move to...' sheet are present and correctly rendered: the title, Cancel and X buttons, Device breadcrumb, navigable folder entries, ghosted file entries, New Folder button, and Move Here button. The only notable difference is the absence of the debugger warning banner ('Open debugger to view warnings') that appears in the reference — this is a transient debug overlay and its absence in the test is acceptable and actually results in a cleaner state. The timestamp difference (23:03 vs 22:44) is expected dynamic content. No regressions detected.",
+      "differences": [
+        "Timestamp differs: reference shows 23:03, test shows 22:44 (expected dynamic content)",
+        "Debugger warning banner ('Open debugger to view warnings') is present in the reference but absent in the test (transient debug overlay, acceptable)"
+      ]
+    },
+    {
+      "id": "rename-dialog",
+      "name": "Rename Dialog",
+      "screenshot": "rename-dialog",
+      "verdict": "pass",
+      "confidence": 0.92,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/rename-dialog.png",
+        "reference": "test-references/ios/iphone-16-pro/light/rename-dialog.png"
+      },
+      "criteria": {
+        "layout": {
+          "pass": true,
+          "notes": "The dialog is centered and positioned identically in both screenshots. All elements (title, description, input field, buttons) are in the same positions. The keyboard is visible in both. Minor difference: the '+' FAB button is slightly more visible in the reference due to slightly different keyboard height rendering."
+        },
+        "content": {
+          "pass": true,
+          "notes": "All text content matches: 'Rename File' title, descriptive message 'Enter a new name for \"Frankestein.epub\":', input pre-filled with 'Frankestein.epub', 'Cancel' and 'Rename' buttons. Library header, file list items all match."
+        },
+        "visual_state": {
+          "pass": true,
+          "notes": "Colors, button styles, and enabled/disabled states all match. The 'Rename' button has the same light blue background. The text cursor is visible in the input field in both screenshots."
+        },
+        "elements": {
+          "pass": true,
+          "notes": "All expected elements are present in both screenshots: dialog modal, title, description text, text input, Cancel button, Rename button, keyboard, file list in background."
+        },
+        "defects": {
+          "pass": true,
+          "notes": "No text truncation, overlapping elements, or rendering artifacts detected. The keyboard row of keys (r, t, y, u) appears with strikethrough styling in the reference but not in the test — this is a minor rendering artifact in the reference screenshot, not a defect in the test."
+        }
+      },
+      "assertion_results": [
+        {
+          "index": 1,
+          "text": "The dialog is visible with a 'Rename File' title",
+          "pass": true,
+          "reasoning": "The 'Rename File' title is clearly visible in bold at the top of the modal dialog in the test screenshot, matching the reference."
+        },
+        {
+          "index": 2,
+          "text": "A text input field is visible and pre-filled with a filename",
+          "pass": true,
+          "reasoning": "The text input field is visible and pre-filled with 'Frankestein.epub' in the test screenshot, with a cursor visible at the end of the text."
+        },
+        {
+          "index": 3,
+          "text": "A 'Cancel' button is visible",
+          "pass": true,
+          "reasoning": "The 'Cancel' button is clearly visible at the bottom left of the dialog in the test screenshot."
+        },
+        {
+          "index": 4,
+          "text": "A 'Rename' submit button is visible",
+          "pass": true,
+          "reasoning": "The 'Rename' button with a light blue background is clearly visible at the bottom right of the dialog in the test screenshot."
+        },
+        {
+          "index": 5,
+          "text": "The dialog has a semi-transparent overlay behind it",
+          "pass": true,
+          "reasoning": "The dialog appears as a white modal card over the background content, which is slightly dimmed/overlaid. The background file list is visible but the dialog is clearly elevated above it, consistent with the reference."
+        }
+      ],
+      "custom_criteria_results": [
+        {
+          "name": "Keyboard rendering difference",
+          "pass": true,
+          "notes": "In the reference screenshot, the keyboard keys r, t, y, u appear with strikethrough styling, which is an artifact of the reference screenshot itself. The test screenshot shows a clean keyboard rendering, which is correct behavior."
+        },
+        {
+          "name": "Status bar time difference",
+          "pass": true,
+          "notes": "Time shows 22:44 in test vs 23:03 in reference. This is expected dynamic content and not a defect."
+        }
+      ],
+      "summary": "The test screenshot matches the reference screenshot in all meaningful ways. The Rename File dialog is correctly displayed with all required elements: title, descriptive message, pre-filled text input, Cancel button, and Rename button. The only differences are: (1) the status bar time is different (dynamic content, expected), and (2) the reference screenshot has an unusual strikethrough rendering on some keyboard keys (r, t, y, u) which appears to be an artifact of the reference image itself rather than a feature. The test screenshot renders the keyboard correctly without this artifact. All assertions pass.",
+      "differences": [
+        "Status bar time: 23:03 (reference) vs 22:44 (test) — expected dynamic content",
+        "Keyboard keys r, t, y, u show strikethrough styling in reference but not in test — reference appears to have a rendering artifact",
+        "The '+' FAB button is slightly more visible in the reference due to marginally different keyboard/content area height"
+      ]
+    },
+    {
+      "id": "settings-main",
+      "name": "Settings Screen",
+      "screenshot": "settings-main",
+      "verdict": "pass",
+      "confidence": 0.97,
+      "method": "llm-judge",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/settings-main.png",
+        "reference": "test-references/ios/iphone-16-pro/light/settings-main.png"
+      },
+      "criteria": {
+        "layout": {
+          "pass": true,
+          "notes": "All sections and rows are positioned identically between reference and test screenshots. Spacing, alignment, and sizing are consistent throughout."
+        },
+        "content": {
+          "pass": true,
+          "notes": "All text labels match: 'Settings', 'Sync Settings', 'Upload path', 'Web Clipper', 'Clip upload path', 'Enable in Safari', 'Device', 'IP Address', 'Firmware', 'Forget Device', 'Debug', 'Debug Logging'. Values like '/Articles', 'localhost:8082', 'Not connected', 'N/A' are all present and correct."
+        },
+        "visual_state": {
+          "pass": true,
+          "notes": "Colors, icons, toggle states, and button styles all match. 'Forget Device' button has the same pink/red styling. Settings tab is active (blue gear icon). Debug Logging toggle is in the same off state."
+        },
+        "elements": {
+          "pass": true,
+          "notes": "All expected UI elements are present: section headers, row items with icons, value labels, chevrons, the Forget Device button, bottom tab bar with Library and Settings tabs."
+        },
+        "defects": {
+          "pass": true,
+          "notes": "No text truncation, overlapping elements, misalignment, or rendering artifacts detected."
+        }
+      },
+      "assertion_results": [
+        {
+          "index": 1,
+          "text": "The Settings title is visible in the header",
+          "pass": true,
+          "reasoning": "The 'Settings' title is clearly visible in the navigation header in both reference and test screenshots."
+        },
+        {
+          "index": 2,
+          "text": "'Upload path' row is visible with a path value",
+          "pass": true,
+          "reasoning": "'Upload path' row is visible with the value '/' shown on the right side, matching the reference."
+        },
+        {
+          "index": 3,
+          "text": "'Clip upload path' row is visible with a path value",
+          "pass": true,
+          "reasoning": "'Clip upload path' row is visible with '/Articles' as the value, matching the reference."
+        },
+        {
+          "index": 4,
+          "text": "'Enable in Safari' row is visible in the Web Clipper section (iOS only)",
+          "pass": true,
+          "reasoning": "'Enable in Safari' row is visible in the Web Clipper section with 'Safari → Extensions' as the value, matching the reference."
+        },
+        {
+          "index": 5,
+          "text": "'Debug Logging' toggle is visible",
+          "pass": true,
+          "reasoning": "'Debug Logging' toggle is visible at the bottom of the screen in the Debug section, in the same off/disabled state as the reference."
+        },
+        {
+          "index": 6,
+          "text": "A 'Device' section shows device, IP address, and firmware rows",
+          "pass": true,
+          "reasoning": "The Device section is present with all three rows: Device (Not connected), IP Address (localhost:8082), and Firmware (N/A), all matching the reference."
+        },
+        {
+          "index": 7,
+          "text": "Sections are visually grouped with headers",
+          "pass": true,
+          "reasoning": "All sections (Sync Settings, Web Clipper, Device, Debug) have bold headers and are visually grouped with separator lines, matching the reference layout."
+        },
+        {
+          "index": 8,
+          "text": "'View Logs' row is visible",
+          "pass": false,
+          "reasoning": "'View Logs' row is not visible in either the reference or test screenshot. It may be below the visible scroll area. Since it's absent in both, this is not a regression."
+        }
+      ],
+      "custom_criteria_results": [
+        {
+          "name": "settings_values",
+          "pass": true,
+          "notes": "All settings rows display their current values rather than placeholder text. Upload path shows '/', Clip upload path shows '/Articles', Device shows 'Not connected', IP Address shows 'localhost:8082', Firmware shows 'N/A'."
+        }
+      ],
+      "summary": "The test screenshot matches the reference screenshot very closely. The only difference is the status bar clock showing '22:42' vs '23:01', which is an expected dynamic change. All UI elements, layout, content, visual states, and section groupings are identical between the two screenshots. The 'View Logs' row is not visible in either screenshot (likely below the scroll fold), so its absence is not a regression. All assertions pass except 'View Logs' which is absent in both reference and test equally.",
+      "differences": [
+        "Status bar time differs: reference shows '23:01', test shows '22:42' — this is expected dynamic content and not a regression."
+      ]
+    },
+    {
+      "id": "upload-queue",
+      "name": "Upload Queue Sheet",
+      "screenshot": "upload-queue-active",
+      "verdict": "warning",
+      "confidence": 0,
+      "method": "reference-missing",
+      "screenshots": {
+        "test": "test-screenshots/screenshots/upload-queue-active.png",
+        "reference": "test-references/ios/iphone-16-pro/light/upload-queue-active.png"
+      },
+      "summary": "Test screenshot not found: test-screenshots/screenshots/upload-queue-active.png",
+      "differences": [
+        "Test screenshot missing"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "run_id": "run-2026-06-09T05-47-16-145Z",
+  "timestamp": "2026-06-09T05:51:13.269Z",
+  "platform": "ios",
+  "device": "iPhone 16 Pro",
+  "theme": "light",
+  "git_sha": "unknown",
+  "git_branch": "unknown",
+  "total": 11,
+  "passed": 2,
+  "failed": 0,
+  "warnings": 9,
+  "skipped": 1,
+  "llm_api_calls": 10
+}
