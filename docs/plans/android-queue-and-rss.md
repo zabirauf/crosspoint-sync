@@ -377,3 +377,35 @@ share-time fetch exist; the queue is the existing Zustand store. Revised order:
 
 > Per the user's stated preference, land the store extension + queue plumbing (steps 1–2)
 > before starting RSS (steps 3+).
+
+---
+
+## 11. Implementation progress
+
+Branch: `store-extension-and-rss`.
+
+- **✅ Step 1 — store extension** (commit `31254dc`). `pending-fetch` status +
+  `source`/`sourceLabel`/`originalUrl` on `UploadJob`; `partialize` persists
+  `pending-fetch` without rewriting it to `pending`; shared
+  `extractViaWebViewWithFallback` moved to `services/article-extraction.ts`.
+- **✅ Step 2 — offline-share retry** (commit `a35d9d7`). Added
+  `@react-native-community/netinfo` 11.4.1. New `services/article-queue.ts`
+  (`runArticleExtractionJob` + `isOffline`) is the single URL→EPUB→queue path shared by
+  the share handler and the retry listener (and, later, RSS). New
+  `services/pending-fetch-retry.ts` re-drives `pending-fetch` jobs when internet is
+  *confirmed* reachable; wired into the effect in `app/_layout.tsx`. `isOffline` treats
+  NetInfo's unknown reachability (`null`) as offline so the first share on the X4's
+  isolated hotspot is parked as retryable rather than hard-failed.
+  - Separate chore commit `d87d4ad` carries the `npm audit fix` `package-lock.json` churn.
+
+- **⏭ NEXT — Step 3, RSS.** Decide the feed parser first (`rss-parser` dep vs. small
+  hand-rolled RSS/Atom parse). Then `stores/rss-store.ts`, fetch/diff/filter, feed items
+  through `runArticleExtractionJob` with `source: 'rss'`; foreground "check now" before
+  background scheduling.
+
+**Verification gaps to close before shipping:**
+- Step 2's NetInfo behavior is static/type-checked only — never run. Needs an Android dev
+  build (`npx expo run:android`; JDK 17 + Android SDK not yet installed) to exercise the
+  reachability probe and retry firing.
+- `tsc` baseline is 116 pre-existing Tamagui v2 RC errors (all spurious per CLAUDE.md);
+  steps 1–2 added zero new errors.
