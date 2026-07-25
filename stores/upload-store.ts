@@ -149,8 +149,18 @@ export const useUploadStore = create<UploadState>()(
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         jobs: state.jobs
-          .filter((j) => j.status === 'pending' || j.status === 'failed' || j.status === 'conflict')
-          .map((j) => ({ ...j, status: 'pending' as const, progress: 0, bytesTransferred: 0, forceUpload: false })),
+          .filter(
+            (j) =>
+              j.status === 'pending' ||
+              j.status === 'failed' ||
+              j.status === 'conflict' ||
+              j.status === 'pending-fetch',
+          )
+          .map((j) =>
+            j.status === 'pending-fetch'
+              ? { ...j, progress: 0, bytesTransferred: 0, forceUpload: false }
+              : { ...j, status: 'pending' as const, progress: 0, bytesTransferred: 0, forceUpload: false },
+          ),
       }),
     },
   ),
