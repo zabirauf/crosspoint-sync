@@ -7,7 +7,7 @@ interface UploadState {
   jobs: UploadJob[];
   lastCompletionEvent: { path: string; timestamp: number } | null;
   addJob: (job: Omit<UploadJob, 'id' | 'status' | 'progress' | 'bytesTransferred' | 'createdAt'>) => void;
-  addProcessingJob: (id: string, fileName: string, jobType: UploadJob['jobType']) => void;
+  addProcessingJob: (id: string, fileName: string, jobType: UploadJob['jobType'], meta?: { source?: UploadJob['source']; sourceLabel?: string; originalUrl?: string }) => void;
   finalizeProcessingJob: (id: string, details: { fileName: string; fileUri: string; fileSize: number; destinationPath: string }) => void;
   updateJobProgress: (id: string, bytesTransferred: number, totalBytes: number) => void;
   updateJobStatus: (id: string, status: UploadJobStatus, error?: string) => void;
@@ -41,7 +41,7 @@ export const useUploadStore = create<UploadState>()(
           ],
         })),
 
-      addProcessingJob: (id, fileName, jobType) =>
+      addProcessingJob: (id, fileName, jobType, meta) =>
         set((state) => ({
           jobs: [
             ...state.jobs,
@@ -56,6 +56,7 @@ export const useUploadStore = create<UploadState>()(
               bytesTransferred: 0,
               createdAt: Date.now(),
               jobType,
+              ...meta,
             },
           ],
         })),

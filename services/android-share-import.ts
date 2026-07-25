@@ -9,8 +9,7 @@ import {
   addShareIntentListener,
   type SharedItem,
 } from '@/modules/share-intent-receiver';
-import { generateEpub } from '@/services/epub-generator';
-import { extractViaWebViewWithFallback } from '@/services/article-extraction';
+import { runArticleExtractionJob } from '@/services/article-queue';
 
 /**
  * Processes files shared via Android's share intent.
@@ -92,47 +91,15 @@ async function handleTextItem(text: string): Promise<void> {
   const url = urlMatch[0];
   log('clip', `Android share: extracting article from ${url}`);
 
-  // Create a processing job immediately so the user sees feedback
   const jobId = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
   const displayName = extractDomainForDisplay(url);
-  useUploadStore.getState().addProcessingJob(jobId, `Clipping ${displayName}...`, 'clip');
+  useUploadStore.getState().addProcessingJob(jobId, `Clipping ${displayName}...`, 'clip', {
+    source: 'share',
+    sourceLabel: displayName,
+    originalUrl: url,
+  });
 
-  try {
-    const article = await extractViaWebViewWithFallback(url);
-
-    const { uri: epubUri, size: epubSize } = await generateEpub({
-      title: article.title,
-      author: article.author,
-      sourceUrl: article.sourceUrl,
-      html: article.html,
-      images: article.images,
-      clippedAt: Date.now(),
-    });
-
-    const safeTitle = article.title
-      .replace(/[^a-zA-Z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .slice(0, 80) || 'article';
-    const fileName = `${safeTitle}.epub`;
-    const destinationPath = useSettingsStore.getState().clipUploadPath;
-
-    // Finalize the processing job → transitions to 'pending'
-    useUploadStore.getState().finalizeProcessingJob(jobId, {
-      fileName,
-      fileUri: epubUri,
-      fileSize: epubSize,
-      destinationPath,
-    });
-
-    log('clip', `Android clip: "${article.title}" → ${fileName} (${epubSize} bytes)`);
-  } catch (e) {
-    useUploadStore.getState().updateJobStatus(
-      jobId,
-      'failed',
-      `Clip failed: ${e instanceof Error ? e.message : String(e)}`,
-    );
-    log('clip', `Android clip failed for ${url}: ${e}`);
-  }
+  await runArticleExtractionJob(jobId, url);
 }
 
 /**

@@ -26,6 +26,7 @@ import {
   importAndroidSharedFiles,
   subscribeToAndroidShareIntent,
 } from '@/services/android-share-import';
+import { subscribeToPendingFetchRetry } from '@/services/pending-fetch-retry';
 import { HiddenWebViewExtractor } from '@/components/HiddenWebViewExtractor';
 
 export { ErrorBoundary } from 'expo-router';
@@ -155,11 +156,13 @@ function RootLayoutNav() {
 
     // Subscribe to Android share intent events (new intents while app is running)
     const unsubShareIntent = subscribeToAndroidShareIntent();
+    const unsubPendingFetchRetry = subscribeToPendingFetchRetry();
 
     return () => {
       unsub();
       sub.remove();
       unsubShareIntent();
+      unsubPendingFetchRetry();
     };
   }, []);
 
