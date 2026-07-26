@@ -422,17 +422,105 @@ Branch: `store-extension-and-rss`.
   - Tests: `npm run test:rss` (23 synthetic cases) and `npm run test:rss:live`
     (4 real feeds), via `scripts/rss-parser-test.ts`.
 
+- **✅ Step 3a — RSS upload paths** (commit `485fb42`). RSS articles no longer share the
+  clipper's path: new `rssUploadPath` setting (default `/Rss`) plus a per-feed
+  `folderName` subfolder beneath it, slugged from the feed title and editable in the UI.
+  The destination is recorded on the queue job so a `pending-fetch` retry keeps it.
+  `rss-store` gains a persist migration (version 1) to backfill `folderName` on feeds
+  subscribed before the change. **Written and type-checked, but not built or run** — the
+  APK on the phone predates it.
+
 - **⏭ NEXT — Step 4, queue UI**, then step 5 RSS-settings polish, then step 6 background
   scheduling (`expo-background-task`) to replace the manual "Check Now".
+  - Also outstanding: **one feed fails to fetch** (2026-07-26). URL not captured, and
+    nothing appeared in the debug logs. Note `log()` no-ops unless Debug Logging is on,
+    but `lastError` is stored on the feed and rendered in its row regardless — so start
+    by reading the red error line on the feed row, then re-test that URL against
+    `npm run test:rss:live`.
 
-**Verification gaps to close before shipping:**
-- Step 2's NetInfo behavior is static/type-checked only — never run. Needs an Android dev
-  build (`npx expo run:android`; JDK 17 + Android SDK not yet installed) to exercise the
-  reachability probe and retry firing.
-- Step 3's parser and store logic are covered by `npm run test:rss`, but the *screen* and
-  the end-to-end RSS→EPUB→queue path have never run on a device — same missing Android
-  build. `.maestro/flows/16-rss-feeds.yaml` and `.maestro/visual-tests/rss-feeds.yaml`
-  are authored but unrun, and no reference screenshots exist for them yet.
+**✅ Verified on a real device (2026-07-26):** the full RSS path works — subscribe →
+Check Now → extract → EPUB → upload queue → X4, and the article read well on the device.
+This closes the end-to-end gap that had been open since step 2. Tested from a release APK
+(see §12) on a Galaxy A34.
+
+**Verification gaps that remain:**
+- Step 2's NetInfo offline-retry behavior is still static/type-checked only. Testable now
+  that a build exists: enable airplane mode, share a URL, restore connectivity.
+- Step 3a (upload paths) is unbuilt and unrun.
+- `.maestro/flows/16-rss-feeds.yaml` and `.maestro/visual-tests/rss-feeds.yaml` are
+  authored but unrun, with no reference screenshots. Maestro is not installed here.
 - `tsc` baseline is 116 pre-existing Tamagui v2 RC errors (all spurious per CLAUDE.md);
   steps 1–2 added zero new errors, step 3 adds 9 more of the same spurious class (125
   total), all in `app/rss-feeds.tsx` and `app/(tabs)/settings.tsx`.
+---
+
+## 12. Android build & deploy from WSL (set up 2026-07-26)
+
+Everything lives in `$HOME` — no sudo, no system packages. To remove: delete
+`~/tools/jdk-17.0.20+8`, `~/android-sdk`, `~/.gradle`, and the two blocks appended to
+`~/.bashrc`.
+
+| Piece | Location |
+| --- | --- |
+| Temurin JDK 17.0.20 | `~/tools/jdk-17.0.20+8` |
+| Android SDK (platform-tools r37, platform 36, build-tools 36.0.0, NDK 27.1) | `~/android-sdk` |
+| Windows-side adb | `F:\Programs\WindowsPrograms\platform-tools\adb.exe` (alias `wadb`) |
+
+`~/.bashrc` exports `JAVA_HOME`/`ANDROID_HOME` and adds an alias `wadb`.
+`android/local.properties` must contain `sdk.dir=/home/alex/android-sdk` (regenerated
+directory, so recreate it after a prebuild).
+
+**The NDK is required**, contrary to first expectations: `react-native-reanimated` and
+the New Architecture run CMake tasks across four ABIs. That's 2.0GB of the ~9GB total
+footprint (Gradle cache 3.9G, SDK 2.6G, build outputs 2.3G). C: had ~15G free after.
+
+### Critical: WSL cannot reach the LAN
+
+WSL is NAT'd onto `172.30.x.x` and gets **`No route to host`** for anything on the
+`192.168.1.x` home network. The Linux `adb` in `~/android-sdk` therefore **cannot** talk
+to a phone. All device work must use the **Windows** `adb.exe` above, which runs as a
+Windows process with real LAN access. Symptom if you forget: `adb pair` fails with
+`protocol fault (couldn't read status message)`.
+
+Gradle builds are unaffected — they use the Linux toolchain and need no device.
+
+### Wireless debugging (no cable; USB is not passed through to WSL)
+
+Phone: Settings → About phone → tap Build number ×7 → Developer options → Wireless
+debugging → "Pair device with pairing code". Then, using the **Windows** adb:
+
+```
+wadb pair <ip>:<pair-port> <6-digit-code>   # ports differ between the pair dialog and main screen
+wadb devices -l                              # mDNS usually auto-connects after pairing
+wadb install -r 'C:\path\to\app-release.apk' # Windows path — adb.exe can't read /home/...
+```
+
+A WiFi off/on cycle on the phone fixed an initial unreachable state.
+
+### Builds
+
+```
+cd android && ./gradlew assembleDebug     # ~5 min; needs Metro at runtime (no JS bundle inside)
+cd android && ./gradlew assembleRelease   # ~10 min; standalone, JS bundled, sideloadable
+```
+
+Release is signed with the **debug keystore** (fine for personal sideloading, not for
+distribution) and carries two local-only edits to the generated `android/` directory,
+which is gitignored and **wiped by `expo prebuild`** — reapply after any prebuild:
+
+- `app/build.gradle`, release buildType: `applicationIdSuffix ".dev"` — otherwise the
+  package collides with the Play Store install (same package + different signing key =
+  `INSTALL_FAILED_UPDATE_INCOMPATIBLE`, shown as a bare "App not installed").
+- `app/src/main/res/values/strings.xml`: `app_name` → `CrossPoint Dev`.
+
+The dev build has **separate storage** from the Play install, so it needs its own device
+IP and settings. If these edits become permanent, promote them to a config plugin.
+
+**A release build still has diagnostics:** Settings → Debug Logging → View Logs shows the
+in-app log, including the `rss` category. JS is minified, so crash traces are poor.
+
+### Live reload (not set up)
+
+For fast iteration, `wadb reverse tcp:8081 tcp:8081` plus `npx expo start --dev-client`
+with the *debug* APK. `adb reverse` points the phone's own `localhost:8081` at the dev
+machine, which sidesteps the NAT problem above.
