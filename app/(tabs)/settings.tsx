@@ -51,7 +51,7 @@ function SettingsRow({
 export default function SettingsScreen() {
   const { connectedDevice, deviceStatus, connectionStatus } = useDeviceStore();
   const disconnect = useDeviceStore((s) => s.disconnect);
-  const { defaultUploadPath, setDefaultUploadPath, clipUploadPath, setClipUploadPath, debugLogsEnabled, setDebugLogsEnabled } = useSettingsStore();
+  const { defaultUploadPath, setDefaultUploadPath, clipUploadPath, setClipUploadPath, rssUploadPath, setRssUploadPath, debugLogsEnabled, setDebugLogsEnabled } = useSettingsStore();
 
   const lastDeviceIp = useDeviceStore((s) => s.lastDeviceIp);
   const feedCount = useRssStore((s) => s.feeds.length);
@@ -64,6 +64,7 @@ export default function SettingsScreen() {
 
   const [uploadPathPromptOpen, setUploadPathPromptOpen] = useState(false);
   const [clipPathPromptOpen, setClipPathPromptOpen] = useState(false);
+  const [rssPathPromptOpen, setRssPathPromptOpen] = useState(false);
 
   const handleChangeUploadPath = () => {
     setUploadPathPromptOpen(true);
@@ -131,6 +132,14 @@ export default function SettingsScreen() {
           value={feedCount === 0 ? 'None' : `${feedCount} feed${feedCount === 1 ? '' : 's'}`}
           onPress={() => router.push('/rss-feeds')}
           testID="Settings.RssFeeds"
+        />
+        <Separator />
+        <SettingsRow
+          icon="folder-o"
+          label="RSS upload path"
+          value={rssUploadPath}
+          onPress={() => setRssPathPromptOpen(true)}
+          testID="Settings.RssPath"
         />
       </YStack>
 
@@ -226,6 +235,17 @@ export default function SettingsScreen() {
         onSubmit={(value) => {
           const path = value.trim() || '/Articles';
           setClipUploadPath(path.startsWith('/') ? path : `/${path}`);
+        }}
+      />
+      <PromptDialog
+        open={rssPathPromptOpen}
+        onOpenChange={setRssPathPromptOpen}
+        title="RSS Upload Path"
+        message="Base folder for RSS articles (e.g. /Rss). Feeds with a folder name add a subfolder beneath it."
+        defaultValue={rssUploadPath}
+        onSubmit={(value) => {
+          const path = value.trim() || '/Rss';
+          setRssUploadPath(path.startsWith('/') ? path : `/${path}`);
         }}
       />
     </ScrollView>

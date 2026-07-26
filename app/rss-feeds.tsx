@@ -4,7 +4,8 @@ import { YStack, XStack, Text, Button, Separator, useTheme, Spinner } from 'tama
 import { FontAwesome } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import { useRssStore } from '@/stores/rss-store';
-import { subscribeToFeed, checkAllFeeds, checkFeed } from '@/services/rss-fetch';
+import { useSettingsStore } from '@/stores/settings-store';
+import { subscribeToFeed, checkAllFeeds, checkFeed, destinationForFeed } from '@/services/rss-fetch';
 import { PromptDialog } from '@/components/PromptDialog';
 import { EmptyState } from '@/components/EmptyState';
 import { RssFeed } from '@/types/rss';
@@ -23,11 +24,13 @@ function formatLastChecked(feed: RssFeed): string {
 function FeedRow({
   feed,
   onEditKeywords,
+  onEditFolder,
   onRemove,
   onCheck,
 }: {
   feed: RssFeed;
   onEditKeywords: () => void;
+  onEditFolder: () => void;
   onRemove: () => void;
   onCheck: () => void;
 }) {
@@ -77,10 +80,15 @@ function FeedRow({
         )}
       </XStack>
 
-      <XStack gap="$2" alignItems="center" paddingLeft="$8">
+      <XStack gap="$2" alignItems="center" paddingLeft="$8" flexWrap="wrap">
         <Button size="$2" chromeless onPress={onEditKeywords} testID={`RssFeeds.Keywords.${feed.id}`}>
           <Text fontSize="$2" color="$blue10">
             {feed.keywords.length > 0 ? `Keywords: ${feed.keywords.join(', ')}` : 'Add keyword filter'}
+          </Text>
+        </Button>
+        <Button size="$2" chromeless onPress={onEditFolder} testID={`RssFeeds.Folder.${feed.id}`}>
+          <Text fontSize="$2" color="$blue10">
+            {destinationForFeed(feed)}
           </Text>
         </Button>
         <Button size="$2" chromeless onPress={onRemove} testID={`RssFeeds.Remove.${feed.id}`}>
@@ -98,13 +106,17 @@ export default function RssFeedsScreen() {
   const feeds = useRssStore((s) => s.feeds);
   const removeFeed = useRssStore((s) => s.removeFeed);
   const setFeedKeywords = useRssStore((s) => s.setFeedKeywords);
+  const setFeedFolder = useRssStore((s) => s.setFeedFolder);
+  const rssUploadPath = useSettingsStore((s) => s.rssUploadPath);
 
   const [addOpen, setAddOpen] = useState(false);
   const [adding, setAdding] = useState(false);
   const [keywordFeedId, setKeywordFeedId] = useState<string | null>(null);
+  const [folderFeedId, setFolderFeedId] = useState<string | null>(null);
   const [checkingAll, setCheckingAll] = useState(false);
 
   const keywordFeed = feeds.find((f) => f.id === keywordFeedId);
+  const folderFeed = feeds.find((f) => f.id === folderFeedId);
 
   const handleAddFeed = async (url: string) => {
     if (!url.trim()) return;
@@ -190,6 +202,7 @@ export default function RssFeedsScreen() {
                   feed={feed}
                   onCheck={() => checkFeed(feed.id)}
                   onEditKeywords={() => setKeywordFeedId(feed.id)}
+                  onEditFolder={() => setFolderFeedId(feed.id)}
                   onRemove={() => handleRemove(feed)}
                 />
               </YStack>
@@ -227,6 +240,18 @@ export default function RssFeedsScreen() {
             .map((k) => k.trim())
             .filter((k) => k.length > 0);
           setFeedKeywords(keywordFeedId, keywords);
+        }}
+      />
+
+      <PromptDialog
+        open={folderFeed !== undefined}
+        onOpenChange={(open) => !open && setFolderFeedId(null)}
+        title="Feed Folder"
+        message={`Subfolder for this feed's articles, beneath ${rssUploadPath}. Leave empty to save them directly there. Letters, numbers and dashes only.`}
+        defaultValue={folderFeed?.folderName ?? ''}
+        onSubmit={(value) => {
+          if (!folderFeedId) return;
+          setFeedFolder(folderFeedId, value);
         }}
       />
     </>

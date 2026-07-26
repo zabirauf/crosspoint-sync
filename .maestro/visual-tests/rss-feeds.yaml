@@ -21,6 +21,10 @@ description: |
   "Enter an RSS or Atom feed URL", a text input showing the placeholder
   "https://example.com/feed.xml", and Cancel / Add buttons.
 
+  Once feeds exist, each row shows a toggle, the feed title, a "Checked Xm ago" or error
+  line, a refresh icon, and a second line of actions: keyword filter, the destination path
+  for that feed's articles (e.g. /Rss/lwn-net), and Remove.
+
 assertions:
   - text: "The screen header reads 'RSS Feeds'"
     severity: fail

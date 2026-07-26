@@ -7,7 +7,7 @@ interface UploadState {
   jobs: UploadJob[];
   lastCompletionEvent: { path: string; timestamp: number } | null;
   addJob: (job: Omit<UploadJob, 'id' | 'status' | 'progress' | 'bytesTransferred' | 'createdAt'>) => void;
-  addProcessingJob: (id: string, fileName: string, jobType: UploadJob['jobType'], meta?: { source?: UploadJob['source']; sourceLabel?: string; originalUrl?: string }) => void;
+  addProcessingJob: (id: string, fileName: string, jobType: UploadJob['jobType'], meta?: { source?: UploadJob['source']; sourceLabel?: string; originalUrl?: string; destinationPath?: string }) => void;
   finalizeProcessingJob: (id: string, details: { fileName: string; fileUri: string; fileSize: number; destinationPath: string }) => void;
   updateJobProgress: (id: string, bytesTransferred: number, totalBytes: number) => void;
   updateJobStatus: (id: string, status: UploadJobStatus, error?: string) => void;

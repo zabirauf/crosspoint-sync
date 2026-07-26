@@ -13,11 +13,28 @@ interface RssState {
   updateFeed: (id: string, patch: Partial<Omit<RssFeed, 'id'>>) => void;
   setFeedEnabled: (id: string, enabled: boolean) => void;
   setFeedKeywords: (id: string, keywords: string[]) => void;
+  setFeedFolder: (id: string, folderName: string) => void;
   setChecking: (id: string, checking: boolean) => void;
 
   getFeed: (id: string) => RssFeed | undefined;
   getEnabledFeeds: () => RssFeed[];
   hasFeedUrl: (url: string) => boolean;
+}
+
+/**
+ * Turns a feed title into a device-safe folder name. The X4 lists files over a plain
+ * HTTP/WebSocket API, so keep folder names to characters that survive a URL path and an
+ * FAT-style filesystem: ASCII alphanumerics and dashes only.
+ */
+export function toFolderName(title: string): string {
+  return title
+    .normalize('NFKD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .slice(0, 40)
+    // Trim after truncating, so a cut mid-word can't leave a trailing dash.
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase();
 }
 
 /** Trailing slashes and case in the host shouldn't create duplicate subscriptions. */
@@ -49,6 +66,7 @@ export const useRssStore = create<RssState>()(
               enabled: true,
               lastCheckedAt: null,
               lastError: null,
+              folderName: toFolderName(feed.title),
               ...feed,
               id,
               url: normalizeFeedUrl(feed.url),
@@ -80,6 +98,13 @@ export const useRssStore = create<RssState>()(
           feeds: state.feeds.map((f) => (f.id === id ? { ...f, keywords } : f)),
         })),
 
+      setFeedFolder: (id, folderName) =>
+        set((state) => ({
+          feeds: state.feeds.map((f) =>
+            f.id === id ? { ...f, folderName: toFolderName(folderName) } : f,
+          ),
+        })),
+
       setChecking: (id, checking) =>
         set((state) => ({
           checkingFeedIds: checking
@@ -101,6 +126,19 @@ export const useRssStore = create<RssState>()(
       storage: createJSONStorage(() => AsyncStorage),
       // checkingFeedIds is in-flight state; a check never survives a restart.
       partialize: (state) => ({ feeds: state.feeds }),
+      version: 1,
+      // v0 feeds predate per-feed folders; derive one from the title so an existing
+      // subscription doesn't end up writing to "/Rss/undefined".
+      migrate: (persisted, version) => {
+        const state = persisted as { feeds?: RssFeed[] } | undefined;
+        if (version < 1 && state?.feeds) {
+          state.feeds = state.feeds.map((f) => ({
+            ...f,
+            folderName: f.folderName ?? toFolderName(f.title),
+          }));
+        }
+        return state as RssState;
+      },
     },
   ),
 );

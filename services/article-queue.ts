@@ -22,9 +22,16 @@ export async function isOffline(): Promise<boolean> {
  * Drives an existing queue job (by id) from a source URL through
  * extract -> EPUB -> finalize. On failure, no-connectivity errors are parked as
  * 'pending-fetch' (retried when online); genuine errors become 'failed'.
- * Shared by the Android share handler and the pending-fetch retry listener.
+ * Shared by the Android share handler, the pending-fetch retry listener, and RSS.
+ *
+ * `destinationPath` overrides the default clip folder — RSS uses it to file articles
+ * under the RSS path plus the feed's own subfolder.
  */
-export async function runArticleExtractionJob(jobId: string, url: string): Promise<void> {
+export async function runArticleExtractionJob(
+  jobId: string,
+  url: string,
+  options?: { destinationPath?: string },
+): Promise<void> {
   const store = useUploadStore.getState();
   store.updateJobStatus(jobId, 'processing');
   try {
@@ -44,7 +51,11 @@ export async function runArticleExtractionJob(jobId: string, url: string): Promi
       .replace(/\s+/g, '-')
       .slice(0, 80) || 'article';
     const fileName = `${safeTitle}.epub`;
-    const destinationPath = useSettingsStore.getState().clipUploadPath;
+    // Fall back to the destination recorded on the job itself, so a 'pending-fetch'
+    // item retried later still lands in its feed's folder rather than the clip folder.
+    const recorded = useUploadStore.getState().jobs.find((j) => j.id === jobId)?.destinationPath;
+    const destinationPath =
+      options?.destinationPath || recorded || useSettingsStore.getState().clipUploadPath;
 
     store.finalizeProcessingJob(jobId, {
       fileName,

@@ -1,5 +1,6 @@
-import { useRssStore } from '@/stores/rss-store';
+import { useRssStore, toFolderName } from '@/stores/rss-store';
 import { useUploadStore } from '@/stores/upload-store';
+import { useSettingsStore } from '@/stores/settings-store';
 import { log } from '@/services/logger';
 import { fetchAndParseFeed, hostnameOf } from '@/services/rss-parser';
 import { runArticleExtractionJob } from '@/services/article-queue';
@@ -38,6 +39,17 @@ function newItemsSince(items: ParsedFeedItem[], lastSeenItemId: string | null): 
   if (lastSeenItemId === null) return items;
   const index = items.findIndex((i) => i.id === lastSeenItemId);
   return index === -1 ? items : items.slice(0, index);
+}
+
+/**
+ * Where a feed's articles land on the device: the RSS upload path, plus the feed's own
+ * subfolder when it has one. An empty `folderName` writes straight to the base path.
+ */
+export function destinationForFeed(feed: RssFeed): string {
+  const base = useSettingsStore.getState().rssUploadPath.replace(/\/+$/, '') || '';
+  const folder = feed.folderName?.trim();
+  const path = folder ? `${base}/${folder}` : base;
+  return path.startsWith('/') ? path : `/${path}`;
 }
 
 /** Skip URLs already represented in the upload queue (re-added feed, cross-posted article). */
@@ -86,6 +98,8 @@ async function checkFeedInternal(feedId: string): Promise<number> {
 
     log('rss', `${feed.title}: queueing ${candidates.length} new item(s)`);
 
+    const destinationPath = destinationForFeed(feed);
+
     let queued = 0;
     for (const item of candidates) {
       if (alreadyQueued(item.link)) {
@@ -100,11 +114,12 @@ async function checkFeedInternal(feedId: string): Promise<number> {
           source: 'rss',
           sourceLabel: feed.title,
           originalUrl: item.link,
+          destinationPath,
         });
 
       // Sequential: one shared WebView extractor. Each item parks itself as
       // 'pending-fetch' or 'failed' internally, so one bad article can't abort the run.
-      await runArticleExtractionJob(jobId, item.link);
+      await runArticleExtractionJob(jobId, item.link, { destinationPath });
       queued += 1;
     }
 
@@ -186,10 +201,12 @@ export async function subscribeToFeed(url: string): Promise<RssFeed> {
   // Throws if unreachable or not a feed — we don't want to persist a broken subscription.
   const parsed = await fetchAndParseFeed(trimmed);
 
-  const id = useRssStore.getState().addFeed({
-    url: trimmed,
-    title: parsed.title || hostnameOf(trimmed),
-  });
+  const title = parsed.title || hostnameOf(trimmed);
+  // A title in a non-Latin script slugs to nothing; fall back to the hostname so the
+  // feed still gets its own folder instead of sharing the base path.
+  const folderName = toFolderName(title) || toFolderName(hostnameOf(trimmed));
+
+  const id = useRssStore.getState().addFeed({ url: trimmed, title, folderName });
 
   const feed = useRssStore.getState().getFeed(id)!;
   log('rss', `Subscribed to "${feed.title}" (${feed.url})`);

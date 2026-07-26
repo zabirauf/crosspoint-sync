@@ -21,6 +21,9 @@ name: "Settings Screen - Main View"
     text: "Manage feeds"
 
 - assertVisible:
+    text: "RSS upload path"
+
+- assertVisible:
     text: "Debug Logging"
 
 - takeScreenshot: settings-main

@@ -6,6 +6,11 @@ export interface RssFeed {
   title: string;
   /** Case-insensitive substring filters against item title + summary. Empty = queue everything new. */
   keywords: string[];
+  /**
+   * Subfolder beneath the RSS upload path for this feed's articles, e.g. "lwn-net"
+   * lands them in /Rss/lwn-net. Empty string = write straight to the RSS upload path.
+   */
+  folderName: string;
   /** GUID/link of the newest item seen on the last successful check. */
   lastSeenItemId: string | null;
   enabled: boolean;
