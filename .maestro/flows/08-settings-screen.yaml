@@ -18,6 +18,9 @@ name: "Settings Screen - Main View"
     file: ../helpers/assert-safari-extension.yaml
 
 - assertVisible:
+    text: "Manage feeds"
+
+- assertVisible:
     text: "Debug Logging"
 
 - takeScreenshot: settings-main

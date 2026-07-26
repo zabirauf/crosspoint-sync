@@ -398,14 +398,41 @@ Branch: `store-extension-and-rss`.
   isolated hotspot is parked as retryable rather than hard-failed.
   - Separate chore commit `d87d4ad` carries the `npm audit fix` `package-lock.json` churn.
 
-- **⏭ NEXT — Step 3, RSS.** Decide the feed parser first (`rss-parser` dep vs. small
-  hand-rolled RSS/Atom parse). Then `stores/rss-store.ts`, fetch/diff/filter, feed items
-  through `runArticleExtractionJob` with `source: 'rss'`; foreground "check now" before
-  background scheduling.
+- **✅ Step 3 — RSS (foreground).** Parser decision: **`fast-xml-parser@4.5.7`**, not
+  `rss-parser` (depends on `xml2js` + node `http`, not RN-safe) and not hand-rolled.
+  Pinned to the 4.x line deliberately: 5.10.1 was refactored (July 2026) into six
+  sub-packages, while 4.5.7 is the same maintainer, still updated, and carries only
+  `strnum`. Node builtins appear solely under `src/cli/`, which the package entry never
+  imports, and `expo export --platform android` bundles clean.
+  - New: `types/rss.ts`, `constants/Rss.ts`, `services/rss-parser.ts` (RSS 2.0 / RSS 1.0
+    RDF / Atom → normalized `ParsedFeed`), `stores/rss-store.ts`, `services/rss-fetch.ts`
+    (`subscribeToFeed` / `checkFeed` / `checkAllFeeds`), `app/rss-feeds.tsx`.
+  - RSS items go through `runArticleExtractionJob` with `source: 'rss'` and
+    `sourceLabel: <feed title>`, so offline parking and retry come for free from step 2.
+  - Behaviour decisions: first check queues at most `FEED_INITIAL_ITEM_LIMIT` (3) items
+    so subscribing doesn't kick off a 50-article burst; later checks cap at
+    `FEED_MAX_ITEMS_PER_CHECK` (10); keyword filter is case-insensitive substring over
+    title + summary, empty list = queue everything new; `lastSeenItemId` advances to the
+    newest item in the document even when items are filtered out, so rejected items are
+    never re-evaluated.
+  - `parseTagValue: false` is load-bearing: fast-xml-parser's default numeric coercion
+    turns a title of "E1" into `null` (exponent notation) and "2024" into a number.
+  - A single `checking` flag serializes all checks — the per-feed refresh button and
+    "Check Now" share one hidden WebView extractor.
+  - Tests: `npm run test:rss` (23 synthetic cases) and `npm run test:rss:live`
+    (4 real feeds), via `scripts/rss-parser-test.ts`.
+
+- **⏭ NEXT — Step 4, queue UI**, then step 5 RSS-settings polish, then step 6 background
+  scheduling (`expo-background-task`) to replace the manual "Check Now".
 
 **Verification gaps to close before shipping:**
 - Step 2's NetInfo behavior is static/type-checked only — never run. Needs an Android dev
   build (`npx expo run:android`; JDK 17 + Android SDK not yet installed) to exercise the
   reachability probe and retry firing.
+- Step 3's parser and store logic are covered by `npm run test:rss`, but the *screen* and
+  the end-to-end RSS→EPUB→queue path have never run on a device — same missing Android
+  build. `.maestro/flows/16-rss-feeds.yaml` and `.maestro/visual-tests/rss-feeds.yaml`
+  are authored but unrun, and no reference screenshots exist for them yet.
 - `tsc` baseline is 116 pre-existing Tamagui v2 RC errors (all spurious per CLAUDE.md);
-  steps 1–2 added zero new errors.
+  steps 1–2 added zero new errors, step 3 adds 9 more of the same spurious class (125
+  total), all in `app/rss-feeds.tsx` and `app/(tabs)/settings.tsx`.

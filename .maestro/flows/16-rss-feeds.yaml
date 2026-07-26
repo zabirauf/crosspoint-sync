@@ -1,0 +1,53 @@
+appId: com.crosspointsync.app
+name: "RSS Feeds Screen"
+---
+# Opens the RSS feeds screen from Settings and captures the empty state plus the
+# Add Feed dialog. Deliberately does not add a real feed — that needs network access
+# and would make the screenshot depend on a third party's headlines.
+
+# Fresh launch to avoid leftover sheet/dialog state from prior flows
+- stopApp
+- launchApp
+
+- extendedWaitUntil:
+    visible:
+      id: "Library.ConnectionPill"
+    timeout: 10000
+
+- runFlow: ../helpers/navigate-to-settings.yaml
+
+- tapOn:
+    id: "Settings.RssFeeds"
+
+- extendedWaitUntil:
+    visible:
+      id: "RssFeeds.Screen"
+    timeout: 5000
+
+- waitForAnimationToEnd
+
+- assertVisible:
+    text: "Add Feed"
+
+- assertVisible:
+    text: "Check Now"
+
+- takeScreenshot: rss-feeds-empty
+
+# Open the Add Feed prompt
+- tapOn:
+    id: "RssFeeds.AddFeed"
+
+- extendedWaitUntil:
+    visible:
+      id: "PromptDialog.Content"
+    timeout: 3000
+
+- waitForAnimationToEnd
+
+- takeScreenshot: rss-feeds-add-dialog
+
+- tapOn:
+    id: "PromptDialog.CancelButton"
+
+- waitForAnimationToEnd

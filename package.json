@@ -22,6 +22,8 @@
     "test:epub:unit": "npx tsx scripts/epub-test.ts --unit",
     "test:epub:integration": "npx tsx scripts/epub-test.ts --integration",
     "test:delete": "npx tsx scripts/delete-protocol-test.ts",
+    "test:rss": "npx tsx scripts/rss-parser-test.ts",
+    "test:rss:live": "npx tsx scripts/rss-parser-test.ts --live",
     "appstore:screenshots": "node scripts/generate-appstore-screenshots.js"
   },
   "dependencies": {
@@ -47,6 +49,7 @@
     "expo-sharing": "~14.0.8",
     "expo-splash-screen": "~31.0.13",
     "expo-status-bar": "~3.0.9",
+    "fast-xml-parser": "^4.5.7",
     "jszip": "^3.10.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",

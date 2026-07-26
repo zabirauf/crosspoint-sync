@@ -5,6 +5,7 @@ import { useColorScheme, Alert, Platform, ScrollView, Linking } from 'react-nati
 import { useRouter } from 'expo-router';
 import { useDeviceStore } from '@/stores/device-store';
 import { useSettingsStore } from '@/stores/settings-store';
+import { useRssStore } from '@/stores/rss-store';
 import { PromptDialog } from '@/components/PromptDialog';
 
 
@@ -53,6 +54,7 @@ export default function SettingsScreen() {
   const { defaultUploadPath, setDefaultUploadPath, clipUploadPath, setClipUploadPath, debugLogsEnabled, setDebugLogsEnabled } = useSettingsStore();
 
   const lastDeviceIp = useDeviceStore((s) => s.lastDeviceIp);
+  const feedCount = useRssStore((s) => s.feeds.length);
   const router = useRouter();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -116,6 +118,20 @@ export default function SettingsScreen() {
             <SettingsRow icon="safari" label="Enable in Safari" value="Safari → Extensions" onPress={handleOpenExtensionSettings} />
           </>
         )}
+      </YStack>
+
+      <Separator />
+
+      <YStack gap="$2" paddingHorizontal="$2">
+        <H4>RSS Feeds</H4>
+        <Separator marginVertical="$1" />
+        <SettingsRow
+          icon="rss"
+          label="Manage feeds"
+          value={feedCount === 0 ? 'None' : `${feedCount} feed${feedCount === 1 ? '' : 's'}`}
+          onPress={() => router.push('/rss-feeds')}
+          testID="Settings.RssFeeds"
+        />
       </YStack>
 
       <Separator />

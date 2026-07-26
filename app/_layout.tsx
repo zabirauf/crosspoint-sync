@@ -178,6 +178,7 @@ function RootLayoutNav() {
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
               <Stack.Screen name="debug-logs" options={{ title: 'Debug Logs' }} />
+              <Stack.Screen name="rss-feeds" options={{ title: 'RSS Feeds' }} />
               <Stack.Screen
                 name="sleep-preview"
                 options={{

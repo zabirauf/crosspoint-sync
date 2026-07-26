@@ -15,6 +15,7 @@ const CATEGORY_COLORS: Record<LogCategory, string> = {
   store: '#6366F1',
   scheduler: '#14B8A6',
   clip: '#EC4899',
+  rss: '#F97316',
 };
 
 function formatTime(timestamp: number): string {

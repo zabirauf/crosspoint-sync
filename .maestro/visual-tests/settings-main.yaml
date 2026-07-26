@@ -11,6 +11,7 @@ description: |
   Settings tab showing app configuration options in grouped sections.
   "Sync Settings" section: Upload path row with current value.
   "Web Clipper" section: Clip upload path row with current value, and "Enable in Safari" row.
+  "RSS Feeds" section: "Manage feeds" row showing the subscription count ("None" when empty).
   "Device" section: shows Device hostname, IP Address, and Firmware rows.
   "Debug" section: Debug Logging toggle and View Logs row.
 
@@ -22,6 +23,8 @@ assertions:
   - text: "'Clip upload path' row is visible with a path value"
     severity: fail
   - text: "'Enable in Safari' row is visible in the Web Clipper section (iOS only)"
+    severity: fail
+  - text: "An 'RSS Feeds' section shows a 'Manage feeds' row with a feed count value"
     severity: fail
   - text: "'Debug Logging' toggle is visible"
     severity: warning
