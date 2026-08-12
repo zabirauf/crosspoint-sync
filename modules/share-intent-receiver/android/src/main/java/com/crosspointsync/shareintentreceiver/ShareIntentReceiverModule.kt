@@ -65,7 +65,7 @@ class ShareIntentReceiverModule : Module() {
   private fun extractItemsFromIntent(intent: Intent): List<Map<String, Any?>> {
     val items = mutableListOf<Map<String, Any?>>()
 
-    when (intent.action) {
+    when (intent.action ?: return items) {
       Intent.ACTION_SEND -> {
         val type = intent.type ?: ""
         if (type == "text/plain") {
