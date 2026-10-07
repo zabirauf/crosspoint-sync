@@ -5,7 +5,8 @@ name: "Ensure Connected State"
 # Forces a fresh app launch to trigger auto-reconnect via lastDeviceIp.
 
 - stopApp
-- launchApp
+- launchApp:
+    permissions: {}
 
 # Wait for the app to load
 - extendedWaitUntil:

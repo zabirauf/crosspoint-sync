@@ -21,25 +21,46 @@ Book syncing app for the [XTEink X4](https://xteink.com) e-ink reader. Discovers
 - **Zustand** for state management (persisted via AsyncStorage)
 - **react-native-udp** for UDP device discovery
 
-Primary target: **iOS**
+Targets: **iOS and Android**
 
 ## Prerequisites
 
-- **Node.js** 20 or >= 22 (v21.x triggers EBADENGINE warnings for some dependencies)
-- **Xcode** with iOS simulator or a physical iOS device
+- **Node.js** >= 22 (an LTS release is recommended)
+- **iOS:** macOS, Xcode with an iOS simulator, and CocoaPods
+- **Android:** Java 17 and Android Studio or the Android command-line SDK. Install platform tools, Android SDK Platform 36, Build Tools 36.0.0, NDK 27.1.12297006, and CMake 3.22.1. An emulator also needs the emulator package and a system image.
 - An XTEink X4 e-ink reader on the same local network (for full functionality)
 
 ## Getting Started
 
 ```bash
-# Install dependencies
-npm install
+# Make Homebrew's Node/npm available on macOS, if necessary
+export PATH="/opt/homebrew/bin:$PATH"
+
+# Install the locked dependencies
+npm ci
+
+# Generate both native projects and install iOS pods
+npm run prebuild
 
 # Build and run on iOS (required for native UDP module)
-npx expo run:ios
+npm run ios
+
+# Build and run on a connected Android phone or running emulator
+npm run android
 ```
 
-> **Note:** This app uses `react-native-udp`, which requires a native dev build. Device discovery will not work with Expo Go.
+> **Note:** This app includes Expo's development client and native modules. Use the native development builds; Expo Go cannot run the app's native functionality.
+
+The npm development/build commands use `scripts/with-dev-env.sh` to select Java 17 and locate the Android SDK. They respect an explicit `ANDROID_HOME`, otherwise use `.local/android-sdk` or `~/Library/Android/sdk`. Local SDKs, emulator data, Gradle caches, and build products stay in the ignored `.local/` directory. In Android Studio, select the same SDK directory in SDK Manager.
+
+For the project-local emulator created during setup:
+
+```bash
+bash scripts/with-dev-env.sh emulator -avd CrossPointSync_API_36
+npm run android
+```
+
+On another machine, create an AVD in Android Studio and start it before running `npm run android`. To use existing AVDs with the command-line wrapper, set `ANDROID_AVD_HOME` to their directory (usually `~/.android/avd`).
 
 ## Development
 
@@ -48,14 +69,39 @@ npx expo run:ios
 npm start
 
 # Build and run on iOS simulator
-npx expo run:ios
+npm run ios
 
 # Build and run on a physical iOS device
-npx expo run:ios --device
+npm run ios -- --device
 
-# Test Metro bundling
-npx expo export --platform ios
+# Build and run on Android
+npm run android
+
+# Run the basic EPUB and mock-device protocol tests
+npm run test:basic
+
+# Test production Metro bundling on both platforms
+npm run check:bundles
+
+# Inspect TypeScript diagnostics
+npm run typecheck
 ```
+
+Metro uses its built-in file watcher by default to avoid a Watchman startup hang on this machine. Set `CROSSPOINT_USE_WATCHMAN=1` to opt into a configured Watchman installation.
+
+The Tamagui v2 RC currently produces known TypeScript diagnostics for style/animation props; `typecheck` is not yet a clean check. Expo Doctor also flags the existing `react-native-udp` package as unmaintained and cannot look up the three project-local native modules. Keep these separate from native build and bundle results.
+
+### Generating Android builds
+
+```bash
+# Standalone APK with the JavaScript bundle included (no Metro required)
+npm run build:android:apk
+
+# Android App Bundle
+npm run build:android:aab
+```
+
+Artifacts are copied to `builds/crosspoint-sync-<app-version>.apk` or `.aab`. These local release builds use Expo's generated development signing key. For Google Play distribution, use the production EAS build described in `docs/RELEASING.md` with the app's upload credentials. Native projects are generated and ignored; run `npm run prebuild` again after changing native dependencies or config plugins.
 
 ### Running on a Physical Device
 
@@ -65,7 +111,7 @@ This app uses native modules (`react-native-udp`, App Group path, Share Extensio
 2. Open `ios/CrossPointSync.xcworkspace` in Xcode
 3. Select the **CrossPointSync**, **CrossPointSyncShareExtension**, and **CrossPointSyncWebExtension** targets, go to **Signing & Capabilities**, and select your Apple Developer team
 4. In Xcode **Build Settings**, search for `ENABLE_USER_SCRIPT_SANDBOXING` and set it to **No** (Xcode 16+ enables this by default, which blocks React Native's bundle script)
-5. Run `npx expo run:ios --device` and select your device from the list
+5. Run `npm run ios -- --device` and select your device from the list
 
 > After the initial device build, you can iterate with just `npm start` — the dev client on your phone will connect to Metro automatically.
 
@@ -103,14 +149,31 @@ npm run mock-device
 2. Run the app in the simulator:
 
 ```bash
-npx expo run:ios
+npm run ios
 ```
 
-3. Open the connection sheet, enter `localhost:8080`, and tap **Connect**
+3. Open the connection sheet, enter `localhost:8082` on the iOS simulator or `10.0.2.2:8082` on the Android emulator, and tap **Connect**. A physical phone needs your computer's LAN IP with port `8082`.
 
-The mock server runs on HTTP port 8080 and WebSocket port 8081 (macOS requires root for the standard ports 80/81). The app parses the `host:port` format automatically and derives the WebSocket port as `httpPort + 1`.
+The mock server runs on HTTP port 8082 and WebSocket port 8083 (macOS requires root for the standard ports 80/81). The app parses the `host:port` format automatically and derives the WebSocket port as `httpPort + 1`.
 
 The mock server provides a fake file system with sample books, so you can test file browsing, uploads, and the full connection lifecycle.
+
+### Android visual tests
+
+Install Maestro 2.10 or newer, start an Android emulator, and install the APK. Keep `npm run mock-device` running, then run:
+
+```bash
+npm run test:visual:android
+
+# Retry a specific flow
+npm run test:visual:android -- .maestro/flows/08-settings-screen.yaml
+```
+
+Android visual testing on this emulator used Maestro 2.10.0. The local environment wrapper prefers that version when installed; set `MAESTRO_BINARY` to select a different executable.
+
+The runner connects to the mock reader through the Android emulator's host address (`10.0.2.2:8082`) and uses Gboard's English virtual keys for address entry. It runs the numbered flows in order, starting a separate Maestro session for each flow to avoid driver transport failures between flows. Screenshots, per-flow logs, and a combined JUnit report are saved under `test-screenshots/android/<timestamp>/`. Set `ANDROID_SERIAL` when multiple emulators are connected. App Store marketing captures are excluded.
+
+These tests check navigation and UI assertions and capture images for review. Automated image comparison also requires approved Android reference images and `ANTHROPIC_API_KEY`; the existing reference images and judge specs currently target iOS.
 
 ## How It Works
 
@@ -144,8 +207,8 @@ After building and installing the app:
 The extension source lives in `extension-src/`. After editing these files, you need to regenerate the native project:
 
 ```bash
-npx expo prebuild --clean
-npx expo run:ios --device
+npm run prebuild -- --platform ios --clean
+npm run ios -- --device
 ```
 
 The content script (`content.js`) is bundled via esbuild at prebuild time — `defuddle` and `dompurify` are combined into a single file for the extension.

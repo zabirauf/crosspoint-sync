@@ -6,7 +6,10 @@ name: "Ensure Disconnected State"
 # Does two passes to handle the case where auto-reconnect
 # completes between the first check and the sheet interaction.
 
-- launchApp
+- stopApp
+# Preserve permissions; these visual flows do not need camera/media grants.
+- launchApp:
+    permissions: {}
 
 # Wait for the app to fully load
 - extendedWaitUntil:
@@ -14,48 +17,46 @@ name: "Ensure Disconnected State"
       id: "Library.ConnectionPill"
     timeout: 10000
 
-# Wait for auto-reconnect to complete (or fail)
-- evalScript: |-
-    const delayMs = 5000;
-    const start = Date.now();
-    while (Date.now() - start < delayMs) {}
-    output.result = "waited"
+# Wait for auto-reconnect to complete (or fail) without a JavaScript busy loop.
+- extendedWaitUntil:
+    notVisible:
+      text: "Connecting.*"
+    timeout: 15000
 
 # === First disconnect attempt ===
 - tapOn:
     id: "Library.ConnectionPill"
 - waitForAnimationToEnd
 
-- tapOn:
-    text: "Disconnect"
-    optional: true
+- runFlow:
+    when:
+      visible:
+        id: "Connection.DisconnectButton"
+    commands:
+      - tapOn:
+          id: "Connection.DisconnectButton"
 - waitForAnimationToEnd
 
 # Close the sheet
-- swipe:
-    start: "50%, 30%"
-    end: "50%, 90%"
+- tapOn:
+    id: "Connection.CloseButton"
 - waitForAnimationToEnd
-
-# Brief pause then check again (auto-reconnect may have re-triggered)
-- evalScript: |-
-    const delayMs = 2000;
-    const start = Date.now();
-    while (Date.now() - start < delayMs) {}
-    output.result = "waited"
 
 # === Second disconnect attempt (handles race condition) ===
 - tapOn:
     id: "Library.ConnectionPill"
 - waitForAnimationToEnd
 
-- tapOn:
-    text: "Disconnect"
-    optional: true
+- runFlow:
+    when:
+      visible:
+        id: "Connection.DisconnectButton"
+    commands:
+      - tapOn:
+          id: "Connection.DisconnectButton"
 - waitForAnimationToEnd
 
 # Close the sheet
-- swipe:
-    start: "50%, 30%"
-    end: "50%, 90%"
+- tapOn:
+    id: "Connection.CloseButton"
 - waitForAnimationToEnd

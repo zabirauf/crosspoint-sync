@@ -5,7 +5,8 @@ tags:
 ---
 # Fresh launch to avoid leftover sheet state from prior flows
 - stopApp
-- launchApp
+- launchApp:
+    permissions: {}
 
 # Wait for app to load
 - extendedWaitUntil:

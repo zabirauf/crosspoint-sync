@@ -224,7 +224,10 @@ function withWebExtensionFiles(config) {
         path.join(extPath, "SafariWebExtensionHandler.swift"),
         SAFARI_HANDLER
       );
-      fs.writeFileSync(path.join(extPath, "Info.plist"), INFO_PLIST);
+      fs.writeFileSync(
+        path.join(extPath, "Info.plist"),
+        INFO_PLIST.replace("<string>1.0.0</string>", `<string>${mod.version || "1.0.0"}</string>`)
+      );
       fs.writeFileSync(
         path.join(extPath, `${EXTENSION_NAME}.entitlements`),
         ENTITLEMENTS
@@ -324,7 +327,8 @@ function withWebExtensionTarget(config) {
     const targetName = EXTENSION_NAME;
 
     // Check if target already exists
-    const existingTarget = proj.pbxTargetByName(targetName);
+    const existingTarget = proj.pbxTargetByName(targetName) ||
+      proj.pbxTargetByName(`"${targetName}"`);
     if (existingTarget) {
       return mod;
     }
@@ -348,25 +352,29 @@ function withWebExtensionTarget(config) {
 
     // Add source file to the target's build phase
     proj.addBuildPhase(
-      ["SafariWebExtensionHandler.swift"],
+      [`${targetName}/SafariWebExtensionHandler.swift`],
       "PBXSourcesBuildPhase",
       "Sources",
       target.uuid
     );
 
+    // Use project-relative paths so identically named files in other targets
+    // cannot share a file reference (notably each extension's Info.plist).
+    const resourceFiles = [
+      "manifest.json",
+      "content.js",
+      "background.js",
+      "popup.html",
+      "popup.js",
+      "popup.css",
+      "icon-48.png",
+      "icon-96.png",
+      "icon-128.png",
+    ].map((file) => `${targetName}/Resources/${file}`);
+
     // Add Resources build phase for the extension's web resources
     proj.addBuildPhase(
-      [
-        "manifest.json",
-        "content.js",
-        "background.js",
-        "popup.html",
-        "popup.js",
-        "popup.css",
-        "icon-48.png",
-        "icon-96.png",
-        "icon-128.png",
-      ],
+      resourceFiles,
       "PBXResourcesBuildPhase",
       "Resources",
       target.uuid
@@ -375,29 +383,19 @@ function withWebExtensionTarget(config) {
     // Add the extension group with files
     const extGroup = proj.addPbxGroup(
       [
-        "SafariWebExtensionHandler.swift",
-        "Info.plist",
-        `${EXTENSION_NAME}.entitlements`,
+        `${targetName}/SafariWebExtensionHandler.swift`,
+        `${targetName}/Info.plist`,
+        `${targetName}/${EXTENSION_NAME}.entitlements`,
       ],
       targetName,
-      targetName
+      '""'
     );
 
-    // Add Resources subgroup (path is relative to parent extGroup which has path "CrossPointSyncWebExtension")
+    // File references already include their full project-relative paths.
     const resourcesGroup = proj.addPbxGroup(
-      [
-        "manifest.json",
-        "content.js",
-        "background.js",
-        "popup.html",
-        "popup.js",
-        "popup.css",
-        "icon-48.png",
-        "icon-96.png",
-        "icon-128.png",
-      ],
-      "Resources",
-      "Resources"
+      resourceFiles,
+      "WebExtensionResources",
+      '""'
     );
 
     // Wire up group hierarchy

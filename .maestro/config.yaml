@@ -1,1 +1,18 @@
-appId: com.crosspointsync.app
+executionOrder:
+  continueOnFailure: true
+  flowsOrder:
+    - "Test Suite Setup - Connect Mock Device"
+    - "App Launch - Cold Start"
+    - "Library Tab - Disconnected State"
+    - "Device Connection - Connection Sheet"
+    - "Library Tab - Connected with Files"
+    - "File Navigation - Browse Folders"
+    - "Upload Flow - FAB Menu"
+    - "Settings Screen - Main View"
+    - "Settings - Edit Upload Path"
+    - "FAB Menu - Expanded State"
+    - "Dark Mode - Library Disconnected"
+    - "File Action Sheet"
+    - "Rename Dialog"
+    - "Move Sheet"
+    - "Move Sheet - New Folder Dialog"

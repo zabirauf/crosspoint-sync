@@ -4,8 +4,10 @@ name: "Navigate to Library Tab"
 # Tap the Library tab and verify navigation completed.
 # Double-tap to handle iOS tab bar flakiness with Maestro.
 
-- tapOn: "Library, tab, 1 of 2"
+- tapOn:
+    id: "TabBar.Library"
 - waitForAnimationToEnd
 
-- tapOn: "Library, tab, 1 of 2"
+- tapOn:
+    id: "TabBar.Library"
 - waitForAnimationToEnd

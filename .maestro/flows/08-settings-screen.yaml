@@ -2,6 +2,8 @@ appId: com.crosspointsync.app
 name: "Settings Screen - Main View"
 ---
 # Navigate to settings and verify all expected options are visible
+- launchApp:
+    permissions: {}
 - runFlow: ../helpers/navigate-to-settings.yaml
 
 - waitForAnimationToEnd

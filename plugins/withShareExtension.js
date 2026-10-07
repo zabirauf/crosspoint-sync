@@ -211,7 +211,10 @@ function withShareExtensionFiles(config) {
         path.join(extPath, "ShareViewController.swift"),
         SHARE_VIEW_CONTROLLER
       );
-      fs.writeFileSync(path.join(extPath, "Info.plist"), INFO_PLIST);
+      fs.writeFileSync(
+        path.join(extPath, "Info.plist"),
+        INFO_PLIST.replace("<string>1.0.0</string>", `<string>${mod.version || "1.0.0"}</string>`)
+      );
       fs.writeFileSync(
         path.join(extPath, `${EXTENSION_NAME}.entitlements`),
         ENTITLEMENTS
@@ -262,7 +265,8 @@ function withShareExtensionTarget(config) {
     const targetName = EXTENSION_NAME;
 
     // Check if target already exists
-    const existingTarget = proj.pbxTargetByName(targetName);
+    const existingTarget = proj.pbxTargetByName(targetName) ||
+      proj.pbxTargetByName(`"${targetName}"`);
     if (existingTarget) {
       return mod;
     }
@@ -286,7 +290,7 @@ function withShareExtensionTarget(config) {
 
     // Add source file to the target's build phase
     proj.addBuildPhase(
-      ["ShareViewController.swift"],
+      [`${targetName}/ShareViewController.swift`],
       "PBXSourcesBuildPhase",
       "Sources",
       target.uuid
@@ -295,12 +299,12 @@ function withShareExtensionTarget(config) {
     // Add the extension group with files
     const extGroup = proj.addPbxGroup(
       [
-        "ShareViewController.swift",
-        "Info.plist",
-        `${EXTENSION_NAME}.entitlements`,
+        `${targetName}/ShareViewController.swift`,
+        `${targetName}/Info.plist`,
+        `${targetName}/${EXTENSION_NAME}.entitlements`,
       ],
       targetName,
-      targetName
+      '""'
     );
 
     // Add extension group to main project group

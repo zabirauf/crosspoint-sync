@@ -50,3 +50,7 @@ test-screenshots/
 *.aab
 *.apk
 *.ipa
+/builds/
+
+# Project-local development tools and caches
+/.local/

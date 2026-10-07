@@ -5,9 +5,11 @@ name: "Navigate to Settings Tab"
 # Retries the tap if the first attempt doesn't navigate
 # (known iOS tab bar flakiness with Maestro).
 
-- tapOn: "Settings, tab, 2 of 2"
+- tapOn:
+    id: "TabBar.Settings"
 - waitForAnimationToEnd
 
 # Verify Settings screen loaded; retry tap if not
-- tapOn: "Settings, tab, 2 of 2"
+- tapOn:
+    id: "TabBar.Settings"
 - waitForAnimationToEnd

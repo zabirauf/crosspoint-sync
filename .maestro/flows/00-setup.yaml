@@ -1,8 +1,8 @@
 appId: com.crosspointsync.app
 name: "Test Suite Setup - Connect Mock Device"
 ---
-# Setup flow that runs first (alphabetical ordering).
-# Connects to the mock device at localhost:8082 so that
+# Setup flow runs first via config.yaml executionOrder.
+# Connects to the mock reader (Android emulator host or iOS localhost) so that
 # lastDeviceIp is persisted for all subsequent flows.
 
 # Start from a clean disconnected state
@@ -19,18 +19,40 @@ name: "Test Suite Setup - Connect Mock Device"
       id: "Connection.ConnectButton"
     timeout: 5000
 
-# Clear default address and enter mock device address
-- tapOn:
-    text: "crosspoint.local"
-    optional: true
-- tapOn:
-    text: "localhost:8082"
-    optional: true
-- eraseText: 30
-- inputText: "localhost:8082"
+# Keep the saved Android host address when already correct. Android taps can
+# place the cursor before the final character, so select the old value first.
+- runFlow:
+    when:
+      platform: Android
+      notVisible:
+        text: "10\\.0\\.2\\.2:8082"
+    commands:
+      - tapOn:
+          text: "crosspoint\\.local|localhost:8082"
+      - longPressOn:
+          text: "crosspoint\\.local|localhost:8082"
+      - runFlow:
+          when:
+            visible:
+              text: "Select all|Select All"
+          commands:
+            - tapOn: "Select all|Select All"
+      - runFlow: ../helpers/input-android-mock-address.yaml
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          text: "crosspoint\\.local|localhost:8082|10\\.0\\.2\\.2:8082"
+      - eraseText: 30
+      - inputText: "${typeof MOCK_DEVICE_ADDRESS === 'undefined' ? 'localhost:8082' : MOCK_DEVICE_ADDRESS}"
 
 # Dismiss keyboard so Connect button is tappable
-- hideKeyboard
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - hideKeyboard
 
 # Tap Connect
 - tapOn:

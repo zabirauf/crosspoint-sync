@@ -47,7 +47,8 @@
       "expo-document-picker",
       "./plugins/withShareExtension",
       "./plugins/withWebExtension",
-      "./plugins/withAndroidShareIntent"
+      "./plugins/withAndroidShareIntent",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true

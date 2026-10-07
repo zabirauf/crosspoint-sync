@@ -1,0 +1,22 @@
+appId: com.crosspointsync.app
+name: "Enter Android Emulator Mock Address"
+---
+# The address field is already focused with its entire value selected.
+# Use Gboard's virtual keys to avoid hardware-key transport errors.
+- tapOn: "Cut"
+- tapOn: "Symbol keyboard"
+- tapOn: "1"
+- tapOn: "0"
+- tapOn: "\\."
+- tapOn: "0"
+- tapOn: "\\."
+- tapOn: "2"
+- tapOn: "\\."
+- tapOn: "2"
+- tapOn: "Colon"
+- tapOn: "8"
+- tapOn: "0"
+- tapOn: "8"
+- tapOn: "2"
+- assertVisible: "10\\.0\\.2\\.2:8082"
+- tapOn: "Done"
