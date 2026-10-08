@@ -1,0 +1,32 @@
+id: xtch-file-actions
+name: "XTCH File Actions"
+flow: flows/16-book-formats.yaml
+screenshots:
+  - xtch-file-actions
+platforms: [ios, android]
+themes: [light]
+tags: [library, connected, requires-device]
+
+description: |
+  The file action sheet is open for Gettysburg-Address.xtch in the Formats folder.
+  Its filename and nonzero size are visible above Save to Device, Move, Rename,
+  and Delete actions. An X button closes the sheet.
+
+assertions:
+  - text: "The sheet identifies Gettysburg-Address.xtch with a nonzero size"
+    severity: fail
+  - text: "Save to Device, Move, Rename, and Delete are visible and legible"
+    severity: fail
+  - text: "Delete is visibly destructive and an X close button is visible"
+    severity: fail
+
+focus_elements:
+  - id: "FileActions.Sheet"
+    label: "XTCH file actions"
+
+ignore:
+  - "Exact file size"
+  - "Status bar time"
+
+created_by: codex
+created_at: "2026-10-07"

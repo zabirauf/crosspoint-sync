@@ -1,15 +1,10 @@
 import { useCallback } from 'react';
 import * as DocumentPicker from 'expo-document-picker';
 import { File as FSFile } from 'expo-file-system';
+import { Alert } from 'react-native';
 import { useUploadStore } from '@/stores/upload-store';
 import { log } from '@/services/logger';
-
-const SUPPORTED_EXTENSIONS = ['.epub', '.xtc', '.xtch'];
-
-function isSupportedBook(fileName: string): boolean {
-  const lower = fileName.toLowerCase();
-  return SUPPORTED_EXTENSIONS.some((ext) => lower.endsWith(ext));
-}
+import { isSupportedBook, SUPPORTED_EXTENSIONS } from '@/constants/BookFormats';
 
 export function useDocumentPicker() {
   const addJob = useUploadStore((s) => s.addJob);
@@ -17,11 +12,9 @@ export function useDocumentPicker() {
   const pickAndQueueFiles = useCallback(
     async (destPath: string) => {
       const result = await DocumentPicker.getDocumentAsync({
-        type: [
-          'application/epub+zip',
-          'application/octet-stream',
-          '*/*',
-        ],
+        // Providers can report XTC/XTCH with an unknown or vendor-specific
+        // MIME type, so filter by extension afterwards.
+        type: '*/*',
         multiple: true,
         copyToCacheDirectory: true,
       });
@@ -32,9 +25,15 @@ export function useDocumentPicker() {
       }
 
       const validAssets = result.assets.filter((asset) => isSupportedBook(asset.name));
+      const skippedCount = result.assets.length - validAssets.length;
+
+      if (skippedCount > 0) {
+        const message = `Skipped ${skippedCount} unsupported file(s). Supported book formats: ${SUPPORTED_EXTENSIONS.join(', ')}.`;
+        log('queue', `Picker: ${message}`);
+        Alert.alert('Unsupported files', message);
+      }
 
       if (validAssets.length === 0) {
-        log('queue', 'Picker: no supported book files selected (.epub, .xtc, .xtch)');
         return;
       }
 

@@ -19,6 +19,7 @@ import * as fs from 'fs';
 import * as nodePath from 'path';
 import { URL } from 'url';
 import WebSocket from 'ws';
+import { isSupportedBook } from '../constants/BookFormats';
 
 // ─── CLI Args ───
 
@@ -236,6 +237,7 @@ interface FileBackend {
 
 class MemoryBackend implements FileBackend {
   private files: Map<string, FileEntry[]> = new Map();
+  private contents = new Map<string, Buffer>();
 
   constructor() {
     this.seed();
@@ -245,6 +247,7 @@ class MemoryBackend implements FileBackend {
     this.files.set('/', [
       { name: 'Books', size: 0, isDirectory: true, isEpub: false },
       { name: 'Articles', size: 0, isDirectory: true, isEpub: false },
+      { name: 'Formats', size: 0, isDirectory: true, isEpub: false },
       { name: 'sleep', size: 0, isDirectory: true, isEpub: false },
     ]);
 
@@ -264,6 +267,15 @@ class MemoryBackend implements FileBackend {
     ]);
 
     this.files.set('/sleep', []);
+
+    // Use the same redistributable book fixtures as the disk-backed visual
+    // server. Keep the firmware's isEpub flag EPUB-specific.
+    const fixturesDir = nodePath.resolve(__dirname, '../test-mock-filesystem/Formats');
+    this.files.set('/Formats', fs.readdirSync(fixturesDir).filter(isSupportedBook).map((name) => {
+      const data = fs.readFileSync(nodePath.join(fixturesDir, name));
+      this.contents.set(`/Formats/${name}`, data);
+      return { name, size: data.length, isDirectory: false, isEpub: name.toLowerCase().endsWith('.epub') };
+    }));
   }
 
   private normalizePath(p: string): string {
@@ -299,6 +311,7 @@ class MemoryBackend implements FileBackend {
   }
 
   deleteItem(filePath: string): void {
+    this.contents.delete(filePath);
     const parent = this.parentPath(filePath);
     const name = this.fileName(filePath);
     const parentFiles = this.files.get(parent) || [];
@@ -349,6 +362,11 @@ class MemoryBackend implements FileBackend {
     }
 
     entry.name = newName;
+    const content = this.contents.get(filePath);
+    if (content) {
+      this.contents.delete(filePath);
+      this.contents.set(newPath, content);
+    }
     if (!entry.isDirectory) {
       entry.isEpub = newName.toLowerCase().endsWith('.epub');
     }
@@ -372,6 +390,11 @@ class MemoryBackend implements FileBackend {
     const entry = srcParentFiles[entryIdx];
     const oldPath = filePath;
     const newPath = dest === '/' ? `/${name}` : `${dest}/${name}`;
+    const content = this.contents.get(filePath);
+    if (content) {
+      this.contents.delete(filePath);
+      this.contents.set(newPath, content);
+    }
 
     // If directory, move child entries
     if (entry.isDirectory) {
@@ -399,6 +422,7 @@ class MemoryBackend implements FileBackend {
 
   writeFile(destPath: string, fileName: string, data: Buffer): void {
     const dest = this.normalizePath(destPath);
+    this.contents.set(dest === '/' ? `/${fileName}` : `${dest}/${fileName}`, Buffer.from(data));
     const parentFiles = this.files.get(dest) || [];
     const existing = parentFiles.findIndex((f) => f.name.toLowerCase() === fileName.toLowerCase());
     const entry: FileEntry = {
@@ -415,8 +439,8 @@ class MemoryBackend implements FileBackend {
     this.files.set(dest, parentFiles);
   }
 
-  readFile(_filePath: string): Buffer {
-    return Buffer.alloc(1024, 0x42);
+  readFile(filePath: string): Buffer {
+    return this.contents.get(filePath) ?? Buffer.alloc(1024, 0x42);
   }
 
   exists(filePath: string): boolean {
@@ -996,11 +1020,10 @@ wss.on('connection', (ws: WebSocket) => {
       // Upload complete
       if (received >= fileSize) {
         console.log(`[WS] Upload complete: ${fileName}`);
-        ws.send('DONE');
-
         const fullData = Buffer.concat(chunks);
         backend.writeFile(destPath, fileName, fullData);
         chunks.length = 0;
+        ws.send('DONE');
       }
     }
   });
