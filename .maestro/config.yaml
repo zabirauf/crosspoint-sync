@@ -6,6 +6,7 @@ executionOrder:
     - "Library Tab - Disconnected State"
     - "Device Connection - Connection Sheet"
     - "Library Tab - Connected with Files"
+    - "Library - Supported Book Formats"
     - "File Navigation - Browse Folders"
     - "Upload Flow - FAB Menu"
     - "Settings Screen - Main View"

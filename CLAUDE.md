@@ -1,6 +1,6 @@
 # CrossPoint Sync
 
-Book syncing app for the XTEink X4 e-ink reader. Discovers devices on local WiFi, browses files, and uploads EPUBs via WebSocket.
+Book syncing app for the XTEink X4 e-ink reader. Discovers devices on local WiFi, browses files, and uploads EPUB, XTC, and XTCH books via WebSocket.
 
 ## Stack
 
@@ -69,7 +69,7 @@ hooks/
   use-device-discovery.ts  # Scan/connect state machine
   use-device-status.ts     # Polls /api/status every 10s while connected
   use-file-browser.ts      # Path navigation, file CRUD
-  use-document-picker.ts   # EPUB picker → upload queue
+  use-document-picker.ts   # EPUB/XTC/XTCH picker → upload queue
 components/
   DeviceCard.tsx       # Device info display with signal/status
   FileRow.tsx          # File/folder row with icons and size
@@ -226,7 +226,7 @@ npm run mock-device     # Start mock server (HTTP:8082, WS:8083)
 # In another terminal, run the app and connect to the mock device via manual IP
 ```
 
-The mock server provides a fake file system with sample books at `/Books/`.
+The default disk-backed mock serves `test-mock-filesystem/`. Its `/Formats/` folder contains a public-domain book as EPUB, XTC, and XTCH. The in-memory backend also seeds these real fixtures. See `test-fixtures/book-formats/README.md` for provenance and regeneration, and run `npm run test:books` for picker, icons, and API/WebSocket integration coverage.
 
 ## Analysis Reports
 

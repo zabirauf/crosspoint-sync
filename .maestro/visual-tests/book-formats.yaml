@@ -1,0 +1,30 @@
+id: book-formats
+name: "Library - Supported Book Formats"
+flow: flows/16-book-formats.yaml
+screenshots:
+  - library-book-formats
+platforms: [ios, android]
+themes: [light]
+tags: [library, connected, requires-device]
+
+description: |
+  The Formats folder contains Gettysburg-Address.epub, Gettysburg-Address.xtc,
+  and Gettysburg-Address.xtch. All three rows use the same blue book icon,
+  display a nonzero file size, and have a more-actions button.
+
+assertions:
+  - text: "The library screenshot shows EPUB, XTC, and XTCH files with matching blue book icons"
+    severity: fail
+  - text: "All three filenames are legible and show nonzero file sizes"
+    severity: fail
+
+focus_elements:
+  - id: "Library.FileList"
+    label: "Supported book formats"
+
+ignore:
+  - "Exact file sizes"
+  - "Status bar time"
+
+created_by: codex
+created_at: "2026-10-07"

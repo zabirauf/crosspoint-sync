@@ -23,11 +23,12 @@
     "test:epub:unit": "npx tsx scripts/epub-test.ts --unit",
     "test:epub:integration": "npx tsx scripts/epub-test.ts --integration",
     "test:delete": "npx tsx scripts/delete-protocol-test.ts",
+    "test:books": "npx tsx scripts/book-formats-test.ts",
     "appstore:screenshots": "node scripts/generate-appstore-screenshots.js",
     "prebuild": "bash scripts/with-dev-env.sh expo prebuild",
     "build:android:apk": "bash scripts/with-dev-env.sh bash scripts/build-android.sh apk",
     "build:android:aab": "bash scripts/with-dev-env.sh bash scripts/build-android.sh aab",
-    "test:basic": "npm run test:epub:unit && npm run test:delete",
+    "test:basic": "npm run test:epub:unit && npm run test:delete && npm run test:books",
     "typecheck": "tsc --noEmit",
     "check:bundles": "bash scripts/with-dev-env.sh expo export --platform ios --output-dir .local/export-ios && bash scripts/with-dev-env.sh expo export --platform android --output-dir .local/export-android"
   },
@@ -74,6 +75,7 @@
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
     "@types/react": "~19.1.0",
+    "@types/react-test-renderer": "^19.3.0",
     "@types/ws": "^8.18.1",
     "babel-preset-expo": "~54.0.12",
     "defuddle": "^0.7.0",
