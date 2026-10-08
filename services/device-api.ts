@@ -65,6 +65,8 @@ export async function getDeviceStatus(
   });
 }
 
+const BOOK_EXTENSIONS = ['.epub', '.xtc', '.xtch'];
+
 export async function getFiles(ip: string, path: string): Promise<DeviceFile[]> {
   return deviceScheduler.schedule({
     ignoreExternalBusy: true,
@@ -74,12 +76,16 @@ export async function getFiles(ip: string, path: string): Promise<DeviceFile[]> 
       );
       if (!res.ok) throw new Error(`File listing failed: ${res.status}`);
       const data: Array<{ name: string; size: number; isDirectory: boolean }> = await res.json();
-      return data.map((f) => ({
-        name: f.name,
-        size: f.size,
-        isDirectory: f.isDirectory,
-        isEpub: !f.isDirectory && f.name.toLowerCase().endsWith('.epub'),
-      }));
+      return data.map((f) => {
+        const lowerName = f.name.toLowerCase();
+        const isBook = !f.isDirectory && BOOK_EXTENSIONS.some((ext) => lowerName.endsWith(ext));
+        return {
+          name: f.name,
+          size: f.size,
+          isDirectory: f.isDirectory,
+          isEpub: isBook,
+        };
+      });
     },
   });
 }
