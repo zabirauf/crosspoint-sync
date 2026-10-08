@@ -1,5 +1,5 @@
 #!/usr/bin/env npx tsx
-/** Tests real picker, file rows, device API, and WebSocket uploader.
+/** Tests real picker, file rows, stores, queue, device API, and WebSocket uploader.
  * Only native modules/storage are replaced; HTTP/WS use a real mock server.
  * Run: npm run test:books
  */
@@ -16,18 +16,19 @@ import { test } from 'node:test';
 import React from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import WebSocket from 'ws';
-import { isSupportedBook } from '../constants/BookFormats';
-import type { DeviceFile } from '../types/device';
+import { isSupportedBook, getSupportedBookExtensions, isBookSupportedByFirmware } from '../constants/BookFormats';
+import { getDeviceCapabilities } from '../services/firmware-version';
+import type { DeviceFile, DeviceStatus } from '../types/device';
 import type { DocumentPickerOptions, DocumentPickerResult } from 'expo-document-picker';
 
 const projectRoot = path.resolve(__dirname, '..');
 const fixturesDir = path.join(projectRoot, 'test-mock-filesystem/Formats');
 const fixtureNames = ['Gettysburg-Address.epub', 'Gettysburg-Address.xtc', 'Gettysburg-Address.xtch'];
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'crosspoint-book-formats-'));
-const jobs: Array<{ fileName: string; fileUri: string; fileSize: number; destinationPath: string }> = [];
 const alerts: string[] = [];
 let pickerResult: DocumentPickerResult = { canceled: true, assets: null };
 let pickerOptions: DocumentPickerOptions | undefined;
+let onPickerOpen = () => {};
 let httpPort = 0;
 let isDark = false;
 
@@ -65,7 +66,7 @@ const loader = Module as unknown as { _load: Loader };
 const originalLoad = loader._load;
 loader._load = function (id, parent, isMain) {
   if (id === 'expo-document-picker') return {
-    getDocumentAsync: async (options: DocumentPickerOptions) => { pickerOptions = options; return pickerResult; },
+    getDocumentAsync: async (options: DocumentPickerOptions) => { pickerOptions = options; onPickerOpen(); return pickerResult; },
   };
   if (id === 'expo-file-system') return { File: NativeFile, Directory: class {}, Paths: { cache: scratch } };
   if (id === 'react-native') return {
@@ -76,11 +77,8 @@ loader._load = function (id, parent, isMain) {
   };
   if (id === 'tamagui') return { XStack: 'XStack', YStack: 'YStack', Text: 'Text' };
   if (id === '@expo/vector-icons') return { FontAwesome: 'FontAwesome' };
-  if (id === '@/stores/upload-store') return {
-    useUploadStore: (select: (state: unknown) => unknown) => select({ addJob: (job: typeof jobs[number]) => jobs.push(job) }),
-  };
-  if (id === '@/stores/device-store') return {
-    useDeviceStore: { getState: () => ({ connectedDevice: { httpPort }, deviceStatus: { version: '1.3.0' } }) },
+  if (id === '@react-native-async-storage/async-storage') return {
+    getItem: async () => null, setItem: async () => {}, removeItem: async () => {},
   };
   if (id === '@/services/logger' || id === './logger') return { log: () => {} };
   return originalLoad.call(this, id, parent, isMain);
@@ -89,17 +87,34 @@ let useDocumentPicker: typeof import('../hooks/use-document-picker').useDocument
 let FileRow: typeof import('../components/FileRow').FileRow;
 let api: typeof import('../services/device-api');
 let uploadFileViaWebSocket: typeof import('../services/websocket-upload').uploadFileViaWebSocket;
+let useDeviceStore: typeof import('../stores/device-store').useDeviceStore;
+let useUploadStore: typeof import('../stores/upload-store').useUploadStore;
+let startQueueProcessor: typeof import('../services/upload-queue').startQueueProcessor;
 try {
+  ({ useDeviceStore } = require('../stores/device-store'));
+  ({ useUploadStore } = require('../stores/upload-store'));
   ({ useDocumentPicker } = require('../hooks/use-document-picker'));
   ({ FileRow } = require('../components/FileRow'));
   api = require('../services/device-api');
   ({ uploadFileViaWebSocket } = require('../services/websocket-upload'));
+  ({ startQueueProcessor } = require('../services/upload-queue'));
 } finally {
   loader._load = originalLoad;
 }
 (globalThis as Record<string, unknown>).IS_REACT_ACT_ENVIRONMENT = true;
 // tsx follows Expo's jsx: react setting; Metro normally supplies React via Babel.
 (globalThis as Record<string, unknown>).React = React;
+
+const jobs = () => useUploadStore.getState().jobs;
+function setFirmware(version: string) {
+  useDeviceStore.getState().updateDeviceStatus({ version, ip: '127.0.0.1', mode: 'STA', rssi: -45, freeHeap: 200000, uptime: 0 });
+}
+
+async function waitUntil(predicate: () => boolean) {
+  const deadline = Date.now() + 15000;
+  while (!predicate() && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve, 25));
+  assert.ok(predicate(), 'condition not reached before timeout');
+}
 
 async function freePort(): Promise<number> {
   const server = net.createServer();
@@ -110,7 +125,7 @@ async function freePort(): Promise<number> {
   return port;
 }
 
-async function startMock(dataDir: string): Promise<{ process: ChildProcess; wsPort: number }> {
+async function startMock(dataDir: string): Promise<{ process: ChildProcess; wsPort: number; status: DeviceStatus }> {
   httpPort = await freePort();
   const wsPort = await freePort();
   const child = spawn(process.execPath, [require.resolve('tsx/cli'), 'scripts/mock-device-server.ts',
@@ -122,7 +137,13 @@ async function startMock(dataDir: string): Promise<{ process: ChildProcess; wsPo
   const deadline = Date.now() + 15000;
   while (Date.now() < deadline && child.exitCode === null) {
     try {
-      if ((await fetch(`http://127.0.0.1:${httpPort}/api/status`)).ok) return { process: child, wsPort };
+      const response = await fetch(`http://127.0.0.1:${httpPort}/api/status`);
+      if (response.ok) {
+        const status = await response.json() as DeviceStatus;
+        useDeviceStore.getState().connectDevice({ ip: '127.0.0.1', hostname: 'Mock', httpPort, wsPort });
+        useDeviceStore.getState().updateDeviceStatus(status);
+        return { process: child, wsPort, status };
+      }
     } catch { /* startup */ }
     await new Promise(resolve => setTimeout(resolve, 100));
   }
@@ -139,10 +160,25 @@ async function stopMock(child: ChildProcess) {
 
 test('supported book formats', async t => {
   try {
+    setFirmware('1.3.0');
     await t.test('case-insensitive extensions reject unsupported and misleading suffixes', () => {
       for (const name of ['novel.epub', 'novel.XTC', 'novel.XtCh']) assert.ok(isSupportedBook(name), name);
       for (const name of ['novel.pdf', 'novel.xtc.zip', 'novel.epub.exe', 'xtch', 'novel.xtch.backup', '']) {
         assert.equal(isSupportedBook(name), false, name);
+      }
+    });
+
+    await t.test('XTC and XTCH share the 0.10.0 capability boundary with a safe unknown-version fallback', () => {
+      for (const version of [undefined, '', 'unknown', '0.9.0', '0.9.99']) {
+        assert.equal(getDeviceCapabilities(version).xtcBooks, false);
+        assert.deepEqual(getSupportedBookExtensions(version), ['.epub']);
+        assert.ok(isBookSupportedByFirmware('book.EPUB', version));
+        for (const name of ['book.XTC', 'book.XtCh']) assert.equal(isBookSupportedByFirmware(name, version), false);
+      }
+      for (const version of ['0.10.0', '0.10.0-rc+abc123', '0.11.0', '1.0.0', '1.3.0', '1.6.5']) {
+        assert.equal(getDeviceCapabilities(version).xtcBooks, true);
+        for (const name of fixtureNames) assert.ok(isBookSupportedByFirmware(name, version));
+        assert.equal(isBookSupportedByFirmware('book.xtc.zip', version), false);
       }
     });
 
@@ -152,7 +188,7 @@ test('supported book formats', async t => {
     await act(async () => { harness = create(React.createElement(PickerHarness)); });
     await t.test('picker cancellation leaves the queue untouched', async () => {
       await pick('/Books');
-      assert.equal(jobs.length, 0);
+      assert.equal(jobs().length, 0);
       assert.equal(alerts.length, 0);
     });
     await t.test('picker accepts EPUB/XTC/XTCH regardless of MIME and reports skipped files', async () => {
@@ -169,8 +205,8 @@ test('supported book formats', async t => {
       assert.equal(pickerOptions?.type, '*/*');
       assert.equal(pickerOptions?.multiple, true);
       assert.equal(pickerOptions?.copyToCacheDirectory, true);
-      assert.equal(jobs.length, 3);
-      jobs.forEach((job, index) => {
+      assert.equal(jobs().length, 3);
+      jobs().forEach((job, index) => {
         assert.equal(job.fileName.toLowerCase(), fixtureNames[index].toLowerCase());
         assert.equal(job.destinationPath, '/Books');
         assert.equal(job.fileSize, fs.statSync(path.join(fixturesDir, fixtureNames[index])).size);
@@ -181,8 +217,37 @@ test('supported book formats', async t => {
     await t.test('picker rejects an entirely unsupported selection visibly', async () => {
       pickerResult = { canceled: false, assets: [{ name: 'notes.pdf', uri: 'file:///must-not-be-read.pdf', lastModified: 0 }] };
       await pick('/Books');
-      assert.equal(jobs.length, 3);
+      assert.equal(jobs().length, 3);
       assert.equal(alerts.length, 2);
+    });
+
+    await t.test('legacy and unknown firmware limit the picker to EPUB and explain skipped XTC/XTCH', async () => {
+      for (const version of ['0.9.0', undefined, 'unparseable']) {
+        useUploadStore.setState({ jobs: [] });
+        if (version === undefined) useDeviceStore.setState({ deviceStatus: null });
+        else setFirmware(version);
+        pickerResult = { canceled: false, assets: fixtureNames.map((name, index) => ({
+          name, uri: index === 0 ? pathToFileURL(path.join(fixturesDir, name)).href : 'file:///must-not-be-read', lastModified: 0,
+        })) };
+        await pick('/Legacy');
+        assert.equal(pickerOptions?.type, 'application/epub+zip');
+        assert.deepEqual(jobs().map(job => job.fileName), [fixtureNames[0]]);
+        assert.match(alerts.at(-1)!, /Skipped 2.*Supported book formats: \.epub\./);
+        assert.match(alerts.at(-1)!, /require firmware 0\.10\.0 or later/);
+      }
+    });
+
+    await t.test('picker rechecks firmware when the reader changes while the picker is open', async () => {
+      useUploadStore.setState({ jobs: [] });
+      setFirmware('1.3.0');
+      onPickerOpen = () => setFirmware('0.9.0');
+      pickerResult = { canceled: false, assets: [{ name: 'queued.XTCH', uri: 'file:///must-not-be-read', lastModified: 0 }] };
+      try {
+        await pick('/Books');
+        assert.equal(pickerOptions?.type, '*/*');
+        assert.equal(jobs().length, 0);
+        assert.match(alerts.at(-1)!, /connected version: 0\.9\.0/);
+      } finally { onPickerOpen = () => {}; setFirmware('1.3.0'); }
     });
     await act(async () => { harness.unmount(); });
 
@@ -273,6 +338,70 @@ test('supported book formats', async t => {
           } finally { await stopMock(mock.process); }
         });
       }
+
+      await t.test('actual queue waits for fresh status, rejects legacy jobs and resumes supported uploads after reconnect', async () => {
+        const mock = await startMock('');
+        useUploadStore.setState({ jobs: [] });
+        let connections = 0;
+        class CountingWebSocket extends WebSocket {
+          constructor(url: string) { super(url); connections++; }
+        }
+        globalThis.WebSocket = CountingWebSocket as unknown as typeof globalThis.WebSocket;
+        let stopQueue = () => {};
+        try {
+          // Queued before connecting (as persisted jobs or share imports can be).
+          for (const extension of ['XTC', 'XtCh']) {
+            useUploadStore.getState().addJob({ fileName: `legacy.${extension}`, fileUri: 'file:///must-not-be-read', fileSize: 10, destinationPath: '/Rejected' });
+          }
+          useUploadStore.getState().addJob({ fileName: 'legacy.epub', fileUri: pathToFileURL(path.join(fixturesDir, fixtureNames[0])).href,
+            fileSize: fs.statSync(path.join(fixturesDir, fixtureNames[0])).size, destinationPath: '/Accepted', jobType: 'book' });
+
+          const device = useDeviceStore.getState().connectedDevice!;
+          // A new connection must clear capabilities inherited from 1.3.0.
+          useDeviceStore.getState().connectDevice(device);
+          assert.equal(useDeviceStore.getState().deviceStatus, null);
+          stopQueue = startQueueProcessor();
+          await new Promise(resolve => setTimeout(resolve, 50));
+          assert.equal(connections, 0);
+          assert.ok(jobs().every(job => job.status === 'pending'));
+
+          // The mock retains its modern transport; status here isolates the
+          // client format gate. Physical firmware <0.14.0 has no WS uploads.
+          setFirmware('0.9.0');
+          await waitUntil(() => jobs().at(-1)?.status === 'completed');
+          for (const job of jobs().slice(0, 2)) {
+            assert.equal(job.status, 'failed');
+            assert.match(job.error!, /require firmware 0\.10\.0.*connected: 0\.9\.0/);
+          }
+          assert.equal(connections, 1, 'only EPUB opens a socket');
+          assert.equal((await fetch(`http://127.0.0.1:${httpPort}/download?path=/Rejected/legacy.XTC`)).status, 404);
+          assert.equal((await fetch(`http://127.0.0.1:${httpPort}/download?path=/Rejected/legacy.XtCh`)).status, 404);
+
+          useDeviceStore.getState().disconnect();
+          useUploadStore.setState({ jobs: [] });
+          for (const name of fixtureNames.slice(1)) {
+            useUploadStore.getState().addJob({ fileName: `queue-${name}`, fileUri: pathToFileURL(path.join(fixturesDir, name)).href,
+              fileSize: fs.statSync(path.join(fixturesDir, name)).size, destinationPath: '/Accepted', jobType: 'book' });
+          }
+          useDeviceStore.getState().connectDevice(device);
+          assert.equal(useDeviceStore.getState().deviceStatus, null);
+          assert.ok(jobs().every(job => job.status === 'pending'));
+          // Version change must wake the queue even though status stays connected.
+          useDeviceStore.getState().updateDeviceStatus(mock.status);
+          await waitUntil(() => jobs().every(job => job.status === 'completed'));
+          assert.equal(connections, 3);
+          for (const name of fixtureNames.slice(1)) {
+            const downloaded = await api.downloadFile('127.0.0.1', `/Accepted/queue-${name}`);
+            assert.deepEqual(fs.readFileSync(fileURLToPath(downloaded)), fs.readFileSync(path.join(fixturesDir, name)));
+          }
+        } finally {
+          stopQueue();
+          useDeviceStore.getState().disconnect();
+          useUploadStore.setState({ jobs: [] });
+          await stopMock(mock.process);
+          globalThis.WebSocket = WebSocket as unknown as typeof globalThis.WebSocket;
+        }
+      });
     } finally { globalThis.WebSocket = originalWebSocket; }
   } finally { fs.rmSync(scratch, { recursive: true, force: true }); }
 });

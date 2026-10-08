@@ -5,11 +5,15 @@ export interface FirmwareVersion {
 }
 
 export interface DeviceCapabilities {
+  /** Both XTC (1-bit) and XTCH (2-bit) readers shipped in 0.10.0. */
+  xtcBooks: boolean;
   rename: boolean;
   move: boolean;
   settingsApi: boolean;
   batchDelete: boolean;
 }
+
+export const XTC_MIN_FIRMWARE = [0, 10, 0] as const;
 
 /**
  * Parse firmware version string like "1.1.0", "1.1.0-dev", "1.1.0-rc+abc123".
@@ -49,6 +53,7 @@ export function firmwareAtLeast(
  */
 export function getDeviceCapabilities(version: string | undefined): DeviceCapabilities {
   return {
+    xtcBooks: firmwareAtLeast(version, ...XTC_MIN_FIRMWARE),
     rename: firmwareAtLeast(version, 1, 0, 0),
     move: firmwareAtLeast(version, 1, 0, 0),
     settingsApi: firmwareAtLeast(version, 1, 1, 0),
