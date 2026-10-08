@@ -30,6 +30,10 @@ Targets: **iOS and Android**
 - **Android:** Java 17 and Android Studio or the Android command-line SDK. Install platform tools, Android SDK Platform 36, Build Tools 36.0.0, NDK 27.1.12297006, and CMake 3.22.1. An emulator also needs the emulator package and a system image.
 - An XTEink X4 e-ink reader on the same local network (for full functionality)
 
+Uploads require CrossPoint firmware **0.14.0 or later**, which introduced the WebSocket transport. The app does not enforce that minimum when connecting; the development mock defaults to 1.3.0. Rename/move, settings, and batch-delete behavior are selected from the connected firmware version.
+
+XTC and XTCH reading first shipped in **0.10.0**. Their upload support uses that version capability in both the picker and queue. Older or unknown versions offer EPUB only; queued XTC/XTCH files wait for firmware status and fail with an explanation if unsupported. Existing files remain visible in the browser.
+
 ## Getting Started
 
 ```bash

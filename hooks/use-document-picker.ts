@@ -3,18 +3,21 @@ import * as DocumentPicker from 'expo-document-picker';
 import { File as FSFile } from 'expo-file-system';
 import { Alert } from 'react-native';
 import { useUploadStore } from '@/stores/upload-store';
+import { useDeviceStore } from '@/stores/device-store';
 import { log } from '@/services/logger';
-import { isSupportedBook, SUPPORTED_EXTENSIONS } from '@/constants/BookFormats';
+import { getSupportedBookExtensions, isBookSupportedByFirmware, isSupportedBook } from '@/constants/BookFormats';
+import { getDeviceCapabilities, XTC_MIN_FIRMWARE } from '@/services/firmware-version';
 
 export function useDocumentPicker() {
   const addJob = useUploadStore((s) => s.addJob);
 
   const pickAndQueueFiles = useCallback(
     async (destPath: string) => {
+      const { xtcBooks } = getDeviceCapabilities(useDeviceStore.getState().deviceStatus?.version);
       const result = await DocumentPicker.getDocumentAsync({
         // Providers can report XTC/XTCH with an unknown or vendor-specific
         // MIME type, so filter by extension afterwards.
-        type: '*/*',
+        type: xtcBooks ? '*/*' : 'application/epub+zip',
         multiple: true,
         copyToCacheDirectory: true,
       });
@@ -24,11 +27,16 @@ export function useDocumentPicker() {
         return;
       }
 
-      const validAssets = result.assets.filter((asset) => isSupportedBook(asset.name));
+      // Recheck after the picker closes in case the connected reader changed.
+      const version = useDeviceStore.getState().deviceStatus?.version;
+      const validAssets = result.assets.filter((asset) => isBookSupportedByFirmware(asset.name, version));
       const skippedCount = result.assets.length - validAssets.length;
 
       if (skippedCount > 0) {
-        const message = `Skipped ${skippedCount} unsupported file(s). Supported book formats: ${SUPPORTED_EXTENSIONS.join(', ')}.`;
+        let message = `Skipped ${skippedCount} unsupported file(s). Supported book formats: ${getSupportedBookExtensions(version).join(', ')}.`;
+        if (result.assets.some((asset) => isSupportedBook(asset.name) && !isBookSupportedByFirmware(asset.name, version))) {
+          message += ` XTC/XTCH require firmware ${XTC_MIN_FIRMWARE.join('.')} or later; connected version: ${version || 'unknown'}.`;
+        }
         log('queue', `Picker: ${message}`);
         Alert.alert('Unsupported files', message);
       }
