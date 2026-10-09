@@ -43,19 +43,17 @@ If `$ARGUMENTS` is `delete` or `protocol`, run only this step and stop. Otherwis
 Run the Maestro test flows to capture screenshots:
 
 ```bash
-# Clear stale screenshots before each run
-rm -rf test-screenshots/*
-mkdir -p test-screenshots
-
-~/.maestro/bin/maestro test .maestro/flows/ --test-output-dir test-screenshots/
+npm run test:visual:flows
 ```
 
 If `$ARGUMENTS` specifies a specific flow or screen name, run only that flow:
 ```bash
-rm -rf test-screenshots/*
-mkdir -p test-screenshots
-~/.maestro/bin/maestro test .maestro/flows/<matching-flow>.yaml --test-output-dir test-screenshots/
+npm run test:visual:flows -- --include-tags <matching-tag>
 ```
+
+For a single flow without a unique tag, target its YAML file directly with
+Maestro and choose a fresh output directory. Then run
+`node scripts/collect-visual-screenshots.cjs <output-directory>` before judging.
 
 If `$ARGUMENTS` says "smoke" or "quick", run only smoke-tagged flows (01, 02, 08, 10).
 
@@ -69,7 +67,8 @@ Maestro flows can be flaky (animation timing, simulator lag, tap not registering
 2. Exclude flows that failed because they are tagged `requires-device` and the mock server isn't running — those are expected failures, not flakiness.
 3. For each remaining failed flow, re-run it individually:
    ```bash
-   ~/.maestro/bin/maestro test .maestro/flows/<failed-flow>.yaml --test-output-dir test-screenshots/
+   ~/.maestro/bin/maestro test .maestro/flows/<failed-flow>.yaml --test-output-dir test-screenshots/retry-<unique-run>/
+   node scripts/collect-visual-screenshots.cjs test-screenshots/retry-<unique-run>/
    ```
 4. If a flow **passes on retry**, treat it as flaky — it is not a real failure. Use the screenshots from the successful retry.
 5. If a flow **fails again on retry**, treat it as a real failure and continue to Step 2 and Step 3 for diagnosis.
@@ -79,15 +78,14 @@ This avoids re-running the entire suite (which is slow) while still catching rea
 
 ## Step 2: Run LLM Visual Judge
 
-If screenshots were captured, run the visual judge. Note: Maestro (run with
-`--test-output-dir test-screenshots/` in Step 1) writes the `takeScreenshot` PNGs
-into a `screenshots/` subdirectory, so point `--screenshots` at
-`test-screenshots/screenshots/` (NOT `test-screenshots/`, which only holds the
-timestamped debug bundle — the judge would find no PNGs there):
+If screenshots were captured, run the visual judge. The flow runner preserves
+Maestro's per-flow artifacts, collects named captures into `screenshots/`, and
+points `test-screenshots/latest` at the current run. Maestro 2.10 stores captures
+under `takeScreenshot/`; the collector also handles older `screenshots/` layouts.
 
 ```bash
 ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY} npx tsx scripts/visual-judge.ts \
-  --screenshots test-screenshots/screenshots/ \
+  --screenshots test-screenshots/latest/screenshots/ \
   --references test-references/ios/iphone-16-pro/light/ \
   --specs .maestro/visual-tests/ \
   --run-dir test-runs/
