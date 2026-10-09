@@ -271,7 +271,7 @@ class MemoryBackend implements FileBackend {
     // Use the same redistributable book fixtures as the disk-backed visual
     // server. Keep the firmware's isEpub flag EPUB-specific.
     const fixturesDir = nodePath.resolve(__dirname, '../test-mock-filesystem/Formats');
-    this.files.set('/Formats', fs.readdirSync(fixturesDir).filter(isSupportedBook).map((name) => {
+    this.files.set('/Formats', fs.readdirSync(fixturesDir).filter((name) => isSupportedBook(name)).map((name) => {
       const data = fs.readFileSync(nodePath.join(fixturesDir, name));
       this.contents.set(`/Formats/${name}`, data);
       return { name, size: data.length, isDirectory: false, isEpub: name.toLowerCase().endsWith('.epub') };
@@ -362,6 +362,7 @@ class MemoryBackend implements FileBackend {
     }
 
     entry.name = newName;
+    // Downloads look up bytes by path; keep them under the renamed path.
     const content = this.contents.get(filePath);
     if (content) {
       this.contents.delete(filePath);

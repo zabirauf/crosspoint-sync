@@ -5,8 +5,8 @@ import { uploadFileViaWebSocket } from './websocket-upload';
 import { getFiles, ensureRemotePath, clearValidatedPaths } from './device-api';
 import { log } from './logger';
 import { deviceScheduler } from './device-request-scheduler';
-import { isSupportedBook, isBookSupportedByFirmware } from '@/constants/BookFormats';
-import { XTC_MIN_FIRMWARE } from './firmware-version';
+import { isSupportedBook } from '@/constants/BookFormats';
+import { getDeviceCapabilities, XTC_MIN_FIRMWARE } from './firmware-version';
 import {
   DEVICE_RECOVERY_DELAY_MS,
   ENSURE_PATH_MAX_RETRIES,
@@ -69,7 +69,8 @@ async function processNextJob() {
 
       // Persisted jobs and share imports can bypass the picker. Validate against
       // the current reader before any remote writes or opening the upload socket.
-      if (isSupportedBook(nextJob.fileName) && !isBookSupportedByFirmware(nextJob.fileName, deviceStatus?.version)) {
+      const { supportedBookExtensions } = getDeviceCapabilities(deviceStatus?.version);
+      if (isSupportedBook(nextJob.fileName) && !isSupportedBook(nextJob.fileName, supportedBookExtensions)) {
         if (!deviceStatus) {
           log('queue', 'Waiting for firmware status before uploading XTC/XTCH');
           break;

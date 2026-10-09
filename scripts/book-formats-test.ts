@@ -16,7 +16,7 @@ import { test } from 'node:test';
 import React from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import WebSocket from 'ws';
-import { isSupportedBook, getSupportedBookExtensions, isBookSupportedByFirmware } from '../constants/BookFormats';
+import { isSupportedBook } from '../constants/BookFormats';
 import { getDeviceCapabilities } from '../services/firmware-version';
 import type { DeviceFile, DeviceStatus } from '../types/device';
 import type { DocumentPickerOptions, DocumentPickerResult } from 'expo-document-picker';
@@ -170,15 +170,22 @@ test('supported book formats', async t => {
 
     await t.test('XTC and XTCH share the 0.10.0 capability boundary with a safe unknown-version fallback', () => {
       for (const version of [undefined, '', 'unknown', '0.9.0', '0.9.99']) {
-        assert.equal(getDeviceCapabilities(version).xtcBooks, false);
-        assert.deepEqual(getSupportedBookExtensions(version), ['.epub']);
-        assert.ok(isBookSupportedByFirmware('book.EPUB', version));
-        for (const name of ['book.XTC', 'book.XtCh']) assert.equal(isBookSupportedByFirmware(name, version), false);
+        const { supportedBookExtensions, bookPickerMimeType } = getDeviceCapabilities(version);
+        assert.deepEqual(supportedBookExtensions, ['.epub']);
+        assert.equal(bookPickerMimeType, 'application/epub+zip');
+        assert.ok(isSupportedBook('book.EPUB', supportedBookExtensions));
+        for (const name of ['book.XTC', 'book.XtCh', 'book.pdf', 'book.xtc.zip']) {
+          assert.equal(isSupportedBook(name, supportedBookExtensions), false, name);
+        }
       }
       for (const version of ['0.10.0', '0.10.0-rc+abc123', '0.11.0', '1.0.0', '1.3.0', '1.6.5']) {
-        assert.equal(getDeviceCapabilities(version).xtcBooks, true);
-        for (const name of fixtureNames) assert.ok(isBookSupportedByFirmware(name, version));
-        assert.equal(isBookSupportedByFirmware('book.xtc.zip', version), false);
+        const { supportedBookExtensions, bookPickerMimeType } = getDeviceCapabilities(version);
+        assert.deepEqual(supportedBookExtensions, ['.epub', '.xtc', '.xtch']);
+        assert.equal(bookPickerMimeType, '*/*');
+        for (const name of fixtureNames) assert.ok(isSupportedBook(name, supportedBookExtensions));
+        for (const name of ['book.pdf', 'book.txt', 'book.xtc.zip', 'book.epub.exe']) {
+          assert.equal(isSupportedBook(name, supportedBookExtensions), false, name);
+        }
       }
     });
 
