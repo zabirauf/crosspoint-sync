@@ -1,6 +1,6 @@
 # CrossPoint Sync
 
-Book syncing app for the [XTEink X4](https://xteink.com) e-ink reader. Discovers devices on your local WiFi, browses files on the device, and uploads EPUB, XTC, and XTCH books via WebSocket.
+Book syncing app for the [XTEink X4](https://xteink.com) e-ink reader. Discovers devices on your local WiFi, browses files on the device, and uploads books via WebSocket.
 
 ![CrossPoint Sync — Web Clipper, Library, and Upload Queue](docs/images/crosspoint-sync_overview.png)
 
@@ -8,7 +8,7 @@ Book syncing app for the [XTEink X4](https://xteink.com) e-ink reader. Discovers
 
 - **Device Discovery** — Automatically finds your XTEink X4 on the local network via UDP broadcast, or connect manually by IP address
 - **File Browser** — Browse, create folders, and manage files directly on your e-ink reader
-- **Book Uploads** — Pick EPUB, XTC, and XTCH files from your phone and upload them over WebSocket with progress tracking
+- **Book Uploads** — Pick books from your phone and upload them over WebSocket with progress tracking
 - **Upload Queue** — Queue multiple uploads, retry failures, and track progress for each job
 - **Format Preferences** — Configure preferred upload format and destination path on the device
 - **Safari Web Clipper** — Clip web articles from Safari, automatically converted to EPUB and synced to your device
@@ -31,8 +31,6 @@ Targets: **iOS and Android**
 - An XTEink X4 e-ink reader on the same local network (for full functionality)
 
 Uploads require CrossPoint firmware **0.14.0 or later**, which introduced the WebSocket transport. The app does not enforce that minimum when connecting; the development mock defaults to 1.3.0. Rename/move, settings, and batch-delete behavior are selected from the connected firmware version.
-
-XTC and XTCH reading first shipped in **0.10.0**. Their upload support uses that version capability in both the picker and queue. Older or unknown versions offer EPUB only; queued XTC/XTCH files wait for firmware status and fail with an explanation if unsupported. Existing files remain visible in the browser.
 
 ## Getting Started
 
