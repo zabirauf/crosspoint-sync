@@ -27,7 +27,8 @@
     "prebuild": "bash scripts/with-dev-env.sh expo prebuild",
     "build:android:apk": "bash scripts/with-dev-env.sh bash scripts/build-android.sh apk",
     "build:android:aab": "bash scripts/with-dev-env.sh bash scripts/build-android.sh aab",
-    "test:basic": "npm run test:epub:unit && npm run test:delete",
+    "test:share-import": "node --test scripts/share-import-test.cjs",
+    "test:basic": "npm run test:epub:unit && npm run test:delete && npm run test:share-import",
     "typecheck": "tsc --noEmit",
     "check:bundles": "bash scripts/with-dev-env.sh expo export --platform ios --output-dir .local/export-ios && bash scripts/with-dev-env.sh expo export --platform android --output-dir .local/export-android"
   },

@@ -1,6 +1,7 @@
 import { File, Directory, Paths } from 'expo-file-system';
 import { getAppGroupPath } from '@/modules/app-group-path';
 import { useUploadStore } from '@/stores/upload-store';
+import { useSettingsStore } from '@/stores/settings-store';
 import { log } from '@/services/logger';
 import { pathToUri } from '@/utils/format';
 
@@ -10,7 +11,6 @@ interface ShareManifest {
   fileName: string;
   fileUri: string; // absolute path from Swift (e.g. /private/var/...)
   fileSize: number;
-  destinationPath: string;
   createdAt: number;
 }
 
@@ -24,6 +24,17 @@ export async function importSharedFiles(): Promise<number> {
   const manifestsDir = new Directory(`${containerUri}/manifests`);
   if (!manifestsDir.exists) {
     return 0;
+  }
+
+  // The upload queue can hydrate before settings on a cold launch. Wait for
+  // the saved upload path before importing files from the Share Extension.
+  if (!useSettingsStore.persist.hasHydrated()) {
+    await new Promise<void>((resolve) => {
+      const unsubscribe = useSettingsStore.persist.onFinishHydration(() => {
+        unsubscribe();
+        resolve();
+      });
+    });
   }
 
   const cacheDir = new Directory(Paths.cache, 'shared-imports');
@@ -64,7 +75,7 @@ export async function importSharedFiles(): Promise<number> {
         fileName: manifest.fileName,
         fileUri: destFile.uri,
         fileSize: manifest.fileSize,
-        destinationPath: manifest.destinationPath,
+        destinationPath: useSettingsStore.getState().defaultUploadPath,
         jobType: 'book',
       });
 
