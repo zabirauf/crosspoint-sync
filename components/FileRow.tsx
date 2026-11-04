@@ -3,7 +3,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { ActivityIndicator, Pressable, useColorScheme } from 'react-native';
 import { DeviceFile } from '@/types/device';
 import { formatSize } from '@/utils/format';
-import { isSupportedBook } from '@/constants/BookFormats';
+import { getFileFormat, isSupportedFile } from '@/constants/FileFormats';
 
 interface FileRowProps {
   file: DeviceFile;
@@ -15,14 +15,15 @@ interface FileRowProps {
 
 function fileIcon(file: DeviceFile): React.ComponentProps<typeof FontAwesome>['name'] {
   if (file.isDirectory) return 'folder';
-  if (isSupportedBook(file.name)) return 'book';
+  const format = getFileFormat(file.name);
+  if (format) return format.kind === 'image' ? 'file-image-o' : 'book';
   if (file.name.toLowerCase().endsWith('.pdf')) return 'file-pdf-o';
   return 'file-o';
 }
 
 function fileColor(file: DeviceFile, isDark: boolean): string {
   if (file.isDirectory) return isDark ? '#ffd54f' : '#f9a825';
-  if (isSupportedBook(file.name)) return isDark ? '#81d4fa' : '#1a73e8';
+  if (isSupportedFile(file.name)) return isDark ? '#81d4fa' : '#1a73e8';
   return isDark ? '#ccc' : '#666';
 }
 

@@ -1,6 +1,6 @@
 # CrossPoint Sync
 
-Book syncing app for the XTEink X4 e-ink reader. Discovers devices on local WiFi, browses files, and uploads EPUB, XTC, and XTCH books via WebSocket.
+Book syncing app for the XTEink X4 e-ink reader. Discovers devices on local WiFi, browses files, and uploads EPUB/XTC/XTCH books and XTG/XTH images via WebSocket.
 
 ## Stack
 
@@ -69,7 +69,7 @@ hooks/
   use-device-discovery.ts  # Scan/connect state machine
   use-device-status.ts     # Polls /api/status every 10s while connected
   use-file-browser.ts      # Path navigation, file CRUD
-  use-document-picker.ts   # EPUB/XTC/XTCH picker → upload queue
+  use-document-picker.ts   # EPUB/XTC/XTCH/XTG/XTH picker → upload queue
 components/
   DeviceCard.tsx       # Device info display with signal/status
   FileRow.tsx          # File/folder row with icons and size
@@ -104,8 +104,8 @@ extension-src/           # Safari Web Extension source files (bundled at prebuil
 ## XTEink X4 Protocol
 
 - **Firmware source**: When making changes to device API calls (anything in `services/device-api.ts`, `services/device-discovery.ts`, `services/websocket-upload.ts`, or related hooks), **always read the firmware source first** to validate expected request/response formats, parameter names, and error codes before planning changes. Ask user where the firmware source code is at. If they don't provide that info then ask user specific question.
-- **Local firmware checkout**: `/Users/kakaagent/Documents/Projects/Opensource/crosspoint-reader` (full history). The user supplied this location; use it without asking again. Check release tags for capability thresholds. XTC/XTCH reading starts at 0.10.0; WebSocket uploads start at 0.14.0. The mock defaults to 1.3.0, not an enforced app minimum.
-- **Book formats**: `constants/BookFormats.ts` owns recognized extensions and filename matching. `getDeviceCapabilities` returns `supportedBookExtensions` and `bookPickerMimeType` for the connected firmware. The picker and queue both validate names against that extension list; file icons describe recognized formats regardless of firmware. Clear stale status when connecting to another reader and resume waiting jobs when fresh status arrives.
+- **Local firmware checkout**: `/Users/kakaagent/Documents/Projects/Opensource/crosspoint-reader` (full history). The user supplied this location; use it without asking again. Check release tags for capability thresholds. XTC/XTCH reading starts at 0.10.0; WebSocket uploads start at 0.14.0. XTG/XTH are internal page images, not standalone reader formats; the app permits transferring them at 0.14.0+ through the generic uploader. The mock defaults to 1.3.0, not an enforced app minimum.
+- **Book formats**: `constants/FileFormats.ts` owns format kinds, upload firmware thresholds, derived extensions, and filename matching. `getDeviceCapabilities` returns `supportedFileExtensions` and `filePickerMimeType` for the connected firmware. The picker and queue both validate names against that extension list; file icons describe recognized formats regardless of firmware. Clear stale status when connecting to another reader and resume waiting jobs when fresh status arrives.
 - **HTTP REST API** (port 80): `GET /api/status`, `GET /api/files?path=`, `POST /mkdir`, `POST /delete`, `GET /download?path=`
 - **WebSocket upload** (port 81): `START:filename:size:path` → `READY` → binary chunks (64KB) → `PROGRESS:received:total` → `DONE`
 
@@ -228,7 +228,7 @@ npm run mock-device     # Start mock server (HTTP:8082, WS:8083)
 # In another terminal, run the app and connect to the mock device via manual IP
 ```
 
-The default disk-backed mock serves `test-mock-filesystem/`. Its `/Formats/` folder contains a public-domain book as EPUB, XTC, and XTCH. The in-memory backend also seeds these real fixtures. See `test-fixtures/book-formats/README.md` for provenance and regeneration, and run `npm run test:books` for picker, icons, and API/WebSocket integration coverage.
+The default disk-backed mock serves `test-mock-filesystem/`. Its `/Formats/` folder contains a public-domain book as EPUB, XTC, and XTCH, with standalone XTG/XTH page images. The in-memory backend also seeds these real fixtures. See `test-fixtures/book-formats/README.md` for provenance and regeneration, and run `npm run test:books` for picker, icons, and API/WebSocket integration coverage.
 
 ## Analysis Reports
 
