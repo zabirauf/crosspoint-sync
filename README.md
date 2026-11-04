@@ -160,6 +160,16 @@ The mock server runs on HTTP port 8082 and WebSocket port 8083 (macOS requires r
 
 The mock server provides a fake file system with sample books, so you can test file browsing, uploads, and the full connection lifecycle.
 
+### iOS visual tests
+
+Install Maestro 2.10 or newer and the current app on an iOS simulator. Keep `npm run mock-device` running, then select the simulator explicitly:
+
+```bash
+npm run test:visual:flows -- --platform ios --device <simulator-UDID>
+```
+
+The runner waits for that simulator to finish booting. If XCTest fails to initialize accessibility before any flow starts, it restarts only the selected simulator and retries once. Original logs remain in the run directory and retry artifacts go in `startup-retry/`. App assertions, crashes, and other failures stay failed. Use a new `CROSSPOINT_VISUAL_OUTPUT` directory for each run; `npm run test:visual:runner` checks this recovery behavior without starting a simulator.
+
 ### Android visual tests
 
 Install Maestro 2.10 or newer, start an Android emulator, and install the APK. Keep `npm run mock-device` running, then run:

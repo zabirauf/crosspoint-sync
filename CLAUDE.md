@@ -29,6 +29,7 @@ npm run test:visual:flows     # Run Maestro flows only (no LLM judge)
 npm run test:visual:judge     # Run LLM judge only (requires screenshots)
 npm run test:visual:studio    # Interactive flow authoring (browser UI)
 npm run test:visual:report    # View latest run report
+npm run test:visual:runner    # Test iOS startup recovery decisions without devices
 npm run mock-device           # Start mock device server for connected-state tests
 ```
 
@@ -220,6 +221,8 @@ You can also run `/test settings` or `/test library` to test a specific screen, 
 3. Remove stale reference screenshots from `test-references/`
 
 ### Connected-State Testing
+
+For iOS, select a simulator with `npm run test:visual:flows -- --platform ios --device <UDID>`. The runner waits for boot completion and allows one cold restart of that simulator only for a recognized XCTest accessibility initialization failure before flow execution. It preserves the original logs and stores the retry under `startup-retry/`; app assertions and other failures are never automatically retried. Each invocation requires a fresh output directory.
 
 Flows tagged `requires-device` need a device (real or mock). To test connected states locally:
 
