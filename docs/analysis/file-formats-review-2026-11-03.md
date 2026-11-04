@@ -1,4 +1,6 @@
-# File format support and validation — November 3, 2026
+# File format support and validation
+
+Last validated November 4, 2026.
 
 Application commit `50ed8e6` supports EPUB/XTC/XTCH books and XTG/XTH image transfers. The branch includes the changes cherry-picked from [PR 21](https://github.com/zabirauf/crosspoint-sync/pull/21). Library and move-sheet rows distinguish books from standalone page images. The upload action now reads “Upload Files.”
 
@@ -39,20 +41,30 @@ Both mock backends list and serve all five formats. The integration suite checks
 | --- | --- |
 | EPUB unit tests | 14/14 pass |
 | Delete protocol contracts | 10/10 pass |
+| iOS runner recovery boundaries | 7/7 pass without touching real devices |
 | Format/picker/queue/HTTP/WebSocket integration | 15/15 reported tests pass |
 | Real URL-to-EPUB integration | 1/1 pass |
 | Production exports | iOS and Android pass |
 | Fresh native release builds | iOS app/extensions and Android APK pass |
 | TypeScript | Same 112 existing diagnostic messages; no new errors |
 | Android Maestro suite | All 16 distinct flows pass after retrying two blocked dialogs; Settings capture also refreshed |
-| iOS native UI checks | Five format rows/icons, XTH actions, native multi-file picker and five uploads verified |
+| iOS Maestro regression suite | 16/16 flows pass on November 4; zero JUnit failures/errors |
+| iOS native picker integrity | All five formats selected and uploaded in the earlier native checks; exact bytes verified |
 | Native transfer integrity | All ten native uploads (five formats per platform) match the original bytes |
 
-Tests use the Pixel 7 / Android API 36 emulator and an isolated iPhone 16 Pro / iOS 18.4 simulator, connected to a disk-backed mock reporting firmware 1.3.0. The full iOS Maestro suite remains blocked before app test commands by XCTest’s `AXDisableAccessibilityOnTermination: kAXErrorCannotComplete`, reproduced with Maestro 2.10 and 2.12.1. The iOS checks above use Meta idb 1.7.8 direct native touch input and visual inspection and are explicitly labeled manual. No iOS automated suite pass is claimed. The external visual judge was not invoked; screenshots are reviewed locally. Native share registrations remain EPUB-only. No physical-reader rendering test was performed.
+Tests use the Pixel 7 / Android API 36 emulator and an isolated iPhone 16 Pro / iOS 18.4 simulator, connected to a disk-backed mock reporting firmware 1.3.0. On November 3, XCTest initialization failed with `AXDisableAccessibilityOnTermination: kAXErrorCannotComplete`, so Meta idb 1.7.8 direct touch input supplied the separate manual picker checks and video. On November 4, the actual Maestro suite completed all 16 flows in 1,100.462 seconds with zero failures/errors. Those automated results are separate from the manual native picker recording. The external visual judge was not invoked; screenshots are reviewed locally. Native share registrations remain EPUB-only. No physical-reader rendering test was performed.
 
 The initial Android run passed 14/16 flows. Gboard’s “Try out your stylus” tutorial obscured Rename and New Folder, and also covered the otherwise-passing Settings edit screenshot. The test emulator’s [Android handwriting toggle](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android16-release/core/java/android/provider/Settings.java) was temporarily disabled, and all three affected flows passed with clear captures. The original runs are preserved; consolidated reports and 17 reviewed screenshots are under `test-screenshots/android/xtg-xth-50ed8e6-verified/`. The format list, XTCH/XTH actions, and connected/disconnected Upload Files references were refreshed after local review.
 
 Native release builds and production exports use application commit `50ed8e6`. The TypeScript comparison ignores shifted line numbers and compares diagnostic file, code, and message; all 112 messages match the prior baseline.
+
+## iOS automation recovery — November 4, 2026
+
+A cold boot of the isolated iOS 18.4 simulator restored the accessibility handshake: `testmanagerd` recorded `AXDisableAccessibilityOnTermination() returned kAXErrorSuccess`, and the real app-launch smoke test passed. The underlying Apple initialization failure is intermittent; no application source change was needed.
+
+Runner commit `daaca59` waits for the explicitly selected simulator to finish booting. If a recognized accessibility initialization failure occurs before any flow starts, it preserves the original logs, cold-restarts only that simulator, and makes one further attempt under `startup-retry/`. Assertions, app crashes, unrelated startup failures, physical phones, and Android devices cannot trigger this recovery. A second initialization failure stays failed. Fresh output directories prevent stale logs from influencing the decision.
+
+Seven isolated runner tests verify those success/failure boundaries without operating a real device. The EPUB, delete, format integration, and real URL-to-EPUB tests also pass. The full iOS suite passed against the unchanged application commit `50ed8e6` using the repaired runner. A further automated dark-mode run also passed after booting in dark appearance, and its capture was verified visually. This corrects a false positive in the initial system-appearance assertion, whose capture remained light. Both original and rerun evidence are preserved; the incorrect light iOS dark reference was replaced with the verified dark capture after announcing and reviewing the change.
 
 ## Review media
 
@@ -67,6 +79,8 @@ New annotated recordings show actual native app interactions. Both include chapt
 
 ## Reproduction and retained evidence
 
-Run `npm run test:basic`, `npm run test:epub:integration`, `npm run check:bundles`, and `npm run typecheck` through `bash scripts/with-dev-env.sh` when Node is not on PATH. For native checks, start `npm run mock-device`, install the current Release app on the chosen simulator/emulator, then run `npm run test:visual:android` or `npm run test:visual:flows -- --platform ios --device <simulator-UDID>`. The iOS command requires a working XCTest session; the failure above remains unresolved. Set `CROSSPOINT_VISUAL_OUTPUT` to preserve a separate run directory. The external judge requires explicit authorization to export screenshots; it is separate from these local checks.
+Run `npm run test:basic`, `npm run test:epub:integration`, `npm run check:bundles`, and `npm run typecheck` through `bash scripts/with-dev-env.sh` when Node is not on PATH. For native checks, start `npm run mock-device`, install the current Release app on the chosen simulator/emulator, then run `npm run test:visual:android` or `npm run test:visual:flows -- --platform ios --device <simulator-UDID>`. The runner handles the specific pre-flow accessibility startup failure as described above; all other failures retain their original exit status. Set `CROSSPOINT_VISUAL_OUTPUT` to preserve a separate run directory. The external judge requires explicit authorization to export screenshots; it is separate from these local checks.
 
 Raw captures and test artifacts are retained under `test-screenshots/videos/xtg-xth-50ed8e6/`; native build/test logs use `.local/xtg-xth-*.log`. Earlier reviews, three-format test reports, and superseded recordings remain available in the [pre-consolidation commit](https://github.com/zabirauf/crosspoint-sync/tree/c4258fe85e6859829a3af2199d46341deba02c5d/docs/analysis). Their results apply to the application commits named in those reports.
+
+The November 4 full run is under `test-screenshots/ios/automation-fix-20261104/full/`, with its 16-test JUnit report at `test-screenshots/ios/automation-fix-20261104/results.xml`. The passing dark-mode verification is under `dark-cold-boot/` in that run directory. Consolidated JUnit results and all 17 reviewed captures, using that corrected dark screenshot, are under `verified/`. On this runtime, appearance preference changes can require a simulator reboot before rendering changes; review the actual capture instead of relying solely on `assertDarkMode`. Startup, basic, and recovery-check logs use `.local/ios-automation-fix-*.log`.
