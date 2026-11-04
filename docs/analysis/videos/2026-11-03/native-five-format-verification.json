@@ -1,0 +1,72 @@
+[
+  {
+    "platform": "ios",
+    "extension": "epub",
+    "bytes": 257389,
+    "sha256": "d86f49bf911337a36b46aa290976f67977b2e9953f4c322c11d1e76c6131c588",
+    "matchesOriginal": true
+  },
+  {
+    "platform": "ios",
+    "extension": "xtc",
+    "bytes": 2546518,
+    "sha256": "cfeab00f479e287c47e83476160328b46237d6d059aeb3e0d8bd3d7fc9aea300",
+    "matchesOriginal": true
+  },
+  {
+    "platform": "ios",
+    "extension": "xtch",
+    "bytes": 5090518,
+    "sha256": "f0f0fa9a05cae7d0a3c26ac761cad6d399c00e4b8ebb89c4897e7792b8f6e96b",
+    "matchesOriginal": true
+  },
+  {
+    "platform": "ios",
+    "extension": "xtg",
+    "bytes": 48022,
+    "sha256": "73fc1e2629dbb10021319f8a6fee79dac3ca96319b1775289c57cbdabfb2ad27",
+    "matchesOriginal": true
+  },
+  {
+    "platform": "ios",
+    "extension": "xth",
+    "bytes": 96022,
+    "sha256": "1ecafab54cd2d23b893d26782c267efe53f203d7fe3b80a1fb5487b18956f28f",
+    "matchesOriginal": true
+  },
+  {
+    "platform": "android",
+    "extension": "epub",
+    "bytes": 257389,
+    "sha256": "d86f49bf911337a36b46aa290976f67977b2e9953f4c322c11d1e76c6131c588",
+    "matchesOriginal": true
+  },
+  {
+    "platform": "android",
+    "extension": "xtc",
+    "bytes": 2546518,
+    "sha256": "cfeab00f479e287c47e83476160328b46237d6d059aeb3e0d8bd3d7fc9aea300",
+    "matchesOriginal": true
+  },
+  {
+    "platform": "android",
+    "extension": "xtch",
+    "bytes": 5090518,
+    "sha256": "f0f0fa9a05cae7d0a3c26ac761cad6d399c00e4b8ebb89c4897e7792b8f6e96b",
+    "matchesOriginal": true
+  },
+  {
+    "platform": "android",
+    "extension": "xtg",
+    "bytes": 48022,
+    "sha256": "73fc1e2629dbb10021319f8a6fee79dac3ca96319b1775289c57cbdabfb2ad27",
+    "matchesOriginal": true
+  },
+  {
+    "platform": "android",
+    "extension": "xth",
+    "bytes": 96022,
+    "sha256": "1ecafab54cd2d23b893d26782c267efe53f203d7fe3b80a1fb5487b18956f28f",
+    "matchesOriginal": true
+  }
+]
