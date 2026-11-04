@@ -1,4 +1,4 @@
-import { SUPPORTED_EXTENSIONS, type BookExtension } from '@/constants/BookFormats';
+import { FILE_FORMATS, getFileFormat, SUPPORTED_EXTENSIONS, type SupportedExtension } from '@/constants/FileFormats';
 
 export interface FirmwareVersion {
   major: number;
@@ -7,16 +7,14 @@ export interface FirmwareVersion {
 }
 
 export interface DeviceCapabilities {
-  supportedBookExtensions: readonly BookExtension[];
+  supportedFileExtensions: readonly SupportedExtension[];
   /** This is a MIME filter, not a filename glob. */
-  bookPickerMimeType: 'application/epub+zip' | '*/*';
+  filePickerMimeType: 'application/epub+zip' | '*/*';
   rename: boolean;
   move: boolean;
   settingsApi: boolean;
   batchDelete: boolean;
 }
-
-export const XTC_MIN_FIRMWARE = [0, 10, 0] as const;
 
 /**
  * Parse firmware version string like "1.1.0", "1.1.0-dev", "1.1.0-rc+abc123".
@@ -55,16 +53,16 @@ export function firmwareAtLeast(
  * Unknown/unparseable versions allow EPUB only and disable optional APIs.
  */
 export function getDeviceCapabilities(version: string | undefined): DeviceCapabilities {
-  // Both XTC (1-bit) and XTCH (2-bit) readers shipped in 0.10.0.
-  const supportedBookExtensions = firmwareAtLeast(version, ...XTC_MIN_FIRMWARE)
-    ? SUPPORTED_EXTENSIONS
-    : SUPPORTED_EXTENSIONS.filter((extension) => extension === '.epub');
+  const supportedFileExtensions = SUPPORTED_EXTENSIONS.filter((extension) => {
+    const minimum = FILE_FORMATS[extension].minimumFirmware;
+    return minimum === null || firmwareAtLeast(version, minimum[0], minimum[1], minimum[2]);
+  });
 
   return {
-    supportedBookExtensions,
-    // XTC/XTCH providers can report unknown or vendor-specific MIME types.
+    supportedFileExtensions,
+    // Bitmap/container providers can report unknown or vendor-specific MIME types.
     // The picker must therefore validate the selected filenames afterwards.
-    bookPickerMimeType: supportedBookExtensions.some((extension) => extension !== '.epub')
+    filePickerMimeType: supportedFileExtensions.some((extension) => extension !== '.epub')
       ? '*/*'
       : 'application/epub+zip',
     rename: firmwareAtLeast(version, 1, 0, 0),
@@ -73,4 +71,11 @@ export function getDeviceCapabilities(version: string | undefined): DeviceCapabi
     // 1.2.0+ /delete expects a `paths` JSON-array form field; older firmware uses `path`.
     batchDelete: firmwareAtLeast(version, 1, 2, 0),
   };
+}
+
+/** Explain a recognized format rejected by the picker or a persisted queue job. */
+export function getFileFirmwareError(fileName: string, version: string | undefined): string {
+  const format = getFileFormat(fileName);
+  if (!format?.minimumFirmware) return `Unsupported file: ${fileName}.`;
+  return `${format.extension.slice(1).toUpperCase()} uploads require firmware ${format.minimumFirmware.join('.')} or later (connected: ${version || 'unknown'}).`;
 }

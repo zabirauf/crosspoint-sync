@@ -73,7 +73,7 @@ export function ActionFAB({ onAddBook, onNewFolder, onSleepBackground, showNewFo
           >
             <XStack gap="$2.5" alignItems="center" paddingHorizontal="$3" paddingVertical="$2.5">
               <FontAwesome name="book" size={16} color={isDark ? '#81d4fa' : '#1a73e8'} />
-              <Text fontSize="$3" fontWeight="500">Upload Book</Text>
+              <Text fontSize="$3" fontWeight="500">Upload Files</Text>
             </XStack>
           </Pressable>
           {showNewFolder && (

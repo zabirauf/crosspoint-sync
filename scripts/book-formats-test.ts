@@ -16,14 +16,15 @@ import { test } from 'node:test';
 import React from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import WebSocket from 'ws';
-import { isSupportedBook } from '../constants/BookFormats';
+import { isSupportedFile } from '../constants/FileFormats';
 import { getDeviceCapabilities } from '../services/firmware-version';
 import type { DeviceFile, DeviceStatus } from '../types/device';
 import type { DocumentPickerOptions, DocumentPickerResult } from 'expo-document-picker';
 
 const projectRoot = path.resolve(__dirname, '..');
 const fixturesDir = path.join(projectRoot, 'test-mock-filesystem/Formats');
-const fixtureNames = ['Gettysburg-Address.epub', 'Gettysburg-Address.xtc', 'Gettysburg-Address.xtch'];
+const fixtureNames = ['Gettysburg-Address.epub', 'Gettysburg-Address.xtc', 'Gettysburg-Address.xtch',
+  'Gettysburg-Address.xtg', 'Gettysburg-Address.xth'];
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'crosspoint-book-formats-'));
 const alerts: string[] = [];
 let pickerResult: DocumentPickerResult = { canceled: true, assets: null };
@@ -158,34 +159,42 @@ async function stopMock(child: ChildProcess) {
   await exited;
 }
 
-test('supported book formats', async t => {
+test('supported upload formats', async t => {
   try {
     setFirmware('1.3.0');
     await t.test('case-insensitive extensions reject unsupported and misleading suffixes', () => {
-      for (const name of ['novel.epub', 'novel.XTC', 'novel.XtCh']) assert.ok(isSupportedBook(name), name);
-      for (const name of ['novel.pdf', 'novel.xtc.zip', 'novel.epub.exe', 'xtch', 'novel.xtch.backup', '']) {
-        assert.equal(isSupportedBook(name), false, name);
+      for (const name of ['novel.epub', 'novel.XTC', 'novel.XtCh', 'page.XTG', 'page.XtH']) assert.ok(isSupportedFile(name), name);
+      for (const name of ['novel.pdf', 'novel.xtc.zip', 'novel.epub.exe', 'xtch', 'novel.xtch.backup', 'page.xtg.zip', 'page.xth.exe', '']) {
+        assert.equal(isSupportedFile(name), false, name);
       }
     });
 
-    await t.test('XTC and XTCH share the 0.10.0 capability boundary with a safe unknown-version fallback', () => {
+    await t.test('container reading and standalone image transfers have distinct firmware boundaries', () => {
       for (const version of [undefined, '', 'unknown', '0.9.0', '0.9.99']) {
-        const { supportedBookExtensions, bookPickerMimeType } = getDeviceCapabilities(version);
-        assert.deepEqual(supportedBookExtensions, ['.epub']);
-        assert.equal(bookPickerMimeType, 'application/epub+zip');
-        assert.ok(isSupportedBook('book.EPUB', supportedBookExtensions));
-        for (const name of ['book.XTC', 'book.XtCh', 'book.pdf', 'book.xtc.zip']) {
-          assert.equal(isSupportedBook(name, supportedBookExtensions), false, name);
+        const { supportedFileExtensions, filePickerMimeType } = getDeviceCapabilities(version);
+        assert.deepEqual(supportedFileExtensions, ['.epub']);
+        assert.equal(filePickerMimeType, 'application/epub+zip');
+        assert.ok(isSupportedFile('book.EPUB', supportedFileExtensions));
+        for (const name of ['book.XTC', 'book.XtCh', 'page.XTG', 'page.XTH', 'book.pdf', 'book.xtc.zip']) {
+          assert.equal(isSupportedFile(name, supportedFileExtensions), false, name);
         }
       }
-      for (const version of ['0.10.0', '0.10.0-rc+abc123', '0.11.0', '1.0.0', '1.3.0', '1.6.5']) {
-        const { supportedBookExtensions, bookPickerMimeType } = getDeviceCapabilities(version);
-        assert.deepEqual(supportedBookExtensions, ['.epub', '.xtc', '.xtch']);
-        assert.equal(bookPickerMimeType, '*/*');
-        for (const name of fixtureNames) assert.ok(isSupportedBook(name, supportedBookExtensions));
+      for (const version of ['0.10.0', '0.10.0-rc+abc123', '0.11.0', '0.13.99']) {
+        const { supportedFileExtensions, filePickerMimeType } = getDeviceCapabilities(version);
+        assert.deepEqual(supportedFileExtensions, ['.epub', '.xtc', '.xtch']);
+        assert.equal(filePickerMimeType, '*/*');
+        for (const name of fixtureNames.slice(0, 3)) assert.ok(isSupportedFile(name, supportedFileExtensions));
+        for (const name of ['page.xtg', 'page.XTH']) assert.equal(isSupportedFile(name, supportedFileExtensions), false);
         for (const name of ['book.pdf', 'book.txt', 'book.xtc.zip', 'book.epub.exe']) {
-          assert.equal(isSupportedBook(name, supportedBookExtensions), false, name);
+          assert.equal(isSupportedFile(name, supportedFileExtensions), false, name);
         }
+      }
+      for (const version of ['0.14.0', '0.14.0-dev+abc123', '0.15.0', '1.0.0', '1.3.0', '1.6.5']) {
+        const { supportedFileExtensions, filePickerMimeType } = getDeviceCapabilities(version);
+        assert.deepEqual(supportedFileExtensions, ['.epub', '.xtc', '.xtch', '.xtg', '.xth']);
+        assert.equal(filePickerMimeType, '*/*');
+        for (const name of fixtureNames) assert.ok(isSupportedFile(name, supportedFileExtensions));
+        assert.equal(isSupportedFile('page.xth.zip', supportedFileExtensions), false);
       }
     });
 
@@ -198,12 +207,12 @@ test('supported book formats', async t => {
       assert.equal(jobs().length, 0);
       assert.equal(alerts.length, 0);
     });
-    await t.test('picker accepts EPUB/XTC/XTCH regardless of MIME and reports skipped files', async () => {
+    await t.test('picker accepts all five formats regardless of MIME and reports skipped files', async () => {
       pickerResult = { canceled: false, assets: [
         ...fixtureNames.map((name, index) => ({
           name: index === 1 ? name.toUpperCase() : name,
           uri: pathToFileURL(path.join(fixturesDir, name)).href,
-          mimeType: ['application/epub+zip', 'application/x-xtc', 'application/octet-stream'][index],
+          mimeType: ['application/epub+zip', 'application/x-xtc', 'application/octet-stream', undefined, 'image/x-xth'][index],
           lastModified: 0,
         })),
         { name: 'notes.pdf', uri: 'file:///must-not-be-read.pdf', lastModified: 0 },
@@ -212,23 +221,23 @@ test('supported book formats', async t => {
       assert.equal(pickerOptions?.type, '*/*');
       assert.equal(pickerOptions?.multiple, true);
       assert.equal(pickerOptions?.copyToCacheDirectory, true);
-      assert.equal(jobs().length, 3);
+      assert.equal(jobs().length, fixtureNames.length);
       jobs().forEach((job, index) => {
         assert.equal(job.fileName.toLowerCase(), fixtureNames[index].toLowerCase());
         assert.equal(job.destinationPath, '/Books');
         assert.equal(job.fileSize, fs.statSync(path.join(fixturesDir, fixtureNames[index])).size);
       });
       assert.match(alerts[0], /Skipped 1/);
-      assert.match(alerts[0], /\.epub, \.xtc, \.xtch/);
+      assert.match(alerts[0], /\.epub, \.xtc, \.xtch, \.xtg, \.xth/);
     });
     await t.test('picker rejects an entirely unsupported selection visibly', async () => {
       pickerResult = { canceled: false, assets: [{ name: 'notes.pdf', uri: 'file:///must-not-be-read.pdf', lastModified: 0 }] };
       await pick('/Books');
-      assert.equal(jobs().length, 3);
+      assert.equal(jobs().length, fixtureNames.length);
       assert.equal(alerts.length, 2);
     });
 
-    await t.test('legacy and unknown firmware limit the picker to EPUB and explain skipped XTC/XTCH', async () => {
+    await t.test('legacy and unknown firmware limit the picker to EPUB and explain skipped formats', async () => {
       for (const version of ['0.9.0', undefined, 'unparseable']) {
         useUploadStore.setState({ jobs: [] });
         if (version === undefined) useDeviceStore.setState({ deviceStatus: null });
@@ -239,9 +248,23 @@ test('supported book formats', async t => {
         await pick('/Legacy');
         assert.equal(pickerOptions?.type, 'application/epub+zip');
         assert.deepEqual(jobs().map(job => job.fileName), [fixtureNames[0]]);
-        assert.match(alerts.at(-1)!, /Skipped 2.*Supported book formats: \.epub\./);
+        assert.match(alerts.at(-1)!, /Skipped 4.*Supported formats: \.epub\./);
         assert.match(alerts.at(-1)!, /require firmware 0\.10\.0 or later/);
+        assert.match(alerts.at(-1)!, /XTH uploads require firmware 0\.14\.0 or later/);
       }
+    });
+
+    await t.test('picker rejects standalone images before WebSocket support without rejecting containers', async () => {
+      useUploadStore.setState({ jobs: [] });
+      setFirmware('0.13.99');
+      pickerResult = { canceled: false, assets: fixtureNames.map((name, index) => ({
+        name, uri: index < 3 ? pathToFileURL(path.join(fixturesDir, name)).href : 'file:///must-not-be-read', lastModified: 0,
+      })) };
+      await pick('/Legacy');
+      assert.equal(pickerOptions?.type, '*/*');
+      assert.deepEqual(jobs().map(job => job.fileName), fixtureNames.slice(0, 3));
+      assert.match(alerts.at(-1)!, /Skipped 2/);
+      assert.match(alerts.at(-1)!, /XTG uploads require firmware 0\.14\.0/);
     });
 
     await t.test('picker rechecks firmware when the reader changes while the picker is open', async () => {
@@ -253,24 +276,25 @@ test('supported book formats', async t => {
         await pick('/Books');
         assert.equal(pickerOptions?.type, '*/*');
         assert.equal(jobs().length, 0);
-        assert.match(alerts.at(-1)!, /connected version: 0\.9\.0/);
+        assert.match(alerts.at(-1)!, /connected: 0\.9\.0/);
       } finally { onPickerOpen = () => {}; setFirmware('1.3.0'); }
     });
     await act(async () => { harness.unmount(); });
 
-    await t.test('real file rows use book icons in both themes while extension-named folders stay folders', async () => {
+    await t.test('real file rows distinguish images and books in both themes while extension-named folders stay folders', async () => {
       for (const dark of [false, true]) {
         isDark = dark;
         for (const file of [
           ...fixtureNames.map(name => ({ name, size: 10, isDirectory: false, isEpub: name.endsWith('.epub') })),
           { name: 'Folder.xtc', size: 0, isDirectory: true, isEpub: false },
+          { name: 'Folder.xth', size: 0, isDirectory: true, isEpub: false },
           { name: 'notes.txt', size: 10, isDirectory: false, isEpub: false },
         ]) {
           let row!: ReactTestRenderer;
           await act(async () => { row = create(React.createElement(FileRow, { file, onPress: () => {} })); });
           const icon = row.root.findByProps({ testID: `Library.FileRow.${file.name}.Icon` });
-          assert.equal(icon.props.name, file.isDirectory ? 'folder' : file.name.endsWith('.txt') ? 'file-o' : 'book');
-          if (isSupportedBook(file.name) && !file.isDirectory) assert.equal(icon.props.color, dark ? '#81d4fa' : '#1a73e8');
+          assert.equal(icon.props.name, file.isDirectory ? 'folder' : file.name.endsWith('.txt') ? 'file-o' : /\.(xtg|xth)$/.test(file.name) ? 'file-image-o' : 'book');
+          if (isSupportedFile(file.name) && !file.isDirectory) assert.equal(icon.props.color, dark ? '#81d4fa' : '#1a73e8');
           await act(async () => { row.unmount(); });
         }
       }
@@ -294,6 +318,23 @@ test('supported book formats', async t => {
           assert.equal(data.readUInt16LE(entry + 14), 800);
           assert.equal(size, 22 + (extension === 'xtc' ? 48000 : 96000));
         }
+      }
+    });
+
+    await t.test('standalone XTG/XTH fixtures are complete bitmap pages extracted from the legal containers', () => {
+      for (const [container, image, payloadSize] of [['xtc', 'xtg', 48000], ['xtch', 'xth', 96000]] as const) {
+        const data = fs.readFileSync(path.join(fixturesDir, `Gettysburg-Address.${image}`));
+        assert.equal(data.subarray(0, 4).toString(), `${image.toUpperCase()}\0`);
+        assert.equal(data.readUInt16LE(4), 480);
+        assert.equal(data.readUInt16LE(6), 800);
+        assert.equal(data[9], 0, 'uncompressed bitmap');
+        assert.equal(data.readUInt32LE(10), payloadSize);
+        assert.equal(data.length, 22 + payloadSize);
+        assert.ok(new Set(data.subarray(22)).size > 2, 'real rendered page, not an empty bitmap');
+        const source = fs.readFileSync(path.join(fixturesDir, `Gettysburg-Address.${container}`));
+        const table = Number(source.readBigUInt64LE(24));
+        const offset = Number(source.readBigUInt64LE(table));
+        assert.deepEqual(data, source.subarray(offset, offset + source.readUInt32LE(table + 8)));
       }
     });
 
@@ -357,7 +398,7 @@ test('supported book formats', async t => {
         let stopQueue = () => {};
         try {
           // Queued before connecting (as persisted jobs or share imports can be).
-          for (const extension of ['XTC', 'XtCh']) {
+          for (const extension of ['XTC', 'XtCh', 'XTG', 'XtH']) {
             useUploadStore.getState().addJob({ fileName: `legacy.${extension}`, fileUri: 'file:///must-not-be-read', fileSize: 10, destinationPath: '/Rejected' });
           }
           useUploadStore.getState().addJob({ fileName: 'legacy.epub', fileUri: pathToFileURL(path.join(fixturesDir, fixtureNames[0])).href,
@@ -376,13 +417,23 @@ test('supported book formats', async t => {
           // client format gate. Physical firmware <0.14.0 has no WS uploads.
           setFirmware('0.9.0');
           await waitUntil(() => jobs().at(-1)?.status === 'completed');
-          for (const job of jobs().slice(0, 2)) {
+          for (const job of jobs().slice(0, 4)) {
             assert.equal(job.status, 'failed');
-            assert.match(job.error!, /require firmware 0\.10\.0.*connected: 0\.9\.0/);
+            assert.match(job.error!, /require firmware 0\.(10|14)\.0.*connected: 0\.9\.0/);
           }
           assert.equal(connections, 1, 'only EPUB opens a socket');
           assert.equal((await fetch(`http://127.0.0.1:${httpPort}/download?path=/Rejected/legacy.XTC`)).status, 404);
           assert.equal((await fetch(`http://127.0.0.1:${httpPort}/download?path=/Rejected/legacy.XtCh`)).status, 404);
+          assert.equal((await fetch(`http://127.0.0.1:${httpPort}/download?path=/Rejected/legacy.XTG`)).status, 404);
+          assert.equal((await fetch(`http://127.0.0.1:${httpPort}/download?path=/Rejected/legacy.XtH`)).status, 404);
+
+          setFirmware('0.13.99');
+          for (const extension of ['xtg', 'xth']) {
+            useUploadStore.getState().addJob({ fileName: `pre-ws.${extension}`, fileUri: 'file:///must-not-be-read', fileSize: 10, destinationPath: '/Rejected' });
+          }
+          await waitUntil(() => jobs().slice(-2).every(job => job.status === 'failed'));
+          for (const job of jobs().slice(-2)) assert.match(job.error!, /require firmware 0\.14\.0.*connected: 0\.13\.99/);
+          assert.equal(connections, 1, 'rejected image jobs never open a socket');
 
           useDeviceStore.getState().disconnect();
           useUploadStore.setState({ jobs: [] });
@@ -396,7 +447,7 @@ test('supported book formats', async t => {
           // Version change must wake the queue even though status stays connected.
           useDeviceStore.getState().updateDeviceStatus(mock.status);
           await waitUntil(() => jobs().every(job => job.status === 'completed'));
-          assert.equal(connections, 3);
+          assert.equal(connections, fixtureNames.length);
           for (const name of fixtureNames.slice(1)) {
             const downloaded = await api.downloadFile('127.0.0.1', `/Accepted/queue-${name}`);
             assert.deepEqual(fs.readFileSync(fileURLToPath(downloaded)), fs.readFileSync(path.join(fixturesDir, name)));

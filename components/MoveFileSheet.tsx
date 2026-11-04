@@ -5,7 +5,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { DeviceFile } from '@/types/device';
 import { getFiles } from '@/services/device-api';
 import { useDeviceStore } from '@/stores/device-store';
-import { isSupportedBook } from '@/constants/BookFormats';
+import { getFileFormat, isSupportedFile } from '@/constants/FileFormats';
 
 interface MoveFileSheetProps {
   open: boolean;
@@ -333,10 +333,10 @@ export function MoveFileSheet({
                       borderBottomColor={isDark ? '$gray5' : '$gray4'}
                     >
                       <FontAwesome
-                        name={isSupportedBook(f.name) ? 'book' : f.name.toLowerCase().endsWith('.pdf') ? 'file-pdf-o' : 'file-o'}
+                        name={getFileFormat(f.name)?.kind === 'image' ? 'file-image-o' : isSupportedFile(f.name) ? 'book' : f.name.toLowerCase().endsWith('.pdf') ? 'file-pdf-o' : 'file-o'}
                         size={20}
                         color={
-                          isSupportedBook(f.name)
+                          isSupportedFile(f.name)
                             ? (isDark ? '#81d4fa' : '#1a73e8')
                             : (isDark ? '#ccc' : '#666')
                         }

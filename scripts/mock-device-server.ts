@@ -19,7 +19,7 @@ import * as fs from 'fs';
 import * as nodePath from 'path';
 import { URL } from 'url';
 import WebSocket from 'ws';
-import { isSupportedBook } from '../constants/BookFormats';
+import { isSupportedFile } from '../constants/FileFormats';
 
 // ─── CLI Args ───
 
@@ -271,7 +271,7 @@ class MemoryBackend implements FileBackend {
     // Use the same redistributable book fixtures as the disk-backed visual
     // server. Keep the firmware's isEpub flag EPUB-specific.
     const fixturesDir = nodePath.resolve(__dirname, '../test-mock-filesystem/Formats');
-    this.files.set('/Formats', fs.readdirSync(fixturesDir).filter((name) => isSupportedBook(name)).map((name) => {
+    this.files.set('/Formats', fs.readdirSync(fixturesDir).filter((name) => isSupportedFile(name)).map((name) => {
       const data = fs.readFileSync(nodePath.join(fixturesDir, name));
       this.contents.set(`/Formats/${name}`, data);
       return { name, size: data.length, isDirectory: false, isEpub: name.toLowerCase().endsWith('.epub') };
