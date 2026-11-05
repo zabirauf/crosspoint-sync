@@ -1,0 +1,22 @@
+id: completed-upload-queue
+name: "Android - Completed Upload Queue"
+flow: manual-flows/android-completed-queue.yaml
+screenshots:
+  - android-queue-landscape
+  - android-queue-portrait
+platforms: [android]
+themes: [light]
+tags: [adaptive, upload, connected, requires-device]
+description: |
+  The queue remains open through landscape-to-portrait rotation after a real
+  synthetic crop upload completes. It shows a completed count, an empty active
+  queue, an Add Books action and a close control.
+assertions:
+  - text: "The Upload Queue title, completed count and close control are fully visible"
+    severity: fail
+  - text: "Add Books is fully visible inside the dialog and clears system safe areas"
+    severity: fail
+  - text: "The queue reports no active uploads after the completed transfer"
+    severity: fail
+ignore:
+  - "Background file names"

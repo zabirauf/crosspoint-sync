@@ -1,0 +1,93 @@
+appId: com.crosspointsync.app
+name: "Android - Landscape Keyboard Reachability"
+tags:
+  - requires-device
+  - adaptive
+---
+# Android can dismiss the IME on rotation. Reopen it in landscape so this
+# checks actual keyboard avoidance rather than only a retained text draft.
+- setOrientation: PORTRAIT
+- runFlow: ../helpers/ensure-connected.yaml
+- tapOn:
+    id: "Library.FileRow.Formats"
+- tapOn:
+    id: "Library.FileRow.Gettysburg-Address.epub.More"
+- tapOn:
+    id: "FileActions.Rename"
+- tapOn:
+    id: "PromptDialog.Input"
+    point: "95%,50%"
+- eraseText: 100
+- inputText: "Android landscape draft.epub"
+- setOrientation: LANDSCAPE_LEFT
+- tapOn:
+    id: "PromptDialog.Input"
+- assertVisible: "Symbol keyboard"
+- assertVisible: "Android landscape draft.epub"
+- assertVisible:
+    id: "PromptDialog.Input"
+- assertVisible:
+    id: "PromptDialog.CancelButton"
+- assertVisible:
+    id: "PromptDialog.SubmitButton"
+- takeScreenshot: android-rename-landscape-keyboard
+- tapOn:
+    id: "PromptDialog.CancelButton"
+- assertNotVisible:
+    id: "PromptDialog.Content"
+- setOrientation: PORTRAIT
+- tapOn:
+    id: "Library.FileRow.Gettysburg-Address.epub.More"
+- tapOn:
+    id: "FileActions.Move"
+- tapOn:
+    id: "MoveFile.NewFolderButton"
+- evalScript: ${output.folderDraft = "Android folder " + Date.now()}
+- inputText: "${output.folderDraft}"
+- setOrientation: LANDSCAPE_LEFT
+- tapOn:
+    id: "MoveFile.FolderNameInput"
+- assertVisible: "Symbol keyboard"
+- assertVisible: "${output.folderDraft}"
+- assertVisible:
+    id: "MoveFile.FolderNameInput"
+- assertVisible:
+    id: "MoveFile.CreateFolderButton"
+- assertVisible:
+    id: "MoveFile.CancelButton"
+- assertVisible:
+    id: "MoveFile.EditorDestination"
+- takeScreenshot: android-move-landscape-keyboard
+- hideKeyboard
+- assertVisible: "${output.folderDraft}"
+- assertVisible:
+    id: "MoveFile.MoveHereButton"
+- takeScreenshot: android-move-landscape-keyboard-dismissed
+- tapOn:
+    id: "MoveFile.FolderNameInput"
+- tapOn:
+    id: "MoveFile.CreateFolderButton"
+- extendedWaitUntil:
+    notVisible:
+      id: "MoveFile.FolderNameInput"
+    timeout: 10000
+- assertVisible:
+    id: "MoveFile.Folder.${output.folderDraft}"
+- assertVisible:
+    id: "MoveFile.MoveHereButton"
+- takeScreenshot: android-created-folder-landscape
+- tapOn:
+    id: "MoveFile.NewFolderButton"
+- assertVisible:
+    id: "MoveFile.EditorDestination"
+- tapOn:
+    id: "MoveFile.CancelButton"
+- assertNotVisible:
+    id: "MoveFile.FolderNameInput"
+- assertVisible:
+    id: "MoveFile.Sheet"
+- tapOn:
+    id: "MoveFile.CloseButton"
+- assertNotVisible:
+    id: "MoveFile.Sheet"
+- setOrientation: PORTRAIT

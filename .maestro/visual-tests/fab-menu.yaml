@@ -3,7 +3,7 @@ name: "FAB Menu - Open"
 flow: flows/10-fab-menu.yaml
 screenshots:
   - fab-menu-open
-platforms: [ios]
+platforms: [ios, android]
 themes: [light]
 tags: [smoke, library, fab]
 

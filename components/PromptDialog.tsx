@@ -94,6 +94,7 @@ export function PromptDialog({
             onSubmitEditing={handleSubmit}
             autoCapitalize="none"
             autoCorrect={false}
+            disableFullscreenUI
           />
         </YStack>
       </ScrollView>

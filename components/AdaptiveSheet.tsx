@@ -1,11 +1,12 @@
-import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View, useColorScheme } from 'react-native';
+import { type ReactNode, useEffect, useState } from 'react';
+import { Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View, useColorScheme } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useAdaptiveLayout } from '@/hooks/use-adaptive-layout';
 
 const SHEET_MAX_WIDTH = 560;
 const DEFAULT_SHEET_HEIGHT = 640;
 const SHEET_VIEWPORT_CLEARANCE = 24;
+const KEYBOARD_VERTICAL_PADDING = 8;
 
 interface AdaptiveSheetProps {
   open: boolean;
@@ -19,8 +20,20 @@ interface AdaptiveSheetProps {
 function SheetSurface({ onOpenChange, testID, children, height = DEFAULT_SHEET_HEIGHT, padding = 16 }: AdaptiveSheetProps) {
   const { expanded, height: windowHeight, insets } = useAdaptiveLayout();
   const isDark = useColorScheme() === 'dark';
+  const [androidKeyboard, setAndroidKeyboard] = useState(
+    () => Platform.OS === 'android' ? Keyboard.metrics() : undefined,
+  );
+  const androidKeyboardDocked = androidKeyboard !== undefined && androidKeyboard.height > 0 &&
+    androidKeyboard.screenY + androidKeyboard.height >= windowHeight - insets.bottom;
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    const show = Keyboard.addListener('keyboardDidShow', (event) => setAndroidKeyboard(event.endCoordinates));
+    const hide = Keyboard.addListener('keyboardDidHide', () => setAndroidKeyboard(undefined));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
+  // Edge-to-edge Android modals do not resize their content above the IME.
   return (
-    <KeyboardAvoidingView style={styles.fill} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={styles.fill} behavior="padding">
       <Pressable
         style={styles.backdrop}
         onPress={() => onOpenChange(false)}
@@ -28,9 +41,10 @@ function SheetSurface({ onOpenChange, testID, children, height = DEFAULT_SHEET_H
         accessibilityLabel="Dismiss dialog"
         testID={`${testID}.Backdrop`}
       />
+      {/* A docked Android IME already covers the bottom navigation safe area. */}
       <SafeAreaView
         pointerEvents="box-none"
-        edges={['top', 'left', 'right', 'bottom']}
+        edges={androidKeyboardDocked ? ['top', 'left', 'right'] : ['top', 'left', 'right', 'bottom']}
         style={[styles.fill, { justifyContent: expanded ? 'center' : 'flex-end' }]}
       >
         <View
@@ -44,7 +58,8 @@ function SheetSurface({ onOpenChange, testID, children, height = DEFAULT_SHEET_H
               maxWidth: '100%',
               height: Math.min(height, Math.max(0, windowHeight - insets.top - insets.bottom - SHEET_VIEWPORT_CLEARANCE)),
               flexShrink: 1,
-              padding,
+              paddingHorizontal: padding,
+              paddingVertical: androidKeyboardDocked ? Math.min(padding, KEYBOARD_VERTICAL_PADDING) : padding,
               borderRadius: expanded ? 24 : 20,
             },
           ]}

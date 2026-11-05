@@ -142,6 +142,7 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
                     keyboardType="url"
                     autoCapitalize="none"
                     autoCorrect={false}
+                    disableFullscreenUI
                   />
                   <Button
                     size="$4"

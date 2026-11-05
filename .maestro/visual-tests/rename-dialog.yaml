@@ -3,7 +3,7 @@ name: "Rename Dialog"
 flow: flows/13-rename-dialog.yaml
 screenshots:
   - rename-dialog
-platforms: [ios]
+platforms: [ios, android]
 themes: [light]
 tags: [library, connected, requires-device, file-actions]
 

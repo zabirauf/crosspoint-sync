@@ -1,0 +1,25 @@
+id: compact-folder-editor
+name: "iPhone - Compact Folder Editor"
+flow: manual-flows/iphone-compact-folder-editor.yaml
+screenshots:
+  - iphone-compact-folder-landscape
+  - iphone-folder-restored-portrait
+platforms: [ios]
+themes: [light]
+tags: [adaptive, keyboard, connected, requires-device]
+description: |
+  A regular iPhone keeps a folder-name draft while rotating with the keyboard.
+  At short heights the focused New folder task shows its destination and
+  Create/Cancel controls. Returning to portrait restores browsing and Move Here.
+assertions:
+  - text: "The complete folder-name field and its draft are readable above the keyboard"
+    severity: fail
+  - text: "Create and Cancel remain fully visible and clear of system safe areas"
+    severity: fail
+  - text: "The landscape view shows the compact New folder task with its destination"
+    severity: fail
+  - text: "The portrait return shows the same draft and destination with Move Here and browsing restored"
+    severity: fail
+ignore:
+  - "Exact keyboard key layout"
+  - "A system selection menu may appear if it does not obscure the input or actions"

@@ -3,7 +3,7 @@ name: "Connection Sheet - Idle"
 flow: flows/03-device-connection.yaml
 screenshots:
   - connection-sheet-idle
-platforms: [ios]
+platforms: [ios, android]
 themes: [light]
 tags: [smoke, connection]
 

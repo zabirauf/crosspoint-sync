@@ -1,0 +1,37 @@
+appId: com.crosspointsync.app
+name: "iPhone - Shared Compact Move Regression"
+tags:
+  - requires-device
+  - adaptive
+---
+# Run on a regular iPhone with the software keyboard enabled and a disposable
+# connected reader. No folder or book operation is submitted.
+- setOrientation: PORTRAIT
+- runFlow: ../helpers/ensure-connected.yaml
+- tapOn:
+    id: "Library.FileRow.Frankestein.epub.More"
+- tapOn:
+    id: "FileActions.Move"
+- tapOn:
+    id: "MoveFile.NewFolderButton"
+- inputText: "iPhone compact draft"
+- setOrientation: LANDSCAPE_LEFT
+- tapOn:
+    id: "MoveFile.FolderNameInput"
+- assertVisible:
+    id: "MoveFile.EditorDestination"
+- assertVisible: "iPhone compact draft"
+- assertVisible:
+    id: "MoveFile.CreateFolderButton"
+- assertVisible:
+    id: "MoveFile.CancelButton"
+- takeScreenshot: iphone-compact-folder-landscape
+- setOrientation: PORTRAIT
+- assertVisible: "iPhone compact draft"
+- assertVisible:
+    id: "MoveFile.MoveHereButton"
+- takeScreenshot: iphone-folder-restored-portrait
+- tapOn:
+    id: "MoveFile.CancelButton"
+- assertNotVisible:
+    id: "MoveFile.Sheet"
