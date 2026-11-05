@@ -8,6 +8,9 @@ import { useDeviceDiscovery } from '@/hooks/use-device-discovery';
 import { DEFAULT_DEVICE_ADDRESS } from '@/constants/Protocol';
 import { DeviceCard } from '@/components/DeviceCard';
 
+const CONNECTION_SHEET_HEIGHT = 620;
+const CONNECTED_DISMISS_DELAY_MS = 600;
+
 interface ConnectionSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -29,7 +32,7 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
 
   useEffect(() => {
     if (isConnected && !wasConnected.current && open) {
-      const timer = setTimeout(() => onOpenChange(false), 600);
+      const timer = setTimeout(() => onOpenChange(false), CONNECTED_DISMISS_DELAY_MS);
       wasConnected.current = true;
       return () => clearTimeout(timer);
     }
@@ -37,7 +40,7 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
   }, [isConnected, open, onOpenChange]);
 
   return (
-    <AdaptiveSheet open={open} onOpenChange={onOpenChange} testID="Connection.Sheet" height={620} padding={16}>
+    <AdaptiveSheet open={open} onOpenChange={onOpenChange} testID="Connection.Sheet" height={CONNECTION_SHEET_HEIGHT} padding={16}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 8 }}>
         <YStack gap="$3">
           <XStack justifyContent="space-between" alignItems="center">

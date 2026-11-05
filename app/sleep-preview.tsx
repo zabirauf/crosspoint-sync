@@ -52,8 +52,8 @@ export default function SleepPreviewScreen() {
   }, [imageSize, frame]);
 
   // Gesture shared values
-  const scale = useSharedValue(1);
-  const savedScale = useSharedValue(1);
+  const scale = useSharedValue(MIN_ZOOM);
+  const savedScale = useSharedValue(MIN_ZOOM);
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
 
@@ -172,7 +172,7 @@ export default function SleepPreviewScreen() {
         </Button>
         <YStack alignItems="center" flex={1} minWidth={0}>
           <Text color="#fff" fontSize="$4" fontWeight="600" textAlign="center">Sleep Background</Text>
-          <Text testID="SleepPreview.OutputFormat" color="$gray8" fontSize="$2">480 x 800 &middot; Grayscale output</Text>
+          <Text testID="SleepPreview.OutputFormat" color="$gray8" fontSize="$2">{SLEEP_SCREEN_WIDTH} x {SLEEP_SCREEN_HEIGHT} &middot; Grayscale output</Text>
         </YStack>
         <Button
           size="$3"

@@ -9,6 +9,8 @@ import { PromptDialog } from '@/components/PromptDialog';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAdaptiveLayout } from '@/hooks/use-adaptive-layout';
 
+const MIN_INLINE_ROW_WIDTH = 420;
+const MAX_INLINE_ROW_FONT_SCALE = 1.2;
 
 function SettingsRow({
   icon,
@@ -26,7 +28,7 @@ function SettingsRow({
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const { usableWidth, fontScale } = useAdaptiveLayout();
-  const stacked = usableWidth < 420 || fontScale > 1.2;
+  const stacked = usableWidth < MIN_INLINE_ROW_WIDTH || fontScale > MAX_INLINE_ROW_FONT_SCALE;
 
   return (
     <XStack

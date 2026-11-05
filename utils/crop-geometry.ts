@@ -1,6 +1,8 @@
 type Size = { width: number; height: number };
 
-export function fitCropFrame(canvas: Size, aspectRatio: number, padding = 16): Size {
+const DEFAULT_CROP_PADDING = 16;
+
+export function fitCropFrame(canvas: Size, aspectRatio: number, padding = DEFAULT_CROP_PADDING): Size {
   const width = Math.max(1, canvas.width - padding * 2);
   const height = Math.max(1, canvas.height - padding * 2);
   const frameWidth = Math.min(width, height * aspectRatio);

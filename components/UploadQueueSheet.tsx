@@ -9,6 +9,8 @@ import { useDocumentPicker } from '@/hooks/use-document-picker';
 import { cancelCurrentUploadJob } from '@/services/upload-queue';
 import { UploadJobCard } from '@/components/UploadJobCard';
 
+const UPLOAD_QUEUE_SHEET_HEIGHT = 680;
+
 interface UploadQueueSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -30,7 +32,7 @@ export function UploadQueueSheet({ open, onOpenChange }: UploadQueueSheetProps) 
   const failedJobs = jobs.filter((j) => j.status === 'failed' || j.status === 'cancelled');
 
   return (
-    <AdaptiveSheet open={open} onOpenChange={onOpenChange} testID="UploadQueue.Sheet" height={680} padding={16}>
+    <AdaptiveSheet open={open} onOpenChange={onOpenChange} testID="UploadQueue.Sheet" height={UPLOAD_QUEUE_SHEET_HEIGHT} padding={16}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 8 }}>
         <YStack gap="$3">
           <XStack justifyContent="space-between" alignItems="center">

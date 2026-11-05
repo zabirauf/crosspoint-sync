@@ -3,6 +3,7 @@ import { Button, Text, YStack } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { useDeviceStore } from '@/stores/device-store';
 import { useUploadStore } from '@/stores/upload-store';
+import { LIBRARY_CONTEXT_PANEL_WIDTH } from '@/constants/Layout';
 
 export function LibraryContext({ onConnect, onQueue }: { onConnect: () => void; onQueue: () => void }) {
   const { connectedDevice, connectionStatus } = useDeviceStore();
@@ -37,6 +38,6 @@ export function LibraryContext({ onConnect, onQueue }: { onConnect: () => void; 
 }
 
 const styles = StyleSheet.create({
-  panel: { width: 212, borderRightWidth: StyleSheet.hairlineWidth },
+  panel: { width: LIBRARY_CONTEXT_PANEL_WIDTH, borderRightWidth: StyleSheet.hairlineWidth },
   content: { padding: 20 },
 });

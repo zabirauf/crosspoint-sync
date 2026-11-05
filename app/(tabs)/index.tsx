@@ -24,8 +24,13 @@ import { FileActionSheet } from '@/components/FileActionSheet';
 import { MoveFileSheet } from '@/components/MoveFileSheet';
 import { DeviceFile } from '@/types/device';
 import { useAdaptiveLayout } from '@/hooks/use-adaptive-layout';
-import { CONTENT_MAX_WIDTH } from '@/constants/Layout';
+import { BREADCRUMB_SCROLL_DELAY_MS, FAB_BOTTOM_INSET, LIBRARY_CONTEXT_PANEL_WIDTH } from '@/constants/Layout';
 import { LibraryContext } from '@/components/LibraryContext';
+
+const LIBRARY_CONTENT_MAX_WIDTH = 1120;
+const MIN_BROWSER_WIDTH_WITH_CONTEXT = 508;
+const MAX_CONTEXT_FONT_SCALE = 1.3;
+const FAB_BOTTOM_WITH_UPLOAD_BAR = 72;
 
 export default function LibraryScreen() {
   const colorScheme = useColorScheme();
@@ -198,17 +203,21 @@ export default function LibraryScreen() {
   useEffect(() => {
     setTimeout(() => {
       breadcrumbRef.current?.scrollToEnd?.({ animated: true });
-    }, 50);
+    }, BREADCRUMB_SCROLL_DELAY_MS);
   }, [currentPath]);
+
+  const showLibraryContext = expanded &&
+    contentWidth >= LIBRARY_CONTEXT_PANEL_WIDTH + MIN_BROWSER_WIDTH_WITH_CONTEXT &&
+    fontScale < MAX_CONTEXT_FONT_SCALE;
 
   return (
     <YStack flex={1} backgroundColor="$background" testID="Library.Screen">
       <SafeAreaView edges={expanded ? ['left', 'bottom'] : ['left', 'right']} style={{ flex: 1 }}>
         <View
           onLayout={(event) => setContentWidth(event.nativeEvent.layout.width)}
-          style={{ flex: 1, flexDirection: 'row', width: '100%', maxWidth: CONTENT_MAX_WIDTH, alignSelf: 'center' }}
+          style={{ flex: 1, flexDirection: 'row', width: '100%', maxWidth: LIBRARY_CONTENT_MAX_WIDTH, alignSelf: 'center' }}
         >
-          {expanded && contentWidth >= 720 && fontScale < 1.3 && (
+          {showLibraryContext && (
             <LibraryContext onConnect={() => setConnectionSheetOpen(true)} onQueue={() => setQueueSheetOpen(true)} />
           )}
           <View style={{ flex: 1, minWidth: 0 }} testID="Library.BrowserPane" onLayout={(event) => setPaneHeight(event.nativeEvent.layout.height)}>
@@ -344,7 +353,7 @@ export default function LibraryScreen() {
               onNewFolder={handleNewFolder}
               onSleepBackground={handleSleepBackground}
               showNewFolder={isConnected}
-              bottomOffset={hasActiveUploads ? 72 : 16}
+              bottomOffset={hasActiveUploads ? FAB_BOTTOM_WITH_UPLOAD_BAR : FAB_BOTTOM_INSET}
               availableHeight={paneHeight}
             />
           </View>
