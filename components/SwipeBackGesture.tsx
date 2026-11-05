@@ -14,6 +14,10 @@ import { FontAwesome } from '@expo/vector-icons';
 const EDGE_ZONE = 25;
 const COMMIT_FRACTION = 0.35;
 const COMMIT_VELOCITY = 500;
+const ACTIVATION_DISTANCE = 15;
+const MAX_VERTICAL_DRIFT = 20;
+const CHEVRON_FADE_DISTANCE = 60;
+const SWIPE_SPRING = { damping: 20, stiffness: 200 };
 
 interface SwipeBackGestureProps {
   onSwipeBack: () => void;
@@ -45,9 +49,9 @@ export function SwipeBackGesture({
 
   const pan = Gesture.Pan()
     .enabled(enabled)
-    .activeOffsetX(15)
-    .failOffsetX(-15)
-    .failOffsetY([-20, 20])
+    .activeOffsetX(ACTIVATION_DISTANCE)
+    .failOffsetX(-ACTIVATION_DISTANCE)
+    .failOffsetY([-MAX_VERTICAL_DRIFT, MAX_VERTICAL_DRIFT])
     .onBegin((e) => {
       startedInEdge.value = e.x <= EDGE_ZONE;
     })
@@ -64,17 +68,17 @@ export function SwipeBackGesture({
     })
     .onEnd((e) => {
       if (!startedInEdge.value) {
-        translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
+        translateX.value = withSpring(0, SWIPE_SPRING);
         return;
       }
       const pastThreshold =
         translateX.value > contentWidth * COMMIT_FRACTION ||
         e.velocityX > COMMIT_VELOCITY;
       if (pastThreshold) {
-        translateX.value = withSpring(contentWidth, { damping: 20, stiffness: 200 });
+        translateX.value = withSpring(contentWidth, SWIPE_SPRING);
         runOnJS(onSwipeBack)();
       } else {
-        translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
+        translateX.value = withSpring(0, SWIPE_SPRING);
       }
     });
 
@@ -85,7 +89,7 @@ export function SwipeBackGesture({
   const chevronOpacity = useAnimatedStyle(() => ({
     opacity: interpolate(
       translateX.value,
-      [0, 60],
+      [0, CHEVRON_FADE_DISTANCE],
       [0, 1],
       Extrapolation.CLAMP,
     ),

@@ -5,6 +5,10 @@ import { FontAwesome } from '@expo/vector-icons';
 import { DeviceFile } from '@/types/device';
 import { formatSize } from '@/utils/format';
 
+const FOLDER_ACTIONS_HEIGHT = 180;
+const FILE_ACTIONS_HEIGHT = 360;
+const ACTION_AFTER_DISMISS_DELAY_MS = 200;
+
 interface FileActionSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -70,11 +74,11 @@ export function FileActionSheet({
     if (!file) return;
     const target = file;
     onOpenChange(false);
-    setTimeout(() => callback(target), 200);
+    setTimeout(() => callback(target), ACTION_AFTER_DISMISS_DELAY_MS);
   };
 
   return (
-    <AdaptiveSheet open={open} onOpenChange={onOpenChange} testID="FileActions.Sheet" height={file?.isDirectory ? 180 : 360} padding={16}>
+    <AdaptiveSheet open={open} onOpenChange={onOpenChange} testID="FileActions.Sheet" height={file?.isDirectory ? FOLDER_ACTIONS_HEIGHT : FILE_ACTIONS_HEIGHT} padding={16}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 8 }}>
         <YStack gap="$2">
           {/* Header */}

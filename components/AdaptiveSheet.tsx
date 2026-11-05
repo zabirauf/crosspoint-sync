@@ -2,7 +2,10 @@ import type { ReactNode } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View, useColorScheme } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useAdaptiveLayout } from '@/hooks/use-adaptive-layout';
-import { SHEET_MAX_WIDTH } from '@/constants/Layout';
+
+const SHEET_MAX_WIDTH = 560;
+const DEFAULT_SHEET_HEIGHT = 640;
+const SHEET_VIEWPORT_CLEARANCE = 24;
 
 interface AdaptiveSheetProps {
   open: boolean;
@@ -13,7 +16,7 @@ interface AdaptiveSheetProps {
   padding?: number;
 }
 
-function SheetSurface({ onOpenChange, testID, children, height = 640, padding = 16 }: AdaptiveSheetProps) {
+function SheetSurface({ onOpenChange, testID, children, height = DEFAULT_SHEET_HEIGHT, padding = 16 }: AdaptiveSheetProps) {
   const { expanded, height: windowHeight, insets } = useAdaptiveLayout();
   const isDark = useColorScheme() === 'dark';
   return (
@@ -39,7 +42,7 @@ function SheetSurface({ onOpenChange, testID, children, height = 640, padding = 
               backgroundColor: isDark ? '#151515' : '#fff',
               width: expanded ? SHEET_MAX_WIDTH : '100%',
               maxWidth: '100%',
-              height: Math.min(height, Math.max(0, windowHeight - insets.top - insets.bottom - 24)),
+              height: Math.min(height, Math.max(0, windowHeight - insets.top - insets.bottom - SHEET_VIEWPORT_CLEARANCE)),
               flexShrink: 1,
               padding,
               borderRadius: expanded ? 24 : 20,

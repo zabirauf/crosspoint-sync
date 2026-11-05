@@ -7,6 +7,10 @@ import { DeviceFile } from '@/types/device';
 import { getFiles } from '@/services/device-api';
 import { useDeviceStore } from '@/stores/device-store';
 import { getFileFormat, isSupportedFile } from '@/constants/FileFormats';
+import { BREADCRUMB_SCROLL_DELAY_MS } from '@/constants/Layout';
+
+const MOVE_SHEET_HEIGHT = 720;
+const FOLDER_INPUT_FOCUS_DELAY_MS = 100;
 
 interface MoveFileSheetProps {
   open: boolean;
@@ -44,13 +48,13 @@ export function MoveFileSheet({
   useEffect(() => {
     setTimeout(() => {
       breadcrumbRef.current?.scrollToEnd?.({ animated: true });
-    }, 50);
+    }, BREADCRUMB_SCROLL_DELAY_MS);
   }, [browsePath]);
 
   // Focus the folder name input after it mounts inside the sheet
   useEffect(() => {
     if (folderPromptOpen) {
-      const timer = setTimeout(() => folderInputRef.current?.focus(), 100);
+      const timer = setTimeout(() => folderInputRef.current?.focus(), FOLDER_INPUT_FOCUS_DELAY_MS);
       return () => clearTimeout(timer);
     }
   }, [folderPromptOpen]);
@@ -138,7 +142,7 @@ export function MoveFileSheet({
   };
 
   return (
-    <AdaptiveSheet open={open} onOpenChange={onOpenChange} testID="MoveFile.Sheet" height={720} padding={0}>
+    <AdaptiveSheet open={open} onOpenChange={onOpenChange} testID="MoveFile.Sheet" height={MOVE_SHEET_HEIGHT} padding={0}>
       <YStack flex={1}>
         {/* Header */}
         <XStack

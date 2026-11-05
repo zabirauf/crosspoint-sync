@@ -3,12 +3,22 @@ import { Pressable, ScrollView, StyleSheet, useColorScheme } from 'react-native'
 import { YStack, XStack, Text } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { FAB_BOTTOM_INSET } from '@/constants/Layout';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   Easing,
 } from 'react-native-reanimated';
+
+const FAB_DIAMETER = 56;
+const MENU_BUTTON_GAP = 8;
+const MENU_VIEWPORT_INSET = 8;
+const MENU_ITEM_MIN_HEIGHT = 44;
+const MENU_ENTER_OFFSET = 8;
+const MENU_OPEN_DURATION_MS = 150;
+const MENU_CLOSE_DURATION_MS = 120;
+const MENU_ACTION_DELAY_MS = 150;
 
 interface ActionFABProps {
   onAddBook: () => void;
@@ -19,33 +29,34 @@ interface ActionFABProps {
   availableHeight: number;
 }
 
-export function ActionFAB({ onAddBook, onNewFolder, onSleepBackground, showNewFolder = true, bottomOffset = 16, availableHeight }: ActionFABProps) {
+export function ActionFAB({ onAddBook, onNewFolder, onSleepBackground, showNewFolder = true, bottomOffset = FAB_BOTTOM_INSET, availableHeight }: ActionFABProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const opacity = useSharedValue(0);
-  const translateY = useSharedValue(8);
-  const menuBottom = Math.min(bottomOffset + 64, Math.max(8, availableHeight - 64));
-  const menuMaxHeight = Math.max(44, availableHeight - menuBottom - 8);
+  const translateY = useSharedValue(MENU_ENTER_OFFSET);
+  const menuOffsetAboveButton = FAB_DIAMETER + MENU_BUTTON_GAP;
+  const menuBottom = Math.min(bottomOffset + menuOffsetAboveButton, Math.max(MENU_VIEWPORT_INSET, availableHeight - menuOffsetAboveButton));
+  const menuMaxHeight = Math.max(MENU_ITEM_MIN_HEIGHT, availableHeight - menuBottom - MENU_VIEWPORT_INSET);
 
   const openMenu = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setMenuOpen(true);
-    opacity.value = withTiming(1, { duration: 150, easing: Easing.out(Easing.ease) });
-    translateY.value = withTiming(0, { duration: 150, easing: Easing.out(Easing.ease) });
+    opacity.value = withTiming(1, { duration: MENU_OPEN_DURATION_MS, easing: Easing.out(Easing.ease) });
+    translateY.value = withTiming(0, { duration: MENU_OPEN_DURATION_MS, easing: Easing.out(Easing.ease) });
   }, [opacity, translateY]);
 
   const closeMenu = useCallback(() => {
-    opacity.value = withTiming(0, { duration: 120 });
-    translateY.value = withTiming(8, { duration: 120 });
-    setTimeout(() => setMenuOpen(false), 120);
+    opacity.value = withTiming(0, { duration: MENU_CLOSE_DURATION_MS });
+    translateY.value = withTiming(MENU_ENTER_OFFSET, { duration: MENU_CLOSE_DURATION_MS });
+    setTimeout(() => setMenuOpen(false), MENU_CLOSE_DURATION_MS);
   }, [opacity, translateY]);
 
   const handleOption = useCallback((action: () => void) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     closeMenu();
     // Small delay so menu animates out before action (e.g. Alert.prompt) fires
-    setTimeout(action, 150);
+    setTimeout(action, MENU_ACTION_DELAY_MS);
   }, [closeMenu]);
 
   const animatedMenuStyle = useAnimatedStyle(() => ({
@@ -128,9 +139,9 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: FAB_DIAMETER,
+    height: FAB_DIAMETER,
+    borderRadius: FAB_DIAMETER / 2,
     backgroundColor: '#1a73e8',
     alignItems: 'center',
     justifyContent: 'center',
@@ -156,7 +167,7 @@ const styles = StyleSheet.create({
   },
   menuItem: {
     borderRadius: 0,
-    minHeight: 44,
+    minHeight: MENU_ITEM_MIN_HEIGHT,
     justifyContent: 'center',
   },
   menuItemPressed: {

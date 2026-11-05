@@ -3,6 +3,9 @@ import { TextInput, ScrollView } from 'react-native';
 import { XStack, YStack, Button, Input, Text, H4 } from 'tamagui';
 import { AdaptiveSheet } from '@/components/AdaptiveSheet';
 
+const PROMPT_HEIGHT = 300;
+const INPUT_FOCUS_DELAY_MS = 300;
+
 interface PromptDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -48,7 +51,7 @@ export function PromptDialog({
   // Focus input after dialog animation completes
   useEffect(() => {
     if (open) {
-      const timer = setTimeout(() => inputRef.current?.focus(), 300);
+      const timer = setTimeout(() => inputRef.current?.focus(), INPUT_FOCUS_DELAY_MS);
       return () => clearTimeout(timer);
     }
   }, [open, inputKey]);
@@ -63,7 +66,7 @@ export function PromptDialog({
   };
 
   return (
-    <AdaptiveSheet open={open} onOpenChange={onOpenChange} testID="PromptDialog.Content" height={300}>
+    <AdaptiveSheet open={open} onOpenChange={onOpenChange} testID="PromptDialog.Content" height={PROMPT_HEIGHT}>
       <ScrollView
         ref={scrollRef}
         keyboardShouldPersistTaps="handled"
