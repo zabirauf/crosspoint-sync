@@ -1,5 +1,6 @@
+import { AdaptiveSheet } from '@/components/AdaptiveSheet';
 import { ScrollView, Pressable, useColorScheme } from 'react-native';
-import { Sheet, XStack, YStack, Text, H4, Button } from 'tamagui';
+import { XStack, YStack, Text, H4, Button } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { DeviceFile } from '@/types/device';
 import { formatSize } from '@/utils/format';
@@ -73,80 +74,70 @@ export function FileActionSheet({
   };
 
   return (
-    <Sheet
-      modal
-      open={open}
-      onOpenChange={onOpenChange}
-      snapPoints={[45]}
-      dismissOnSnapToBottom
-      zIndex={100_000}
-      animation="medium"
-    >
-      <Sheet.Overlay animation="lazy" opacity={0.5} enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
-      <Sheet.Handle />
-      <Sheet.Frame padding="$4" testID="FileActions.Sheet">
-        <ScrollView>
-          <YStack gap="$2">
-            {/* Header */}
-            <XStack justifyContent="space-between" alignItems="center">
-              <YStack flex={1} marginRight="$2">
-                <H4 numberOfLines={1}>{file?.name ?? ''}</H4>
-                <Text color="$gray10" fontSize="$2">
-                  {file?.isDirectory ? 'Folder' : formatSize(file?.size ?? 0)}
-                </Text>
-              </YStack>
-              <Button
-                chromeless
-                circular
-                size="$3"
-                onPress={() => onOpenChange(false)}
-                testID="FileActions.CloseButton"
-              >
-                <FontAwesome name="times" size={18} color="#999" />
-              </Button>
-            </XStack>
+    <AdaptiveSheet open={open} onOpenChange={onOpenChange} testID="FileActions.Sheet" height={file?.isDirectory ? 180 : 360} padding={16}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 8 }}>
+        <YStack gap="$2">
+          {/* Header */}
+          <XStack justifyContent="space-between" alignItems="center">
+            <YStack flex={1} marginRight="$2">
+              <H4 numberOfLines={1}>{file?.name ?? ''}</H4>
+              <Text color="$gray10" fontSize="$2">
+                {file?.isDirectory ? 'Folder' : formatSize(file?.size ?? 0)}
+              </Text>
+            </YStack>
+            <Button
+              chromeless
+              circular
+              size="$4"
+              accessibilityLabel="Close file actions"
+              onPress={() => onOpenChange(false)}
+              testID="FileActions.CloseButton"
+            >
+              <FontAwesome name="times" size={18} color="#999" />
+            </Button>
+          </XStack>
 
-            {/* Actions */}
-            <YStack>
-              {!file?.isDirectory && (
-                <ActionRow
-                  icon="download"
-                  label="Save to Device"
-                  onPress={() => closeAndDo(onSave)}
-                  testID="FileActions.Save"
-                  isDark={isDark}
-                />
-              )}
-              {!file?.isDirectory && capabilities.move && (
-                <ActionRow
-                  icon="folder-open"
-                  label="Move"
-                  onPress={() => closeAndDo(onMove)}
-                  testID="FileActions.Move"
-                  isDark={isDark}
-                />
-              )}
-              {!file?.isDirectory && capabilities.rename && (
-                <ActionRow
-                  icon="pencil"
-                  label="Rename"
-                  onPress={() => closeAndDo(onRename)}
-                  testID="FileActions.Rename"
-                  isDark={isDark}
-                />
-              )}
+          {/* Actions */}
+          <YStack>
+            {!file?.isDirectory && (
               <ActionRow
-                icon="trash"
-                label="Delete"
-                onPress={() => closeAndDo(onDelete)}
-                testID="FileActions.Delete"
-                destructive
+                icon="download"
+                label="Save to Device"
+                onPress={() => closeAndDo(onSave)}
+                testID="FileActions.Save"
                 isDark={isDark}
               />
-            </YStack>
+            )}
+            {!file?.isDirectory && capabilities.move && (
+              <ActionRow
+                icon="folder-open"
+                label="Move"
+                onPress={() => closeAndDo(onMove)}
+                testID="FileActions.Move"
+                isDark={isDark}
+              />
+            )}
+            {!file?.isDirectory && capabilities.rename && (
+              <ActionRow
+                icon="pencil"
+                label="Rename"
+                onPress={() => closeAndDo(onRename)}
+                testID="FileActions.Rename"
+                isDark={isDark}
+              />
+            )}
+            <ActionRow
+              icon="trash"
+              label="Delete"
+              onPress={() => closeAndDo(onDelete)}
+              testID="FileActions.Delete"
+              destructive
+              isDark={isDark}
+            />
           </YStack>
-        </ScrollView>
-      </Sheet.Frame>
-    </Sheet>
+        </YStack>
+      </ScrollView>
+
+    </AdaptiveSheet>
   );
 }

@@ -1,5 +1,5 @@
-import { type ReactNode, useEffect } from 'react';
-import { Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { type ReactNode, useEffect, useState } from 'react';
+import { Platform, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
@@ -35,12 +35,13 @@ export function SwipeBackGesture({
 
   const translateX = useSharedValue(0);
   const startedInEdge = useSharedValue(false);
-  const { width: screenWidth } = useWindowDimensions();
+  const [contentWidth, setContentWidth] = useState(0);
 
   // Reset position instantly when path changes (new folder content appears in place)
   useEffect(() => {
     translateX.value = 0;
-  }, [resetKey]);
+    startedInEdge.value = false;
+  }, [resetKey, contentWidth, translateX, startedInEdge]);
 
   const pan = Gesture.Pan()
     .enabled(enabled)
@@ -67,10 +68,10 @@ export function SwipeBackGesture({
         return;
       }
       const pastThreshold =
-        translateX.value > screenWidth * COMMIT_FRACTION ||
+        translateX.value > contentWidth * COMMIT_FRACTION ||
         e.velocityX > COMMIT_VELOCITY;
       if (pastThreshold) {
-        translateX.value = withSpring(screenWidth, { damping: 20, stiffness: 200 });
+        translateX.value = withSpring(contentWidth, { damping: 20, stiffness: 200 });
         runOnJS(onSwipeBack)();
       } else {
         translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
@@ -92,7 +93,7 @@ export function SwipeBackGesture({
 
   return (
     <GestureDetector gesture={pan}>
-      <Animated.View style={[styles.container, contentStyle]}>
+      <Animated.View onLayout={(event) => setContentWidth(event.nativeEvent.layout.width)} style={[styles.container, contentStyle]}>
         <Animated.View style={[styles.chevron, chevronOpacity]}>
           <FontAwesome name="chevron-left" size={18} color="#999" />
         </Animated.View>

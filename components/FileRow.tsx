@@ -85,7 +85,9 @@ export function FileRow({ file, onPress, onLongPress, onMorePress, downloadStatu
             onPress={onMorePress}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             testID={`Library.FileRow.${file.name}.More`}
-            style={{ paddingLeft: 8 }}
+            accessibilityRole="button"
+            accessibilityLabel={`Actions for ${file.name}`}
+            style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
           >
             <FontAwesome name="ellipsis-v" size={18} color={isDark ? '#999' : '#666'} />
           </Pressable>

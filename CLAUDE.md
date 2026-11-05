@@ -102,6 +102,15 @@ extension-src/           # Safari Web Extension source files (bundled at prebuil
 - **Metro config**: Custom `resolveRequest` hook loads `.native.js` instead of `.mjs` for Tamagui packages on native
 - **Tamagui v2 RC type errors**: TS reports errors on props like `bordered`, `padded`, `padding`, `alignItems`, `backgroundColor` — these are type definition bugs in the RC, not actual runtime issues. The app bundles and runs fine. Ignore these when checking `tsc` output.
 
+### Resizable phone and tablet layouts
+
+- Use `useAdaptiveLayout` for current window/safe-area metrics; use a pane's `onLayout` for its own space. Do not use a device model, orientation, or cached screen size to choose a layout.
+- Tabs move from bottom navigation to a right rail when usable width permits. Library adds reader/queue context only when the measured scene still leaves at least 508 points for browsing. Keep the same list and screen tree mounted across layout changes.
+- Use `AdaptiveSheet` for task dialogs. It keeps a single native Modal and child tree, with a modal-local safe-area provider and keyboard avoidance. Presentation moves from bottom-aligned to centered at expanded widths without replacing inputs or drafts. Retain explicit close/cancel actions and scrollable bodies.
+- Sleep-background pan offsets are fractions of the measured crop frame. Preserve source-image crop coordinates when resizing; do not store offsets in display points. Its native full-screen presentation needs a local `SafeAreaProvider`, including on the first opening before a fold. The standalone `.maestro/manual-flows/sleep-preview-safe-area.yaml` check requires a staged local image and disposable mock reader, and submits that image.
+- `withSceneLifecycle` keeps the generated iOS app compatible with the iOS 27 SDK. Expo prepares its existing window/root before app-delegate subscribers run; the scene delegate attaches that same window to the scene. Keep cold/warm URL forwarding and Expo lifecycle subscribers intact. The plugin also floors older pod resource targets to the app's existing minimum deployment version for Xcode 27.
+- `npm run test:adaptive` checks task/draft identity and crop invariance. `npm run test:responsive:web` checks the actual exported app across phone, expanded, tablet, split, and short windows; see `docs/analysis/adaptive-layout-validation-2026-11-04.md` for setup. Native rotation coverage is in `.maestro/flows/17-adaptive-layout.yaml`.
+
 ## XTEink X4 Protocol
 
 - **Firmware source**: When making changes to device API calls (anything in `services/device-api.ts`, `services/device-discovery.ts`, `services/websocket-upload.ts`, or related hooks), **always read the firmware source first** to validate expected request/response formats, parameter names, and error codes before planning changes. Ask user where the firmware source code is at. If they don't provide that info then ask user specific question.
@@ -246,7 +255,7 @@ When committing a fix or feature that corresponds to a tracked issue in `docs/is
 - `react-native-udp` requires a dev build (`npx expo run:ios`). Won't work in Expo Go.
 - Node v21.7.3 triggers EBADENGINE warnings for some deps. Non-blocking — use Node 20 or >=22 to silence.
 - New Architecture is enabled (`newArchEnabled: true`). If `react-native-udp` has TurboModule issues, manual IP entry works as a full fallback.
-- `Alert.prompt` is iOS-only. All text input prompts use `components/PromptDialog.tsx` (Tamagui Dialog) for cross-platform support.
+- `Alert.prompt` is iOS-only. All text input prompts use `components/PromptDialog.tsx` and its shared adaptive modal for cross-platform support.
 - **Local Expo modules** (`modules/` dir) require a `.podspec` in the `ios/` subdirectory for CocoaPods autolinking. Without it, `expo-modules-autolinking search` finds the module but `resolve` skips it → "Cannot find native module" at runtime.
 - Safari Web Extension requires `npx expo prebuild --clean` after changes to `extension-src/` or `plugins/withWebExtension.js`. The extension's content.js is bundled via esbuild during prebuild — if esbuild isn't available, prebuild will fail.
 - The Safari Web Extension must be enabled manually: iOS Settings → Safari → Extensions → CrossPoint Web Clipper.

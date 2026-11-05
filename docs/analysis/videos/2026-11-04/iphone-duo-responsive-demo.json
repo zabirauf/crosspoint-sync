@@ -1,0 +1,90 @@
+{
+  "recordedAt": "2026-11-04T21:06:12.068Z",
+  "kind": "Live browser recording of the actual Expo app",
+  "nativeDuoFootage": false,
+  "reason": "Xcode 26.6 installed; no Duo simulator available",
+  "viewports": [
+    {
+      "name": "outer",
+      "width": 466,
+      "height": 678
+    },
+    {
+      "name": "inner",
+      "width": 890,
+      "height": 626
+    }
+  ],
+  "assertions": [
+    "same mounted list/folder through expansion",
+    "same mounted input and complete rename draft through resizing",
+    "same normalized crop center through resizing",
+    "no runtime errors"
+  ],
+  "errors": [],
+  "raw": "/Users/kakaagent/Documents/Projects/my-github/crosspoint-sync/.local/duo-demo/raw.webm",
+  "interactionTimeline": [
+    {
+      "wallClockSeconds": 0,
+      "step": 1,
+      "caption": "Browse books on the compact outer layout."
+    },
+    {
+      "wallClockSeconds": 6.3,
+      "step": 2,
+      "caption": "Expand the window — the same folder stays open."
+    },
+    {
+      "wallClockSeconds": 15.3,
+      "step": 3,
+      "caption": "Start a rename on the inner layout."
+    },
+    {
+      "wallClockSeconds": 22,
+      "step": 3,
+      "caption": "Return to the outer layout — the draft stays intact."
+    },
+    {
+      "wallClockSeconds": 30.6,
+      "step": 4,
+      "caption": "Settings stay readable across both layouts."
+    },
+    {
+      "wallClockSeconds": 44.2,
+      "step": 5,
+      "caption": "Position a sleep background, then change the window size."
+    },
+    {
+      "wallClockSeconds": 56,
+      "step": 6,
+      "caption": "Return to your library, with your place preserved."
+    }
+  ],
+  "video": {
+    "durationSeconds": 71.533333,
+    "bytes": 1407456,
+    "width": 1280,
+    "height": 960,
+    "fps": 30,
+    "codec": "h264",
+    "sha256": "115abc755b259ad14bfb93ca1fb6b14ba99b7f191bdf3fbc7629f42442b12cf0"
+  },
+  "playbackValidation": {
+    "duration": 71.533333,
+    "width": 1280,
+    "height": 960,
+    "playing": true,
+    "error": null,
+    "sampledVideoSeconds": [
+      8,
+      28,
+      58,
+      69
+    ],
+    "fullDecodePassed": true
+  },
+  "appExportBundle": {
+    "file": "entry-c1694de42b74aef4d657437fd67230a7.js",
+    "sha256": "c4cd2d5b0ca8c40b3c4d3d55eb5c7b61bd28e5872ca780e2bfe56b0ecf273896"
+  }
+}

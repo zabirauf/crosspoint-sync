@@ -3,7 +3,7 @@
     "name": "CrossPoint Sync",
     "slug": "crosspoint-sync",
     "version": "1.2.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "crosspointsync",
     "userInterfaceStyle": "automatic",
@@ -45,6 +45,7 @@
     "plugins": [
       "expo-router",
       "expo-document-picker",
+      "./plugins/withSceneLifecycle",
       "./plugins/withShareExtension",
       "./plugins/withWebExtension",
       "./plugins/withAndroidShareIntent",
