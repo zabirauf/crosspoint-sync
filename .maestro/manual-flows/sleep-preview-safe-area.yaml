@@ -1,0 +1,25 @@
+appId: com.crosspointsync.app
+name: "Sleep Preview - Initial Native Safe Area"
+---
+# Prepare the crop route with a local test image and connect to a disposable
+# mock reader first. This standalone check submits that image. Keep it outside
+# the default workspace, which does not provision a native image fixture.
+- extendedWaitUntil:
+    visible:
+      id: "SleepPreview.CropFrame"
+    timeout: 10000
+- assertVisible:
+    id: "SleepPreview.Cancel"
+- assertVisible:
+    id: "SleepPreview.Done"
+- assertVisible:
+    text: "480 x 800 · Grayscale output"
+- takeScreenshot: crop-initial-outer
+- tapOn:
+    id: "SleepPreview.Done"
+- extendedWaitUntil:
+    notVisible:
+      id: "SleepPreview.Screen"
+    timeout: 15000
+- assertVisible:
+    id: "Library.FileList"

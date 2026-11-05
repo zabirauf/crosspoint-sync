@@ -19,7 +19,13 @@ name: "Settings Screen - Main View"
       platform: iOS
     file: ../helpers/assert-safari-extension.yaml
 
-- assertVisible:
-    text: "Debug Logging"
-
 - takeScreenshot: settings-main
+
+# Compact windows and larger text can require scrolling to later groups.
+- scrollUntilVisible:
+    element:
+      id: "Settings.ViewLogs"
+    direction: DOWN
+- assertVisible:
+    id: "Settings.DebugLogging"
+- takeScreenshot: settings-debug

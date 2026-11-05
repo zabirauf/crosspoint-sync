@@ -8,11 +8,11 @@ themes: [light]
 tags: [smoke, connection]
 
 description: |
-  Connection bottom sheet is open, showing the disconnected state.
+  Adaptive connection dialog is open, showing the disconnected state.
   Header shows "Device" title with a "Not connected" status badge (gray dot).
   A "How to connect" info card explains connection methods (Join a Network, Create Hotspot).
   Below the card, a device address input field with a "Connect" button.
-  Optionally a "Scan for Devices" button below that.
+  The dialog has a bounded width on expanded windows and scrolls in short windows.
 
 assertions:
   - text: "The sheet header shows 'Device' title"

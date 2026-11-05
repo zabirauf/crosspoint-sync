@@ -9,7 +9,7 @@ tags: [library, connected, requires-device, file-actions]
 
 description: |
   Rename dialog shown after selecting "Rename" from the file action sheet.
-  A centered modal dialog with "Rename File" title and descriptive message.
+  A modal dialog (bottom-aligned on compact windows, centered on expanded windows) with "Rename File" title and descriptive message.
   A text input field pre-filled with the current filename.
   Cancel and Rename buttons at the bottom right of the dialog.
 

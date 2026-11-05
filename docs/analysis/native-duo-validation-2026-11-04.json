@@ -1,0 +1,103 @@
+{
+  "date": "2026-11-04",
+  "scope": "Native iPhone Duo simulator with local mock reader; no physical reader or hardware performance claim.",
+  "host": "macOS 27.2 (26B123)",
+  "xcode": "27.2 (27B52)",
+  "sdk": "iOS Simulator 27.2 (24B8118)",
+  "runtime": "iOS 27.1 (24A94425)",
+  "deviceType": "com.apple.CoreSimulator.SimDeviceType.iPhone-Duo",
+  "udid": "32516D8C-95E0-4128-A749-A87E641CB0A9",
+  "branch": "codex/iphone-duo",
+  "baseCommit": "cf3ab7aa84a7efa945d685fbfce79f0c8b6989a6",
+  "bundledJSsha256": "a796e8674d4f7f291b669ea5f58b24aa195c27baa903096c4b2321d0fd4524cf",
+  "nativeRegression": {
+    "initialPassed": 16,
+    "total": 17,
+    "initialFailure": "Adaptive flow center tap placed caret before the old extension; erase left extra .epub text.",
+    "targetedAdaptiveRecheck": "passed after tapping at95% and asserting exact draft before rotation",
+    "initialCropDoneTouch": "passed after local SafeAreaProvider fix; native Done returns to Library before any fold",
+    "releaseBuild": "passed",
+    "debugBuildAndColdWarmDevClientLaunch": "passed",
+    "tabletCompatibility": "iPad Pro11 M5/iOS26.5: launch, connected Library, Settings and keyboard dialog passed",
+    "finalTabletCrop": {
+      "passed": true,
+      "doneFrame": {
+        "height": 44,
+        "width": 64.5,
+        "x": 751.5,
+        "y": 45
+      },
+      "runtime": "iOS26.5",
+      "sdk": "27.2"
+    }
+  },
+  "foldContinuity": {
+    "passed": true,
+    "pid": 26742,
+    "scrollAnchor": "Library.FileRow.Reading list 15.epub",
+    "anchorYBefore": 147.66666793823242,
+    "anchorYAfter": 147.66666793823242,
+    "draft": "Duo reading draft.epub",
+    "hingeAngles": [
+      0,
+      180,
+      90,
+      0
+    ]
+  },
+  "extraTasks": {
+    "passed": true,
+    "outerLandscapeDraft": "Landscape reading draft.epub",
+    "moveFolderDraft": "Reading drafts",
+    "destination": "/Articles",
+    "hingeAngles": [
+      0,
+      180,
+      0
+    ]
+  },
+  "cropPixelComparison": {
+    "inner": {
+      "meanAbsolutePixelDifference": 0.17002241509630672
+    },
+    "partial": {
+      "meanAbsolutePixelDifference": 0.17002241509630672
+    },
+    "return": {
+      "meanAbsolutePixelDifference": 0
+    }
+  },
+  "upload": {
+    "passed": true,
+    "pid": 30851,
+    "jobId": "duo-native-upload-final-test",
+    "bytes": 17719257,
+    "sha256": "0b7510d92c5694e7f1675a4676b9429d133d11087b06c4ea4def4d5cdb40b039",
+    "uploadStartCount": 1,
+    "measurements": [
+      {
+        "pose": "inner",
+        "progress": [
+          23
+        ]
+      },
+      {
+        "pose": "partial",
+        "progress": [
+          34
+        ]
+      },
+      {
+        "pose": "outer-return",
+        "progress": [
+          44
+        ]
+      }
+    ],
+    "setup": "One pending job seeded in the dedicated simulator test store; actual native file reads and WebSocket transfer through a local throttled proxy."
+  },
+  "sharedAdaptiveTests": "4 passed",
+  "responsiveWebMatrix": "passed after final crop fix",
+  "recording": "videos/2026-11-04/iphone-duo-native-demo.mp4",
+  "cleanup": "Dedicated test simulators shut down; installation/app retained; task services stopped; default local mock address restored."
+}

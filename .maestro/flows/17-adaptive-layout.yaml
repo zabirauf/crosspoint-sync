@@ -1,0 +1,55 @@
+appId: com.crosspointsync.app
+name: "Adaptive Layout - Resize Continuity"
+tags:
+  - requires-device
+  - adaptive
+---
+# Rotation exercises a live native window resize. Actual folding is additionally
+# checked in the iPhone Duo simulator when the matching SDK is available.
+- setOrientation: PORTRAIT
+- runFlow: ../helpers/ensure-connected.yaml
+- tapOn:
+    id: "Library.FileRow.Formats"
+- extendedWaitUntil:
+    visible:
+      id: "Library.FileRow.Gettysburg-Address.epub.More"
+    timeout: 10000
+- tapOn:
+    id: "Library.FileRow.Gettysburg-Address.epub.More"
+- tapOn:
+    id: "FileActions.Rename"
+- extendedWaitUntil:
+    visible:
+      id: "PromptDialog.Input"
+    timeout: 5000
+- tapOn:
+    id: "PromptDialog.Input"
+    # Place the caret after the complete default name before erasing it.
+    # A center tap can leave the existing extension to the right of the caret.
+    point: "95%,50%"
+- eraseText: 100
+- inputText: "Draft survives resizing.epub"
+- assertVisible:
+    text: "Draft survives resizing.epub"
+- setOrientation: LANDSCAPE_LEFT
+- waitForAnimationToEnd
+- assertVisible:
+    text: "Draft survives resizing.epub"
+- assertVisible:
+    id: "PromptDialog.SubmitButton"
+- takeScreenshot: resize-rename-landscape
+- setOrientation: PORTRAIT
+- waitForAnimationToEnd
+- assertVisible:
+    text: "Draft survives resizing.epub"
+- tapOn:
+    id: "PromptDialog.CancelButton"
+- assertVisible:
+    id: "Library.FileRow.Gettysburg-Address.epub"
+- runFlow: ../helpers/navigate-to-settings.yaml
+- setOrientation: LANDSCAPE_LEFT
+- waitForAnimationToEnd
+- assertVisible:
+    id: "Settings.UploadPath"
+- takeScreenshot: resize-settings-landscape
+- setOrientation: PORTRAIT

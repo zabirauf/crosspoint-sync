@@ -9,7 +9,7 @@ tags: [library, connected, requires-device, file-actions]
 
 description: |
   File action sheet shown after tapping the more button on a file row.
-  A bottom sheet with the file name in the header and an X close button.
+  An adaptive dialog with the file name in the header and an X close button.
   Action options listed vertically: Save, Move, Rename, and Delete.
   Delete option is styled in red/destructive color to indicate danger.
 

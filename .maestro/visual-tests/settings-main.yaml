@@ -12,7 +12,8 @@ description: |
   "Sync Settings" section: Upload path row with current value.
   "Web Clipper" section: Clip upload path row with current value, and "Enable in Safari" row.
   "Device" section: shows Device hostname, IP Address, and Firmware rows.
-  "Debug" section: Debug Logging toggle and View Logs row.
+  Later groups can be reached by scrolling. Rows stack label/value in narrow windows.
+  On expanded windows the content stays in a centered, readable column.
 
 assertions:
   - text: "The Settings title is visible in the header"
@@ -23,13 +24,9 @@ assertions:
     severity: fail
   - text: "'Enable in Safari' row is visible in the Web Clipper section (iOS only)"
     severity: fail
-  - text: "'Debug Logging' toggle is visible"
-    severity: warning
   - text: "A 'Device' section shows device, IP address, and firmware rows"
     severity: fail
   - text: "Sections are visually grouped with headers"
-    severity: warning
-  - text: "'View Logs' row is visible"
     severity: warning
 
 custom_criteria:

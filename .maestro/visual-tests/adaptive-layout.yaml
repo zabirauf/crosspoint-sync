@@ -1,0 +1,24 @@
+id: adaptive-layout
+name: "Adaptive Layout - Rename Continuity"
+flow: flows/17-adaptive-layout.yaml
+screenshots:
+  - resize-rename-landscape
+platforms: [ios, android]
+themes: [light]
+tags: [adaptive, connected, requires-device]
+description: |
+  A rename draft remains open after a live window resize into landscape.
+  Compact windows use a bottom-aligned dialog; expanded windows center a bounded dialog.
+  The keyboard can remain visible. The dialog body scrolls to keep actions accessible.
+assertions:
+  - text: "The rename input retains 'Draft survives resizing.epub' after resizing"
+    severity: fail
+  - text: "The Rename action is visible and accessible above the keyboard"
+    severity: fail
+  - text: "The complete draft text field is visible above the actions, without clipped input text"
+    severity: fail
+  - text: "Dialog content clears system safe areas and is not stretched across a tablet"
+    severity: fail
+ignore:
+  - "System keyboard layout"
+  - "Background list contents"

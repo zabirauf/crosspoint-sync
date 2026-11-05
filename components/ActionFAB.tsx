@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Pressable, StyleSheet, useColorScheme } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, useColorScheme } from 'react-native';
 import { YStack, XStack, Text } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -16,14 +16,17 @@ interface ActionFABProps {
   onSleepBackground: () => void;
   showNewFolder?: boolean;
   bottomOffset?: number;
+  availableHeight: number;
 }
 
-export function ActionFAB({ onAddBook, onNewFolder, onSleepBackground, showNewFolder = true, bottomOffset = 16 }: ActionFABProps) {
+export function ActionFAB({ onAddBook, onNewFolder, onSleepBackground, showNewFolder = true, bottomOffset = 16, availableHeight }: ActionFABProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(8);
+  const menuBottom = Math.min(bottomOffset + 64, Math.max(8, availableHeight - 64));
+  const menuMaxHeight = Math.max(44, availableHeight - menuBottom - 8);
 
   const openMenu = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -54,7 +57,7 @@ export function ActionFAB({ onAddBook, onNewFolder, onSleepBackground, showNewFo
     <>
       {/* Backdrop to close menu when tapping outside */}
       {menuOpen && (
-        <Pressable style={StyleSheet.absoluteFill} onPress={closeMenu} />
+        <Pressable style={StyleSheet.absoluteFill} onPress={closeMenu} testID="FAB.Backdrop" accessibilityLabel="Close add menu" />
       )}
 
       {/* Floating menu */}
@@ -62,45 +65,48 @@ export function ActionFAB({ onAddBook, onNewFolder, onSleepBackground, showNewFo
         <Animated.View
           style={[
             styles.menu,
-            { bottom: bottomOffset + 64, backgroundColor: isDark ? '#2a2a2a' : '#fff' },
+            { bottom: menuBottom, maxHeight: menuMaxHeight, backgroundColor: isDark ? '#2a2a2a' : '#fff' },
             animatedMenuStyle,
           ]}
         >
-          <Pressable
-            onPress={() => handleOption(onAddBook)}
-            style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
-            testID="FAB.UploadBook"
-          >
-            <XStack gap="$2.5" alignItems="center" paddingHorizontal="$3" paddingVertical="$2.5">
-              <FontAwesome name="book" size={16} color={isDark ? '#81d4fa' : '#1a73e8'} />
-              <Text fontSize="$3" fontWeight="500">Upload Files</Text>
-            </XStack>
-          </Pressable>
-          {showNewFolder && (
-            <>
-              <YStack height={0.5} backgroundColor={isDark ? '$gray6' : '$gray4'} />
-              <Pressable
-                onPress={() => handleOption(onNewFolder)}
-                style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
-                testID="FAB.NewFolder"
-              >
-                <XStack gap="$2.5" alignItems="center" paddingHorizontal="$3" paddingVertical="$2.5">
-                  <FontAwesome name="folder" size={16} color={isDark ? '#ffb74d' : '#f5a623'} />
-                  <Text fontSize="$3" fontWeight="500">New Folder</Text>
-                </XStack>
-              </Pressable>
-            </>
-          )}
-          <YStack height={0.5} backgroundColor={isDark ? '$gray6' : '$gray4'} />
-          <Pressable
-            onPress={() => handleOption(onSleepBackground)}
-            style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
-          >
-            <XStack gap="$2.5" alignItems="center" paddingHorizontal="$3" paddingVertical="$2.5">
-              <FontAwesome name="moon-o" size={16} color={isDark ? '#b39ddb' : '#7e57c2'} />
-              <Text fontSize="$3" fontWeight="500">Sleep Background</Text>
-            </XStack>
-          </Pressable>
+          <ScrollView keyboardShouldPersistTaps="handled" testID="FAB.Menu">
+            <Pressable
+              onPress={() => handleOption(onAddBook)}
+              style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
+              testID="FAB.UploadBook"
+            >
+              <XStack gap="$2.5" alignItems="center" paddingHorizontal="$3" paddingVertical="$2.5">
+                <FontAwesome name="book" size={16} color={isDark ? '#81d4fa' : '#1a73e8'} />
+                <Text fontSize="$3" fontWeight="500">Upload Files</Text>
+              </XStack>
+            </Pressable>
+            {showNewFolder && (
+              <>
+                <YStack height={0.5} backgroundColor={isDark ? '$gray6' : '$gray4'} />
+                <Pressable
+                  onPress={() => handleOption(onNewFolder)}
+                  style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
+                  testID="FAB.NewFolder"
+                >
+                  <XStack gap="$2.5" alignItems="center" paddingHorizontal="$3" paddingVertical="$2.5">
+                    <FontAwesome name="folder" size={16} color={isDark ? '#ffb74d' : '#f5a623'} />
+                    <Text fontSize="$3" fontWeight="500">New Folder</Text>
+                  </XStack>
+                </Pressable>
+              </>
+            )}
+            <YStack height={0.5} backgroundColor={isDark ? '$gray6' : '$gray4'} />
+            <Pressable
+              onPress={() => handleOption(onSleepBackground)}
+              testID="FAB.SleepBackground"
+              style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
+            >
+              <XStack gap="$2.5" alignItems="center" paddingHorizontal="$3" paddingVertical="$2.5">
+                <FontAwesome name="moon-o" size={16} color={isDark ? '#b39ddb' : '#7e57c2'} />
+                <Text fontSize="$3" fontWeight="500">Sleep Background</Text>
+              </XStack>
+            </Pressable>
+          </ScrollView>
         </Animated.View>
       )}
 
@@ -109,6 +115,8 @@ export function ActionFAB({ onAddBook, onNewFolder, onSleepBackground, showNewFo
         onPress={openMenu}
         style={[styles.fab, { bottom: bottomOffset }]}
         testID="Library.FAB"
+        accessibilityRole="button"
+        accessibilityLabel="Add files or create a sleep background"
       >
         <FontAwesome name="plus" size={22} color="#fff" />
       </Pressable>
@@ -148,6 +156,8 @@ const styles = StyleSheet.create({
   },
   menuItem: {
     borderRadius: 0,
+    minHeight: 44,
+    justifyContent: 'center',
   },
   menuItemPressed: {
     opacity: 0.6,

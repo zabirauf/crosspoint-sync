@@ -104,19 +104,20 @@ function RootLayoutNav() {
         (j) => j.status === 'uploading' || j.status === 'pending'
       );
       if (hasActive) {
-        activateKeepAwakeAsync('upload');
+        activateKeepAwakeAsync('upload').catch(() => {});
       } else {
-        deactivateKeepAwake('upload');
+        // Some platforms reject releasing an inactive/already released lock.
+        deactivateKeepAwake('upload').catch(() => {});
       }
     });
     // Check initial state
     const { jobs } = useUploadStore.getState();
     if (jobs.some((j) => j.status === 'uploading' || j.status === 'pending')) {
-      activateKeepAwakeAsync('upload');
+      activateKeepAwakeAsync('upload').catch(() => {});
     }
     return () => {
       unsubscribe();
-      deactivateKeepAwake('upload');
+      deactivateKeepAwake('upload').catch(() => {});
     };
   }, []);
 
