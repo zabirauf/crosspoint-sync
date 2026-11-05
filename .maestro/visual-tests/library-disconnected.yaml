@@ -3,7 +3,7 @@ name: "Library - Disconnected Empty State"
 flow: flows/02-library-disconnected.yaml
 screenshots:
   - library-disconnected
-platforms: [ios]
+platforms: [ios, android]
 themes: [light]
 tags: [smoke, library, disconnected]
 

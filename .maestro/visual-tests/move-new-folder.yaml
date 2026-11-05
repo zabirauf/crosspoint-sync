@@ -3,7 +3,7 @@ name: "Move Sheet - New Folder Dialog"
 flow: flows/15-move-new-folder.yaml
 screenshots:
   - move-new-folder
-platforms: [ios]
+platforms: [ios, android]
 themes: [light]
 tags: [library, connected, requires-device, file-actions]
 

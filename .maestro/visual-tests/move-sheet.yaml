@@ -3,7 +3,7 @@ name: "Move Sheet"
 flow: flows/14-move-sheet.yaml
 screenshots:
   - move-sheet
-platforms: [ios]
+platforms: [ios, android]
 themes: [light]
 tags: [library, connected, requires-device, file-actions]
 

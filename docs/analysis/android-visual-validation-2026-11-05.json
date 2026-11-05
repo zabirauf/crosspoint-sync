@@ -1,0 +1,328 @@
+{
+  "date": "2026-11-05",
+  "status": "passed",
+  "device": {
+    "avd": "CrossPointSync_API_36",
+    "profile": "Pixel 7",
+    "android": "16",
+    "api": 36,
+    "abi": "arm64-v8a",
+    "serial": "emulator-5554",
+    "displayPixels": [
+      1080,
+      2400
+    ],
+    "densityDpi": 420
+  },
+  "app": {
+    "version": "1.2.0",
+    "configuration": "Release",
+    "apkSHA256": "005546921dd3914b6917d427d3244767e076f427b0cb7fb0c333de2a58bbdbc9"
+  },
+  "maestro": "2.10.0",
+  "finalSuite": {
+    "tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "flows": [
+      {
+        "file": ".maestro/flows/00-setup.yaml",
+        "name": "Test Suite Setup - Connect Mock Device",
+        "tags": [],
+        "directory": "flow-00-00-setup",
+        "passed": true,
+        "exitCode": 0,
+        "report": "flow-00-00-setup/results.xml"
+      },
+      {
+        "file": ".maestro/flows/01-app-launch.yaml",
+        "name": "App Launch - Cold Start",
+        "tags": [],
+        "directory": "flow-01-01-app-launch",
+        "passed": true,
+        "exitCode": 0,
+        "report": "flow-01-01-app-launch/results.xml"
+      },
+      {
+        "file": ".maestro/flows/02-library-disconnected.yaml",
+        "name": "Library Tab - Disconnected State",
+        "tags": [],
+        "directory": "flow-02-02-library-disconnected",
+        "passed": true,
+        "exitCode": 0,
+        "report": "flow-02-02-library-disconnected/results.xml"
+      },
+      {
+        "file": ".maestro/flows/03-device-connection.yaml",
+        "name": "Device Connection - Connection Sheet",
+        "tags": [],
+        "directory": "flow-03-03-device-connection",
+        "passed": true,
+        "exitCode": 0,
+        "report": "flow-03-03-device-connection/results.xml"
+      },
+      {
+        "file": ".maestro/flows/04-library-connected.yaml",
+        "name": "Library Tab - Connected with Files",
+        "tags": [
+          "requires-device"
+        ],
+        "directory": "flow-04-04-library-connected",
+        "passed": true,
+        "exitCode": 0,
+        "report": "flow-04-04-library-connected/results.xml"
+      },
+      {
+        "file": ".maestro/flows/16-book-formats.yaml",
+        "name": "Library - Supported File Formats",
+        "tags": [
+          "requires-device"
+        ],
+        "directory": "flow-05-16-book-formats",
+        "passed": true,
+        "exitCode": 0,
+        "report": "flow-05-16-book-formats/results.xml"
+      },
+      {
+        "file": ".maestro/flows/05-file-navigation.yaml",
+        "name": "File Navigation - Browse Folders",
+        "tags": [
+          "requires-device"
+        ],
+        "directory": "flow-06-05-file-navigation",
+        "passed": true,
+        "exitCode": 0,
+        "report": "flow-06-05-file-navigation/results.xml"
+      },
+      {
+        "file": ".maestro/flows/06-upload-flow.yaml",
+        "name": "Upload Flow - FAB Menu",
+        "tags": [
+          "requires-device"
+        ],
+        "directory": "flow-07-06-upload-flow",
+        "passed": true,
+        "exitCode": 0,
+        "report": "flow-07-06-upload-flow/results.xml"
+      },
+      {
+        "file": ".maestro/flows/08-settings-screen.yaml",
+        "name": "Settings Screen - Main View",
+        "tags": [],
+        "directory": "flow-08-08-settings-screen",
+        "passed": true,
+        "exitCode": 0,
+        "report": "flow-08-08-settings-screen/results.xml"
+      },
+      {
+        "file": ".maestro/flows/09-settings-edit.yaml",
+        "name": "Settings - Edit Upload Path",
+        "tags": [
+          "requires-interaction"
+        ],
+        "directory": "flow-09-09-settings-edit",
+        "passed": true,
+        "exitCode": 0,
+        "report": "flow-09-09-settings-edit/results.xml"
+      },
+      {
+        "file": ".maestro/flows/10-fab-menu.yaml",
+        "name": "FAB Menu - Expanded State",
+        "tags": [],
+        "directory": "flow-10-10-fab-menu",
+        "passed": true,
+        "exitCode": 0,
+        "report": "flow-10-10-fab-menu/results.xml"
+      },
+      {
+        "file": ".maestro/flows/11-dark-mode.yaml",
+        "name": "Dark Mode - Library Disconnected",
+        "tags": [],
+        "directory": "flow-11-11-dark-mode",
+        "passed": true,
+        "exitCode": 0,
+        "report": "flow-11-11-dark-mode/results.xml"
+      },
+      {
+        "file": ".maestro/flows/12-file-action-sheet.yaml",
+        "name": "File Action Sheet",
+        "tags": [
+          "requires-device"
+        ],
+        "directory": "flow-12-12-file-action-sheet",
+        "passed": true,
+        "exitCode": 0,
+        "report": "flow-12-12-file-action-sheet/results.xml"
+      },
+      {
+        "file": ".maestro/flows/13-rename-dialog.yaml",
+        "name": "Rename Dialog",
+        "tags": [
+          "requires-device"
+        ],
+        "directory": "flow-13-13-rename-dialog",
+        "passed": true,
+        "exitCode": 0,
+        "report": "flow-13-13-rename-dialog/results.xml"
+      },
+      {
+        "file": ".maestro/flows/14-move-sheet.yaml",
+        "name": "Move Sheet",
+        "tags": [
+          "requires-device"
+        ],
+        "directory": "flow-14-14-move-sheet",
+        "passed": true,
+        "exitCode": 0,
+        "report": "flow-14-14-move-sheet/results.xml"
+      },
+      {
+        "file": ".maestro/flows/15-move-new-folder.yaml",
+        "name": "Move Sheet - New Folder Dialog",
+        "tags": [
+          "requires-device"
+        ],
+        "directory": "flow-15-15-move-new-folder",
+        "passed": true,
+        "exitCode": 0,
+        "report": "flow-15-15-move-new-folder/results.xml"
+      },
+      {
+        "file": ".maestro/flows/17-adaptive-layout.yaml",
+        "name": "Adaptive Layout - Resize Continuity",
+        "tags": [
+          "requires-device",
+          "adaptive"
+        ],
+        "directory": "flow-16-17-adaptive-layout",
+        "passed": true,
+        "exitCode": 0,
+        "report": "flow-16-17-adaptive-layout/results.xml"
+      },
+      {
+        "file": ".maestro/manual-flows/android-keyboard-landscape.yaml",
+        "name": "Android - Landscape Keyboard Reachability",
+        "tags": [
+          "requires-device",
+          "adaptive"
+        ],
+        "directory": "flow-17-android-keyboard-landscape",
+        "passed": true,
+        "exitCode": 0,
+        "report": "flow-17-android-keyboard-landscape/results.xml"
+      }
+    ]
+  },
+  "supplementalChecks": {
+    "cropInitial": {
+      "passed": 1,
+      "failed": 0,
+      "report": "test-screenshots/android/duo-20261105-crop-picker/results.xml"
+    },
+    "queue": {
+      "passed": 1,
+      "failed": 0,
+      "report": "test-screenshots/android/duo-20261105-queue/results.xml"
+    },
+    "iPhoneRegression": {
+      "passed": 2,
+      "failed": 0,
+      "report": "test-screenshots/ios/duo-android-followup-20261105/results.xml"
+    }
+  },
+  "cropContinuity": {
+    "passed": true,
+    "pid": "13911",
+    "offCenterPan": true,
+    "poses": [
+      {
+        "name": "crop-pan-portrait",
+        "imageSize": [
+          1080,
+          2400
+        ],
+        "frame": [
+          42,
+          443,
+          1038,
+          2103
+        ]
+      },
+      {
+        "name": "crop-pan-landscape",
+        "imageSize": [
+          2400,
+          1080
+        ],
+        "frame": [
+          1099,
+          300,
+          1437,
+          864
+        ]
+      },
+      {
+        "name": "crop-pan-return",
+        "imageSize": [
+          1080,
+          2400
+        ],
+        "frame": [
+          42,
+          443,
+          1038,
+          2103
+        ]
+      }
+    ],
+    "normalizedCropMAE": [
+      1.2838020833333332,
+      0.0
+    ],
+    "maeTolerance": 2.0,
+    "cancelled": true
+  },
+  "mockImageUpload": {
+    "file": "/sleep/sleep-2026-11-05-tide.bmp",
+    "bytes": 1152054,
+    "dimensions": [
+      480,
+      800
+    ],
+    "bitsPerPixel": 24,
+    "grayscaleChannelsVerified": true,
+    "sha256": "a6ae6d688c74c6b3426f9f4f7c592aaa932082b6fa687b08651f10b54866f8ff",
+    "setup": "Selected synthetic image through actual Android photo picker; native crop, conversion, queue and WebSocket transfer to local mock."
+  },
+  "adaptiveTests": {
+    "passed": 4,
+    "failed": 0
+  },
+  "metroExports": [
+    "ios",
+    "android"
+  ],
+  "iPhoneRegression": {
+    "device": "iPhone 17 Pro",
+    "runtime": "iOS 26.5",
+    "xcode": "27.2",
+    "passed": 2
+  },
+  "typecheck": {
+    "clean": false,
+    "knownTamaguiRCPropDiagnostics": 101
+  },
+  "visualReview": "Native screenshot inspection by implementing agent and independent design reviewer; optional Claude API judge not run.",
+  "references": {
+    "android": "test-references/android/pixel-7/",
+    "androidCount": 30,
+    "iPhone": "test-references/ios/iphone-17-pro/light/"
+  },
+  "scope": "Emulator/simulator and disposable local mock only. Native book-picker selection, physical readers/devices, other Android versions and Android foldable hardware not covered.",
+  "cleanup": {
+    "androidEmulatorStopped": true,
+    "iPhoneSimulatorStopped": true,
+    "taskMockReaderStopped": true,
+    "installedAppsAndToolchainsRetained": true
+  }
+}

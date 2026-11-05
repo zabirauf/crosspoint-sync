@@ -1,0 +1,31 @@
+id: android-keyboard
+name: "Android - Landscape Keyboard Reachability"
+flow: manual-flows/android-keyboard-landscape.yaml
+screenshots:
+  - android-rename-landscape-keyboard
+  - android-move-landscape-keyboard
+  - android-move-landscape-keyboard-dismissed
+  - android-created-folder-landscape
+platforms: [android]
+themes: [light]
+tags: [adaptive, keyboard, connected, requires-device]
+description: |
+  The software keyboard is explicitly reopened after rotating to landscape.
+  The current rename or folder-name draft stays readable in the same task.
+  The dialog fits between system safe areas and the visible keyboard.
+assertions:
+  - text: "In editing captures the software keyboard is visible below the dialog; after dismissal or creation it is closed"
+    severity: fail
+  - text: "While editing, the complete draft text field is readable, without vertical clipping"
+    severity: fail
+  - text: "For Rename, Cancel and Rename are fully visible above the keyboard"
+    severity: fail
+  - text: "While editing a folder in compact mode, the destination, Cancel and Create are visible above the keyboard"
+    severity: fail
+  - text: "After dismissing the keyboard, the same folder draft and destination remain and Move Here is visible again"
+    severity: fail
+  - text: "After creation, the new folder row is visible and the folder editor and keyboard are closed"
+    severity: fail
+ignore:
+  - "Exact keyboard key arrangement"
+  - "Background file names"

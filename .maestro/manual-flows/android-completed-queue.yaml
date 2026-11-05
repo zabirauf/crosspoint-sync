@@ -1,0 +1,27 @@
+appId: com.crosspointsync.app
+name: "Android - Completed Queue and Hardware Back"
+tags:
+  - requires-device
+  - adaptive
+---
+# Prepare one completed crop upload in the current process and keep Formats
+# open. A relaunch intentionally does not persist completed upload history.
+- setOrientation: LANDSCAPE_LEFT
+- tapOn:
+    id: "Library.OpenQueue"
+- assertVisible:
+    id: "UploadQueue.Sheet"
+- assertVisible:
+    id: "UploadQueue.AddBooks"
+- assertVisible: "1 completed"
+- takeScreenshot: android-queue-landscape
+- setOrientation: PORTRAIT
+- assertVisible:
+    id: "UploadQueue.AddBooks"
+- assertVisible: "1 completed"
+- takeScreenshot: android-queue-portrait
+- back
+- assertNotVisible:
+    id: "UploadQueue.Sheet"
+- assertVisible:
+    id: "Library.FileRow.Gettysburg-Address.epub"

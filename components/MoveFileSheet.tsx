@@ -1,6 +1,6 @@
 import { AdaptiveSheet } from '@/components/AdaptiveSheet';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { ScrollView, Pressable, ActivityIndicator, useColorScheme, TextInput, View } from 'react-native';
+import { ScrollView, Pressable, ActivityIndicator, Keyboard, useColorScheme, TextInput, View } from 'react-native';
 import { XStack, YStack, Text, H4, Button, Input } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { DeviceFile } from '@/types/device';
@@ -11,6 +11,8 @@ import { BREADCRUMB_SCROLL_DELAY_MS } from '@/constants/Layout';
 
 const MOVE_SHEET_HEIGHT = 720;
 const FOLDER_INPUT_FOCUS_DELAY_MS = 100;
+// Below this height, focus on creating the folder before browsing/moving.
+const MIN_FULL_FOLDER_EDITOR_HEIGHT = 260;
 
 interface MoveFileSheetProps {
   open: boolean;
@@ -39,6 +41,8 @@ export function MoveFileSheet({
   const [isLoading, setIsLoading] = useState(false);
   const [folderPromptOpen, setFolderPromptOpen] = useState(false);
   const [folderName, setFolderName] = useState('');
+  const [sheetHeight, setSheetHeight] = useState(0);
+  const compactFolderEditor = folderPromptOpen && sheetHeight > 0 && sheetHeight < MIN_FULL_FOLDER_EDITOR_HEIGHT;
   const folderInputRef = useRef<TextInput>(null);
   const breadcrumbRef = useRef<ScrollView>(null);
 
@@ -128,6 +132,7 @@ export function MoveFileSheet({
     if (!trimmed) return;
     try {
       await onCreateFolder(trimmed, browsePath);
+      Keyboard.dismiss();
       setFolderPromptOpen(false);
       setFolderName('');
       await loadDirectories(browsePath);
@@ -137,30 +142,36 @@ export function MoveFileSheet({
   };
 
   const cancelFolderPrompt = () => {
+    Keyboard.dismiss();
     setFolderPromptOpen(false);
     setFolderName('');
   };
 
   return (
     <AdaptiveSheet open={open} onOpenChange={onOpenChange} testID="MoveFile.Sheet" height={MOVE_SHEET_HEIGHT} padding={0}>
-      <YStack flex={1}>
+      <YStack flex={1} onLayout={(event) => setSheetHeight(event.nativeEvent.layout.height)}>
         {/* Header */}
         <XStack
           justifyContent="space-between"
           alignItems="center"
           paddingHorizontal="$4"
-          paddingTop="$3"
-          paddingBottom="$2"
+          paddingTop={compactFolderEditor ? 0 : '$3'}
+          paddingBottom={compactFolderEditor ? 0 : '$2'}
         >
           <Button
             chromeless
             size="$4"
-            onPress={() => onOpenChange(false)}
+            onPress={() => compactFolderEditor ? cancelFolderPrompt() : onOpenChange(false)}
             testID="MoveFile.CancelButton"
           >
             <Text color="$blue10" fontSize="$3" fontWeight="500">Cancel</Text>
           </Button>
-          <H4>Move to...</H4>
+          <View style={{ alignItems: 'center', flexShrink: 1, minWidth: 0 }}>
+            <H4>{compactFolderEditor ? 'New folder' : 'Move to...'}</H4>
+            {compactFolderEditor && (
+              <Text testID="MoveFile.EditorDestination" fontSize="$2" color="$gray10" numberOfLines={1}>{browsePath}</Text>
+            )}
+          </View>
           <XStack gap="$1" alignItems="center">
             <Button
               chromeless
@@ -169,6 +180,7 @@ export function MoveFileSheet({
               accessibilityLabel="Create destination folder"
               onPress={() => setFolderPromptOpen(true)}
               testID="MoveFile.NewFolderButton"
+              display={compactFolderEditor ? 'none' : undefined}
             >
               <FontAwesome name="folder-open" size={16} color={isDark ? '#6cb4ee' : '#2089dc'} />
               <FontAwesome name="plus" size={10} color={isDark ? '#6cb4ee' : '#2089dc'} style={{ marginLeft: -4, marginTop: -8 }} />
@@ -187,7 +199,7 @@ export function MoveFileSheet({
         </XStack>
 
         {/* Breadcrumb navigation */}
-        <YStack borderBottomWidth={0.5} borderBottomColor={isDark ? '$gray5' : '$gray4'}>
+        <YStack display={compactFolderEditor ? 'none' : undefined} borderBottomWidth={0.5} borderBottomColor={isDark ? '$gray5' : '$gray4'}>
           <ScrollView
             ref={breadcrumbRef}
             horizontal
@@ -247,7 +259,7 @@ export function MoveFileSheet({
         {folderPromptOpen && (
           <XStack
             paddingHorizontal="$4"
-            paddingBottom="$2"
+            paddingBottom={compactFolderEditor ? 0 : '$2'}
             gap="$2"
             alignItems="center"
           >
@@ -263,6 +275,7 @@ export function MoveFileSheet({
               autoCapitalize="none"
               autoCorrect={false}
               testID="MoveFile.FolderNameInput"
+              disableFullscreenUI
             />
             <Button size="$3" theme="blue" onPress={handleCreateFolder} testID="MoveFile.CreateFolderButton">
               Create
@@ -274,7 +287,7 @@ export function MoveFileSheet({
         )}
 
         {/* Directory list */}
-        <ScrollView keyboardShouldPersistTaps="handled" style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16 }}>
+        <ScrollView keyboardShouldPersistTaps="handled" style={{ flex: 1, display: compactFolderEditor ? 'none' : 'flex' }} contentContainerStyle={{ paddingHorizontal: 16 }}>
           {isLoading && (
             <YStack alignItems="center" paddingVertical="$4">
               <ActivityIndicator size="small" />
@@ -356,6 +369,7 @@ export function MoveFileSheet({
 
         {/* Footer */}
         <YStack
+          display={compactFolderEditor ? 'none' : undefined}
           paddingHorizontal="$4"
           paddingVertical="$3"
           borderTopWidth={0.5}

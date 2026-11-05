@@ -3,7 +3,7 @@ name: "File Action Sheet"
 flow: flows/12-file-action-sheet.yaml
 screenshots:
   - file-action-sheet
-platforms: [ios]
+platforms: [ios, android]
 themes: [light]
 tags: [library, connected, requires-device, file-actions]
 
