@@ -57,3 +57,5 @@ The landscape flow creates a uniquely named folder in the disposable mock's Form
 For crop testing, push `test-fixtures/images/crop-asymmetric.png` to the emulator's Pictures directory, scan it into MediaStore, and select that image using Library → + → Sleep Background. The standalone `sleep-preview-safe-area.yaml` then checks controls and submits the image to the mock reader. The native book-picker selection flow was not repeated in this pass.
 
 The task-owned emulator, iPhone simulator and mock reader were stopped after validation. Installed apps, toolchains and ignored local test artifacts remain available.
+
+The subsequent [full iOS regression pass](ios-full-suite-validation-2026-11-05.md) reran all 17 flows on both iPhone 17 Pro and Duo using the final product source. Both full runs passed 17/17; a separate physical Duo rotation/fold check also retained the folder draft, destination and process. This supersedes the earlier 2/2-only iOS follow-up boundary above.
