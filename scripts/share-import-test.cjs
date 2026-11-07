@@ -1,22 +1,56 @@
-// Exercise the real importer with an in-memory iOS App Group and stores.
+// Exercise the real importer and Zustand settings persistence with in-memory I/O.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const ts = require('typescript');
+const { setImmediate: nextTurn } = require('node:timers/promises');
 
-const source = fs.readFileSync(path.join(__dirname, '../services/share-import.ts'), 'utf8');
-const { outputText } = ts.transpileModule(source, {
-  compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
-});
+function compile(relativePath) {
+  return ts.transpileModule(fs.readFileSync(path.join(__dirname, relativePath), 'utf8'), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+  }).outputText;
+}
 
-function setup({ hydrated = true, uploadPath = '/Books', manifestPath = '/' } = {}) {
+const importerSource = compile('../services/share-import.ts');
+const settingsSource = compile('../stores/settings-store.ts');
+
+function load(source, mocks) {
+  const module = { exports: {} };
+  vm.runInNewContext(source, {
+    exports: module.exports,
+    Promise,
+    require: id => { assert.ok(id in mocks, `unexpected dependency: ${id}`); return mocks[id]; },
+  });
+  return module.exports;
+}
+
+function setup({ hydrated = true, uploadPath = '/Books', manifestPath = '/', storedValue } = {}) {
   const jobs = [];
-  const listeners = new Set();
   const files = new Map();
   const directories = new Set(['file:///group/manifests', 'file:///group/shared-files']);
-  const settings = { defaultUploadPath: uploadPath };
+  const pendingReads = [];
+  let storageReads = 0;
+  let savedSettings = storedValue === undefined
+    ? JSON.stringify({ state: { defaultUploadPath: uploadPath }, version: 0 })
+    : storedValue;
+  const settingsModule = load(settingsSource, {
+    zustand: require('zustand'),
+    'zustand/middleware': require('zustand/middleware'),
+    '@react-native-async-storage/async-storage': { default: {
+      getItem: () => {
+        storageReads++;
+        return hydrated ? Promise.resolve(savedSettings) : new Promise((resolve, reject) => {
+          pendingReads.push({ resolve, reject });
+        });
+      },
+      setItem: (_key, value) => { savedSettings = value; return Promise.resolve(); },
+      removeItem: () => Promise.resolve(),
+    } },
+    '@/constants/Protocol': { DEFAULT_UPLOAD_PATH: '/', DEFAULT_CLIP_UPLOAD_PATH: '/Articles' },
+  });
+  const settings = settingsModule.useSettingsStore;
   const uriOf = (base, name) => `${typeof base === 'string' ? base : base.uri}${name ? `/${name}` : ''}`;
 
   class File {
@@ -59,28 +93,25 @@ function setup({ hydrated = true, uploadPath = '/Books', manifestPath = '/' } = 
     'expo-file-system': { File, Directory, Paths: { cache: 'file:///cache' } },
     '@/modules/app-group-path': { getAppGroupPath: () => '/group' },
     '@/stores/upload-store': { useUploadStore: { getState: () => ({ addJob: job => jobs.push(job) }) } },
-    '@/stores/settings-store': { useSettingsStore: {
-      getState: () => settings,
-      persist: {
-        hasHydrated: () => hydrated,
-        onFinishHydration: listener => { listeners.add(listener); return () => listeners.delete(listener); },
-      },
-    } },
+    '@/stores/settings-store': settingsModule,
     '@/services/logger': { log: () => {} },
     '@/utils/format': { pathToUri: value => value.startsWith('file://') ? value : `file://${value}` },
   };
-  const module = { exports: {} };
-  vm.runInNewContext(outputText, {
-    exports: module.exports,
-    require: id => { assert.ok(id in mocks, `unexpected dependency: ${id}`); return mocks[id]; },
-  });
+  const importer = load(importerSource, mocks);
   return {
-    jobs, settings, files, listeners, addManifest,
-    importFiles: module.exports.importSharedFiles,
+    jobs, settings, files, directories, addManifest,
+    get storageReads() { return storageReads; },
+    importFiles: importer.importSharedFiles,
     finishHydration(savedPath) {
-      settings.defaultUploadPath = savedPath;
-      hydrated = true;
-      for (const listener of [...listeners]) listener();
+      const read = pendingReads.shift();
+      assert.ok(read, 'a settings read must be pending');
+      savedSettings = JSON.stringify({ state: { defaultUploadPath: savedPath }, version: 0 });
+      read.resolve(savedSettings);
+    },
+    failHydration() {
+      const read = pendingReads.shift();
+      assert.ok(read, 'a settings read must be pending');
+      read.reject(new Error('AsyncStorage read failed'));
     },
   };
 }
@@ -102,13 +133,14 @@ test('cold launch waits for persisted settings before moving or queuing the file
   app.finishHydration('/Books/');
   assert.equal(await importing, 1);
   assert.equal(app.jobs[0].destinationPath, '/Books/');
-  assert.equal(app.listeners.size, 0);
+  assert.equal(app.settings.persist.hasHydrated(), true);
+  assert.equal(app.storageReads, 1, 'import should reuse the in-flight settings read');
 });
 
 test('subsequent imports use changed settings and keep existing destinations', async () => {
   const app = setup();
   await app.importFiles();
-  app.settings.defaultUploadPath = '/Reading';
+  app.settings.getState().setDefaultUploadPath('/Reading');
   app.addManifest('second.epub');
   await app.importFiles();
   assert.equal(app.jobs[0].destinationPath, '/Books');
@@ -118,5 +150,56 @@ test('subsequent imports use changed settings and keep existing destinations', a
 test('root remains a valid configured upload destination', async () => {
   const app = setup({ uploadPath: '/', manifestPath: '/OldFolder' });
   await app.importFiles();
+  assert.equal(app.jobs[0].destinationPath, '/');
+});
+
+async function assertDeferred(importing, app) {
+  // Let all hydration microtasks finish; a failed read must settle the import.
+  assert.equal(await Promise.race([importing, nextTurn().then(() => 'still waiting')]), 0);
+  assert.equal(app.jobs.length, 0);
+  assert.equal(app.files.has('file:///group/shared-files/book.epub'), true);
+  assert.equal(app.files.has('file:///group/manifests/book.epub.json'), true);
+  assert.equal(app.directories.has('file:///cache/shared-imports'), false);
+}
+
+test('a settings read failure releases an in-flight import without moving or deleting files', async () => {
+  const app = setup({ hydrated: false });
+  const importing = app.importFiles();
+  app.failHydration();
+  await assertDeferred(importing, app);
+});
+
+test('an earlier settings failure can be retried and a failed retry preserves files', async () => {
+  const app = setup({ hydrated: false });
+  app.failHydration();
+  await nextTurn();
+  const importing = app.importFiles();
+  assert.equal(app.storageReads, 2);
+  app.failHydration();
+  await assertDeferred(importing, app);
+});
+
+test('a later import retries failed hydration and uses the recovered path', async () => {
+  const app = setup({ hydrated: false });
+  const firstImport = app.importFiles();
+  app.failHydration();
+  await assertDeferred(firstImport, app);
+
+  const retry = app.importFiles();
+  assert.equal(app.storageReads, 2);
+  app.finishHydration('/Recovered');
+  assert.equal(await retry, 1);
+  assert.equal(app.jobs[0].destinationPath, '/Recovered');
+  assert.equal(app.files.has('file:///group/manifests/book.epub.json'), false);
+});
+
+test('malformed persisted settings preserve shares instead of uploading to the default root', async () => {
+  const app = setup({ storedValue: '{invalid json' });
+  await assertDeferred(app.importFiles(), app);
+});
+
+test('a fresh install with no persisted settings uses the default root', async () => {
+  const app = setup({ storedValue: null });
+  assert.equal(await app.importFiles(), 1);
   assert.equal(app.jobs[0].destinationPath, '/');
 });

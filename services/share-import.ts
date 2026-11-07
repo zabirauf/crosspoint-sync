@@ -1,7 +1,7 @@
 import { File, Directory, Paths } from 'expo-file-system';
 import { getAppGroupPath } from '@/modules/app-group-path';
 import { useUploadStore } from '@/stores/upload-store';
-import { useSettingsStore } from '@/stores/settings-store';
+import { useSettingsStore, waitForSettingsHydration } from '@/stores/settings-store';
 import { log } from '@/services/logger';
 import { pathToUri } from '@/utils/format';
 
@@ -28,13 +28,9 @@ export async function importSharedFiles(): Promise<number> {
 
   // The upload queue can hydrate before settings on a cold launch. Wait for
   // the saved upload path before importing files from the Share Extension.
-  if (!useSettingsStore.persist.hasHydrated()) {
-    await new Promise<void>((resolve) => {
-      const unsubscribe = useSettingsStore.persist.onFinishHydration(() => {
-        unsubscribe();
-        resolve();
-      });
-    });
+  if (!(await waitForSettingsHydration())) {
+    log('queue', 'Settings could not be restored; deferring shared files until the next import');
+    return 0;
   }
 
   const cacheDir = new Directory(Paths.cache, 'shared-imports');
