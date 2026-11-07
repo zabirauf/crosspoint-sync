@@ -22,4 +22,8 @@ tags:
 
 - waitForAnimationToEnd
 
+- assertVisible:
+    id: "PromptDialog.Input"
+- assertVisible:
+    id: "PromptDialog.SubmitButton"
 - takeScreenshot: settings-upload-path-edit

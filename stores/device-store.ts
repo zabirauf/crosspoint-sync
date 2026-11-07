@@ -35,6 +35,8 @@ export const useDeviceStore = create<DeviceState>()(
         set({
           connectionStatus: 'connected',
           connectedDevice: device,
+          // Capabilities must come from this reader, never the previous one.
+          deviceStatus: null,
           lastDeviceIp,
           error: null,
         });

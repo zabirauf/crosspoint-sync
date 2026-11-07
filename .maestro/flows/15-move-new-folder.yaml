@@ -40,4 +40,11 @@ tags:
 
 - waitForAnimationToEnd
 
+- assertVisible:
+    id: "MoveFile.CreateFolderButton"
+- assertVisible:
+    id: "MoveFile.MoveHereButton"
+- assertVisible:
+    id: "MoveFile.CancelButton"
+
 - takeScreenshot: move-new-folder

@@ -5,6 +5,9 @@ name: "Test Suite Setup - Connect Mock Device"
 # Connects to the mock reader (Android emulator host or iOS localhost) so that
 # lastDeviceIp is persisted for all subsequent flows.
 
+# Keep named light references independent of a simulator's prior appearance.
+- setDarkMode: disabled
+
 # Start from a clean disconnected state
 - runFlow: ../helpers/ensure-disconnected.yaml
 

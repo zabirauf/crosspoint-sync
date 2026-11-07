@@ -1,0 +1,290 @@
+{
+  "date": "2026-11-05",
+  "status": "passed",
+  "testedProductCommit": "4703e5f27d8a8006b5b668e60c1dac332b5f0adb",
+  "productSourceChangedDuringRun": false,
+  "branch": "codex/iphone-duo",
+  "appVersion": "1.2.0",
+  "configuration": "Release",
+  "xcode": "27.2 (27B52)",
+  "sdk": "iOS Simulator 27.2",
+  "mainJSBundleSHA256": "7bb213391e5d36e7e1c23a0ba9e8c00cc4df46dc785267b17c349a7bc65a047b",
+  "maestro": "2.12.1",
+  "reader": "Disposable local mock, firmware 1.3.0, HTTP 8082 / WS 8083, fresh public-domain fixtures.",
+  "suites": [
+    {
+      "device": "iPhone 17 Pro",
+      "runtime": "iOS 26.5",
+      "udid": "BC8242BA-11EE-410C-AB9D-2765438030EF",
+      "tests": 17,
+      "passed": 17,
+      "failed": 0,
+      "startupRecoveryUsed": false,
+      "namedCaptures": 20,
+      "report": "test-screenshots/ios/duo-20261105-full-iphone/results.xml",
+      "flows": [
+        {
+          "name": "Test Suite Setup - Connect Mock Device",
+          "time": "45.725"
+        },
+        {
+          "name": "App Launch - Cold Start",
+          "time": "21.957"
+        },
+        {
+          "name": "Library Tab - Disconnected State",
+          "time": "22.025"
+        },
+        {
+          "name": "Device Connection - Connection Sheet",
+          "time": "23.703"
+        },
+        {
+          "name": "Library Tab - Connected with Files",
+          "time": "4.434"
+        },
+        {
+          "name": "Library - Supported File Formats",
+          "time": "11.787"
+        },
+        {
+          "name": "File Navigation - Browse Folders",
+          "time": "5.749"
+        },
+        {
+          "name": "Upload Flow - FAB Menu",
+          "time": "5.534"
+        },
+        {
+          "name": "Settings Screen - Main View",
+          "time": "14.132"
+        },
+        {
+          "name": "Settings - Edit Upload Path",
+          "time": "13.783"
+        },
+        {
+          "name": "FAB Menu - Expanded State",
+          "time": "24.918"
+        },
+        {
+          "name": "Dark Mode - Library Disconnected",
+          "time": "21.859"
+        },
+        {
+          "name": "File Action Sheet",
+          "time": "6.024"
+        },
+        {
+          "name": "Rename Dialog",
+          "time": "8.978"
+        },
+        {
+          "name": "Move Sheet",
+          "time": "7.993"
+        },
+        {
+          "name": "Move Sheet - New Folder Dialog",
+          "time": "11.156"
+        },
+        {
+          "name": "Adaptive Layout - Resize Continuity",
+          "time": "29.48"
+        }
+      ]
+    },
+    {
+      "device": "iPhone Duo",
+      "runtime": "iOS 27.1",
+      "udid": "32516D8C-95E0-4128-A749-A87E641CB0A9",
+      "tests": 17,
+      "passed": 17,
+      "failed": 0,
+      "startupRecoveryUsed": false,
+      "namedCaptures": 20,
+      "report": "test-screenshots/ios/duo-20261105-full-duo/results.xml",
+      "flows": [
+        {
+          "name": "Test Suite Setup - Connect Mock Device",
+          "time": "40.008"
+        },
+        {
+          "name": "App Launch - Cold Start",
+          "time": "23.826"
+        },
+        {
+          "name": "Library Tab - Disconnected State",
+          "time": "24.083"
+        },
+        {
+          "name": "Device Connection - Connection Sheet",
+          "time": "25.795"
+        },
+        {
+          "name": "Library Tab - Connected with Files",
+          "time": "6.369"
+        },
+        {
+          "name": "Library - Supported File Formats",
+          "time": "14.992"
+        },
+        {
+          "name": "File Navigation - Browse Folders",
+          "time": "7.87"
+        },
+        {
+          "name": "Upload Flow - FAB Menu",
+          "time": "7.427"
+        },
+        {
+          "name": "Settings Screen - Main View",
+          "time": "13.584"
+        },
+        {
+          "name": "Settings - Edit Upload Path",
+          "time": "12.48"
+        },
+        {
+          "name": "FAB Menu - Expanded State",
+          "time": "25.671"
+        },
+        {
+          "name": "Dark Mode - Library Disconnected",
+          "time": "23.525"
+        },
+        {
+          "name": "File Action Sheet",
+          "time": "8.099"
+        },
+        {
+          "name": "Rename Dialog",
+          "time": "12.374"
+        },
+        {
+          "name": "Move Sheet",
+          "time": "10.223"
+        },
+        {
+          "name": "Move Sheet - New Folder Dialog",
+          "time": "14.547"
+        },
+        {
+          "name": "Adaptive Layout - Resize Continuity",
+          "time": "30.366"
+        }
+      ]
+    }
+  ],
+  "physicalDuoContinuation": {
+    "passed": true,
+    "pid": 72621,
+    "draft": "Full suite fold draft",
+    "destination": "/Formats",
+    "poses": [
+      {
+        "pose": "outer",
+        "hingeAngle": 0,
+        "physicalRotation": "PORTRAIT",
+        "pid": 72621,
+        "draft": "Full suite fold draft",
+        "destination": "/Formats",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3,
+            "unique_id": "2BCC56E0-E725-4BB3-B6F6-AC6A8A7D7EAD"
+          },
+          "height": 678,
+          "width": 466
+        }
+      },
+      {
+        "pose": "outer-landscape",
+        "hingeAngle": 0,
+        "physicalRotation": "LANDSCAPE_LEFT",
+        "pid": 72621,
+        "draft": "Full suite fold draft",
+        "destination": "/Formats",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 270,
+            "scale": 3,
+            "unique_id": "2BCC56E0-E725-4BB3-B6F6-AC6A8A7D7EAD"
+          },
+          "height": 466,
+          "width": 678
+        }
+      },
+      {
+        "pose": "inner",
+        "hingeAngle": 180,
+        "physicalRotation": "PORTRAIT",
+        "pid": 72621,
+        "draft": "Full suite fold draft",
+        "destination": "/Formats",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3,
+            "unique_id": "EB6D7596-76CA-4BA2-871F-AE509B6824F5"
+          },
+          "height": 669,
+          "width": 951
+        }
+      },
+      {
+        "pose": "partial",
+        "hingeAngle": 90,
+        "physicalRotation": "PORTRAIT",
+        "pid": 72621,
+        "draft": "Full suite fold draft",
+        "destination": "/Formats",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3,
+            "unique_id": "EB6D7596-76CA-4BA2-871F-AE509B6824F5"
+          },
+          "height": 669,
+          "width": 951
+        }
+      },
+      {
+        "pose": "return",
+        "hingeAngle": 0,
+        "physicalRotation": "PORTRAIT",
+        "pid": 72621,
+        "draft": "Full suite fold draft",
+        "destination": "/Formats",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3,
+            "unique_id": "2BCC56E0-E725-4BB3-B6F6-AC6A8A7D7EAD"
+          },
+          "height": 678,
+          "width": 466
+        }
+      }
+    ],
+    "cancelled": true,
+    "submittedFolderOrBookOperation": false
+  },
+  "suiteNamedCaptures": 40,
+  "physicalPoseCaptures": 6,
+  "visualReview": "Implementing agent and independent design reviewer; optional Claude API judge not run.",
+  "limitations": [
+    "Simulators/mock only, no physical devices or reader.",
+    "Duo Maestro landscape-named screenshots remain portrait-shaped; separate physical rotation/folding captures establish that coverage.",
+    "Standard Upload Flow opens the add menu; native book-picker selection was not repeated."
+  ],
+  "cleanup": {
+    "startedSimulatorsStopped": true,
+    "taskMockAndCompanionStopped": true
+  }
+}

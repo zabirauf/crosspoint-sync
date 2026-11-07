@@ -19,7 +19,7 @@ export function ConnectionPill({ onPress }: ConnectionPillProps) {
   const label = isConnected ? 'Connected' : 'Connect';
 
   return (
-    <Pressable onPress={onPress} style={{ marginRight: 8 }} testID="Library.ConnectionPill">
+    <Pressable onPress={onPress} style={{ marginRight: 8, minHeight: 44, justifyContent: 'center' }} testID="Library.ConnectionPill" accessibilityRole="button" accessibilityLabel={isConnected ? 'Manage reader connection' : 'Connect reader'}>
       <XStack
         alignItems="center"
         gap="$1.5"

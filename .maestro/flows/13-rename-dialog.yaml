@@ -28,4 +28,11 @@ tags:
 
 - waitForAnimationToEnd
 
+- assertVisible:
+    id: "PromptDialog.Input"
+- assertVisible:
+    id: "PromptDialog.CancelButton"
+- assertVisible:
+    id: "PromptDialog.SubmitButton"
+
 - takeScreenshot: rename-dialog

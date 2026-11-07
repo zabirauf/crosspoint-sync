@@ -1,3 +1,6 @@
+flows:
+  - "flows/*"
+
 executionOrder:
   continueOnFailure: true
   flowsOrder:
@@ -6,6 +9,7 @@ executionOrder:
     - "Library Tab - Disconnected State"
     - "Device Connection - Connection Sheet"
     - "Library Tab - Connected with Files"
+    - "Library - Supported File Formats"
     - "File Navigation - Browse Folders"
     - "Upload Flow - FAB Menu"
     - "Settings Screen - Main View"
@@ -16,3 +20,4 @@ executionOrder:
     - "Rename Dialog"
     - "Move Sheet"
     - "Move Sheet - New Folder Dialog"
+    - "Adaptive Layout - Resize Continuity"

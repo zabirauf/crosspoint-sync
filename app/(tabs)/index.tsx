@@ -1,7 +1,8 @@
 import { useCallback, useRef, useState, useLayoutEffect, useEffect } from 'react';
 import { YStack, XStack, Text, ScrollView } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
-import { useColorScheme, Alert, Platform, BackHandler, RefreshControl, FlatList } from 'react-native';
+import { useColorScheme, Alert, Platform, BackHandler, RefreshControl, FlatList, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { useNavigation, router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -22,6 +23,14 @@ import { PromptDialog } from '@/components/PromptDialog';
 import { FileActionSheet } from '@/components/FileActionSheet';
 import { MoveFileSheet } from '@/components/MoveFileSheet';
 import { DeviceFile } from '@/types/device';
+import { useAdaptiveLayout } from '@/hooks/use-adaptive-layout';
+import { BREADCRUMB_SCROLL_DELAY_MS, FAB_BOTTOM_INSET, LIBRARY_CONTEXT_PANEL_WIDTH } from '@/constants/Layout';
+import { LibraryContext } from '@/components/LibraryContext';
+
+const LIBRARY_CONTENT_MAX_WIDTH = 1120;
+const MIN_BROWSER_WIDTH_WITH_CONTEXT = 508;
+const MAX_CONTEXT_FONT_SCALE = 1.3;
+const FAB_BOTTOM_WITH_UPLOAD_BAR = 72;
 
 export default function LibraryScreen() {
   const colorScheme = useColorScheme();
@@ -30,6 +39,9 @@ export default function LibraryScreen() {
   const { connectionStatus } = useDeviceStore();
   const { jobs } = useUploadStore();
   const openSwipeableRef = useRef<SwipeableMethods | null>(null);
+  const { expanded, fontScale } = useAdaptiveLayout();
+  const [contentWidth, setContentWidth] = useState(0);
+  const [paneHeight, setPaneHeight] = useState(0);
 
   const [connectionSheetOpen, setConnectionSheetOpen] = useState(false);
   const [queueSheetOpen, setQueueSheetOpen] = useState(false);
@@ -191,145 +203,162 @@ export default function LibraryScreen() {
   useEffect(() => {
     setTimeout(() => {
       breadcrumbRef.current?.scrollToEnd?.({ animated: true });
-    }, 50);
+    }, BREADCRUMB_SCROLL_DELAY_MS);
   }, [currentPath]);
+
+  const showLibraryContext = expanded &&
+    contentWidth >= LIBRARY_CONTEXT_PANEL_WIDTH + MIN_BROWSER_WIDTH_WITH_CONTEXT &&
+    fontScale < MAX_CONTEXT_FONT_SCALE;
 
   return (
     <YStack flex={1} backgroundColor="$background" testID="Library.Screen">
-      {isConnected ? (
-        <SwipeBackGesture
-          onSwipeBack={navigateUp}
-          enabled={isConnected && currentPath !== '/'}
-          resetKey={currentPath}
+      <SafeAreaView edges={expanded ? ['left', 'bottom'] : ['left', 'right']} style={{ flex: 1 }}>
+        <View
+          onLayout={(event) => setContentWidth(event.nativeEvent.layout.width)}
+          style={{ flex: 1, flexDirection: 'row', width: '100%', maxWidth: LIBRARY_CONTENT_MAX_WIDTH, alignSelf: 'center' }}
         >
-          {/* Breadcrumb navigation */}
-          <YStack borderBottomWidth={0.5} borderBottomColor={isDark ? '$gray5' : '$gray4'}>
-            <ScrollView
-              ref={breadcrumbRef}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 10, alignItems: 'center' }}
-            >
-              <XStack alignItems="center" gap="$1.5">
-                {/* Root segment */}
-                {pathParts.length > 0 ? (
-                  <Text
-                    color="$blue10"
-                    fontSize="$3"
-                    fontWeight="500"
-                    onPress={() => navigateToPath('/')}
+          {showLibraryContext && (
+            <LibraryContext onConnect={() => setConnectionSheetOpen(true)} onQueue={() => setQueueSheetOpen(true)} />
+          )}
+          <View style={{ flex: 1, minWidth: 0 }} testID="Library.BrowserPane" onLayout={(event) => setPaneHeight(event.nativeEvent.layout.height)}>
+            {isConnected ? (
+              <SwipeBackGesture
+                onSwipeBack={navigateUp}
+                enabled={isConnected && currentPath !== '/'}
+                resetKey={currentPath}
+              >
+                {/* Breadcrumb navigation */}
+                <YStack borderBottomWidth={0.5} borderBottomColor={isDark ? '$gray5' : '$gray4'}>
+                  <ScrollView
+                    ref={breadcrumbRef}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 10, alignItems: 'center' }}
                   >
-                    <FontAwesome name="tablet" size={13} color={isDark ? '#6cb4ee' : '#2089dc'} />{' '}
-                    Device
-                  </Text>
-                ) : (
-                  <Text color="$colorFocus" fontSize="$3" fontWeight="600">
-                    <FontAwesome name="tablet" size={13} />{' '}
-                    Device
-                  </Text>
-                )}
-
-                {/* Path segments */}
-                {pathParts.map((part, index) => {
-                  const isLast = index === pathParts.length - 1;
-                  const segmentPath = '/' + pathParts.slice(0, index + 1).join('/');
-                  return (
-                    <XStack key={segmentPath} alignItems="center" gap="$1.5">
-                      <Text color={isDark ? '$gray8' : '$gray9'} fontSize="$3">
-                        ›
-                      </Text>
-                      {isLast ? (
-                        <Text color="$colorFocus" fontSize="$3" fontWeight="600">
-                          {part}
-                        </Text>
-                      ) : (
+                    <XStack alignItems="center" gap="$1.5">
+                      {/* Root segment */}
+                      {pathParts.length > 0 ? (
                         <Text
                           color="$blue10"
                           fontSize="$3"
                           fontWeight="500"
-                          onPress={() => navigateToPath(segmentPath)}
+                          onPress={() => navigateToPath('/')}
                         >
-                          {part}
+                          <FontAwesome name="tablet" size={13} color={isDark ? '#6cb4ee' : '#2089dc'} />{' '}
+                          Device
+                        </Text>
+                      ) : (
+                        <Text color="$colorFocus" fontSize="$3" fontWeight="600">
+                          <FontAwesome name="tablet" size={13} />{' '}
+                          Device
                         </Text>
                       )}
+
+                      {/* Path segments */}
+                      {pathParts.map((part, index) => {
+                        const isLast = index === pathParts.length - 1;
+                        const segmentPath = '/' + pathParts.slice(0, index + 1).join('/');
+                        return (
+                          <XStack key={segmentPath} alignItems="center" gap="$1.5">
+                            <Text color={isDark ? '$gray8' : '$gray9'} fontSize="$3">
+                              ›
+                            </Text>
+                            {isLast ? (
+                              <Text color="$colorFocus" fontSize="$3" fontWeight="600">
+                                {part}
+                              </Text>
+                            ) : (
+                              <Text
+                                color="$blue10"
+                                fontSize="$3"
+                                fontWeight="500"
+                                onPress={() => navigateToPath(segmentPath)}
+                              >
+                                {part}
+                              </Text>
+                            )}
+                          </XStack>
+                        );
+                      })}
                     </XStack>
-                  );
-                })}
-              </XStack>
-            </ScrollView>
-          </YStack>
+                  </ScrollView>
+                </YStack>
 
-          {error && (
-            <YStack padding="$3">
-              <Text color="$red10" fontSize="$3">{error}</Text>
-            </YStack>
-          )}
+                {error && (
+                  <YStack padding="$3">
+                    <Text color="$red10" fontSize="$3">{error}</Text>
+                  </YStack>
+                )}
 
-          {/* File list */}
-          <FlatList
-            testID="Library.FileList"
-            data={files}
-            keyExtractor={(item) => item.name}
-            renderItem={({ item }) => {
-              const downloadStatus = downloadingFile === item.name
-                ? 'downloading' as const
-                : queuedDownloads.includes(item.name)
-                  ? 'queued' as const
-                  : undefined;
-              return (
-                <SwipeableFileRow
-                  file={item}
-                  onPress={() => {
-                    if (item.isDirectory) {
-                      navigateToFolder(item.name);
-                    }
+                {/* File list */}
+                <FlatList
+                  testID="Library.FileList"
+                  data={files}
+                  keyExtractor={(item) => item.name}
+                  renderItem={({ item }) => {
+                    const downloadStatus = downloadingFile === item.name
+                      ? 'downloading' as const
+                      : queuedDownloads.includes(item.name)
+                        ? 'queued' as const
+                        : undefined;
+                    return (
+                      <SwipeableFileRow
+                        file={item}
+                        onPress={() => {
+                          if (item.isDirectory) {
+                            navigateToFolder(item.name);
+                          }
+                        }}
+                        onDelete={handleDelete}
+                        onDownload={queueDownload}
+                        onRename={capabilities.rename ? (file) => setRenameTarget(file) : undefined}
+                        onLongPress={handleFileAction}
+                        onMorePress={handleFileAction}
+                        onSwipeOpen={handleSwipeOpen}
+                        downloadStatus={downloadStatus}
+                      />
+                    );
                   }}
-                  onDelete={handleDelete}
-                  onDownload={queueDownload}
-                  onRename={capabilities.rename ? (file) => setRenameTarget(file) : undefined}
-                  onLongPress={handleFileAction}
-                  onMorePress={handleFileAction}
-                  onSwipeOpen={handleSwipeOpen}
-                  downloadStatus={downloadStatus}
+                  contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 96, flexGrow: 1 }}
+                  refreshControl={
+                    <RefreshControl refreshing={isLoading} onRefresh={() => loadFiles()} />
+                  }
+                  ListEmptyComponent={
+                    !isLoading ? (
+                      <EmptyState
+                        icon="folder-open-o"
+                        title="Empty Folder"
+                        subtitle="Tap + to add files or create a folder."
+                      />
+                    ) : null
+                  }
                 />
-              );
-            }}
-            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 120 }}
-            refreshControl={
-              <RefreshControl refreshing={isLoading} onRefresh={() => loadFiles()} />
-            }
-            ListEmptyComponent={
-              !isLoading ? (
-                <EmptyState
-                  icon="folder-open-o"
-                  title="Empty Folder"
-                  subtitle="Tap + to add books or long press to create a folder."
-                />
-              ) : null
-            }
-          />
-        </SwipeBackGesture>
-      ) : (
-        <EmptyState
-          icon="plug"
-          title="No Device Connected"
-          subtitle="Connect to your e-ink reader to browse and manage books."
-          actionLabel="Connect"
-          onAction={() => setConnectionSheetOpen(true)}
-        />
-      )}
+              </SwipeBackGesture>
+            ) : (
+              <EmptyState
+                icon="plug"
+                title="No Device Connected"
+                subtitle="Connect to your e-ink reader to browse and manage books."
+                actionLabel="Connect"
+                onAction={() => setConnectionSheetOpen(true)}
+              />
+            )}
 
-      {/* Upload status bar */}
-      <UploadStatusBar onPress={() => setQueueSheetOpen(true)} />
+            {/* Upload status bar */}
+            <UploadStatusBar onPress={() => setQueueSheetOpen(true)} />
 
-      {/* Floating action button */}
-      <ActionFAB
-        onAddBook={() => pickAndQueueFiles(isConnected ? currentPath : defaultUploadPath)}
-        onNewFolder={handleNewFolder}
-        onSleepBackground={handleSleepBackground}
-        showNewFolder={isConnected}
-        bottomOffset={hasActiveUploads ? 72 : 16}
-      />
+            {/* Floating action button */}
+            <ActionFAB
+              onAddBook={() => pickAndQueueFiles(isConnected ? currentPath : defaultUploadPath)}
+              onNewFolder={handleNewFolder}
+              onSleepBackground={handleSleepBackground}
+              showNewFolder={isConnected}
+              bottomOffset={hasActiveUploads ? FAB_BOTTOM_WITH_UPLOAD_BAR : FAB_BOTTOM_INSET}
+              availableHeight={paneHeight}
+            />
+          </View>
+        </View>
+      </SafeAreaView>
 
       {/* Sheets */}
       {connectionSheetOpen && (

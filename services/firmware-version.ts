@@ -1,3 +1,5 @@
+import { FILE_FORMATS, getFileFormat, SUPPORTED_EXTENSIONS, type SupportedExtension } from '@/constants/FileFormats';
+
 export interface FirmwareVersion {
   major: number;
   minor: number;
@@ -5,6 +7,9 @@ export interface FirmwareVersion {
 }
 
 export interface DeviceCapabilities {
+  supportedFileExtensions: readonly SupportedExtension[];
+  /** This is a MIME filter, not a filename glob. */
+  filePickerMimeType: 'application/epub+zip' | '*/*';
   rename: boolean;
   move: boolean;
   settingsApi: boolean;
@@ -45,14 +50,32 @@ export function firmwareAtLeast(
 
 /**
  * Derive device capabilities from firmware version.
- * Unknown/unparseable version → all false (safest fallback).
+ * Unknown/unparseable versions allow EPUB only and disable optional APIs.
  */
 export function getDeviceCapabilities(version: string | undefined): DeviceCapabilities {
+  const supportedFileExtensions = SUPPORTED_EXTENSIONS.filter((extension) => {
+    const minimum = FILE_FORMATS[extension].minimumFirmware;
+    return minimum === null || firmwareAtLeast(version, minimum[0], minimum[1], minimum[2]);
+  });
+
   return {
+    supportedFileExtensions,
+    // Bitmap/container providers can report unknown or vendor-specific MIME types.
+    // The picker must therefore validate the selected filenames afterwards.
+    filePickerMimeType: supportedFileExtensions.some((extension) => extension !== '.epub')
+      ? '*/*'
+      : 'application/epub+zip',
     rename: firmwareAtLeast(version, 1, 0, 0),
     move: firmwareAtLeast(version, 1, 0, 0),
     settingsApi: firmwareAtLeast(version, 1, 1, 0),
     // 1.2.0+ /delete expects a `paths` JSON-array form field; older firmware uses `path`.
     batchDelete: firmwareAtLeast(version, 1, 2, 0),
   };
+}
+
+/** Explain a recognized format rejected by the picker or a persisted queue job. */
+export function getFileFirmwareError(fileName: string, version: string | undefined): string {
+  const format = getFileFormat(fileName);
+  if (!format?.minimumFirmware) return `Unsupported file: ${fileName}.`;
+  return `${format.extension.slice(1).toUpperCase()} uploads require firmware ${format.minimumFirmware.join('.')} or later (connected: ${version || 'unknown'}).`;
 }

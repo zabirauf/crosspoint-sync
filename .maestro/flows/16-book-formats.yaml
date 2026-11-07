@@ -1,0 +1,52 @@
+appId: com.crosspointsync.app
+name: "Library - Supported File Formats"
+tags:
+  - requires-device
+---
+- runFlow: ../helpers/ensure-connected.yaml
+- tapOn:
+    id: "Library.FileRow.Formats"
+- extendedWaitUntil:
+    visible:
+      id: "Library.FileRow.Gettysburg-Address.xtch"
+    timeout: 10000
+- assertVisible:
+    id: "Library.FileRow.Gettysburg-Address.epub"
+- assertVisible:
+    id: "Library.FileRow.Gettysburg-Address.xtc"
+- assertVisible:
+    id: "Library.FileRow.Gettysburg-Address.xtg"
+- assertVisible:
+    id: "Library.FileRow.Gettysburg-Address.xth"
+- takeScreenshot: library-book-formats
+
+# Check that XTC/XTCH support the same file actions as EPUB.
+- tapOn:
+    id: "Library.FileRow.Gettysburg-Address.xtch.More"
+- extendedWaitUntil:
+    visible:
+      id: "FileActions.Sheet"
+    timeout: 3000
+- assertVisible:
+    id: "FileActions.Save"
+- assertVisible:
+    id: "FileActions.Rename"
+- assertVisible:
+    id: "FileActions.Move"
+- assertVisible:
+    id: "FileActions.Delete"
+- takeScreenshot: xtch-file-actions
+
+- tapOn:
+    id: "FileActions.CloseButton"
+- tapOn:
+    id: "Library.FileRow.Gettysburg-Address.xth.More"
+- assertVisible:
+    id: "FileActions.Save"
+- assertVisible:
+    id: "FileActions.Rename"
+- assertVisible:
+    id: "FileActions.Move"
+- assertVisible:
+    id: "FileActions.Delete"
+- takeScreenshot: xth-file-actions

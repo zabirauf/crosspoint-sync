@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   StyleSheet,
-  useColorScheme,
-  useWindowDimensions,
   Image,
   ActivityIndicator,
   View,
@@ -14,38 +12,25 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withTiming,
-  runOnJS,
 } from 'react-native-reanimated';
 import { StatusBar } from 'expo-status-bar';
 import { processAndQueueSleepBackground } from '@/services/sleep-background';
 import { SLEEP_SCREEN_WIDTH, SLEEP_SCREEN_HEIGHT } from '@/constants/Protocol';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { fitCropFrame, getSourceCrop } from '@/utils/crop-geometry';
 
 const ASPECT_RATIO = SLEEP_SCREEN_WIDTH / SLEEP_SCREEN_HEIGHT; // 0.6 (3:5)
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 5;
-const FRAME_PADDING = 32;
 
 export default function SleepPreviewScreen() {
   const { imageUri } = useLocalSearchParams<{ imageUri: string }>();
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-  const { width: screenW, height: screenH } = useWindowDimensions();
+  const [canvas, setCanvas] = useState({ width: 0, height: 0 });
   const [imageSize, setImageSize] = useState<{ width: number; height: number } | null>(null);
   const [processing, setProcessing] = useState(false);
 
   // Calculate the crop frame dimensions (fixed 3:5 aspect ratio)
-  const frame = useMemo(() => {
-    const availableH = screenH - 180; // room for top/bottom bars
-    const availableW = screenW - FRAME_PADDING * 2;
-    let frameH = availableH;
-    let frameW = frameH * ASPECT_RATIO;
-    if (frameW > availableW) {
-      frameW = availableW;
-      frameH = frameW / ASPECT_RATIO;
-    }
-    return { width: frameW, height: frameH };
-  }, [screenW, screenH]);
+  const frame = useMemo(() => fitCropFrame(canvas, ASPECT_RATIO), [canvas]);
 
   // Load image dimensions
   useEffect(() => {
@@ -67,12 +52,10 @@ export default function SleepPreviewScreen() {
   }, [imageSize, frame]);
 
   // Gesture shared values
-  const scale = useSharedValue(1);
-  const savedScale = useSharedValue(1);
+  const scale = useSharedValue(MIN_ZOOM);
+  const savedScale = useSharedValue(MIN_ZOOM);
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
-  const savedTranslateX = useSharedValue(0);
-  const savedTranslateY = useSharedValue(0);
 
   // Clamp pan so image always covers the frame
   const clampPan = useCallback(
@@ -84,8 +67,8 @@ export default function SleepPreviewScreen() {
       const imgDisplayW = imageSize.width * displayScale;
       const imgDisplayH = imageSize.height * displayScale;
 
-      const maxPanX = Math.max(0, (imgDisplayW - frame.width) / 2);
-      const maxPanY = Math.max(0, (imgDisplayH - frame.height) / 2);
+      const maxPanX = Math.max(0, (imgDisplayW / frame.width - 1) / 2);
+      const maxPanY = Math.max(0, (imgDisplayH / frame.height - 1) / 2);
 
       return {
         x: Math.min(maxPanX, Math.max(-maxPanX, tx)),
@@ -107,22 +90,16 @@ export default function SleepPreviewScreen() {
     })
     .onEnd(() => {
       savedScale.value = scale.value;
-      savedTranslateX.value = translateX.value;
-      savedTranslateY.value = translateY.value;
     });
 
   // Pan gesture
   const panGesture = Gesture.Pan()
-    .onUpdate((e) => {
-      const rawX = savedTranslateX.value + e.translationX;
-      const rawY = savedTranslateY.value + e.translationY;
+    .onChange((e) => {
+      const rawX = translateX.value + e.changeX / frame.width;
+      const rawY = translateY.value + e.changeY / frame.height;
       const clamped = clampPan(rawX, rawY, scale.value);
       translateX.value = clamped.x;
       translateY.value = clamped.y;
-    })
-    .onEnd(() => {
-      savedTranslateX.value = translateX.value;
-      savedTranslateY.value = translateY.value;
     });
 
   const composedGesture = Gesture.Simultaneous(pinchGesture, panGesture);
@@ -135,8 +112,8 @@ export default function SleepPreviewScreen() {
       width: imageSize.width * displayScale,
       height: imageSize.height * displayScale,
       transform: [
-        { translateX: translateX.value },
-        { translateY: translateY.value },
+        { translateX: translateX.value * frame.width },
+        { translateY: translateY.value * frame.height },
       ],
     };
   });
@@ -147,23 +124,9 @@ export default function SleepPreviewScreen() {
 
     setProcessing(true);
     try {
-      const currentScale = scale.value;
-      const currentTX = translateX.value;
-      const currentTY = translateY.value;
-      const displayScale = fitScale * currentScale;
-
-      // Convert frame bounds to original image coordinates
-      const cropWidth = frame.width / displayScale;
-      const cropHeight = frame.height / displayScale;
-      const cropOriginX = imageSize.width / 2 - currentTX / displayScale - cropWidth / 2;
-      const cropOriginY = imageSize.height / 2 - currentTY / displayScale - cropHeight / 2;
-
-      await processAndQueueSleepBackground(imageUri!, {
-        originX: cropOriginX,
-        originY: cropOriginY,
-        width: cropWidth,
-        height: cropHeight,
-      });
+      await processAndQueueSleepBackground(imageUri!, getSourceCrop(imageSize, frame, scale.value, {
+        x: translateX.value, y: translateY.value,
+      }));
 
       router.back();
     } catch (err) {
@@ -171,7 +134,7 @@ export default function SleepPreviewScreen() {
     } finally {
       setProcessing(false);
     }
-  }, [imageSize, fitScale, frame, imageUri, scale, translateX, translateY]);
+  }, [imageSize, frame, imageUri, scale, translateX, translateY]);
 
   if (!imageUri) {
     return (
@@ -182,12 +145,13 @@ export default function SleepPreviewScreen() {
   }
 
   return (
-    <YStack flex={1} backgroundColor="#000">
+    <SafeAreaProvider>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }} edges={['top', 'bottom', 'left', 'right']} testID="SleepPreview.Screen">
       <StatusBar style="light" />
 
       {/* Top bar */}
       <XStack
-        paddingTop="$8"
+        paddingTop="$3"
         paddingBottom="$3"
         paddingHorizontal="$4"
         justifyContent="space-between"
@@ -197,6 +161,8 @@ export default function SleepPreviewScreen() {
       >
         <Button
           size="$3"
+          minHeight={44}
+          testID="SleepPreview.Cancel"
           chromeless
           color="#fff"
           onPress={() => router.back()}
@@ -204,26 +170,27 @@ export default function SleepPreviewScreen() {
         >
           Cancel
         </Button>
-        <YStack alignItems="center">
-          <Text color="#fff" fontSize="$4" fontWeight="600">Sleep Background</Text>
-          <Text color="$gray8" fontSize="$2">480 x 800 &middot; Grayscale</Text>
+        <YStack alignItems="center" flex={1} minWidth={0}>
+          <Text color="#fff" fontSize="$4" fontWeight="600" textAlign="center">Sleep Background</Text>
+          <Text testID="SleepPreview.OutputFormat" color="$gray8" fontSize="$2">{SLEEP_SCREEN_WIDTH} x {SLEEP_SCREEN_HEIGHT} &middot; Grayscale output</Text>
         </YStack>
         <Button
           size="$3"
+          minHeight={44}
+          testID="SleepPreview.Done"
           chromeless
           color={processing ? '$gray8' : '#81d4fa'}
           onPress={handleConfirm}
-          disabled={processing}
+          disabled={processing || !imageSize || !canvas.width || !canvas.height}
         >
           {processing ? 'Processing...' : 'Done'}
         </Button>
       </XStack>
 
       {/* Crop area */}
-      {imageSize ? (
-        <View style={styles.cropContainer}>
-          {/* Image layer (behind the overlay) */}
-          <View style={[styles.imageContainer, { width: frame.width, height: frame.height }]}>
+      <View style={styles.cropContainer} testID="SleepPreview.Canvas" onLayout={(event) => setCanvas(event.nativeEvent.layout)}>
+        {imageSize ? (
+          <View testID="SleepPreview.CropFrame" style={[styles.imageContainer, { width: frame.width, height: frame.height }]}>
             <GestureDetector gesture={composedGesture}>
               <Animated.Image
                 source={{ uri: imageUri }}
@@ -239,12 +206,12 @@ export default function SleepPreviewScreen() {
               />
             </GestureDetector>
           </View>
-        </View>
-      ) : (
-        <YStack flex={1} alignItems="center" justifyContent="center">
-          <ActivityIndicator color="#fff" size="large" />
-        </YStack>
-      )}
+        ) : (
+          <YStack flex={1} alignItems="center" justifyContent="center">
+            <ActivityIndicator color="#fff" size="large" />
+          </YStack>
+        )}
+      </View>
 
       {/* Bottom bar */}
       <XStack
@@ -267,7 +234,8 @@ export default function SleepPreviewScreen() {
           <Text color="#fff" marginTop="$3" fontSize="$3">Converting to BMP...</Text>
         </View>
       )}
-    </YStack>
+    </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 

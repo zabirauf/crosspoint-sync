@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { TextInput } from 'react-native';
-import { Dialog, XStack, Button, Input, Text } from 'tamagui';
+import { TextInput, ScrollView } from 'react-native';
+import { XStack, YStack, Button, Input, Text, H4 } from 'tamagui';
+import { AdaptiveSheet } from '@/components/AdaptiveSheet';
+
+const PROMPT_HEIGHT = 300;
+const INPUT_FOCUS_DELAY_MS = 300;
 
 interface PromptDialogProps {
   open: boolean;
@@ -25,10 +29,19 @@ export function PromptDialog({
 }: PromptDialogProps) {
   const valueRef = useRef(defaultValue);
   const inputRef = useRef<TextInput>(null);
+  const scrollRef = useRef<ScrollView>(null);
+  const inputFocused = useRef(false);
   const [inputKey, setInputKey] = useState(0);
+
+  const revealFocusedInput = useCallback(() => {
+    if (inputFocused.current) {
+      scrollRef.current?.scrollToEnd({ animated: false });
+    }
+  }, []);
 
   // Remount input with fresh defaultValue when dialog opens
   useEffect(() => {
+    inputFocused.current = false;
     if (open) {
       valueRef.current = defaultValue;
       setInputKey((k) => k + 1);
@@ -38,7 +51,7 @@ export function PromptDialog({
   // Focus input after dialog animation completes
   useEffect(() => {
     if (open) {
-      const timer = setTimeout(() => inputRef.current?.focus(), 300);
+      const timer = setTimeout(() => inputRef.current?.focus(), INPUT_FOCUS_DELAY_MS);
       return () => clearTimeout(timer);
     }
   }, [open, inputKey]);
@@ -53,32 +66,16 @@ export function PromptDialog({
   };
 
   return (
-    <Dialog modal open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Overlay
-          key="overlay"
-          animation="quick"
-          opacity={0.5}
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-        />
-        <Dialog.Content
-          bordered
-          elevate
-          key="content"
-          testID="PromptDialog.Content"
-          animation={[
-            'quick',
-            { opacity: { overshootClamping: true } },
-          ]}
-          enterStyle={{ opacity: 0, scale: 0.95, y: -10 }}
-          exitStyle={{ opacity: 0, scale: 0.95, y: -10 }}
-          width={320}
-          padding="$4"
-          gap="$3"
-        >
-          <Dialog.Title>{title}</Dialog.Title>
-          <Text color="$gray11" fontSize="$3">
+    <AdaptiveSheet open={open} onOpenChange={onOpenChange} testID="PromptDialog.Content" height={PROMPT_HEIGHT}>
+      <ScrollView
+        ref={scrollRef}
+        keyboardShouldPersistTaps="handled"
+        onLayout={revealFocusedInput}
+        onContentSizeChange={revealFocusedInput}
+      >
+        <YStack gap="$3">
+          <H4 testID="PromptDialog.Title">{title}</H4>
+          <Text testID="PromptDialog.Message" color="$gray11" fontSize="$3">
             {message}
           </Text>
           <Input
@@ -89,22 +86,26 @@ export function PromptDialog({
             onChangeText={handleChangeText}
             placeholder={placeholder}
             ref={inputRef as any}
+            onFocus={() => {
+              inputFocused.current = true;
+              revealFocusedInput();
+            }}
+            onBlur={() => { inputFocused.current = false; }}
             onSubmitEditing={handleSubmit}
             autoCapitalize="none"
             autoCorrect={false}
+            disableFullscreenUI
           />
-          <XStack gap="$3" justifyContent="flex-end">
-            <Dialog.Close displayWhenAdapted asChild>
-              <Button testID="PromptDialog.CancelButton" size="$3" chromeless>
-                Cancel
-              </Button>
-            </Dialog.Close>
-            <Button testID="PromptDialog.SubmitButton" size="$3" theme="blue" onPress={handleSubmit}>
-              {submitLabel}
-            </Button>
-          </XStack>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
+        </YStack>
+      </ScrollView>
+      <XStack gap="$3" justifyContent="flex-end" paddingTop="$3">
+        <Button testID="PromptDialog.CancelButton" size="$4" chromeless onPress={() => onOpenChange(false)}>
+          Cancel
+        </Button>
+        <Button testID="PromptDialog.SubmitButton" size="$4" theme="blue" onPress={handleSubmit}>
+          {submitLabel}
+        </Button>
+      </XStack>
+    </AdaptiveSheet>
   );
 }

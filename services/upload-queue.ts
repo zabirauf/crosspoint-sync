@@ -5,6 +5,8 @@ import { uploadFileViaWebSocket } from './websocket-upload';
 import { getFiles, ensureRemotePath, clearValidatedPaths } from './device-api';
 import { log } from './logger';
 import { deviceScheduler } from './device-request-scheduler';
+import { isSupportedFile } from '@/constants/FileFormats';
+import { getDeviceCapabilities, getFileFirmwareError } from './firmware-version';
 import {
   DEVICE_RECOVERY_DELAY_MS,
   ENSURE_PATH_MAX_RETRIES,
@@ -46,7 +48,7 @@ async function processNextJob() {
   try {
     while (true) {
       const { jobs, updateJobStatus, updateJobProgress } = useUploadStore.getState();
-      const { connectedDevice, connectionStatus } = useDeviceStore.getState();
+      const { connectedDevice, connectionStatus, deviceStatus } = useDeviceStore.getState();
 
       if (connectionStatus !== 'connected' || !connectedDevice) {
         log('queue', 'Skip: no device connected');
@@ -63,6 +65,18 @@ async function processNextJob() {
       if (!nextJob) {
         log('queue', 'No pending jobs');
         break;
+      }
+
+      // Persisted jobs and share imports can bypass the picker. Validate against
+      // the current reader before any remote writes or opening the upload socket.
+      const { supportedFileExtensions } = getDeviceCapabilities(deviceStatus?.version);
+      if (isSupportedFile(nextJob.fileName) && !isSupportedFile(nextJob.fileName, supportedFileExtensions)) {
+        if (!deviceStatus) {
+          log('queue', `Waiting for firmware status before uploading ${nextJob.fileName}`);
+          break;
+        }
+        updateJobStatus(nextJob.id, 'failed', getFileFirmwareError(nextJob.fileName, deviceStatus.version));
+        continue;
       }
 
       // Conflict check: skip if forceUpload is set
@@ -153,13 +167,17 @@ export function startQueueProcessor(): () => void {
     dirListingCache.clear();
     processNextJob();
   });
-  // Subscribe to device store — only react to connection status changes
+  // Firmware status can arrive after connection; resume jobs waiting for it.
   let prevConnectionStatus = useDeviceStore.getState().connectionStatus;
+  let prevVersion = useDeviceStore.getState().deviceStatus?.version;
   const unsubDevice = useDeviceStore.subscribe((state) => {
-    if (state.connectionStatus === prevConnectionStatus) return;
+    const connectionChanged = state.connectionStatus !== prevConnectionStatus;
+    const version = state.deviceStatus?.version;
+    if (!connectionChanged && version === prevVersion) return;
     prevConnectionStatus = state.connectionStatus;
+    prevVersion = version;
 
-    if (state.connectionStatus === 'connected') {
+    if (connectionChanged && state.connectionStatus === 'connected') {
       // Reset conflicts on reconnect so they re-check against the new device
       useUploadStore.getState().resetConflicts();
       dirListingCache.clear();

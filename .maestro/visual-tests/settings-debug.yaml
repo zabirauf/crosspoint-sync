@@ -1,0 +1,15 @@
+id: settings-debug
+name: "Settings - Debug Group"
+flow: flows/08-settings-screen.yaml
+screenshots:
+  - settings-debug
+platforms: [ios, android]
+themes: [light]
+tags: [settings]
+description: |
+  Settings after scrolling to its Debug group. Earlier groups can be above the viewport.
+assertions:
+  - text: "Debug Logging and View Logs are visible without overlapping values"
+    severity: fail
+  - text: "The Settings navigation remains reachable"
+    severity: fail

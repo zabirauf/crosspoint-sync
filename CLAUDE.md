@@ -1,6 +1,6 @@
 # CrossPoint Sync
 
-Book syncing app for the XTEink X4 e-ink reader. Discovers devices on local WiFi, browses files, and uploads EPUBs via WebSocket.
+Book syncing app for the XTEink X4 e-ink reader. Discovers devices on local WiFi, browses files, and uploads EPUB/XTC/XTCH books and XTG/XTH images via WebSocket.
 
 ## Stack
 
@@ -29,6 +29,7 @@ npm run test:visual:flows     # Run Maestro flows only (no LLM judge)
 npm run test:visual:judge     # Run LLM judge only (requires screenshots)
 npm run test:visual:studio    # Interactive flow authoring (browser UI)
 npm run test:visual:report    # View latest run report
+npm run test:visual:runner    # Test iOS startup recovery decisions without devices
 npm run mock-device           # Start mock device server for connected-state tests
 ```
 
@@ -69,7 +70,7 @@ hooks/
   use-device-discovery.ts  # Scan/connect state machine
   use-device-status.ts     # Polls /api/status every 10s while connected
   use-file-browser.ts      # Path navigation, file CRUD
-  use-document-picker.ts   # EPUB picker → upload queue
+  use-document-picker.ts   # EPUB/XTC/XTCH/XTG/XTH picker → upload queue
 components/
   DeviceCard.tsx       # Device info display with signal/status
   FileRow.tsx          # File/folder row with icons and size
@@ -101,9 +102,22 @@ extension-src/           # Safari Web Extension source files (bundled at prebuil
 - **Metro config**: Custom `resolveRequest` hook loads `.native.js` instead of `.mjs` for Tamagui packages on native
 - **Tamagui v2 RC type errors**: TS reports errors on props like `bordered`, `padded`, `padding`, `alignItems`, `backgroundColor` — these are type definition bugs in the RC, not actual runtime issues. The app bundles and runs fine. Ignore these when checking `tsc` output.
 
+### Resizable phone and tablet layouts
+
+- Use `useAdaptiveLayout` for current window/safe-area metrics; use a pane's `onLayout` for its own space. Do not use a device model, orientation, or cached screen size to choose a layout.
+- Tabs move from bottom navigation to a right rail when usable width permits. Library adds reader/queue context only when the measured scene still leaves at least 508 points for browsing. Keep the same list and screen tree mounted across layout changes.
+- Use `AdaptiveSheet` for task dialogs. It keeps a single native Modal and child tree, with a modal-local safe-area provider and keyboard avoidance. Presentation moves from bottom-aligned to centered at expanded widths without replacing inputs or drafts. Retain explicit close/cancel actions and scrollable bodies.
+- Keep explicit `padding` keyboard avoidance on both platforms: edge-to-edge Android Modal content can remain behind the keyboard despite `adjustResize`. The standalone `.maestro/manual-flows/android-keyboard-landscape.yaml` reopens Android's keyboard after rotation to verify actual input/action reachability.
+- Modal inputs disable Android's full-screen extract editor. Docked Android keyboards replace bottom safe-area padding; short Move folder editing keeps its input/draft mounted in a compact Create/Cancel view and restores destination browsing after keyboard dismissal. Choose that view from measured available height, not orientation.
+- Sleep-background pan offsets are fractions of the measured crop frame. Preserve source-image crop coordinates when resizing; do not store offsets in display points. Its native full-screen presentation needs a local `SafeAreaProvider`, including on the first opening before a fold. The standalone `.maestro/manual-flows/sleep-preview-safe-area.yaml` check requires a staged local image and disposable mock reader, and submits that image.
+- `withSceneLifecycle` keeps the generated iOS app compatible with the iOS 27 SDK. Expo prepares its existing window/root before app-delegate subscribers run; the scene delegate attaches that same window to the scene. Keep cold/warm URL forwarding and Expo lifecycle subscribers intact. The plugin also floors older pod resource targets to the app's existing minimum deployment version for Xcode 27.
+- `npm run test:adaptive` checks task/draft identity and crop invariance. `npm run test:responsive:web` checks the actual exported app across phone, expanded, tablet, split, and short windows; see `docs/analysis/adaptive-layout-validation-2026-11-04.md` for setup. Native rotation coverage is in `.maestro/flows/17-adaptive-layout.yaml`.
+
 ## XTEink X4 Protocol
 
 - **Firmware source**: When making changes to device API calls (anything in `services/device-api.ts`, `services/device-discovery.ts`, `services/websocket-upload.ts`, or related hooks), **always read the firmware source first** to validate expected request/response formats, parameter names, and error codes before planning changes. Ask user where the firmware source code is at. If they don't provide that info then ask user specific question.
+- **Local firmware checkout**: `/Users/kakaagent/Documents/Projects/Opensource/crosspoint-reader` (full history). The user supplied this location; use it without asking again. Check release tags for capability thresholds. XTC/XTCH reading starts at 0.10.0; WebSocket uploads start at 0.14.0. XTG/XTH are internal page images, not standalone reader formats; the app permits transferring them at 0.14.0+ through the generic uploader. The mock defaults to 1.3.0, not an enforced app minimum.
+- **Book formats**: `constants/FileFormats.ts` owns format kinds, upload firmware thresholds, derived extensions, and filename matching. `getDeviceCapabilities` returns `supportedFileExtensions` and `filePickerMimeType` for the connected firmware. The picker and queue both validate names against that extension list; file icons describe recognized formats regardless of firmware. Clear stale status when connecting to another reader and resume waiting jobs when fresh status arrives.
 - **HTTP REST API** (port 80): `GET /api/status`, `GET /api/files?path=`, `POST /mkdir`, `POST /delete`, `GET /download?path=`
 - **WebSocket upload** (port 81): `START:filename:size:path` → `READY` → binary chunks (64KB) → `PROGRESS:received:total` → `DONE`
 
@@ -219,6 +233,8 @@ You can also run `/test settings` or `/test library` to test a specific screen, 
 
 ### Connected-State Testing
 
+For iOS, select a simulator with `npm run test:visual:flows -- --platform ios --device <UDID>`. The runner waits for boot completion and allows one cold restart of that simulator only for a recognized XCTest accessibility initialization failure before flow execution. It preserves the original logs and stores the retry under `startup-retry/`; app assertions and other failures are never automatically retried. Each invocation requires a fresh output directory.
+
 Flows tagged `requires-device` need a device (real or mock). To test connected states locally:
 
 ```bash
@@ -226,7 +242,7 @@ npm run mock-device     # Start mock server (HTTP:8082, WS:8083)
 # In another terminal, run the app and connect to the mock device via manual IP
 ```
 
-The mock server provides a fake file system with sample books at `/Books/`.
+The default disk-backed mock serves `test-mock-filesystem/`. Its `/Formats/` folder contains a public-domain book as EPUB, XTC, and XTCH, with standalone XTG/XTH page images. The in-memory backend also seeds these real fixtures. See `test-fixtures/book-formats/README.md` for provenance and regeneration, and run `npm run test:books` for picker, icons, and API/WebSocket integration coverage.
 
 ## Analysis Reports
 
@@ -241,7 +257,7 @@ When committing a fix or feature that corresponds to a tracked issue in `docs/is
 - `react-native-udp` requires a dev build (`npx expo run:ios`). Won't work in Expo Go.
 - Node v21.7.3 triggers EBADENGINE warnings for some deps. Non-blocking — use Node 20 or >=22 to silence.
 - New Architecture is enabled (`newArchEnabled: true`). If `react-native-udp` has TurboModule issues, manual IP entry works as a full fallback.
-- `Alert.prompt` is iOS-only. All text input prompts use `components/PromptDialog.tsx` (Tamagui Dialog) for cross-platform support.
+- `Alert.prompt` is iOS-only. All text input prompts use `components/PromptDialog.tsx` and its shared adaptive modal for cross-platform support.
 - **Local Expo modules** (`modules/` dir) require a `.podspec` in the `ios/` subdirectory for CocoaPods autolinking. Without it, `expo-modules-autolinking search` finds the module but `resolve` skips it → "Cannot find native module" at runtime.
 - Safari Web Extension requires `npx expo prebuild --clean` after changes to `extension-src/` or `plugins/withWebExtension.js`. The extension's content.js is bundled via esbuild during prebuild — if esbuild isn't available, prebuild will fail.
 - The Safari Web Extension must be enabled manually: iOS Settings → Safari → Extensions → CrossPoint Web Clipper.

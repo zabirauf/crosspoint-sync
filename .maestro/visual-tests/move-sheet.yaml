@@ -3,13 +3,13 @@ name: "Move Sheet"
 flow: flows/14-move-sheet.yaml
 screenshots:
   - move-sheet
-platforms: [ios]
+platforms: [ios, android]
 themes: [light]
 tags: [library, connected, requires-device, file-actions]
 
 description: |
   Move file sheet shown after selecting "Move" from the file action sheet.
-  A bottom sheet with "Move to..." title, cancel button, and X close button in the header.
+  An adaptive dialog with "Move to..." title, cancel button, and X close button in the header.
   Breadcrumb navigation showing current location (starts at "Device" root).
   Folder list with navigable folder entries and ghosted (dimmed) file entries.
   A "New Folder" button to create a destination folder.

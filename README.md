@@ -1,6 +1,6 @@
 # CrossPoint Sync
 
-Book syncing app for the [XTEink X4](https://xteink.com) e-ink reader. Discovers devices on your local WiFi, browses files on the device, and uploads EPUBs via WebSocket.
+Book syncing app for the [XTEink X4](https://xteink.com) e-ink reader. Discovers devices on your local WiFi, browses files on the device, and uploads books via WebSocket.
 
 ![CrossPoint Sync — Web Clipper, Library, and Upload Queue](docs/images/crosspoint-sync_overview.png)
 
@@ -8,7 +8,7 @@ Book syncing app for the [XTEink X4](https://xteink.com) e-ink reader. Discovers
 
 - **Device Discovery** — Automatically finds your XTEink X4 on the local network via UDP broadcast, or connect manually by IP address
 - **File Browser** — Browse, create folders, and manage files directly on your e-ink reader
-- **Book Uploads** — Pick EPUBs from your phone and upload them over WebSocket with progress tracking
+- **Book Uploads** — Pick books from your phone and upload them over WebSocket with progress tracking
 - **Upload Queue** — Queue multiple uploads, retry failures, and track progress for each job
 - **Format Preferences** — Configure preferred upload format and destination path on the device
 - **Safari Web Clipper** — Clip web articles from Safari, automatically converted to EPUB and synced to your device
@@ -29,6 +29,8 @@ Targets: **iOS and Android**
 - **iOS:** macOS, Xcode with an iOS simulator, and CocoaPods
 - **Android:** Java 17 and Android Studio or the Android command-line SDK. Install platform tools, Android SDK Platform 36, Build Tools 36.0.0, NDK 27.1.12297006, and CMake 3.22.1. An emulator also needs the emulator package and a system image.
 - An XTEink X4 e-ink reader on the same local network (for full functionality)
+
+Uploads require CrossPoint firmware **0.14.0 or later**, which introduced the WebSocket transport. The app does not enforce that minimum when connecting; the development mock defaults to 1.3.0. Rename/move, settings, and batch-delete behavior are selected from the connected firmware version.
 
 ## Getting Started
 
@@ -77,7 +79,7 @@ npm run ios -- --device
 # Build and run on Android
 npm run android
 
-# Run the basic EPUB and mock-device protocol tests
+# Run EPUB, book-format, and mock-device protocol tests
 npm run test:basic
 
 # Test production Metro bundling on both platforms
@@ -157,6 +159,16 @@ npm run ios
 The mock server runs on HTTP port 8082 and WebSocket port 8083 (macOS requires root for the standard ports 80/81). The app parses the `host:port` format automatically and derives the WebSocket port as `httpPort + 1`.
 
 The mock server provides a fake file system with sample books, so you can test file browsing, uploads, and the full connection lifecycle.
+
+### iOS visual tests
+
+Install Maestro 2.10 or newer and the current app on an iOS simulator. Keep `npm run mock-device` running, then select the simulator explicitly:
+
+```bash
+npm run test:visual:flows -- --platform ios --device <simulator-UDID>
+```
+
+The runner waits for that simulator to finish booting. If XCTest fails to initialize accessibility before any flow starts, it restarts only the selected simulator and retries once. Original logs remain in the run directory and retry artifacts go in `startup-retry/`. App assertions, crashes, and other failures stay failed. Use a new `CROSSPOINT_VISUAL_OUTPUT` directory for each run; `npm run test:visual:runner` checks this recovery behavior without starting a simulator.
 
 ### Android visual tests
 

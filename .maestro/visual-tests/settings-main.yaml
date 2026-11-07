@@ -3,16 +3,18 @@ name: "Settings Screen"
 flow: flows/08-settings-screen.yaml
 screenshots:
   - settings-main
-platforms: [ios]
+platforms: [ios, android]
 themes: [light]
 tags: [smoke, settings]
 
 description: |
   Settings tab showing app configuration options in grouped sections.
   "Sync Settings" section: Upload path row with current value.
-  "Web Clipper" section: Clip upload path row with current value, and "Enable in Safari" row.
+  "Web Clipper" on iOS or "Article Clipper" on Android: Clip upload path row with current value.
+  The iOS section also includes "Enable in Safari".
   "Device" section: shows Device hostname, IP Address, and Firmware rows.
-  "Debug" section: Debug Logging toggle and View Logs row.
+  Later groups can be reached by scrolling. Rows stack label/value in narrow windows.
+  On expanded windows the content stays in a centered, readable column.
 
 assertions:
   - text: "The Settings title is visible in the header"
@@ -21,15 +23,11 @@ assertions:
     severity: fail
   - text: "'Clip upload path' row is visible with a path value"
     severity: fail
-  - text: "'Enable in Safari' row is visible in the Web Clipper section (iOS only)"
+  - text: "The clipper section is named 'Web Clipper' with 'Enable in Safari' on iOS, or 'Article Clipper' on Android"
     severity: fail
-  - text: "'Debug Logging' toggle is visible"
-    severity: warning
   - text: "A 'Device' section shows device, IP address, and firmware rows"
     severity: fail
   - text: "Sections are visually grouped with headers"
-    severity: warning
-  - text: "'View Logs' row is visible"
     severity: warning
 
 custom_criteria:

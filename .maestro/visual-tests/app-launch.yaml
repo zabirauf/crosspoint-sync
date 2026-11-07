@@ -3,7 +3,7 @@ name: "App Launch - Initial State"
 flow: flows/01-app-launch.yaml
 screenshots:
   - app-launch
-platforms: [ios]
+platforms: [ios, android]
 themes: [light]
 tags: [smoke, launch]
 
@@ -22,11 +22,12 @@ assertions:
     severity: fail
   - text: "No loading spinners or crash dialogs are visible"
     severity: fail
+  - text: "System status text and icons have readable contrast against their background"
+    severity: fail
 
 ignore:
   - "Exact timestamp or time display in the status bar"
   - "Battery percentage or signal strength indicators"
-  - "Any system UI elements outside the app frame"
 
 created_by: human
 created_at: "2026-02-20"

@@ -1,0 +1,234 @@
+{
+  "status": "passed",
+  "deviceUDID": "32516D8C-95E0-4128-A749-A87E641CB0A9",
+  "deviceType": "com.apple.CoreSimulator.SimDeviceType.iPhone-Duo",
+  "runtime": "iOS 27.1 (24A94425)",
+  "sdk": "iOS Simulator 27.2 (24B8118)",
+  "xcode": "27.2 (27B52)",
+  "startedAtUnix": 1793863062.340103,
+  "elapsed": 74.63747624999996,
+  "trimStart": 4.4641569589992285,
+  "events": [
+    {
+      "time": 4.164156958999229,
+      "caption": "Outer display | Connected to a local sample reader",
+      "zoom": 1
+    },
+    {
+      "time": 8.546169667000868,
+      "caption": "Open Duo | Same folder and transfer",
+      "zoom": 1
+    },
+    {
+      "time": 11.342929667000135,
+      "caption": "Open Duo | Same folder and transfer",
+      "zoom": 2.03
+    },
+    {
+      "time": 14.756261292001,
+      "caption": "Upload queue | A real transfer continues across displays",
+      "zoom": 2.03
+    },
+    {
+      "time": 17.365742959000272,
+      "caption": "Close Duo | Same upload job",
+      "zoom": 1
+    },
+    {
+      "time": 23.816187917000207,
+      "caption": "Rename | Type a draft on the outer display",
+      "zoom": 1
+    },
+    {
+      "time": 29.601533167000525,
+      "caption": "Open Duo | Draft and keyboard stay with the task",
+      "zoom": 1
+    },
+    {
+      "time": 32.2364437920005,
+      "caption": "Open Duo | Draft and keyboard stay with the task",
+      "zoom": 2.03
+    },
+    {
+      "time": 35.2956282920004,
+      "caption": "Partial fold | Keep the same task open",
+      "zoom": 2.03
+    },
+    {
+      "time": 37.90132749999975,
+      "caption": "Partial fold | Keep the same task open",
+      "zoom": 2.03
+    },
+    {
+      "time": 42.212022166999304,
+      "caption": "Settings | A readable column on the inner display",
+      "zoom": 2.03
+    },
+    {
+      "time": 45.65109383399977,
+      "caption": "Close Duo | Settings adapts to the outer display",
+      "zoom": 1
+    },
+    {
+      "time": 50.81268070899932,
+      "caption": "Crop editor | Safe controls on first opening",
+      "zoom": 1
+    },
+    {
+      "time": 55.46186491700064,
+      "caption": "Open Duo | Preserve the selected crop",
+      "zoom": 1
+    },
+    {
+      "time": 58.047015416999784,
+      "caption": "Open Duo | Preserve the selected crop",
+      "zoom": 2.03
+    },
+    {
+      "time": 62.863030292000985,
+      "caption": "Same library | Ready on either display",
+      "zoom": 2.03
+    },
+    {
+      "time": 66.43981449999956,
+      "caption": "Outer display | Ready to continue",
+      "zoom": 1
+    }
+  ],
+  "raw": ".local/duo-native-demo/raw.mp4",
+  "recording": "Actual native simulator display capture; mock reader and local fixtures. Captions and presentation zoom are added in the delivery copy.",
+  "delivery": {
+    "path": "/Users/kakaagent/Documents/Projects/my-github/crosspoint-sync/docs/analysis/videos/2026-11-04/iphone-duo-native-demo.mp4",
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1440,
+          "height": 1080,
+          "pix_fmt": "yuv420p",
+          "r_frame_rate": "30/1"
+        }
+      ],
+      "format": {
+        "duration": "69.900000",
+        "size": "2728169"
+      }
+    },
+    "sha256": "e230d2a8bc165e670b607e229a45ef127da51f45df1f70b90920ac766e88c1e4"
+  },
+  "presentation": "Native continuous screen capture, trimmed to the outer start. Captions and a display-fitting presentation zoom are added; native stable content is preserved. No browser or synthetic app frames.",
+  "captionTimeline": [
+    {
+      "time": 0,
+      "caption": "Outer display | Connected to a local sample reader"
+    },
+    {
+      "time": 4.082012708001639,
+      "caption": "Open Duo | Same folder and transfer"
+    },
+    {
+      "time": 10.29210433300177,
+      "caption": "Upload queue | A real transfer continues across displays"
+    },
+    {
+      "time": 12.901586000001043,
+      "caption": "Close Duo | Same upload job"
+    },
+    {
+      "time": 19.352030958000977,
+      "caption": "Rename | Type a draft on the outer display"
+    },
+    {
+      "time": 25.137376208001296,
+      "caption": "Open Duo | Draft and keyboard stay with the task"
+    },
+    {
+      "time": 30.831471333001172,
+      "caption": "Partial fold | Keep the same task open"
+    },
+    {
+      "time": 37.74786520800008,
+      "caption": "Settings | A readable column on the inner display"
+    },
+    {
+      "time": 41.18693687500054,
+      "caption": "Close Duo | Settings adapts to the outer display"
+    },
+    {
+      "time": 46.3485237500001,
+      "caption": "Crop editor | Safe controls on first opening"
+    },
+    {
+      "time": 50.99770795800141,
+      "caption": "Open Duo | Preserve the selected crop"
+    },
+    {
+      "time": 58.39887333300176,
+      "caption": "Same library | Ready on either display"
+    },
+    {
+      "time": 61.97565754100033,
+      "caption": "Outer display | Ready to continue"
+    }
+  ],
+  "nativeUploadChecksum": "0b7510d92c5694e7f1675a4676b9429d133d11087b06c4ea4def4d5cdb40b039",
+  "uploadSetup": "One pending local fixture job seeded before recording in the dedicated simulator store; actual native file reads and WebSocket transfer to a local mock reader through a 10ms-per-4KiB-frame throttle.",
+  "browserPlayback": {
+    "playing": true,
+    "currentTime": 68.115802,
+    "duration": 69.9,
+    "readyState": 4,
+    "width": 1440,
+    "height": 1080,
+    "error": null,
+    "seeks": [
+      2,
+      12,
+      24,
+      36,
+      50,
+      68
+    ]
+  },
+  "validation": {
+    "fullDecode": "passed",
+    "decodedSeekFrames": [
+      2,
+      12,
+      24,
+      36,
+      50,
+      62,
+      68
+    ],
+    "independentFrameReview": "passed",
+    "nativeDisplayHandoffBlackIntervalsSeconds": [
+      [
+        4.1,
+        4.5
+      ],
+      [
+        12.933,
+        13.3
+      ],
+      [
+        25.167,
+        25.667
+      ],
+      [
+        41.2,
+        41.533
+      ],
+      [
+        51.033,
+        51.4
+      ],
+      [
+        62,
+        62.333
+      ]
+    ]
+  }
+}

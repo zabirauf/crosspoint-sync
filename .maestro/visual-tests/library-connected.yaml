@@ -3,7 +3,7 @@ name: "Library - Connected with Files"
 flow: flows/04-library-connected.yaml
 screenshots:
   - library-connected-files
-platforms: [ios]
+platforms: [ios, android]
 themes: [light]
 tags: [smoke, library, connected, requires-device]
 

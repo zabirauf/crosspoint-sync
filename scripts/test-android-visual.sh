@@ -81,6 +81,9 @@ const flows = files.map(file => {
 if (!flows.length) throw new Error('No test flows selected.');
 flows.forEach((flow, index) => { flow.directory = `flow-${String(index).padStart(2, '0')}-${path.basename(flow.file, '.yaml')}`; });
 delete config.executionOrder;
+// Each session runs one explicit file; workspace globs belong to the source
+// workspace and must not be resolved relative to this output directory.
+delete config.flows;
 fs.writeFileSync(path.join(output, 'config.yaml'), YAML.stringify(config));
 fs.writeFileSync(path.join(output, 'manifest.json'), JSON.stringify(flows, null, 2));
 fs.writeFileSync(path.join(output, 'flows.txt'), flows.map(flow => `${flow.directory}\t${flow.file}`).join('\n') + '\n');
@@ -106,6 +109,7 @@ while IFS=$'\t' read -r FLOW_DIRECTORY FLOW <&3; do
 done 3< "$OUTPUT/flows.txt"
 
 # Combine the native per-flow reports, retaining their screenshots and logs.
+node scripts/collect-visual-screenshots.cjs "$OUTPUT"
 AGGREGATE_STATUS=0
 node - "$OUTPUT" <<'NODE' || AGGREGATE_STATUS=$?
 const fs = require('fs');

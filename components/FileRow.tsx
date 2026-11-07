@@ -3,6 +3,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { ActivityIndicator, Pressable, useColorScheme } from 'react-native';
 import { DeviceFile } from '@/types/device';
 import { formatSize } from '@/utils/format';
+import { getFileFormat, isSupportedFile } from '@/constants/FileFormats';
 
 interface FileRowProps {
   file: DeviceFile;
@@ -14,14 +15,15 @@ interface FileRowProps {
 
 function fileIcon(file: DeviceFile): React.ComponentProps<typeof FontAwesome>['name'] {
   if (file.isDirectory) return 'folder';
-  if (file.isEpub) return 'book';
+  const format = getFileFormat(file.name);
+  if (format) return format.kind === 'image' ? 'file-image-o' : 'book';
   if (file.name.toLowerCase().endsWith('.pdf')) return 'file-pdf-o';
   return 'file-o';
 }
 
 function fileColor(file: DeviceFile, isDark: boolean): string {
   if (file.isDirectory) return isDark ? '#ffd54f' : '#f9a825';
-  if (file.isEpub) return isDark ? '#81d4fa' : '#1a73e8';
+  if (isSupportedFile(file.name)) return isDark ? '#81d4fa' : '#1a73e8';
   return isDark ? '#ccc' : '#666';
 }
 
@@ -67,6 +69,7 @@ export function FileRow({ file, onPress, onLongPress, onMorePress, downloadStatu
         borderBottomColor={isDark ? '$gray5' : '$gray4'}
       >
         <FontAwesome
+          testID={`Library.FileRow.${file.name}.Icon`}
           name={fileIcon(file)}
           size={22}
           color={fileColor(file, isDark)}
@@ -82,7 +85,9 @@ export function FileRow({ file, onPress, onLongPress, onMorePress, downloadStatu
             onPress={onMorePress}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             testID={`Library.FileRow.${file.name}.More`}
-            style={{ paddingLeft: 8 }}
+            accessibilityRole="button"
+            accessibilityLabel={`Actions for ${file.name}`}
+            style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
           >
             <FontAwesome name="ellipsis-v" size={18} color={isDark ? '#999' : '#666'} />
           </Pressable>
