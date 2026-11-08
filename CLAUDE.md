@@ -131,6 +131,7 @@ extension-src/           # Safari Web Extension source files (bundled at prebuil
 - Extension bundle ID: `com.crosspointsync.app.WebExtension`
 - **Dev dependencies**: `defuddle` and `dompurify` are devDependencies — only used at prebuild time for esbuild bundling, not included in the React Native bundle.
 - **Extension source files** live in `extension-src/` and are copied/bundled into `ios/CrossPointSyncWebExtension/Resources/` during prebuild.
+- After updating Defuddle or DOMPurify, regenerate Android's committed extractor with `npm run build:webview-bundle`. Run `npm run test:clipper` to check the actual Safari source and Android bundle against the offline Substack image fixture through EPUB packaging. Safari's bundle is rebuilt during iOS prebuild.
 
 ## iOS Share Extension
 
