@@ -1,0 +1,204 @@
+{
+  "date": "2026-11-08",
+  "base": "fbed6fa2a2209d760da2a4add106569f76fbb28e",
+  "heads": {
+    "31": "e897703aa61337d6749e4fa7e8aa3b9c56188c8c",
+    "32": "521578d405b22b946f29ba727f6601c7006c9225",
+    "33": "0bab1d51d925e4527d0006b5474e05392a4f31de",
+    "34": "9646e60d844db6b96123370ac073984116f6fc22"
+  },
+  "media": {
+    "31": {
+      "filename": "pr-31-before-after.gif",
+      "sha256": "4a34aa3419e79b16d76efde97fa572bdfc83561145c6ae39df82fce7b6fdc618",
+      "bytes": 159578,
+      "durationSeconds": 15.0,
+      "width": 960,
+      "height": 900,
+      "nb_frames": "75"
+    },
+    "32": {
+      "filename": "pr-32-before-after.gif",
+      "sha256": "1f95e9c21c2d3f63d2a0d067316bcad48f31a321d2964f5973ae69ffb722f493",
+      "bytes": 138340,
+      "durationSeconds": 14.0,
+      "width": 960,
+      "height": 900,
+      "nb_frames": "70"
+    },
+    "33": {
+      "filename": "pr-33-before-after.gif",
+      "sha256": "d9ebc3bb2e4e22ef39bf7b997cde73c102c3b131e765f3b1d0f8521da8121b85",
+      "bytes": 156027,
+      "durationSeconds": 16.0,
+      "width": 960,
+      "height": 1050,
+      "nb_frames": "80"
+    },
+    "34": {
+      "filename": "pr-34-before-after.gif",
+      "sha256": "c2074e1572ba54612e078bde4e97df35c535ff8bdcc30504ba916dcc5f9c5a1e",
+      "bytes": 158482,
+      "durationSeconds": 15.0,
+      "width": 960,
+      "height": 1050,
+      "nb_frames": "75"
+    }
+  },
+  "results": {
+    "31": {
+      "before": {
+        "downloadStatuses": [
+          404,
+          404
+        ],
+        "embeddedImages": 0
+      },
+      "pr31": {
+        "downloadStatuses": [
+          200,
+          200
+        ],
+        "embeddedImages": 2
+      }
+    },
+    "32": {
+      "before": {
+        "xml": [
+          {
+            "name": "META-INF/container.xml",
+            "valid": true
+          },
+          {
+            "name": "OEBPS/content.opf",
+            "valid": true
+          },
+          {
+            "name": "OEBPS/toc.ncx",
+            "valid": true
+          },
+          {
+            "name": "OEBPS/nav.xhtml",
+            "valid": true
+          },
+          {
+            "name": "OEBPS/chapter.xhtml",
+            "valid": false,
+            "error": "undefined entity: line 11, column 69"
+          }
+        ],
+        "images": [
+          {
+            "filename": "img-0.avif",
+            "mimeType": "image/avif",
+            "compatible": false,
+            "bytes": 8952
+          },
+          {
+            "filename": "img-1.webp",
+            "mimeType": "image/webp",
+            "compatible": false,
+            "bytes": 12420
+          }
+        ]
+      },
+      "pr32": {
+        "xml": [
+          {
+            "name": "META-INF/container.xml",
+            "valid": true
+          },
+          {
+            "name": "OEBPS/content.opf",
+            "valid": true
+          },
+          {
+            "name": "OEBPS/toc.ncx",
+            "valid": true
+          },
+          {
+            "name": "OEBPS/nav.xhtml",
+            "valid": true
+          },
+          {
+            "name": "OEBPS/chapter.xhtml",
+            "valid": true
+          }
+        ],
+        "images": [
+          {
+            "filename": "img-0.png",
+            "mimeType": "image/png",
+            "compatible": true,
+            "bytes": 117021
+          },
+          {
+            "filename": "img-1.png",
+            "mimeType": "image/png",
+            "compatible": true,
+            "bytes": 79943
+          }
+        ]
+      }
+    },
+    "33": {
+      "nativeDownloadedBmps": [
+        {
+          "file": "sleep-2026-11-08-thorn.bmp",
+          "width": 480,
+          "height": 800,
+          "bytes": 1152054
+        },
+        {
+          "file": "sleep-2026-11-08-leaf.bmp",
+          "width": 528,
+          "height": 792,
+          "bytes": 1254582
+        }
+      ]
+    },
+    "34": {
+      "before": {
+        "outcome": {
+          "resolved": true
+        },
+        "calls": [
+          {
+            "method": "POST",
+            "url": "/mkdir",
+            "form": {
+              "name": "Books/2026",
+              "path": "/"
+            }
+          }
+        ]
+      },
+      "pr34": {
+        "outcome": {
+          "resolved": false,
+          "error": "Create folder failed (400): Invalid folder name"
+        },
+        "calls": [
+          {
+            "method": "POST",
+            "url": "/mkdir",
+            "form": {
+              "name": "Books/2026",
+              "path": "/"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "nativeCaptures": {
+    "pr33-before-crop.png": "ecb7e92c10cd36d10eee26f380d41d29fefcafa30a5f22accfa86d8bd32c6461",
+    "pr33-after-settings.png": "e3d3142c8115273e50b6ecadca731481530e9eafce1f5546e2ad3cca0b24020e",
+    "pr34-before-result.png": "43bfbea141358cb84840798a056f59ce81516bb57622acdb8fc84c9ed9723e14",
+    "pr33-before-settings.png": "4f7a64597c5bbe02a8762206c3e9912cbcd22855c1d1d9a2c4c3bf53858d2757",
+    "pr34-before-input.png": "29c55fd42c2acc6052d7ed8922a4f52bedcb1343cb29a55d8e5cbbe7092db346",
+    "pr34-after-input.png": "7cfd4c7c3ee572d8a9a7401ac7c825f0895e655228e9670068240f0b1e703f78",
+    "pr34-after-result.png": "2824c5b467aa0bebde0d91de8ac706acfbe54750b632a1588d741f16b373f548",
+    "pr33-after-crop.png": "862d445bd337753bc3a4be7cdb0b645db923d1f99ccba099303232470998ec1b"
+  }
+}
