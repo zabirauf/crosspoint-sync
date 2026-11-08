@@ -1,0 +1,157 @@
+[0] [DBG] [UI] Using Lyra theme
+[7] [INF] [MAIN] Hardware detect: X3
+[8] [DBG] [CPS] Resaving settings to update format
+[8] [DBG] [CPS] Settings loaded from file
+[10] [DBG] [UI] Using Classic theme
+[10] [INF] [CLK] RTC clock read: 2026-11-08 19:44
+[11] [DBG] [MAIN] Starting CrossPoint version 2.0.0-simulator-pr32
+[168] [DBG] [MAIN] Display initialized
+[SIM] open failed: <repo>/.local/reviewer-fixes-2026-11-08/x3-before/sd/.fonts (flags=0x0 errno=2 No such file or directory)
+[169] [DBG] [SDREG] Fonts directory not found: /.fonts
+[SIM] open failed: <repo>/.local/reviewer-fixes-2026-11-08/x3-before/sd/fonts (flags=0x0 errno=2 No such file or directory)
+[169] [DBG] [SDREG] Fonts directory not found: /fonts
+[169] [DBG] [SDREG] Discovery complete: 0 families
+[169] [DBG] [SDFS] SD font system ready (0 families discovered)
+[169] [DBG] [MAIN] Fonts setup
+[169] [DBG] [ACT] Entering activity: Boot
+[171] [DBG] [GFX] Time = 2 ms from clearScreen to displayBuffer
+[SIM] SCREEN: CrossPoint | BOOTING | 2.0.0-simulator-pr32
+[239] [DBG] [ACT] Exiting activity: Boot
+[239] [DBG] [ACT] Entering activity: Home
+[240] [DBG] [LOOP] New max loop duration: 66 ms (activity: 1 ms)
+[241] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | No open book | Start reading below | Browse Files | Library | File Transfer | Settings | Select | Up | Down
+[SIM] WAIT matched: [239] [DBG] [ACT] Entering activity: Home
+[260] [DBG] [GFX] Time = 0 ms from clearScreen to displayBuffer
+[761] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[1066] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[1443] [DBG] [ACT] Exiting activity: Home
+[1443] [DBG] [ACT] Entering activity: CrossPointWebServer
+[1443] [DBG] [WEBACT] Free heap at onEnter: 1048576 bytes
+[1443] [DBG] [WEBACT] Free heap after SD font cache release: 1048576 bytes
+[1443] [DBG] [WEBACT] Launching NetworkModeSelectionActivity...
+[1444] [DBG] [ACT] Pushed to activity stack, new size = 1
+[1444] [DBG] [ACT] Entering activity: NetworkModeSelection
+[1445] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | File Transfer | Join a Network | Connect to an existing Wi-Fi network | Calibre Wireless | Use Calibre wireless device transfers | Create Hotspot | Create a Wi-Fi network others can join | « Back | Select | Up | Down
+[SIM] WAIT matched: [1444] [DBG] [ACT] Entering activity: NetworkModeSelection
+[1760] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[2064] [DBG] [GFX] Time = 3 ms from clearScreen to displayBuffer
+[2440] [DBG] [ACT] Exiting activity: NetworkModeSelection
+[2440] [DBG] [ACT] Popped from activity stack, new size = 0
+[2440] [DBG] [ACT] Handling result for popped activity
+[2440] [DBG] [WEBACT] Network mode selected: Create Hotspot
+[2440] [DBG] [WEBACT] Starting Access Point mode...
+[2440] [DBG] [WEBACT] Free heap before AP start: 1048576 bytes
+[2642] [DBG] [WEBACT] Access Point started!
+[2642] [DBG] [WEBACT] SSID: CrossPoint-Reader
+[2642] [DBG] [WEBACT] IP: 127.0.0.1
+[2642] [DBG] [WEBACT] mDNS started: http://crosspoint.local/
+[2642] [DBG] [WEBACT] DNS server started for captive portal
+[2642] [DBG] [WEBACT] Free heap after AP start: 1048576 bytes
+[2642] [DBG] [WEBACT] Starting web server...
+[2642] [DBG] [WEBACT] Free heap before SD font cache release: 1048576 bytes
+[2642] [DBG] [WEBACT] Free heap before server alloc: 1048576 bytes
+[2642] [DBG] [WEB] [MEM] Free heap before begin: 1048576 bytes
+[2643] [DBG] [WEB] Network mode: AP
+[2643] [DBG] [WEB] Creating web server on port 80...
+[2643] [DBG] [WEB] [MEM] Free heap after WebServer allocation: 1048576 bytes
+[2643] [DBG] [WEB] Setting up routes...
+[2644] [DBG] [WEB] [MEM] Free heap after route setup: 1048576 bytes
+[2644] [DBG] [WEB] WebDAV handler initialized
+[2644] [DBG] [WEB] [SIM] WebServer running at http://127.0.0.1:18080/
+[2644] [DBG] [WEB] Starting WebSocket server on port 81...
+[2644] [DBG] [WS] [SIM] WebSocket server running at ws://127.0.0.1:18081/
+[2644] [DBG] [WEB] WebSocket server started
+[2644] [DBG] [WEB] Discovery UDP enabled on port 8134
+[2644] [DBG] [WEB] Web server started on port 80
+[2644] [DBG] [WEB] Access at http://127.0.0.1/
+[2644] [DBG] [WEB] WebSocket at ws://127.0.0.1:81/
+[2644] [DBG] [WEB] [MEM] Free heap after server.begin(): 1048576 bytes
+[2644] [DBG] [WEBACT] Web server started successfully
+[2644] [DBG] [LOOP] New max loop duration: 204 ms (activity: 204 ms)
+[2645] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | Hotspot Mode | CrossPoint-Reader | Connect your device to this Wi-Fi network | CrossPoint-Reader | Open this URL in your browser | http://crosspoint.local/ | or http://127.0.0.1/ | « Exit
+[SIM] WAIT matched: [2644] [DBG] [WEB] WebSocket server started
+[SIM] Saved screenshot: <repo>/.local/reviewer-fixes-2026-11-08/x3-before/captures/transfer.bmp
+[10000] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[10001] [DBG] [WEB] handleClient active, server running on port 80
+[19648] [DBG] [WEB] [SIM] GET /api/status
+[20002] [DBG] [WEB] handleClient active, server running on port 80
+[20008] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[30003] [DBG] [WEB] handleClient active, server running on port 80
+[30011] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[40004] [DBG] [WEB] handleClient active, server running on port 80
+[40015] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[50005] [DBG] [WEB] handleClient active, server running on port 80
+[50022] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[60006] [DBG] [WEB] handleClient active, server running on port 80
+[60025] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[60727] [DBG] [WEB] [SIM] GET /api/status
+[60742] [DBG] [WEB] [SIM] GET /api/files?path=%2Fsleep
+[SIM] open failed: <repo>/.local/reviewer-fixes-2026-11-08/x3-before/sd/sleep (flags=0x0 errno=2 No such file or directory)
+[60743] [DBG] [WEB] Failed to open directory: /sleep
+[60743] [DBG] [WEB] Served file listing page for path: /sleep
+[60768] [DBG] [WEB] [SIM] GET /api/status
+[60775] [DBG] [WEB] [SIM] GET /api/files?path=%2F
+[60775] [DBG] [WEB] Scanning files in: /
+[60776] [DBG] [WEB] Served file listing page for path: /
+[60794] [DBG] [WEB] [SIM] GET /api/files?path=%2F
+[60794] [DBG] [WEB] Scanning files in: /
+[60795] [DBG] [WEB] Served file listing page for path: /
+[60810] [DBG] [WEB] [SIM] POST /mkdir
+[60828] [DBG] [WS] Client 0 connected
+[60836] [DBG] [WS] Text from client 0: START:sleep-2026-11-08-brook.bmp:1152054:/sleep
+[60836] [DBG] [WS] Starting upload: sleep-2026-11-08-brook.bmp (1152054 bytes) to /sleep/sleep-2026-11-08-brook.bmp
+[61708] [DBG] [WS] Upload complete: sleep-2026-11-08-brook.bmp (1152054 bytes in 872 ms, 1290.2 KB/s)
+[61715] [DBG] [WS] Client 0 disconnected
+[64699] [DBG] [WEB] [SIM] GET /api/files?path=%2F
+[64699] [DBG] [WEB] Scanning files in: /
+[64699] [DBG] [WEB] Served file listing page for path: /
+[70007] [DBG] [WEB] handleClient active, server running on port 80
+[70035] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[70761] [DBG] [WEB] [SIM] GET /api/status
+[76694] [DBG] [WEB] [SIM] GET /api/status
+[76707] [DBG] [WEB] [SIM] GET /download?path=%2Fsleep%2Fsleep-2026-11-08-brook.bmp
+[76712] [DBG] [WEB] [SIM] GET /__review33_done
+[76712] [DBG] [DAV] GET /__review33_done
+[SIM] WAIT matched: [76712] [DBG] [WEB] [SIM] GET /__review33_done
+[77093] [DBG] [ACT] Exiting activity: CrossPointWebServer
+[77093] [DBG] [WEBACT] Free heap at onExit start: 1048576 bytes
+[77124] [DBG] [MAIN] Silent restart (target=home)
+[77124] [DBG] [GFX] Time = 74480 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | Hotspot Mode | Loading | CrossPoint-Reader | Connect your device to this Wi-Fi network | CrossPoint-Reader | Open this URL in your browser | http://crosspoint.local/ | or http://127.0.0.1/ | « Exit
+[77183] [DBG] [WEBACT] Free heap at onExit end: 1048576 bytes
+[77183] [DBG] [WEB] STOP INITIATED - setting running=false first
+[77183] [DBG] [WEB] [MEM] Free heap before stop: 1048576 bytes
+[77183] [DBG] [WEB] Stopping WebSocket server...
+[77184] [DBG] [WEB] WebSocket server stopped
+[77205] [DBG] [WEB] [MEM] Free heap after server->stop(): 1048576 bytes
+[77216] [DBG] [WEB] Web server stopped and deleted
+[77216] [DBG] [WEB] [MEM] Free heap after delete server: 1048576 bytes
+[77216] [DBG] [WEB] [MEM] Free heap final: 1048576 bytes
+[77216] [DBG] [ACT] Entering activity: Home
+[77218] [DBG] [GFX] Time = 2 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | No open book | Start reading below | Browse Files | Library | File Transfer | Settings | Select | Up | Down
+[SIM] WAIT matched: [77216] [DBG] [ACT] Entering activity: Home
+[77230] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[78131] [DBG] [MAIN] Power button held 401ms, sleeping
+[78132] [DBG] [ACT] Exiting activity: Home
+[78132] [DBG] [ACT] Entering activity: Sleep
+[78132] [DBG] [GFX] Time = 903 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | Going to sleep | No open book | Start reading below | Browse Files | Library | File Transfer | Settings | Select | Up | Down
+[SIM] open failed: <repo>/.local/reviewer-fixes-2026-11-08/x3-before/sd/sleep.bmp (flags=0x0 errno=2 No such file or directory)
+[SIM] open failed: <repo>/.local/reviewer-fixes-2026-11-08/x3-before/sd/.sleep (flags=0x0 errno=2 No such file or directory)
+[78242] [DBG] [SLP] Loading: /sleep/sleep-2026-11-08-brook.bmp
+[78280] [DBG] [SLP] bitmap 475 x 792, screen 528 x 792
+[78280] [DBG] [SLP] drawing to 26 x 0
+[78280] [DBG] [GFX] Cropping 475x792 by 0x0 pix, is bottom-up
+[78280] [DBG] [GFX] Scaling by 1.000000 - not scaled
+[SIM] SCREEN:
+[78289] [DBG] [GFX] Cropping 475x792 by 0x0 pix, is bottom-up
+[78289] [DBG] [GFX] Scaling by 1.000000 - not scaled
+[78299] [DBG] [GFX] Cropping 475x792 by 0x0 pix, is bottom-up
+[78299] [DBG] [GFX] Scaling by 1.000000 - not scaled
+[78313] [DBG] [MAIN] Entering deep sleep
+[SIM] WAIT matched: [78132] [DBG] [ACT] Entering activity: Sleep
+[SIM] Saved screenshot: <repo>/.local/reviewer-fixes-2026-11-08/x3-before/captures/sleep.bmp

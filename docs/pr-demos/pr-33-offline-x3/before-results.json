@@ -1,0 +1,19 @@
+{
+  "appRevision": "0bab1d51d925e4527d0006b5474e05392a4f31de",
+  "platform": "native iOS 18.4, iPhone 16 Pro simulator",
+  "firmwareRevision": "42d58daaabcf469a2e5e1ba871714fb9dcf51d29",
+  "sdkRevision": "5e94fe7480f019c89fbf691aef87523eb1b46704",
+  "simulatorRevision": "04332e7ab5e048fe7909d6a788a9641ece14941b",
+  "profile": "simulator_x3",
+  "reportedDevice": "X3",
+  "nativeGeneratedBmp": {
+    "width": 480,
+    "height": 800,
+    "bitsPerPixel": 24,
+    "bytes": 1152054,
+    "sha256": "92521d895adb3a7ec2fcf49e85d4394ad9eeccb683c527c339f19d771659737f"
+  },
+  "httpDownloadMatchesVirtualSd": true,
+  "sourceImageSha256": "49ac54b1ef0ca661c8b8ec155b4f870b32363f87c9ef28f697f9779d4dea6f4d",
+  "adapters": "Identical staged source image and deep link. Reused native app shell with each production JS bundle; no codec, queue or upload adapters."
+}

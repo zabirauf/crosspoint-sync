@@ -71,3 +71,8 @@ counts, durations, and file signatures. No physical-reader screen is simulated.
 [Native iOS app → real CrossPoint firmware simulator: results, GIF, inputs and logs](simulator-pr32.md).
 
 ![Native app to simulator before and after](pr-32-app-simulator.gif)
+
+## Reviewer follow-up evidence
+
+- [PR #31: Safari 16.0–16.3 compatibility](pr-31-safari-review.md)
+- [PR #33: offline target selection and native upload to X3 firmware](pr-33-offline-x3-simulator.md)
