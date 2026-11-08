@@ -15,22 +15,23 @@ import Animated, {
 } from 'react-native-reanimated';
 import { StatusBar } from 'expo-status-bar';
 import { processAndQueueSleepBackground } from '@/services/sleep-background';
-import { SLEEP_SCREEN_WIDTH, SLEEP_SCREEN_HEIGHT } from '@/constants/Protocol';
+import { getReaderProfile } from '@/constants/ReaderProfiles';
+import { useDeviceStore } from '@/stores/device-store';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { fitCropFrame, getSourceCrop } from '@/utils/crop-geometry';
 
-const ASPECT_RATIO = SLEEP_SCREEN_WIDTH / SLEEP_SCREEN_HEIGHT; // 0.6 (3:5)
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 5;
 
 export default function SleepPreviewScreen() {
   const { imageUri } = useLocalSearchParams<{ imageUri: string }>();
+  // Keep the preview and queued output identical even if the reader changes.
+  const [profile] = useState(() => getReaderProfile(useDeviceStore.getState().deviceStatus?.device));
   const [canvas, setCanvas] = useState({ width: 0, height: 0 });
   const [imageSize, setImageSize] = useState<{ width: number; height: number } | null>(null);
   const [processing, setProcessing] = useState(false);
 
-  // Calculate the crop frame dimensions (fixed 3:5 aspect ratio)
-  const frame = useMemo(() => fitCropFrame(canvas, ASPECT_RATIO), [canvas]);
+  const frame = useMemo(() => fitCropFrame(canvas, profile ? profile.width / profile.height : 1), [canvas, profile]);
 
   // Load image dimensions
   useEffect(() => {
@@ -120,13 +121,13 @@ export default function SleepPreviewScreen() {
 
   // Handle confirm: calculate crop region in original image coordinates
   const handleConfirm = useCallback(async () => {
-    if (!imageSize) return;
+    if (!imageSize || !profile) return;
 
     setProcessing(true);
     try {
       await processAndQueueSleepBackground(imageUri!, getSourceCrop(imageSize, frame, scale.value, {
         x: translateX.value, y: translateY.value,
-      }));
+      }), profile);
 
       router.back();
     } catch (err) {
@@ -134,7 +135,7 @@ export default function SleepPreviewScreen() {
     } finally {
       setProcessing(false);
     }
-  }, [imageSize, frame, imageUri, scale, translateX, translateY]);
+  }, [imageSize, frame, imageUri, scale, translateX, translateY, profile]);
 
   if (!imageUri) {
     return (
@@ -172,7 +173,7 @@ export default function SleepPreviewScreen() {
         </Button>
         <YStack alignItems="center" flex={1} minWidth={0}>
           <Text color="#fff" fontSize="$4" fontWeight="600" textAlign="center">Sleep Background</Text>
-          <Text testID="SleepPreview.OutputFormat" color="$gray8" fontSize="$2">{SLEEP_SCREEN_WIDTH} x {SLEEP_SCREEN_HEIGHT} &middot; Grayscale output</Text>
+          <Text testID="SleepPreview.OutputFormat" color="$gray8" fontSize="$2">{profile ? `${profile.width} x ${profile.height} · Grayscale output` : 'Unsupported reader display'}</Text>
         </YStack>
         <Button
           size="$3"
@@ -181,7 +182,7 @@ export default function SleepPreviewScreen() {
           chromeless
           color={processing ? '$gray8' : '#81d4fa'}
           onPress={handleConfirm}
-          disabled={processing || !imageSize || !canvas.width || !canvas.height}
+          disabled={processing || !profile || !imageSize || !canvas.width || !canvas.height}
         >
           {processing ? 'Processing...' : 'Done'}
         </Button>

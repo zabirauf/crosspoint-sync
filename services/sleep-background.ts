@@ -3,8 +3,9 @@ import { File as FSFile, Paths, Directory } from 'expo-file-system';
 import UPNG from 'upng-js';
 import { encodeRGBAToBmp } from './bmp-encoder';
 import { useUploadStore } from '@/stores/upload-store';
-import { SLEEP_SCREEN_WIDTH, SLEEP_SCREEN_HEIGHT, SLEEP_UPLOAD_PATH } from '@/constants/Protocol';
+import { SLEEP_UPLOAD_PATH } from '@/constants/Protocol';
 import { log } from './logger';
+import type { ReaderProfile } from '@/constants/ReaderProfiles';
 
 const WORDS: string[] = [
   'amber', 'aspen', 'birch', 'bloom', 'bluff', 'brook', 'cedar', 'cliff',
@@ -50,7 +51,7 @@ function decodePngBase64(base64: string): { rgba: Uint8Array; width: number; hei
 /**
  * Process an image for use as a sleep background:
  * 1. Crop to the specified region
- * 2. Resize to device screen dimensions (480×800)
+ * 2. Resize to the selected reader screen dimensions
  * 3. Decode to raw pixels
  * 4. Convert to grayscale BMP
  * 5. Save to cache and queue for upload
@@ -58,6 +59,7 @@ function decodePngBase64(base64: string): { rgba: Uint8Array; width: number; hei
 export async function processAndQueueSleepBackground(
   imageUri: string,
   cropRegion: CropRegion,
+  profile: ReaderProfile,
 ): Promise<void> {
   log('queue', `Processing sleep background: crop=${JSON.stringify(cropRegion)}`);
 
@@ -73,7 +75,7 @@ export async function processAndQueueSleepBackground(
           height: Math.round(cropRegion.height),
         },
       },
-      { resize: { width: SLEEP_SCREEN_WIDTH, height: SLEEP_SCREEN_HEIGHT } },
+      { resize: { width: profile.width, height: profile.height } },
     ],
     { format: SaveFormat.PNG, base64: true },
   );
@@ -86,6 +88,9 @@ export async function processAndQueueSleepBackground(
 
   // Decode PNG to raw RGBA pixels
   const { rgba, width, height } = decodePngBase64(result.base64);
+  if (width !== profile.width || height !== profile.height) {
+    throw new Error('Image conversion returned the wrong reader dimensions');
+  }
   log('queue', `Decoded PNG: ${width}×${height}, ${rgba.length} bytes`);
 
   // Encode as grayscale BMP

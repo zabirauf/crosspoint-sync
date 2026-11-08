@@ -13,7 +13,7 @@ name: "Sleep Preview - Initial Native Safe Area"
 - assertVisible:
     id: "SleepPreview.Done"
 - assertVisible:
-    text: "480 x 800 · Grayscale output"
+    id: "SleepPreview.OutputFormat"
 - takeScreenshot: crop-initial-outer
 - tapOn:
     id: "SleepPreview.Done"

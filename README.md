@@ -1,12 +1,12 @@
 # CrossPoint Sync
 
-Book syncing app for the [XTEink X4](https://xteink.com) e-ink reader. Discovers devices on your local WiFi, browses files on the device, and uploads books via WebSocket.
+Book syncing app for the [XTEink X3 and X4](https://xteink.com) e-ink readers. Discovers devices on your local WiFi, browses files on the device, and uploads books via WebSocket.
 
 ![CrossPoint Sync — Web Clipper, Library, and Upload Queue](docs/images/crosspoint-sync_overview.png)
 
 ## Features
 
-- **Device Discovery** — Automatically finds your XTEink X4 on the local network via UDP broadcast, or connect manually by IP address
+- **Device Discovery** — Automatically finds your XTEink X3 and X4 on the local network via UDP broadcast, or connect manually by IP address
 - **File Browser** — Browse, create folders, and manage files directly on your e-ink reader
 - **Book Uploads** — Pick books from your phone and upload them over WebSocket with progress tracking
 - **Upload Queue** — Queue multiple uploads, retry failures, and track progress for each job
@@ -28,7 +28,7 @@ Targets: **iOS and Android**
 - **Node.js** >= 22 (an LTS release is recommended)
 - **iOS:** macOS, Xcode with an iOS simulator, and CocoaPods
 - **Android:** Java 17 and Android Studio or the Android command-line SDK. Install platform tools, Android SDK Platform 36, Build Tools 36.0.0, NDK 27.1.12297006, and CMake 3.22.1. An emulator also needs the emulator package and a system image.
-- An XTEink X4 e-ink reader on the same local network (for full functionality)
+- An XTEink X3 or X4 e-ink reader on the same local network (for full functionality)
 
 Uploads require CrossPoint firmware **0.14.0 or later**, which introduced the WebSocket transport. The app does not enforce that minimum when connecting; the development mock defaults to 1.3.0. Rename/move, settings, and batch-delete behavior are selected from the connected firmware version.
 
@@ -189,7 +189,7 @@ These tests check navigation and UI assertions and capture images for review. Au
 
 ## How It Works
 
-CrossPoint Sync communicates with the XTEink X4 using two protocols:
+CrossPoint Sync communicates with the XTEink X3 and X4 using two protocols:
 
 1. **HTTP REST API** (port 80) — Fetches device status, lists files, creates/deletes folders, and downloads files
 2. **WebSocket Upload** (port 81) — Streams books to the device in 64KB binary chunks with progress reporting
@@ -232,3 +232,7 @@ This project is not affiliated with [CrossPoint Reader](https://github.com/cross
 ## License
 
 Private
+
+### X3 and X4 readers
+
+The app uses the same CrossPoint HTTP/WebSocket file-transfer API on both readers. Firmware 1.3+ reports its model, shown in Settings and Connection. Sleep images use 528 × 792 for X3 and 480 × 800 for X4; firmware without a model field retains the legacy X4 size. Other reported models can still transfer files, but sleep-image generation requires a known display profile. Format availability continues to follow firmware capabilities.

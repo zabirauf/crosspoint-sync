@@ -1,0 +1,19 @@
+id: x3-sleep-preview
+name: "X3 sleep-image crop"
+flow: manual-flows/x3-sleep-preview.yaml
+screenshots:
+  - x3-sleep-preview
+platforms: [ios, android]
+themes: [light]
+tags: [connected, requires-device, x3]
+description: |
+  The X3 crop editor uses a 2:3 portrait crop and shows 528 x 792 grayscale output.
+assertions:
+  - text: "Cancel and Done remain visible within the safe area"
+    severity: fail
+  - text: "The centered 2:3 crop frame fits inside the canvas"
+    severity: fail
+  - text: "The format line identifies 528 x 792 grayscale output"
+    severity: fail
+ignore:
+  - "Source image content and system clock"

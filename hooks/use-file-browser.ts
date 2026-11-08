@@ -20,7 +20,11 @@ export function useFileBrowser() {
       (j) => j.status === 'pending' && j.destinationPath === currentPath,
     ),
   );
-  const loadingPathRef = useRef<string | null>(null);
+  const readerKey = connectedDevice ? `${connectedDevice.ip}:${connectedDevice.httpPort}` : null;
+  const activeReaderRef = useRef(readerKey);
+  activeReaderRef.current = readerKey;
+  const requestIdRef = useRef(0);
+  const loadingPathRef = useRef<{ reader: string | null; path: string } | null>(null);
   const capabilities = useMemo(
     () => getDeviceCapabilities(deviceStatus?.version),
     [deviceStatus?.version],
@@ -30,13 +34,16 @@ export function useFileBrowser() {
     async (path?: string) => {
       if (!connectedDevice || connectionStatus !== 'connected') return;
       const targetPath = path ?? currentPath;
-      if (loadingPathRef.current === targetPath) return; // already loading this path
-      loadingPathRef.current = targetPath;
+      if (loadingPathRef.current?.reader === readerKey && loadingPathRef.current.path === targetPath) return;
+      loadingPathRef.current = { reader: readerKey, path: targetPath };
+      const requestId = ++requestIdRef.current;
+      const isCurrent = () => activeReaderRef.current === readerKey && requestIdRef.current === requestId;
       log('api', `Loading files: ${targetPath}`);
       setIsLoading(true);
       setError(null);
       try {
         const result = await getFiles(connectedDevice.ip, targetPath);
+        if (!isCurrent()) return;
         // Sort: directories first, then alphabetically
         result.sort((a, b) => {
           if (a.isDirectory !== b.isDirectory) return a.isDirectory ? -1 : 1;
@@ -45,15 +52,18 @@ export function useFileBrowser() {
         log('api', `Loaded ${result.length} items from ${targetPath}`);
         setFiles(result);
       } catch (err) {
+        if (!isCurrent()) return;
         log('api', `Load files error: ${err instanceof Error ? err.message : String(err)}`);
         setError("Couldn't load files. Pull down to retry.");
         setFiles([]);
       } finally {
-        loadingPathRef.current = null;
-        setIsLoading(false);
+        if (isCurrent()) {
+          loadingPathRef.current = null;
+          setIsLoading(false);
+        }
       }
     },
-    [connectedDevice, connectionStatus, currentPath],
+    [connectedDevice, connectionStatus, currentPath, readerKey],
   );
 
   const navigateToFolder = useCallback(
@@ -252,14 +262,19 @@ export function useFileBrowser() {
     [connectedDevice, downloadingFile, processQueue],
   );
 
-  // Reload when connected or path changes
+  // A new reader starts at its root; results from the old reader cannot replace it.
   useEffect(() => {
-    if (connectionStatus === 'connected') {
-      loadFiles();
-    } else {
-      setFiles([]);
-    }
-  }, [connectionStatus]); // eslint-disable-line react-hooks/exhaustive-deps
+    requestIdRef.current++;
+    loadingPathRef.current = null;
+    setCurrentPath(DEFAULT_UPLOAD_PATH);
+    setFiles([]);
+    setError(null);
+    setIsLoading(false);
+    if (connectionStatus === 'connected') void loadFiles(DEFAULT_UPLOAD_PATH);
+    return () => { requestIdRef.current++; };
+    // Navigation loads its own path; only reader/connection changes reset to root.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [readerKey, connectionStatus]);
 
   // Auto-refresh file list after upload completion
   useEffect(() => {

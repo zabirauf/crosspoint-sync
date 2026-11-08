@@ -1,0 +1,23 @@
+appId: com.crosspointsync.app
+name: "X3 Sleep Preview and Upload"
+---
+# Connect to a disposable --device X3 mock and stage a local sleep-preview image.
+# This flow submits the BMP; verify the mock's downloaded file is 528x792.
+- extendedWaitUntil:
+    visible:
+      id: "SleepPreview.CropFrame"
+    timeout: 10000
+- assertVisible: "528 x 792 · Grayscale output"
+- assertVisible:
+    id: "SleepPreview.Cancel"
+- assertVisible:
+    id: "SleepPreview.Done"
+- takeScreenshot: x3-sleep-preview
+- tapOn:
+    id: "SleepPreview.Done"
+- extendedWaitUntil:
+    notVisible:
+      id: "SleepPreview.Screen"
+    timeout: 15000
+- assertVisible:
+    id: "Library.FileList"
