@@ -84,6 +84,7 @@
     "@types/ws": "^8.18.1",
     "babel-preset-expo": "~54.0.12",
     "defuddle": "^0.19.6",
+    "defuddle-legacy": "npm:defuddle@0.7.0",
     "dompurify": "^3.3.1",
     "puppeteer": "^24.38.0",
     "react-test-renderer": "19.1.0",

@@ -28,6 +28,8 @@ test('clipping retains Substack image URLs through EPUB packaging', async (t) =>
     bundle: true,
     write: false,
     format: 'iife',
+    minify: true,
+    globalName: '__crossPointSyncContent',
     target: 'safari16',
   })).outputFiles[0].text;
   const helper = (await esbuild.build({
@@ -64,7 +66,11 @@ test('clipping retains Substack image URLs through EPUB packaging', async (t) =>
         assert.equal((result.capped.html.match(/<img/g) || []).length, 3, 'duplicate image tags share one download');
       } finally { await page.close(); }
     });
-    for (const [platform, script] of [['Safari', safari], ['Android', DEFUDDLE_EXTRACTION_SCRIPT]]) {
+    for (const [platform, script, legacySafari] of [
+      ['Safari', safari, false],
+      ['Safari 16.0–16.3 feature limits', safari, true],
+      ['Android', DEFUDDLE_EXTRACTION_SCRIPT, false],
+    ]) {
       await t.test(platform, async () => {
         const page = await browser.newPage();
         try {
@@ -73,12 +79,23 @@ test('clipping retains Substack image URLs through EPUB packaging', async (t) =>
             ? request.respond({ status: 200, contentType: 'text/html', body: fixture })
             : request.abort());
           await page.goto(sourceUrl, { waitUntil: 'domcontentloaded' });
-          await page.evaluate(() => {
+          await page.evaluate((rejectLookbehind) => {
             window.browser = { runtime: { onMessage: { addListener: (listener) => { window.extractHandler = listener; } } } };
             window.ReactNativeWebView = { postMessage: (message) => { window.extractionResult = JSON.parse(message); } };
-          });
+            if (rejectLookbehind) {
+              const NativeRegExp = window.RegExp;
+              window.RegExp = new Proxy(NativeRegExp, {
+                construct(target, args) {
+                  if (/\(\?<([=!])/.test(String(args[0]))) {
+                    throw new SyntaxError('Lookbehind is unavailable in Safari 16.0–16.3');
+                  }
+                  return Reflect.construct(target, args);
+                },
+              });
+            }
+          }, legacySafari);
           await page.addScriptTag({ content: script });
-          const response = platform === 'Safari'
+          const response = platform.startsWith('Safari')
             ? await page.evaluate(() => new Promise((resolve) => window.extractHandler({ action: 'extract' }, null, resolve)))
             : await page.evaluate(() => window.extractionResult);
           assert.equal(response.success, true, response.error);

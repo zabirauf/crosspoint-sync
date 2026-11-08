@@ -13,3 +13,8 @@ Run `npm run test:clipper`. The test uses Chromium with external requests
 blocked, then packages local PNG fixture bytes into an EPUB and checks the
 chapter's image references and embedded bytes. No device or internet access
 is needed once the dependencies and Puppeteer browser are installed.
+
+The Safari check also rejects lookbehind regex construction to cover the
+Safari 16.0–16.3 feature limit. It verifies that the bundled legacy fallback
+registers the listener and preserves both images through packaging. This is a
+controlled Chromium check, not a native old-Safari run.

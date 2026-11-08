@@ -1,23 +1,22 @@
 // Content script for CrossPoint Safari Web Extension
 // This runs in the web page context and extracts article content
-import Defuddle from 'defuddle';
 import DOMPurify from 'dompurify';
 import { normalizeImageSources } from './image-sources';
+import { loadSafariDefuddle } from './safari-defuddle';
 
 // Listen for messages from the popup/background
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'extract') {
-    try {
-      const result = extractArticle();
-      sendResponse({ success: true, data: result });
-    } catch (err) {
-      sendResponse({ success: false, error: err.message });
-    }
+    extractArticle().then(
+      (result) => sendResponse({ success: true, data: result }),
+      (err) => sendResponse({ success: false, error: err.message }),
+    );
   }
   return true; // Keep message channel open for async response
 });
 
-function extractArticle() {
+async function extractArticle() {
+  const Defuddle = await loadSafariDefuddle();
   // Use Defuddle to extract clean article content
   const defuddled = new Defuddle(document, {
     url: window.location.href,
