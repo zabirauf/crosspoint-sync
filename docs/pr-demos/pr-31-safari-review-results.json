@@ -1,0 +1,28 @@
+[
+  {
+    "revision": "Before",
+    "listenerRegistered": false,
+    "errors": [
+      "Uncaught SyntaxError: Lookbehind is unavailable in Safari 16.0–16.3"
+    ],
+    "response": null
+  },
+  {
+    "revision": "After",
+    "listenerRegistered": true,
+    "errors": [],
+    "response": {
+      "success": true,
+      "data": {
+        "title": "Offline clipping regression",
+        "author": "Substack",
+        "sourceUrl": "https://clipping-regression.substack.com/p/images",
+        "html": "<article><p>This is a synthetic article used to check that clipping keeps readable content and its illustrations. The browser already has the full article, so extraction should retain the text and the image URLs without treating unrelated metadata as a download address. </p><div><figure><img src=\"https://images.example.test/figure-1.png\"> <figcaption>Synthetic figure 1</figcaption></figure></div> <p>This is a synthetic article used to check that clipping keeps readable content and its illustrations. The browser already has the full article, so extraction should retain the text and the image URLs without treating unrelated metadata as a download address. </p><div><figure><img src=\"https://images.example.test/figure-2.jpeg\"> <figcaption>Synthetic figure 2</figcaption></figure></div> <p>This is a synthetic article used to check that clipping keeps readable content and its illustrations. The browser already has the full article, so extraction should retain the text and the image URLs without treating unrelated metadata as a download address. </p></article>",
+        "images": [
+          "https://images.example.test/figure-1.png",
+          "https://images.example.test/figure-2.jpeg"
+        ]
+      }
+    }
+  }
+]
