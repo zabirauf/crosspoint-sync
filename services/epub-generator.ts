@@ -1,4 +1,9 @@
 import JSZip from 'jszip';
+import { DomUtils } from 'htmlparser2';
+import { Text } from 'domhandler';
+import { decodeHTMLAttribute } from 'entities';
+import { parseEpubHtml, serializeEpubHtml, stripInvalidXmlCharacters } from './epub-html';
+import { prepareEpubImages, isEpubImageMime, MAX_EPUB_IMAGES } from './epub-images';
 import type { ClipImage } from '@/types/clip';
 
 // ──────────────────────────────────────────────────────
@@ -9,8 +14,8 @@ export interface EpubBuildOptions {
   title: string;
   author: string;
   sourceUrl: string;
-  html: string; // Pre-sanitized HTML content (from DOMPurify in extension)
-  images: Array<ClipImage & { data: Uint8Array }>; // Images with binary data loaded
+  html: string; // Article HTML; serialized as valid XHTML before packaging.
+  images: Array<ClipImage & { data: Uint8Array }>; // Prepared JPEG/PNG for buildEpubZip; generateEpub converts input.
   clippedAt: number;
   bookId?: string; // Optional — auto-generated if not provided
 }
@@ -36,7 +41,7 @@ export async function buildEpubZip(options: EpubBuildOptions): Promise<EpubBuild
   const { rewrittenHtml, imageEntries } = rewriteImageSources(html, images);
 
   // Convert to XHTML
-  const xhtml = wrapInXhtml(sanitizedTitle, fixupXhtml(rewrittenHtml));
+  const xhtml = wrapInXhtml(sanitizedTitle, rewrittenHtml);
 
   const zip = new JSZip();
 
@@ -80,7 +85,8 @@ interface EpubOptions extends EpubBuildOptions {}
  * Uses dynamic import for expo-file-system to keep buildEpubZip() Node.js compatible.
  */
 export async function generateEpub(options: EpubOptions): Promise<{ uri: string; size: number }> {
-  const result = await buildEpubZip(options);
+  const images = await prepareEpubImages(options.images);
+  const result = await buildEpubZip({ ...options, images });
 
   // Dynamic import — only loaded at runtime on device, not in Node.js tests
   const { File, Directory, Paths } = await import('expo-file-system');
@@ -96,7 +102,7 @@ export async function generateEpub(options: EpubOptions): Promise<{ uri: string;
   const outputFile = new File(outputDir, `${safeFilename}-${Date.now()}.epub`);
   outputFile.write(result.buffer);
 
-  log('clip', `Generated EPUB: ${outputFile.name} (${result.buffer.length} bytes, ${result.imageEntries.length} images)`);
+  log('clip', `Generated EPUB: ${outputFile.name} (${result.buffer.length} bytes, ${result.imageEntries.length} images, ${options.images.length - result.imageEntries.length} omitted)`);
 
   return { uri: outputFile.uri, size: result.buffer.length };
 }
@@ -105,21 +111,9 @@ export async function generateEpub(options: EpubOptions): Promise<{ uri: string;
 // XHTML fixup
 // ──────────────────────────────────────────────────────
 
-/** Lightweight XHTML fixup for content that's already been through DOMPurify */
+/** Produce XML-safe text, attributes and balanced tags from an HTML fragment. */
 export function fixupXhtml(html: string): string {
-  // Self-close void elements
-  const voidElements = ['br', 'hr', 'img', 'input', 'meta', 'link', 'area', 'base', 'col', 'embed', 'source', 'track', 'wbr'];
-  let result = html;
-  for (const tag of voidElements) {
-    // Match <tag ...> that isn't already self-closed
-    const re = new RegExp(`<(${tag})(\\s[^>]*)?\\/?>(?!\\s*<\\/${tag}>)`, 'gi');
-    result = result.replace(re, (_, name, attrs) => `<${name}${attrs || ''}/>`);
-  }
-
-  // Escape bare ampersands (not already part of entity)
-  result = result.replace(/&(?!#?\w+;)/g, '&amp;');
-
-  return result;
+  return serializeEpubHtml(parseEpubHtml(html));
 }
 
 function wrapInXhtml(title: string, bodyHtml: string): string {
@@ -153,25 +147,30 @@ export function rewriteImageSources(
   images: Array<ClipImage & { data: Uint8Array }>
 ): { rewrittenHtml: string; imageEntries: ImageEntry[] } {
   const imageEntries: ImageEntry[] = [];
-  let rewrittenHtml = html;
-
-  for (const img of images) {
-    const ext = mimeToExtension(img.mimeType);
-    const filename = `img-${imageEntries.length}${ext}`;
-    imageEntries.push({ filename, mimeType: img.mimeType, data: img.data });
-
-    // Replace all occurrences of the original URL with the local path
-    const localPath = `images/${filename}`;
-    rewrittenHtml = rewrittenHtml.split(img.originalUrl).join(localPath);
-
-    // Also replace HTML-entity-encoded version (innerHTML encodes & as &amp;)
-    const entityEncoded = img.originalUrl.replace(/&/g, '&amp;');
-    if (entityEncoded !== img.originalUrl) {
-      rewrittenHtml = rewrittenHtml.split(entityEncoded).join(localPath);
+  const doc = parseEpubHtml(html);
+  const available = new Map<string, (typeof images)[number]>();
+  for (const image of images) {
+    if (!isEpubImageMime(image.mimeType) || !image.data.length) continue;
+    for (const key of [image.originalUrl, decodeHTMLAttribute(image.originalUrl)]) {
+      if (!available.has(key)) available.set(key, image);
     }
   }
-
-  return { rewrittenHtml, imageEntries };
+  const embedded = new Map<(typeof images)[number], string>();
+  for (const img of DomUtils.getElementsByTagName('img', doc.children, true)) {
+    const image = available.get(img.attribs.src);
+    if (!image || (!embedded.has(image) && imageEntries.length >= MAX_EPUB_IMAGES)) {
+      DomUtils.replaceElement(img, new Text(img.attribs.alt || ''));
+      continue;
+    }
+    let filename = embedded.get(image);
+    if (!filename) {
+      filename = `img-${imageEntries.length}${mimeToExtension(image.mimeType)}`;
+      embedded.set(image, filename);
+      imageEntries.push({ filename, mimeType: image.mimeType, data: image.data });
+    }
+    img.attribs.src = `images/${filename}`;
+  }
+  return { rewrittenHtml: serializeEpubHtml(doc), imageEntries };
 }
 
 export function mimeToExtension(mime: string): string {
@@ -213,7 +212,7 @@ function buildContentOpf(
   return `<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid">
   <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-    <dc:identifier id="bookid">${bookId}</dc:identifier>
+    <dc:identifier id="bookid">${escapeXml(bookId)}</dc:identifier>
     <dc:title>${title}</dc:title>
     <dc:creator>${author}</dc:creator>
     <dc:source>${escapeXml(sourceUrl)}</dc:source>
@@ -238,7 +237,7 @@ function buildTocNcx(bookId: string, title: string): string {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
   <head>
-    <meta name="dtb:uid" content="${bookId}"/>
+    <meta name="dtb:uid" content="${escapeXml(bookId)}"/>
   </head>
   <docTitle>
     <text>${title}</text>
@@ -359,7 +358,7 @@ figcaption {
 `;
 
 export function escapeXml(str: string): string {
-  return str
+  return stripInvalidXmlCharacters(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
