@@ -65,3 +65,9 @@ Puppeteer, using the actual outputs and controlled input fixtures described abov
 Composed before/after comparisons from the captures and encoded with FFmpeg at
 5 fps using a generated GIF palette. Reviewed key frames and checked GIF frame
 counts, durations, and file signatures. No physical-reader screen is simulated.
+
+## Additional PR #32 app-to-firmware validation
+
+[Native iOS app → real CrossPoint firmware simulator: results, GIF, inputs and logs](simulator-pr32.md).
+
+![Native app to simulator before and after](pr-32-app-simulator.gif)

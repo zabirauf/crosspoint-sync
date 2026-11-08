@@ -1,0 +1,250 @@
+[0] [DBG] [UI] Using Lyra theme
+[5] [INF] [MAIN] Hardware detect: X4
+[7] [DBG] [CPS] Resaving settings to update format
+[7] [DBG] [CPS] Settings loaded from file
+[8] [DBG] [UI] Using Classic theme
+[9] [DBG] [MAIN] Starting CrossPoint version 2.0.0-simulator-pr32
+[179] [DBG] [MAIN] Display initialized
+[SIM] open failed: <validation>/before-sd/.fonts (flags=0x0 errno=2 No such file or directory)
+[180] [DBG] [SDREG] Fonts directory not found: /.fonts
+[SIM] open failed: <validation>/before-sd/fonts (flags=0x0 errno=2 No such file or directory)
+[180] [DBG] [SDREG] Fonts directory not found: /fonts
+[180] [DBG] [SDREG] Discovery complete: 0 families
+[180] [DBG] [SDFS] SD font system ready (0 families discovered)
+[180] [DBG] [MAIN] Fonts setup
+[180] [DBG] [ACT] Entering activity: Boot
+[181] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[SIM] SCREEN: CrossPoint | BOOTING | 2.0.0-simulator-pr32
+[241] [DBG] [ACT] Exiting activity: Boot
+[242] [DBG] [ACT] Entering activity: Home
+[242] [DBG] [LOOP] New max loop duration: 58 ms (activity: 1 ms)
+[243] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | No open book | Start reading below | Browse Files | Library | File Transfer | Settings | Select | Up | Down
+[SIM] WAIT matched: [242] [DBG] [ACT] Entering activity: Home
+[266] [DBG] [GFX] Time = 0 ms from clearScreen to displayBuffer
+[SIM] Saved screenshot: <validation>/captures/before/home.bmp
+[768] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[1071] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[1448] [DBG] [ACT] Exiting activity: Home
+[1448] [DBG] [ACT] Entering activity: CrossPointWebServer
+[1448] [DBG] [WEBACT] Free heap at onEnter: 1048576 bytes
+[1448] [DBG] [WEBACT] Free heap after SD font cache release: 1048576 bytes
+[1448] [DBG] [WEBACT] Launching NetworkModeSelectionActivity...
+[1448] [DBG] [ACT] Pushed to activity stack, new size = 1
+[1448] [DBG] [ACT] Entering activity: NetworkModeSelection
+[1452] [DBG] [GFX] Time = 4 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | File Transfer | Join a Network | Connect to an existing Wi-Fi network | Calibre Wireless | Use Calibre wireless device transfers | Create Hotspot | Create a Wi-Fi network others can join | « Back | Select | Up | Down
+[SIM] WAIT matched: [1448] [DBG] [ACT] Entering activity: NetworkModeSelection
+[1767] [DBG] [GFX] Time = 3 ms from clearScreen to displayBuffer
+[2073] [DBG] [GFX] Time = 3 ms from clearScreen to displayBuffer
+[2446] [DBG] [ACT] Exiting activity: NetworkModeSelection
+[2447] [DBG] [ACT] Popped from activity stack, new size = 0
+[2447] [DBG] [ACT] Handling result for popped activity
+[2447] [DBG] [WEBACT] Network mode selected: Create Hotspot
+[2447] [DBG] [WEBACT] Starting Access Point mode...
+[2447] [DBG] [WEBACT] Free heap before AP start: 1048576 bytes
+[2648] [DBG] [WEBACT] Access Point started!
+[2648] [DBG] [WEBACT] SSID: CrossPoint-Reader
+[2648] [DBG] [WEBACT] IP: 127.0.0.1
+[2648] [DBG] [WEBACT] mDNS started: http://crosspoint.local/
+[2648] [DBG] [WEBACT] DNS server started for captive portal
+[2648] [DBG] [WEBACT] Free heap after AP start: 1048576 bytes
+[2648] [DBG] [WEBACT] Starting web server...
+[2648] [DBG] [WEBACT] Free heap before SD font cache release: 1048576 bytes
+[2648] [DBG] [WEBACT] Free heap before server alloc: 1048576 bytes
+[2649] [DBG] [WEB] [MEM] Free heap before begin: 1048576 bytes
+[2649] [DBG] [WEB] Network mode: AP
+[2649] [DBG] [WEB] Creating web server on port 80...
+[2650] [DBG] [WEB] [MEM] Free heap after WebServer allocation: 1048576 bytes
+[2650] [DBG] [WEB] Setting up routes...
+[2650] [DBG] [WEB] [MEM] Free heap after route setup: 1048576 bytes
+[2650] [DBG] [WEB] WebDAV handler initialized
+[2651] [DBG] [WEB] [SIM] WebServer running at http://127.0.0.1:18080/
+[2651] [DBG] [WEB] Starting WebSocket server on port 81...
+[2651] [DBG] [WS] [SIM] WebSocket server running at ws://127.0.0.1:18081/
+[2651] [DBG] [WEB] WebSocket server started
+[2651] [DBG] [WEB] Discovery UDP enabled on port 8134
+[2651] [DBG] [WEB] Web server started on port 80
+[2651] [DBG] [WEB] Access at http://127.0.0.1/
+[2651] [DBG] [WEB] WebSocket at ws://127.0.0.1:81/
+[2651] [DBG] [WEB] [MEM] Free heap after server.begin(): 1048576 bytes
+[2651] [DBG] [WEBACT] Web server started successfully
+[2651] [DBG] [LOOP] New max loop duration: 205 ms (activity: 205 ms)
+[2656] [DBG] [GFX] Time = 5 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | Hotspot Mode | CrossPoint-Reader | Connect your device to this Wi-Fi network | CrossPoint-Reader | Open this URL in your browser | http://crosspoint.local/ | or http://127.0.0.1/ | « Exit
+[SIM] WAIT matched: [2651] [DBG] [WEB] WebSocket server started
+[SIM] Saved screenshot: <validation>/captures/before/transfer.bmp
+[10001] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[10001] [DBG] [WEB] handleClient active, server running on port 80
+[20002] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[20002] [DBG] [WEB] handleClient active, server running on port 80
+[29029] [DBG] [WEB] [SIM] GET /api/status
+[30003] [DBG] [WEB] handleClient active, server running on port 80
+[30020] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[40020] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[40020] [DBG] [WEB] handleClient active, server running on port 80
+[48560] [DBG] [WEB] [SIM] GET /api/status
+[48576] [DBG] [WEB] [SIM] GET /api/files?path=%2FArticles
+[SIM] open failed: <validation>/before-sd/Articles (flags=0x0 errno=2 No such file or directory)
+[48577] [DBG] [WEB] Failed to open directory: /Articles
+[48577] [DBG] [WEB] Served file listing page for path: /Articles
+[48597] [DBG] [WEB] [SIM] GET /api/status
+[48606] [DBG] [WEB] [SIM] GET /api/files?path=%2F
+[48606] [DBG] [WEB] Scanning files in: /
+[48606] [DBG] [WEB] Served file listing page for path: /
+[48622] [DBG] [WEB] [SIM] GET /api/files?path=%2F
+[48622] [DBG] [WEB] Scanning files in: /
+[48622] [DBG] [WEB] Served file listing page for path: /
+[48639] [DBG] [WEB] [SIM] POST /mkdir
+[48658] [DBG] [WS] Client 0 connected
+[48668] [DBG] [WS] Text from client 0: START:Simulator-Reading-Test.epub:26801:/Articles
+[48668] [DBG] [WS] Starting upload: Simulator-Reading-Test.epub (26801 bytes) to /Articles/Simulator-Reading-Test.epub
+[48679] [DBG] [WS] Upload complete: Simulator-Reading-Test.epub (26801 bytes in 11 ms, 2379.4 KB/s)
+[48679] [DBG] [EPB] Cache does not exist, no action needed
+[48679] [DBG] [BookCache] Done checking metadata cache for: /Articles/Simulator-Reading-Test.epub
+[48688] [DBG] [WS] Client 0 disconnected
+[50022] [DBG] [WEB] handleClient active, server running on port 80
+[50025] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[58591] [DBG] [WEB] [SIM] GET /api/status
+[60024] [DBG] [WEB] handleClient active, server running on port 80
+[60032] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[68591] [DBG] [WEB] [SIM] GET /api/status
+[70025] [DBG] [WEB] handleClient active, server running on port 80
+[70045] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[78597] [DBG] [WEB] [SIM] GET /api/status
+[80027] [DBG] [WEB] handleClient active, server running on port 80
+[80054] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[84630] [DBG] [WEB] [SIM] GET /api/files?path=%2F
+[84630] [DBG] [WEB] Scanning files in: /
+[84630] [DBG] [WEB] Served file listing page for path: /
+[88596] [DBG] [WEB] [SIM] GET /api/status
+[90032] [DBG] [WEB] handleClient active, server running on port 80
+[90065] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[98598] [DBG] [WEB] [SIM] GET /api/status
+[100034] [DBG] [WEB] handleClient active, server running on port 80
+[100067] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[108597] [DBG] [WEB] [SIM] GET /api/status
+[110035] [DBG] [WEB] handleClient active, server running on port 80
+[110081] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[118596] [DBG] [WEB] [SIM] GET /api/status
+[119391] [DBG] [WEB] [SIM] GET /api/files?path=%2F
+[119391] [DBG] [WEB] Scanning files in: /
+[119391] [DBG] [WEB] Served file listing page for path: /
+[120037] [DBG] [WEB] handleClient active, server running on port 80
+[120083] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[121673] [DBG] [WEB] [SIM] GET /api/files?path=%2FArticles
+[121673] [DBG] [WEB] Scanning files in: /Articles
+[121673] [DBG] [WEB] Served file listing page for path: /Articles
+[122190] [DBG] [WEB] [SIM] GET /api/files?path=%2FArticles
+[122190] [DBG] [WEB] Scanning files in: /Articles
+[122190] [DBG] [WEB] Served file listing page for path: /Articles
+[122852] [DBG] [WEB] [SIM] GET /download?path=%2FArticles%2FSimulator-Reading-Test.epub
+[128600] [DBG] [WEB] [SIM] GET /api/status
+[130038] [DBG] [WEB] handleClient active, server running on port 80
+[130084] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[135114] [DBG] [WEB] [SIM] GET /__pr32_capture_ready
+[135114] [DBG] [DAV] GET /__pr32_capture_ready
+[SIM] WAIT matched: [135114] [DBG] [WEB] [SIM] GET /__pr32_capture_ready
+[135495] [DBG] [ACT] Exiting activity: CrossPointWebServer
+[135495] [DBG] [WEBACT] Free heap at onExit start: 1048576 bytes
+[135526] [DBG] [MAIN] Silent restart (target=home)
+[135526] [DBG] [GFX] Time = 132875 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | Hotspot Mode | Loading | CrossPoint-Reader | Connect your device to this Wi-Fi network | CrossPoint-Reader | Open this URL in your browser | http://crosspoint.local/ | or http://127.0.0.1/ | « Exit
+[135582] [DBG] [WEBACT] Free heap at onExit end: 1048576 bytes
+[135582] [DBG] [WEB] STOP INITIATED - setting running=false first
+[135582] [DBG] [WEB] [MEM] Free heap before stop: 1048576 bytes
+[135582] [DBG] [WEB] Stopping WebSocket server...
+[135583] [DBG] [WEB] WebSocket server stopped
+[135604] [DBG] [WEB] [MEM] Free heap after server->stop(): 1048576 bytes
+[135615] [DBG] [WEB] Web server stopped and deleted
+[135615] [DBG] [WEB] [MEM] Free heap after delete server: 1048576 bytes
+[135615] [DBG] [WEB] [MEM] Free heap final: 1048576 bytes
+[135615] [DBG] [ACT] Entering activity: Home
+[135615] [DBG] [GFX] Time = 0 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | No open book | Start reading below | Browse Files | Library | File Transfer | Settings | Select | Up | Down
+[SIM] WAIT matched: [135615] [DBG] [ACT] Entering activity: Home
+[135628] [DBG] [GFX] Time = 0 ms from clearScreen to displayBuffer
+[135933] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[136239] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[136612] [DBG] [ACT] Exiting activity: Home
+[136612] [DBG] [ACT] Entering activity: FileBrowser
+[136613] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | SD card | [Articles] | / | « Home | Open | Up | Down
+[SIM] WAIT matched: [136612] [DBG] [ACT] Entering activity: FileBrowser
+[SIM] Saved screenshot: <validation>/captures/before/root.bmp
+[137212] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | Articles | Simulator-Reading-Test | .epub | /Articles | « Back | Open | Up | Down
+[137616] [DBG] [ACT] Exiting activity: FileBrowser
+[137616] [DBG] [ACT] Entering activity: EpubReader
+[137617] [INF] [MEM] reader enter: free=1048576 max_block=1048576
+[137617] [DBG] [GFX] Time = 406 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | Articles | Indexing | Simulator-Reading-Test | .epub | /Articles | « Back | Open | Up | Down
+[137624] [DBG] [EBP] Loading ePub: /Articles/Simulator-Reading-Test.epub
+[SIM] open failed: <validation>/before-sd/.crosspoint/epub_7041113719028832162/book.bin (flags=0x0 errno=2 No such file or directory)
+[137625] [DBG] [EBP] Cache not found, building spine/TOC cache
+[137625] [DBG] [BMC] Entering write mode
+[137625] [DBG] [BMC] Beginning content opf pass
+[137626] [DBG] [EBP] Parsing content.opf: OEBPS/content.opf
+[137629] [DBG] [COF] Found EPUB 3 nav document: OEBPS/nav.xhtml
+[137629] [DBG] [COF] Using fast index for 6 manifest items
+[137629] [DBG] [EBP] Successfully parsed content.opf
+[137629] [DBG] [EBP] OPF pass completed in 4 ms
+[137629] [DBG] [BMC] Beginning toc pass
+[137629] [DBG] [EBP] Attempting to parse EPUB 3 nav document
+[137629] [DBG] [EBP] Parsing toc nav file: OEBPS/nav.xhtml
+[137630] [DBG] [NAV] Found nav toc element
+[137630] [DBG] [NAV] Finished parsing nav toc
+[137630] [DBG] [EBP] Parsed TOC nav items
+[137630] [DBG] [EBP] TOC pass completed in 1 ms
+[137630] [DBG] [BMC] Wrote 1 spine, 1 TOC entries
+[137630] [DBG] [BMC] Successfully built book.bin
+[137630] [DBG] [EBP] buildBookBin completed in 0 ms
+[137630] [DBG] [EBP] Total indexing completed in 5 ms
+[137630] [DBG] [EBP] CSS files to parse: 1
+[137630] [DBG] [EBP] Parsing CSS file: OEBPS/styles.css
+[137631] [DBG] [CSS] Parsed 19 rules from 1160 bytes
+[137631] [DBG] [CSS] Saved 19 rules to complete cache
+[137631] [DBG] [EBP] Loaded 19 CSS style rules from 1 files (0 identical duplicates skipped, complete)
+[137631] [DBG] [BMC] Loaded cache data: 1 spine, 1 TOC entries
+[137631] [DBG] [EBP] Loaded ePub: /Articles/Simulator-Reading-Test.epub
+[SIM] open failed: <validation>/before-sd/.crosspoint/epub_7041113719028832162/progress.bin (flags=0x0 errno=2 No such file or directory)
+[137632] [DBG] [EBP] Core Metadata: cover(0)=, textReference(0)=
+[137632] [DBG] [ERS] Loading file: OEBPS/chapter.xhtml, index: 0
+[SIM] open failed: <validation>/before-sd/.crosspoint/epub_7041113719028832162/sections/0.bin (flags=0x0 errno=2 No such file or directory)
+[137632] [DBG] [ERS] Cache not found, building...
+[137632] [DBG] [ERS] Heap before section build: 1048576 (max block 1048576)
+[137632] [DBG] [SCT] Streamed temp HTML to /.crosspoint/epub_7041113719028832162/html/.tmp_0.html (719 bytes)
+[137633] [DBG] [CSS] Loaded 19 rules from complete cache
+[137636] [ERR] [EHP] Parse error at line 11:
+undefined entity
+[137636] [ERR] [SCT] Parse error during incremental build
+[137636] [ERR] [ERS] Failed during incremental section build
+[137636] [DBG] [GFX] Time = 0 ms from clearScreen to displayBuffer
+[SIM] SCREEN: Failed to index - invalid book | « Back
+[SIM] Saved screenshot: <validation>/captures/before/reader-open.bmp
+[140089] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[SIM] Saved screenshot: <validation>/captures/before/reader-page1.bmp
+[141144] [DBG] [ERS] Loading file: OEBPS/chapter.xhtml, index: 0
+[SIM] open failed: <validation>/before-sd/.crosspoint/epub_7041113719028832162/sections/0.bin (flags=0x0 errno=2 No such file or directory)
+[141144] [DBG] [ERS] Cache not found, building...
+[141144] [DBG] [ERS] Heap before section build: 1048576 (max block 1048576)
+[141144] [DBG] [SCT] Reusing cached HTML /.crosspoint/epub_7041113719028832162/html/0.html
+[141145] [DBG] [CSS] Loaded 19 rules from complete cache
+[141147] [ERR] [EHP] Parse error at line 11:
+undefined entity
+[141147] [ERR] [SCT] Parse error during incremental build
+[141147] [ERR] [ERS] Failed during incremental section build
+[141148] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[SIM] Saved screenshot: <validation>/captures/before/reader-page2.bmp
+[143637] [DBG] [ERS] Loading file: OEBPS/chapter.xhtml, index: 0
+[SIM] open failed: <validation>/before-sd/.crosspoint/epub_7041113719028832162/sections/0.bin (flags=0x0 errno=2 No such file or directory)
+[143637] [DBG] [ERS] Cache not found, building...
+[143637] [DBG] [ERS] Heap before section build: 1048576 (max block 1048576)
+[143637] [DBG] [SCT] Reusing cached HTML /.crosspoint/epub_7041113719028832162/html/0.html
+[143638] [DBG] [CSS] Loaded 19 rules from complete cache
+[143640] [ERR] [EHP] Parse error at line 11:
+undefined entity
+[143640] [ERR] [SCT] Parse error during incremental build
+[143640] [ERR] [ERS] Failed during incremental section build
+[143641] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[SIM] Saved screenshot: <validation>/captures/before/reader-page3.bmp

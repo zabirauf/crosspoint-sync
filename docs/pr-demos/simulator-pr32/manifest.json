@@ -1,0 +1,21 @@
+{
+  "id": "simulator-fixture",
+  "type": "clip",
+  "title": "Simulator Reading Test",
+  "author": "CrossPoint Sync regression fixture",
+  "sourceUrl": "https://images.example.test/article",
+  "htmlPath": "shared-clips/simulator-fixture.html",
+  "images": [
+    {
+      "originalUrl": "https://images.example.test/figure-1.avif",
+      "localPath": "shared-clips/simulator-fixture/figure-1.avif",
+      "mimeType": "image/avif"
+    },
+    {
+      "originalUrl": "https://images.example.test/figure-2.webp",
+      "localPath": "shared-clips/simulator-fixture/figure-2.webp",
+      "mimeType": "image/webp"
+    }
+  ],
+  "clippedAt": 0
+}

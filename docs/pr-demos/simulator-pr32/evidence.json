@@ -1,0 +1,107 @@
+{
+  "date": "2026-11-08",
+  "appBefore": "fbed6fa2a2209d760da2a4add106569f76fbb28e",
+  "appAfter": "521578d405b22b946f29ba727f6601c7006c9225",
+  "firmwareTag": "2.0.0",
+  "firmwareCommit": "42d58daaabcf469a2e5e1ba871714fb9dcf51d29",
+  "simulatorCommit": "04332e7ab5e048fe7909d6a788a9641ece14941b",
+  "sdkCommit": "5e94fe7480f019c89fbf691aef87523eb1b46704",
+  "deviceProfile": "X4",
+  "appPlatform": "iPhone 16 Pro / iOS 18.4 simulator",
+  "inputHtmlSha256": "3786cafab0f77b28822685983dda655ff27bdf6364c7966fe88f656bb9a7534c",
+  "transport": "Native app HTTP 18080 / WebSocket 18081 to firmware-owned routes",
+  "fixtureAdapter": "Only AppGroupPath input path redirected to app Documents/simulator-clips; same in both versions",
+  "readerImageBackend": "Default simulator host-backed preview shims",
+  "before": {
+    "phase": "before",
+    "bytes": 26801,
+    "sha256": "5c2ca932ee4f9aa4ea0909d0a086e4b7d5a443b5931b734db9849491c733fc6f",
+    "xml": [
+      {
+        "name": "META-INF/container.xml",
+        "valid": true
+      },
+      {
+        "name": "OEBPS/content.opf",
+        "valid": true
+      },
+      {
+        "name": "OEBPS/toc.ncx",
+        "valid": true
+      },
+      {
+        "name": "OEBPS/nav.xhtml",
+        "valid": true
+      },
+      {
+        "name": "OEBPS/chapter.xhtml",
+        "valid": false,
+        "error": "undefined entity: line 11, column 164"
+      }
+    ],
+    "images": [
+      {
+        "name": "OEBPS/images/img-0.avif",
+        "bytes": 8952,
+        "format": "AVIF"
+      },
+      {
+        "name": "OEBPS/images/img-1.webp",
+        "bytes": 12420,
+        "format": "WEBP"
+      }
+    ],
+    "downloadMatchesVirtualSD": true
+  },
+  "after": {
+    "phase": "after",
+    "bytes": 199695,
+    "sha256": "9a9d6fc17feeea5acce695de1cce768b83568d632804b195bddad5be9c7afcd0",
+    "xml": [
+      {
+        "name": "META-INF/container.xml",
+        "valid": true
+      },
+      {
+        "name": "OEBPS/content.opf",
+        "valid": true
+      },
+      {
+        "name": "OEBPS/toc.ncx",
+        "valid": true
+      },
+      {
+        "name": "OEBPS/nav.xhtml",
+        "valid": true
+      },
+      {
+        "name": "OEBPS/chapter.xhtml",
+        "valid": true
+      }
+    ],
+    "images": [
+      {
+        "name": "OEBPS/images/img-0.png",
+        "bytes": 109499,
+        "width": 1000,
+        "height": 667,
+        "format": "PNG"
+      },
+      {
+        "name": "OEBPS/images/img-1.png",
+        "bytes": 84777,
+        "width": 600,
+        "height": 1200,
+        "format": "PNG"
+      }
+    ],
+    "downloadMatchesVirtualSD": true
+  },
+  "readerBefore": "Failed to index - invalid book; undefined entity at line 11",
+  "readerAfter": "Four pages indexed; both PNG illustrations decoded and rendered",
+  "gif": {
+    "filename": "pr-32-app-simulator.gif",
+    "bytes": 247683,
+    "sha256": "756acd2bafac5dbcf218b4dcfc0e4e5ccd595c68cbc18661d0172ac1dc16a6f9"
+  }
+}

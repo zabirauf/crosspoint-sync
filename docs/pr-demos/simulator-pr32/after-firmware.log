@@ -1,0 +1,289 @@
+[0] [DBG] [UI] Using Lyra theme
+[6] [INF] [MAIN] Hardware detect: X4
+[7] [DBG] [CPS] Resaving settings to update format
+[7] [DBG] [CPS] Settings loaded from file
+[9] [DBG] [UI] Using Classic theme
+[9] [DBG] [MAIN] Starting CrossPoint version 2.0.0-simulator-pr32
+[245] [DBG] [MAIN] Display initialized
+[SIM] open failed: <validation>/after-sd/.fonts (flags=0x0 errno=2 No such file or directory)
+[246] [DBG] [SDREG] Fonts directory not found: /.fonts
+[SIM] open failed: <validation>/after-sd/fonts (flags=0x0 errno=2 No such file or directory)
+[246] [DBG] [SDREG] Fonts directory not found: /fonts
+[246] [DBG] [SDREG] Discovery complete: 0 families
+[246] [DBG] [SDFS] SD font system ready (0 families discovered)
+[246] [DBG] [MAIN] Fonts setup
+[246] [DBG] [ACT] Entering activity: Boot
+[248] [DBG] [GFX] Time = 2 ms from clearScreen to displayBuffer
+[SIM] SCREEN: CrossPoint | BOOTING | 2.0.0-simulator-pr32
+[318] [DBG] [ACT] Exiting activity: Boot
+[319] [DBG] [ACT] Entering activity: Home
+[319] [DBG] [LOOP] New max loop duration: 65 ms (activity: 1 ms)
+[321] [DBG] [GFX] Time = 2 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | No open book | Start reading below | Browse Files | Library | File Transfer | Settings | Select | Up | Down
+[SIM] WAIT matched: [319] [DBG] [ACT] Entering activity: Home
+[341] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[SIM] Saved screenshot: <validation>/captures/after/home.bmp
+[852] [DBG] [GFX] Time = 2 ms from clearScreen to displayBuffer
+[1142] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[1530] [DBG] [ACT] Exiting activity: Home
+[1530] [DBG] [ACT] Entering activity: CrossPointWebServer
+[1530] [DBG] [WEBACT] Free heap at onEnter: 1048576 bytes
+[1530] [DBG] [WEBACT] Free heap after SD font cache release: 1048576 bytes
+[1530] [DBG] [WEBACT] Launching NetworkModeSelectionActivity...
+[1530] [DBG] [ACT] Pushed to activity stack, new size = 1
+[1530] [DBG] [ACT] Entering activity: NetworkModeSelection
+[1531] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | File Transfer | Join a Network | Connect to an existing Wi-Fi network | Calibre Wireless | Use Calibre wireless device transfers | Create Hotspot | Create a Wi-Fi network others can join | « Back | Select | Up | Down
+[SIM] WAIT matched: [1530] [DBG] [ACT] Entering activity: NetworkModeSelection
+[1847] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[2149] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[2524] [DBG] [ACT] Exiting activity: NetworkModeSelection
+[2524] [DBG] [ACT] Popped from activity stack, new size = 0
+[2524] [DBG] [ACT] Handling result for popped activity
+[2524] [DBG] [WEBACT] Network mode selected: Create Hotspot
+[2524] [DBG] [WEBACT] Starting Access Point mode...
+[2524] [DBG] [WEBACT] Free heap before AP start: 1048576 bytes
+[2726] [DBG] [WEBACT] Access Point started!
+[2726] [DBG] [WEBACT] SSID: CrossPoint-Reader
+[2726] [DBG] [WEBACT] IP: 127.0.0.1
+[2726] [DBG] [WEBACT] mDNS started: http://crosspoint.local/
+[2726] [DBG] [WEBACT] DNS server started for captive portal
+[2726] [DBG] [WEBACT] Free heap after AP start: 1048576 bytes
+[2726] [DBG] [WEBACT] Starting web server...
+[2726] [DBG] [WEBACT] Free heap before SD font cache release: 1048576 bytes
+[2726] [DBG] [WEBACT] Free heap before server alloc: 1048576 bytes
+[2726] [DBG] [WEB] [MEM] Free heap before begin: 1048576 bytes
+[2726] [DBG] [WEB] Network mode: AP
+[2726] [DBG] [WEB] Creating web server on port 80...
+[2728] [DBG] [WEB] [MEM] Free heap after WebServer allocation: 1048576 bytes
+[2728] [DBG] [WEB] Setting up routes...
+[2729] [DBG] [WEB] [MEM] Free heap after route setup: 1048576 bytes
+[2729] [DBG] [WEB] WebDAV handler initialized
+[2729] [DBG] [WEB] [SIM] WebServer running at http://127.0.0.1:18080/
+[2729] [DBG] [WEB] Starting WebSocket server on port 81...
+[2729] [DBG] [WS] [SIM] WebSocket server running at ws://127.0.0.1:18081/
+[2729] [DBG] [WEB] WebSocket server started
+[2729] [DBG] [WEB] Discovery UDP enabled on port 8134
+[2729] [DBG] [WEB] Web server started on port 80
+[2729] [DBG] [WEB] Access at http://127.0.0.1/
+[2729] [DBG] [WEB] WebSocket at ws://127.0.0.1:81/
+[2729] [DBG] [WEB] [MEM] Free heap after server.begin(): 1048576 bytes
+[2729] [DBG] [WEBACT] Web server started successfully
+[2729] [DBG] [LOOP] New max loop duration: 205 ms (activity: 205 ms)
+[SIM] WAIT matched: [2729] [DBG] [WEB] WebSocket server started
+[2731] [DBG] [GFX] Time = 2 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | Hotspot Mode | CrossPoint-Reader | Connect your device to this Wi-Fi network | CrossPoint-Reader | Open this URL in your browser | http://crosspoint.local/ | or http://127.0.0.1/ | « Exit
+[SIM] Saved screenshot: <validation>/captures/after/transfer.bmp
+[10001] [DBG] [WEB] handleClient active, server running on port 80
+[10006] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[19622] [DBG] [WEB] [SIM] GET /api/status
+[19632] [DBG] [WEB] [SIM] GET /api/files?path=%2FArticles
+[SIM] open failed: <validation>/after-sd/Articles (flags=0x0 errno=2 No such file or directory)
+[19633] [DBG] [WEB] Failed to open directory: /Articles
+[19633] [DBG] [WEB] Served file listing page for path: /Articles
+[19656] [DBG] [WEB] [SIM] GET /api/status
+[19663] [DBG] [WEB] [SIM] GET /api/files?path=%2F
+[19663] [DBG] [WEB] Scanning files in: /
+[19663] [DBG] [WEB] Served file listing page for path: /
+[19682] [DBG] [WEB] [SIM] GET /api/files?path=%2F
+[19682] [DBG] [WEB] Scanning files in: /
+[19682] [DBG] [WEB] Served file listing page for path: /
+[19697] [DBG] [WEB] [SIM] POST /mkdir
+[19715] [DBG] [WS] Client 0 connected
+[19723] [DBG] [WS] Text from client 0: START:Simulator-Reading-Test.epub:199695:/Articles
+[19723] [DBG] [WS] Starting upload: Simulator-Reading-Test.epub (199695 bytes) to /Articles/Simulator-Reading-Test.epub
+[19872] [DBG] [WS] Upload complete: Simulator-Reading-Test.epub (199695 bytes in 149 ms, 1308.8 KB/s)
+[19873] [DBG] [EPB] Cache does not exist, no action needed
+[19873] [DBG] [BookCache] Done checking metadata cache for: /Articles/Simulator-Reading-Test.epub
+[19880] [DBG] [WS] Client 0 disconnected
+[20003] [DBG] [WEB] handleClient active, server running on port 80
+[20017] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[22217] [DBG] [WEB] [SIM] GET /api/files?path=%2F
+[22217] [DBG] [WEB] Scanning files in: /
+[22217] [DBG] [WEB] Served file listing page for path: /
+[24382] [DBG] [WEB] [SIM] GET /api/files?path=%2FArticles
+[24382] [DBG] [WEB] Scanning files in: /Articles
+[24383] [DBG] [WEB] Served file listing page for path: /Articles
+[24899] [DBG] [WEB] [SIM] GET /api/files?path=%2FArticles
+[24899] [DBG] [WEB] Scanning files in: /Articles
+[24899] [DBG] [WEB] Served file listing page for path: /Articles
+[29654] [DBG] [WEB] [SIM] GET /api/status
+[30006] [DBG] [WEB] handleClient active, server running on port 80
+[30020] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[39651] [DBG] [WEB] [SIM] GET /api/status
+[40008] [DBG] [WEB] handleClient active, server running on port 80
+[40029] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[49652] [DBG] [WEB] [SIM] GET /api/status
+[50010] [DBG] [WEB] handleClient active, server running on port 80
+[50034] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[59653] [DBG] [WEB] [SIM] GET /api/status
+[60011] [DBG] [WEB] handleClient active, server running on port 80
+[60039] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[67892] [DBG] [WEB] [SIM] GET /download?path=%2FArticles%2FSimulator-Reading-Test.epub
+[67960] [DBG] [WEB] [SIM] GET /__pr32_capture_ready
+[67960] [DBG] [DAV] GET /__pr32_capture_ready
+[SIM] WAIT matched: [67960] [DBG] [WEB] [SIM] GET /__pr32_capture_ready
+[68341] [DBG] [ACT] Exiting activity: CrossPointWebServer
+[68341] [DBG] [WEBACT] Free heap at onExit start: 1048576 bytes
+[68372] [DBG] [MAIN] Silent restart (target=home)
+[68372] [DBG] [GFX] Time = 65643 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | Hotspot Mode | Loading | CrossPoint-Reader | Connect your device to this Wi-Fi network | CrossPoint-Reader | Open this URL in your browser | http://crosspoint.local/ | or http://127.0.0.1/ | « Exit
+[68431] [DBG] [WEBACT] Free heap at onExit end: 1048576 bytes
+[68431] [DBG] [WEB] STOP INITIATED - setting running=false first
+[68431] [DBG] [WEB] [MEM] Free heap before stop: 1048576 bytes
+[68431] [DBG] [WEB] Stopping WebSocket server...
+[68432] [DBG] [WEB] WebSocket server stopped
+[68453] [DBG] [WEB] [MEM] Free heap after server->stop(): 1048576 bytes
+[68464] [DBG] [WEB] Web server stopped and deleted
+[68464] [DBG] [WEB] [MEM] Free heap after delete server: 1048576 bytes
+[68464] [DBG] [WEB] [MEM] Free heap final: 1048576 bytes
+[68464] [DBG] [ACT] Entering activity: Home
+[68466] [DBG] [GFX] Time = 2 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | No open book | Start reading below | Browse Files | Library | File Transfer | Settings | Select | Up | Down
+[SIM] WAIT matched: [68464] [DBG] [ACT] Entering activity: Home
+[68480] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[68785] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[69078] [DBG] [GFX] Time = 0 ms from clearScreen to displayBuffer
+[69469] [DBG] [ACT] Exiting activity: Home
+[69469] [DBG] [ACT] Entering activity: FileBrowser
+[69470] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | SD card | [Articles] | / | « Home | Open | Up | Down
+[SIM] WAIT matched: [69469] [DBG] [ACT] Entering activity: FileBrowser
+[SIM] Saved screenshot: <validation>/captures/after/root.bmp
+[70043] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
+[70069] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | Articles | Simulator-Reading-Test | .epub | /Articles | « Back | Open | Up | Down
+[70471] [DBG] [ACT] Exiting activity: FileBrowser
+[70471] [DBG] [ACT] Entering activity: EpubReader
+[70471] [INF] [MEM] reader enter: free=1048576 max_block=1048576
+[70472] [DBG] [GFX] Time = 404 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | Articles | Indexing | Simulator-Reading-Test | .epub | /Articles | « Back | Open | Up | Down
+[70478] [DBG] [EBP] Loading ePub: /Articles/Simulator-Reading-Test.epub
+[SIM] open failed: <validation>/after-sd/.crosspoint/epub_7041113719028832162/book.bin (flags=0x0 errno=2 No such file or directory)
+[70479] [DBG] [EBP] Cache not found, building spine/TOC cache
+[70479] [DBG] [BMC] Entering write mode
+[70479] [DBG] [BMC] Beginning content opf pass
+[70481] [DBG] [EBP] Parsing content.opf: OEBPS/content.opf
+[70482] [DBG] [COF] Found EPUB 3 nav document: OEBPS/nav.xhtml
+[70482] [DBG] [COF] Using fast index for 6 manifest items
+[70482] [DBG] [EBP] Successfully parsed content.opf
+[70482] [DBG] [EBP] OPF pass completed in 3 ms
+[70482] [DBG] [BMC] Beginning toc pass
+[70482] [DBG] [EBP] Attempting to parse EPUB 3 nav document
+[70482] [DBG] [EBP] Parsing toc nav file: OEBPS/nav.xhtml
+[70482] [DBG] [NAV] Found nav toc element
+[70482] [DBG] [NAV] Finished parsing nav toc
+[70482] [DBG] [EBP] Parsed TOC nav items
+[70482] [DBG] [EBP] TOC pass completed in 0 ms
+[70482] [DBG] [BMC] Wrote 1 spine, 1 TOC entries
+[70483] [DBG] [BMC] Successfully built book.bin
+[70483] [DBG] [EBP] buildBookBin completed in 1 ms
+[70483] [DBG] [EBP] Total indexing completed in 4 ms
+[70483] [DBG] [EBP] CSS files to parse: 1
+[70483] [DBG] [EBP] Parsing CSS file: OEBPS/styles.css
+[70483] [DBG] [CSS] Parsed 19 rules from 1160 bytes
+[70484] [DBG] [CSS] Saved 19 rules to complete cache
+[70484] [DBG] [EBP] Loaded 19 CSS style rules from 1 files (0 identical duplicates skipped, complete)
+[70484] [DBG] [BMC] Loaded cache data: 1 spine, 1 TOC entries
+[70484] [DBG] [EBP] Loaded ePub: /Articles/Simulator-Reading-Test.epub
+[SIM] open failed: <validation>/after-sd/.crosspoint/epub_7041113719028832162/progress.bin (flags=0x0 errno=2 No such file or directory)
+[70484] [DBG] [EBP] Core Metadata: cover(0)=, textReference(0)=
+[70484] [DBG] [ERS] Loading file: OEBPS/chapter.xhtml, index: 0
+[SIM] open failed: <validation>/after-sd/.crosspoint/epub_7041113719028832162/sections/0.bin (flags=0x0 errno=2 No such file or directory)
+[70485] [DBG] [ERS] Cache not found, building...
+[70485] [DBG] [ERS] Heap before section build: 1048576 (max block 1048576)
+[70485] [DBG] [SCT] Streamed temp HTML to /.crosspoint/epub_7041113719028832162/html/.tmp_0.html (717 bytes)
+[70485] [DBG] [CSS] Loaded 19 rules from complete cache
+[70488] [DBG] [EHP] Found image: src=images/img-0.png
+[70488] [DBG] [EHP] Image dimensions: 1000x667
+[70488] [DBG] [EHP] Display size: 464x309 (scale 0.46)
+[70489] [DBG] [SCT] Page 0 processed
+[70489] [DBG] [EHP] Found image: src=images/img-1.png
+[70489] [DBG] [EHP] Image dimensions: 600x1200
+[70489] [DBG] [EHP] Display size: 382x764 (scale 0.64)
+[70489] [DBG] [SCT] Page 1 processed
+[70489] [DBG] [SCT] Page 2 processed
+[70489] [DBG] [EHP] Time to parse and build pages: 3 ms
+[70489] [DBG] [SCT] Page 3 processed
+[70490] [DBG] [FDC] Prewarm: 29 glyphs in 2117 bytes from 2 groups (0 missed)
+[70491] [DBG] [FDC] Prewarm: 19 glyphs in 2234 bytes from 1 groups (0 missed)
+[SIM] open failed: <validation>/after-sd/.crosspoint/epub_7041113719028832162/img_0_0.pxc (flags=0x0 errno=2 No such file or directory)
+[70491] [DBG] [GFX] Time = 2 ms from clearScreen to displayBuffer
+[SIM] SCREEN: Simulator | Reading | Test | Reading | without | distractions | This | article | was | clipped | on | the | phone | and | sent | to | CrossPoint. | Its | text | and | illustrations | should | stay | together | offline. | 100% | Simulator Reading Test | 1/4  25%
+[70493] [DBG] [IMG] Rendering image at 8,436: /.crosspoint/epub_7041113719028832162/img_0_0.png (464x309)
+[SIM] open failed: <validation>/after-sd/.crosspoint/epub_7041113719028832162/img_0_0.pxc (flags=0x0 errno=2 No such file or directory)
+[70493] [DBG] [IMG] Lazy-extracting OEBPS/images/img-0.png -> /.crosspoint/epub_7041113719028832162/img_0_0.png
+[70493] [DBG] [IMG] Decoding and caching: /.crosspoint/epub_7041113719028832162/img_0_0.png
+[70493] [DBG] [IMG] Using PNG decoder
+[70493] [DBG] [PNG] Decoding PNG: /.crosspoint/epub_7041113719028832162/img_0_0.png
+[70499] [DBG] [PNG] PNG 1000x667 (visible 1000x667) -> 464x309 (scale 0.46), type: 6, bpp: 8
+[70499] [DBG] [IMG] Cache stream started: /.crosspoint/epub_7041113719028832162/img_0_0.pxc (464x309, band 16 rows)
+[70504] [DBG] [PNG] PNG decoding complete - render time: 5 ms
+[70504] [DBG] [IMG] Cache written: /.crosspoint/epub_7041113719028832162/img_0_0.pxc (464x309, 35848 bytes)
+[70512] [DBG] [IMG] Decode successful
+[70512] [DBG] [GFX] Time = 20 ms from clearScreen to displayBuffer
+[70514] [DBG] [IMG] Rendering image at 8,436: /.crosspoint/epub_7041113719028832162/img_0_0.png (464x309)
+[70514] [DBG] [IMG] Loading from cache: /.crosspoint/epub_7041113719028832162/img_0_0.pxc (464x309)
+[70514] [DBG] [IMG] Cache render complete (payload now in RAM)
+[70514] [DBG] [IMG] Rendering image at 8,436: /.crosspoint/epub_7041113719028832162/img_0_0.png (464x309)
+[70514] [DBG] [IMG] Rendering image at 8,436: /.crosspoint/epub_7041113719028832162/img_0_0.png (464x309)
+[70515] [DBG] [IMG] Rendering image at 8,436: /.crosspoint/epub_7041113719028832162/img_0_0.png (464x309)
+[70515] [DBG] [IMG] Rendering image at 8,436: /.crosspoint/epub_7041113719028832162/img_0_0.png (464x309)
+[70515] [DBG] [IMG] Rendering image at 8,436: /.crosspoint/epub_7041113719028832162/img_0_0.png (464x309)
+[70516] [DBG] [IMG] Rendering image at 8,436: /.crosspoint/epub_7041113719028832162/img_0_0.png (464x309)
+[70516] [DBG] [IMG] Rendering image at 8,436: /.crosspoint/epub_7041113719028832162/img_0_0.png (464x309)
+[70516] [DBG] [IMG] Rendering image at 8,436: /.crosspoint/epub_7041113719028832162/img_0_0.png (464x309)
+[70517] [DBG] [IMG] Rendering image at 8,436: /.crosspoint/epub_7041113719028832162/img_0_0.png (464x309)
+[70517] [DBG] [IMG] Rendering image at 8,436: /.crosspoint/epub_7041113719028832162/img_0_0.png (464x309)
+[70517] [DBG] [IMG] Rendering image at 8,436: /.crosspoint/epub_7041113719028832162/img_0_0.png (464x309)
+[70523] [DBG] [ERS] Page render (tiled): prewarm=1ms bw_render=21ms display=2ms gray_lsb=1ms gray_msb=3ms gray_display=5ms cleanup=0ms total=33ms
+[70523] [DBG] [ERS] Rendered page in 33ms
+[70523] [DBG] [ERS] Progress saved: spine=0 offset=0 page=0
+[70927] [DBG] [FDC] Prewarm: 26 glyphs in 1886 bytes from 2 groups (0 missed)
+[70927] [DBG] [ERS] Idle prewarm: page 1 in 1ms
+[SIM] Saved screenshot: <validation>/captures/after/reader-open.bmp
+[SIM] Saved screenshot: <validation>/captures/after/reader-page1.bmp
+[74004] [DBG] [FDC] Prewarm: 26 glyphs in 1886 bytes from 2 groups (0 missed)
+[74005] [DBG] [GFX] Time = 4 ms from clearScreen to displayBuffer
+[SIM] SCREEN: Both | illustrations | belong | to | this | article. | The | second | image | is | resized | for | the | reader. | 100% | Simulator Reading Test | 2/4  50%
+[74014] [DBG] [ERS] Page render (tiled): prewarm=2ms bw_render=1ms display=5ms gray_lsb=0ms gray_msb=0ms gray_display=4ms cleanup=0ms total=12ms
+[74014] [DBG] [ERS] Rendered page in 12ms
+[74015] [DBG] [ERS] Progress saved: spine=0 offset=174 page=1
+[74418] [DBG] [ERS] Idle prewarm: page 2 in 0ms
+[SIM] Saved screenshot: <validation>/captures/after/reader-page2.bmp
+[SIM] open failed: <validation>/after-sd/.crosspoint/epub_7041113719028832162/img_0_1.pxc (flags=0x0 errno=2 No such file or directory)
+[76494] [DBG] [GFX] Time = 1 ms from clearScreen to displayBuffer
+[SIM] SCREEN: 100% | Simulator Reading Test | 3/4  75%
+[76500] [DBG] [IMG] Rendering image at 49,14: /.crosspoint/epub_7041113719028832162/img_0_1.png (382x764)
+[SIM] open failed: <validation>/after-sd/.crosspoint/epub_7041113719028832162/img_0_1.pxc (flags=0x0 errno=2 No such file or directory)
+[76500] [DBG] [IMG] Lazy-extracting OEBPS/images/img-1.png -> /.crosspoint/epub_7041113719028832162/img_0_1.png
+[76501] [DBG] [IMG] Decoding and caching: /.crosspoint/epub_7041113719028832162/img_0_1.png
+[76501] [DBG] [IMG] Using PNG decoder
+[76501] [DBG] [PNG] Decoding PNG: /.crosspoint/epub_7041113719028832162/img_0_1.png
+[76508] [DBG] [PNG] PNG 600x1200 (visible 600x1200) -> 382x764 (scale 0.64), type: 6, bpp: 8
+[76508] [DBG] [IMG] Cache stream started: /.crosspoint/epub_7041113719028832162/img_0_1.pxc (382x764, band 16 rows)
+[76518] [DBG] [PNG] PNG decoding complete - render time: 10 ms
+[76518] [DBG] [IMG] Cache written: /.crosspoint/epub_7041113719028832162/img_0_1.pxc (382x764, 73348 bytes)
+[76527] [DBG] [IMG] Decode successful
+[76527] [DBG] [GFX] Time = 27 ms from clearScreen to displayBuffer
+[76529] [DBG] [IMG] Rendering image at 49,14: /.crosspoint/epub_7041113719028832162/img_0_1.png (382x764)
+[76529] [DBG] [IMG] Loading from cache: /.crosspoint/epub_7041113719028832162/img_0_1.pxc (382x764)
+[76529] [DBG] [IMG] Cache render complete (payload now in RAM)
+[76529] [DBG] [IMG] Rendering image at 49,14: /.crosspoint/epub_7041113719028832162/img_0_1.png (382x764)
+[76529] [DBG] [IMG] Rendering image at 49,14: /.crosspoint/epub_7041113719028832162/img_0_1.png (382x764)
+[76530] [DBG] [IMG] Rendering image at 49,14: /.crosspoint/epub_7041113719028832162/img_0_1.png (382x764)
+[76530] [DBG] [IMG] Rendering image at 49,14: /.crosspoint/epub_7041113719028832162/img_0_1.png (382x764)
+[76531] [DBG] [IMG] Rendering image at 49,14: /.crosspoint/epub_7041113719028832162/img_0_1.png (382x764)
+[76531] [DBG] [IMG] Rendering image at 49,14: /.crosspoint/epub_7041113719028832162/img_0_1.png (382x764)
+[76531] [DBG] [IMG] Rendering image at 49,14: /.crosspoint/epub_7041113719028832162/img_0_1.png (382x764)
+[76531] [DBG] [IMG] Rendering image at 49,14: /.crosspoint/epub_7041113719028832162/img_0_1.png (382x764)
+[76532] [DBG] [IMG] Rendering image at 49,14: /.crosspoint/epub_7041113719028832162/img_0_1.png (382x764)
+[76532] [DBG] [IMG] Rendering image at 49,14: /.crosspoint/epub_7041113719028832162/img_0_1.png (382x764)
+[76533] [DBG] [IMG] Rendering image at 49,14: /.crosspoint/epub_7041113719028832162/img_0_1.png (382x764)
+[76537] [DBG] [ERS] Page render (tiled): prewarm=0ms bw_render=34ms display=2ms gray_lsb=2ms gray_msb=2ms gray_display=4ms cleanup=0ms total=44ms
+[76537] [DBG] [ERS] Rendered page in 44ms
+[76537] [DBG] [ERS] Progress saved: spine=0 offset=260 page=2
+[76942] [DBG] [FDC] Prewarm: 22 glyphs in 1593 bytes from 2 groups (0 missed)
+[76942] [DBG] [ERS] Idle prewarm: page 3 in 2ms
+[SIM] Saved screenshot: <validation>/captures/after/reader-page3.bmp
+[80082] [INF] [MEM] Free: 1048576 bytes, Total: 1048576 bytes, Min Free: 1048576 bytes, MaxAlloc: 1048576 bytes
