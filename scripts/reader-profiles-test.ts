@@ -6,7 +6,7 @@ import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import UPNG from 'upng-js';
 import { getReaderProfile, getReaderName } from '../constants/ReaderProfiles';
 import { fitCropFrame, getSourceCrop } from '../utils/crop-geometry';
-import type { DeviceFile } from '../types/device';
+import type { DeviceFile, DeviceStatus } from '../types/device';
 
 const written = new Map<string, Uint8Array>();
 const actions: any[] = [];
@@ -20,7 +20,24 @@ const pending: { ip: string; path: string; resolve: (files: DeviceFile[]) => voi
 const loader = Module as any;
 const originalLoad = loader._load;
 loader._load = function(id: string, parent: unknown, isMain: boolean) {
-  if (id === 'react-native') return { Platform: { OS: 'ios' } };
+  if (id === 'react-native') return {
+    Platform: { OS: 'ios' }, StyleSheet: { create: (styles: unknown) => styles },
+    Image: { getSize: (_uri: string, loaded: (width: number, height: number) => void) => loaded(1600, 1200) },
+    ActivityIndicator: 'ActivityIndicator', View: 'View', Alert: { alert: (...args: unknown[]) => assert.fail(JSON.stringify(args)) },
+  };
+  if (id === 'tamagui') return { YStack: 'YStack', XStack: 'XStack', Text: 'Text', Button: 'Button' };
+  if (id === 'expo-router') return { router: { back: () => {} }, useLocalSearchParams: () => ({ imageUri: 'file:///image.png' }) };
+  if (id === 'react-native-safe-area-context') return { SafeAreaProvider: 'SafeAreaProvider', SafeAreaView: 'SafeAreaView' };
+  if (id === 'expo-status-bar') return { StatusBar: 'StatusBar' };
+  if (id === 'react-native-gesture-handler') {
+    const gesture = () => { const chain = { onUpdate: () => chain, onEnd: () => chain, onChange: () => chain }; return chain; };
+    return { Gesture: { Pinch: gesture, Pan: gesture, Simultaneous: () => ({}) }, GestureDetector: 'GestureDetector' };
+  }
+  if (id === 'react-native-reanimated') return {
+    __esModule: true, default: { Image: 'AnimatedImage' },
+    useSharedValue: (value: number) => React.useRef({ value }).current,
+    useAnimatedStyle: (style: () => unknown) => style(),
+  };
   if (id === 'expo-sharing') return {};
   if (id === 'expo-file-system') return { File: MemoryFile, Paths: { document: 'memory:' }, Directory: class {
     uri: string; exists = true;
@@ -45,11 +62,14 @@ let store: typeof import('../stores/device-store').useDeviceStore;
 let uploads: typeof import('../stores/upload-store').useUploadStore;
 let useBrowser: typeof import('../hooks/use-file-browser').useFileBrowser;
 let processSleep: typeof import('../services/sleep-background').processAndQueueSleepBackground;
+let SleepPreview: typeof import('../app/sleep-preview').default;
+(globalThis as any).React = React;
 try {
   store = require('../stores/device-store').useDeviceStore;
   uploads = require('../stores/upload-store').useUploadStore;
   useBrowser = require('../hooks/use-file-browser').useFileBrowser;
   processSleep = require('../services/sleep-background').processAndQueueSleepBackground;
+  SleepPreview = require('../app/sleep-preview').default;
 } finally { loader._load = originalLoad; }
 (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
 const file = (name: string): DeviceFile => ({ name, size: 10, isDirectory: false, isEpub: true });
@@ -88,6 +108,64 @@ test('both reader crops survive resizing and queue real BMPs at native portrait 
     assert.equal(bmp[pixel + 1], bmp[pixel + 2]);
     assert.equal(bmp.length, job.fileSize);
   }
+});
+
+async function mountPreview(status: DeviceStatus | null) {
+  let root!: ReactTestRenderer;
+  await act(async () => {
+    store.setState({ deviceStatus: status });
+    uploads.setState({ jobs: [] });
+    root = create(React.createElement(SleepPreview));
+  });
+  await act(async () => root.root.findByProps({ testID: 'SleepPreview.Canvas' }).props.onLayout({
+    nativeEvent: { layout: { width: 390, height: 620 } },
+  }));
+  return root;
+}
+
+async function confirmBmp(root: ReactTestRenderer, model: 'X3' | 'X4') {
+  const done = root.root.findByProps({ testID: 'SleepPreview.Done' });
+  assert.equal(done.props.disabled, false);
+  await act(async () => done.props.onPress());
+  const job = uploads.getState().jobs.at(-1)!;
+  const bmp = Buffer.from(written.get(job.fileUri)!);
+  const profile = getReaderProfile(model)!;
+  assert.equal(bmp.readInt32LE(18), profile.width);
+  assert.equal(Math.abs(bmp.readInt32LE(22)), profile.height);
+}
+
+test('offline preview waits for a target and adopts a delayed X3 status before generating its BMP', async () => {
+  const root = await mountPreview(null);
+  assert.equal(root.root.findByProps({ testID: 'SleepPreview.Done' }).props.disabled, true);
+  assert.equal(root.root.findAllByProps({ testID: 'SleepPreview.CropFrame' }).length, 0);
+  await act(async () => root.root.findByProps({ testID: 'SleepPreview.Done' }).props.onPress());
+  assert.equal(uploads.getState().jobs.length, 0);
+  await act(async () => store.getState().updateDeviceStatus({ device: 'X3' } as DeviceStatus));
+  assert.equal(root.root.findByProps({ testID: 'SleepPreview.OutputFormat' }).props.children, '528 x 792 · Grayscale output');
+  await confirmBmp(root, 'X3');
+  await act(async () => root.unmount());
+});
+
+test('explicit offline targets keep the chosen crop and BMP when another reader connects', async () => {
+  for (const model of ['X3', 'X4'] as const) {
+    const root = await mountPreview(null);
+    await act(async () => root.root.findByProps({ testID: `SleepPreview.Reader.${model}` }).props.onPress());
+    const frame = root.root.findByProps({ testID: 'SleepPreview.CropFrame' }).props.style;
+    await act(async () => store.getState().updateDeviceStatus({ device: model === 'X3' ? 'X4' : 'X3' } as DeviceStatus));
+    assert.deepEqual(root.root.findByProps({ testID: 'SleepPreview.CropFrame' }).props.style, frame);
+    await confirmBmp(root, model);
+    await act(async () => root.unmount());
+  }
+});
+
+test('actual legacy status keeps X4 compatibility while an unknown reported model stays blocked', async () => {
+  const legacy = await mountPreview({ version: '1.2.0' } as DeviceStatus);
+  await confirmBmp(legacy, 'X4');
+  await act(async () => legacy.unmount());
+  const unknown = await mountPreview({ device: 'Unknown' } as DeviceStatus);
+  assert.equal(unknown.root.findByProps({ testID: 'SleepPreview.Done' }).props.disabled, true);
+  assert.equal(unknown.root.findAllByProps({ testID: 'SleepPreview.ReaderChoice' }).length, 0);
+  await act(async () => unknown.unmount());
 });
 
 test('switching readers resets to root and discards old-reader results, errors and loading completion', async () => {

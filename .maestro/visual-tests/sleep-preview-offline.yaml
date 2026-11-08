@@ -1,0 +1,21 @@
+id: sleep-preview-offline
+name: "Offline sleep-image reader choice"
+flow: manual-flows/sleep-preview-offline.yaml
+screenshots:
+  - sleep-reader-choice
+  - sleep-offline-x3
+platforms: [ios, android]
+themes: [light]
+tags: [offline, manual]
+description: |
+  Before a reader is known, the editor asks for an explicit X3 or X4 target.
+  Choosing X3 opens a 2:3 crop with 528 x 792 grayscale output and Target: X3.
+assertions:
+  - text: "Cancel and Done remain within the safe area in both states"
+    severity: fail
+  - text: "The initial state shows X3 and X4 choices and no crop frame"
+    severity: fail
+  - text: "The selected state identifies X3 and has a centered 2:3 crop frame"
+    severity: fail
+ignore:
+  - "Source image content and system clock"

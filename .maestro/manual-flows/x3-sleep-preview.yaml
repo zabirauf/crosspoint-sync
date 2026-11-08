@@ -8,6 +8,7 @@ name: "X3 Sleep Preview and Upload"
       id: "SleepPreview.CropFrame"
     timeout: 10000
 - assertVisible: "528 x 792 · Grayscale output"
+- assertVisible: "Target: X3"
 - assertVisible:
     id: "SleepPreview.Cancel"
 - assertVisible:

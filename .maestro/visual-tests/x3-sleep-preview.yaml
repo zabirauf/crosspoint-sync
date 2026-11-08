@@ -15,5 +15,7 @@ assertions:
     severity: fail
   - text: "The format line identifies 528 x 792 grayscale output"
     severity: fail
+  - text: "The footer identifies Target: X3"
+    severity: fail
 ignore:
   - "Source image content and system clock"

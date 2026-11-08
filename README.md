@@ -235,4 +235,4 @@ Private
 
 ### X3 and X4 readers
 
-The app uses the same CrossPoint HTTP/WebSocket file-transfer API on both readers. Firmware 1.3+ reports its model, shown in Settings and Connection. Sleep images use 528 × 792 for X3 and 480 × 800 for X4; firmware without a model field retains the legacy X4 size. Other reported models can still transfer files, but sleep-image generation requires a known display profile. Format availability continues to follow firmware capabilities.
+The app uses the same CrossPoint HTTP/WebSocket file-transfer API on both readers. Firmware 1.3+ reports its model, shown in Settings and Connection. Sleep images use 528 × 792 for X3 and 480 × 800 for X4; a received firmware status without a model field retains the legacy X4 size. When preparing an image offline, choose X3 or X4 before cropping. A delayed reader status supplies the profile if no choice has been made; an existing choice stays fixed so the exported image matches the preview. Other reported models can still transfer files, but sleep-image generation requires a known display profile. Format availability continues to follow firmware capabilities.
