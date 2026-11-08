@@ -102,6 +102,11 @@ extension-src/           # Safari Web Extension source files (bundled at prebuil
 - **Metro config**: Custom `resolveRequest` hook loads `.native.js` instead of `.mjs` for Tamagui packages on native
 - **Tamagui v2 RC type errors**: TS reports errors on props like `bordered`, `padded`, `padding`, `alignItems`, `backgroundColor` — these are type definition bugs in the RC, not actual runtime issues. The app bundles and runs fine. Ignore these when checking `tsc` output.
 
+### Public repository portability
+
+- Use repository-relative paths, placeholders or configurable environment variables in committed documentation, PR text and published artifacts. Keep actual workstation paths and cached-build locations in ignored local notes.
+- Before publishing logs or metadata, remove home-directory paths, private usernames and computer names. Use a public Git identity rather than automatically inferred machine-based author/committer addresses.
+
 ### Resizable phone and tablet layouts
 
 - Use `useAdaptiveLayout` for current window/safe-area metrics; use a pane's `onLayout` for its own space. Do not use a device model, orientation, or cached screen size to choose a layout.
@@ -115,8 +120,8 @@ extension-src/           # Safari Web Extension source files (bundled at prebuil
 
 ## XTEink X4 Protocol
 
-- **Firmware source**: When making changes to device API calls (anything in `services/device-api.ts`, `services/device-discovery.ts`, `services/websocket-upload.ts`, or related hooks), **always read the firmware source first** to validate expected request/response formats, parameter names, and error codes before planning changes. Ask user where the firmware source code is at. If they don't provide that info then ask user specific question.
-- **Local firmware checkout**: `/Users/kakaagent/Documents/Projects/Opensource/crosspoint-reader` (full history). The user supplied this location; use it without asking again. Check release tags for capability thresholds. XTC/XTCH reading starts at 0.10.0; WebSocket uploads start at 0.14.0. XTG/XTH are internal page images, not standalone reader formats; the app permits transferring them at 0.14.0+ through the generic uploader. The mock defaults to 1.3.0, not an enforced app minimum.
+- **Firmware source**: When making changes to device API calls (anything in `services/device-api.ts`, `services/device-discovery.ts`, `services/websocket-upload.ts`, or related hooks), **always read the firmware source first** to validate expected request/response formats, parameter names, and error codes before planning changes. Reuse a checkout already identified in the session, or use the configurable checkout below. Ask the user only if the relevant firmware or fork cannot be identified.
+- **Firmware checkout**: Set `CROSSPOINT_FIRMWARE_SOURCE` to an existing checkout, or create an isolated checkout of [crosspoint-reader](https://github.com/crosspoint-reader/crosspoint-reader) under `.local/` as described in the simulator guide. Keep machine-specific locations in ignored local configuration. Check release tags for capability thresholds. XTC/XTCH reading starts at 0.10.0; WebSocket uploads start at 0.14.0. XTG/XTH are internal page images, not standalone reader formats; the app permits transferring them at 0.14.0+ through the generic uploader. The mock defaults to 1.3.0, not an enforced app minimum.
 - **Book formats**: `constants/FileFormats.ts` owns format kinds, upload firmware thresholds, derived extensions, and filename matching. `getDeviceCapabilities` returns `supportedFileExtensions` and `filePickerMimeType` for the connected firmware. The picker and queue both validate names against that extension list; file icons describe recognized formats regardless of firmware. Clear stale status when connecting to another reader and resume waiting jobs when fresh status arrives.
 - **HTTP REST API** (port 80): `GET /api/status`, `GET /api/files?path=`, `POST /mkdir`, `POST /delete`, `GET /download?path=`
 - **WebSocket upload** (port 81): `START:filename:size:path` → `READY` → binary chunks (64KB) → `PROGRESS:received:total` → `DONE`
@@ -243,6 +248,32 @@ npm run mock-device     # Start mock server (HTTP:8082, WS:8083)
 ```
 
 The default disk-backed mock serves `test-mock-filesystem/`. Its `/Formats/` folder contains a public-domain book as EPUB, XTC, and XTCH, with standalone XTG/XTH page images. The in-memory backend also seeds these real fixtures. See `test-fixtures/book-formats/README.md` for provenance and regeneration, and run `npm run test:books` for picker, icons, and API/WebSocket integration coverage.
+
+### Firmware simulator testing
+
+When correctness depends on the reader accepting generated content, implementing
+a device API, or reporting model capabilities, use the official
+[CrossPoint firmware simulator](https://github.com/crosspoint-reader/crosspoint-simulator)
+for the relevant integration scenario. This applies to EPUB/XHTML/image output,
+upload and file-management protocol changes, settings APIs, and model-specific
+behavior that the simulator implements. Keep unit and mock tests for fast feedback
+and controlled failures; UI-only, documentation, and purely local changes do not
+require a firmware build. If the simulator cannot exercise the relevant behavior,
+record the limitation and the alternative check.
+
+Read [the setup and acceptance guide](docs/testing/firmware-simulator.md) before
+using it. Pin firmware, SDK and simulator revisions, use an isolated checkout and
+a fresh virtual SD card per case, and retain logs and screenshots. For an app-to-reader
+claim, run the actual app path through the firmware's HTTP/WebSocket service;
+copying a file directly to the SD directory tests reader rendering only. For book
+generation changes, verify the uploaded book opens and its relevant content renders.
+For native codec claims, run the native app. Compare the same input before and
+after a fix, describe any test adapters, and include useful evidence in the PR.
+
+Simulator results do not verify physical WiFi/UDP behavior, FAT32 semantics,
+device memory limits or e-ink refresh quality. Report those boundaries explicitly;
+a browser codec test also does not verify iOS or Android codecs. PR #32 provides
+a documented successful app-to-firmware example in the guide.
 
 ## Analysis Reports
 
