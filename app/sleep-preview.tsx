@@ -15,22 +15,28 @@ import Animated, {
 } from 'react-native-reanimated';
 import { StatusBar } from 'expo-status-bar';
 import { processAndQueueSleepBackground } from '@/services/sleep-background';
-import { SLEEP_SCREEN_WIDTH, SLEEP_SCREEN_HEIGHT } from '@/constants/Protocol';
+import { getReaderProfile } from '@/constants/ReaderProfiles';
+import { useDeviceStore } from '@/stores/device-store';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { fitCropFrame, getSourceCrop } from '@/utils/crop-geometry';
 
-const ASPECT_RATIO = SLEEP_SCREEN_WIDTH / SLEEP_SCREEN_HEIGHT; // 0.6 (3:5)
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 5;
 
 export default function SleepPreviewScreen() {
   const { imageUri } = useLocalSearchParams<{ imageUri: string }>();
+  const deviceStatus = useDeviceStore((state) => state.deviceStatus);
+  // No status is different from a legacy response that omits the model field.
+  // Once chosen, keep preview and output identical even if the reader changes.
+  const [profile, setProfile] = useState(() => deviceStatus ? getReaderProfile(deviceStatus.device) : null);
+  useEffect(() => {
+    if (deviceStatus) setProfile((selected) => selected ?? getReaderProfile(deviceStatus.device));
+  }, [deviceStatus]);
   const [canvas, setCanvas] = useState({ width: 0, height: 0 });
   const [imageSize, setImageSize] = useState<{ width: number; height: number } | null>(null);
   const [processing, setProcessing] = useState(false);
 
-  // Calculate the crop frame dimensions (fixed 3:5 aspect ratio)
-  const frame = useMemo(() => fitCropFrame(canvas, ASPECT_RATIO), [canvas]);
+  const frame = useMemo(() => fitCropFrame(canvas, profile ? profile.width / profile.height : 1), [canvas, profile]);
 
   // Load image dimensions
   useEffect(() => {
@@ -56,6 +62,13 @@ export default function SleepPreviewScreen() {
   const savedScale = useSharedValue(MIN_ZOOM);
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
+
+  useEffect(() => {
+    scale.value = MIN_ZOOM;
+    savedScale.value = MIN_ZOOM;
+    translateX.value = 0;
+    translateY.value = 0;
+  }, [profile, scale, savedScale, translateX, translateY]);
 
   // Clamp pan so image always covers the frame
   const clampPan = useCallback(
@@ -120,13 +133,13 @@ export default function SleepPreviewScreen() {
 
   // Handle confirm: calculate crop region in original image coordinates
   const handleConfirm = useCallback(async () => {
-    if (!imageSize) return;
+    if (!imageSize || !profile) return;
 
     setProcessing(true);
     try {
       await processAndQueueSleepBackground(imageUri!, getSourceCrop(imageSize, frame, scale.value, {
         x: translateX.value, y: translateY.value,
-      }));
+      }), profile);
 
       router.back();
     } catch (err) {
@@ -134,7 +147,7 @@ export default function SleepPreviewScreen() {
     } finally {
       setProcessing(false);
     }
-  }, [imageSize, frame, imageUri, scale, translateX, translateY]);
+  }, [imageSize, frame, imageUri, scale, translateX, translateY, profile]);
 
   if (!imageUri) {
     return (
@@ -172,7 +185,7 @@ export default function SleepPreviewScreen() {
         </Button>
         <YStack alignItems="center" flex={1} minWidth={0}>
           <Text color="#fff" fontSize="$4" fontWeight="600" textAlign="center">Sleep Background</Text>
-          <Text testID="SleepPreview.OutputFormat" color="$gray8" fontSize="$2">{SLEEP_SCREEN_WIDTH} x {SLEEP_SCREEN_HEIGHT} &middot; Grayscale output</Text>
+          <Text testID="SleepPreview.OutputFormat" color="$gray8" fontSize="$2">{profile ? `${profile.width} x ${profile.height} · Grayscale output` : deviceStatus ? 'Unsupported reader display' : 'Choose a reader'}</Text>
         </YStack>
         <Button
           size="$3"
@@ -181,15 +194,37 @@ export default function SleepPreviewScreen() {
           chromeless
           color={processing ? '$gray8' : '#81d4fa'}
           onPress={handleConfirm}
-          disabled={processing || !imageSize || !canvas.width || !canvas.height}
+          disabled={processing || !profile || !imageSize || !canvas.width || !canvas.height}
         >
           {processing ? 'Processing...' : 'Done'}
         </Button>
       </XStack>
 
+      {!deviceStatus && (
+        <YStack testID="SleepPreview.ReaderChoice" padding="$3" gap="$2" alignItems="center">
+          <Text testID="SleepPreview.ReaderChoiceLabel" color="#fff" fontSize="$3">Reader for this image</Text>
+          <XStack gap="$3">
+            {(['X3', 'X4'] as const).map((model) => (
+              <Button
+                key={model}
+                testID={`SleepPreview.Reader.${model}`}
+                minHeight={44}
+                disabled={processing}
+                accessibilityState={{ selected: profile?.model === model }}
+                backgroundColor={profile?.model === model ? '#27566b' : '#333'}
+                color="#fff"
+                onPress={() => setProfile(getReaderProfile(model))}
+              >
+                {model}
+              </Button>
+            ))}
+          </XStack>
+        </YStack>
+      )}
+
       {/* Crop area */}
       <View style={styles.cropContainer} testID="SleepPreview.Canvas" onLayout={(event) => setCanvas(event.nativeEvent.layout)}>
-        {imageSize ? (
+        {imageSize && profile ? (
           <View testID="SleepPreview.CropFrame" style={[styles.imageContainer, { width: frame.width, height: frame.height }]}>
             <GestureDetector gesture={composedGesture}>
               <Animated.Image
@@ -206,9 +241,13 @@ export default function SleepPreviewScreen() {
               />
             </GestureDetector>
           </View>
-        ) : (
+        ) : !imageSize ? (
           <YStack flex={1} alignItems="center" justifyContent="center">
             <ActivityIndicator color="#fff" size="large" />
+          </YStack>
+        ) : (
+          <YStack testID="SleepPreview.NoReader" flex={1} alignItems="center" justifyContent="center" padding="$4">
+            <Text color="#fff" textAlign="center">{deviceStatus ? 'This reader has no supported sleep-image profile.' : 'Choose X3 or X4, or connect your reader.'}</Text>
           </YStack>
         )}
       </View>
@@ -222,9 +261,10 @@ export default function SleepPreviewScreen() {
         backgroundColor="rgba(0,0,0,0.8)"
         zIndex={10}
       >
-        <Text color="$gray8" fontSize="$2" textAlign="center">
-          Pinch to zoom &middot; Drag to position
-        </Text>
+        <YStack alignItems="center" gap="$1">
+          {profile && <Text testID="SleepPreview.TargetModel" color="#fff" fontSize="$2">Target: {profile.model}</Text>}
+          <Text color="$gray8" fontSize="$2" textAlign="center">Pinch to zoom &middot; Drag to position</Text>
+        </YStack>
       </XStack>
 
       {/* Processing overlay */}

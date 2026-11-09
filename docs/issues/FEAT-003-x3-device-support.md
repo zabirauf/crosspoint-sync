@@ -2,14 +2,14 @@
 id: FEAT-003
 type: feature
 title: X3 device support
-status: blocked
+status: in-progress
 priority: low
 source: reddit-appstore
 reporter: u/WrongTest
 date_reported: 2026-02-01
 date_closed:
 labels: [x3, device-support, firmware-dependency]
-blocked_by: CrossPoint firmware port to X3 hardware
+blocked_by: ""
 related: []
 reddit_thread: ""
 ---
@@ -25,12 +25,10 @@ Users with the XTEink X3 e-reader want CrossPoint Sync support. The app currentl
 - **u/WrongTest**: Asked about X3 support
 - **u/linam97**: Also requested X3 compatibility
 
-## Priority Rationale
+## Implementation
 
-**Low** — Entirely blocked on the CrossPoint firmware being ported to X3 hardware. No app-side work can proceed until the firmware exists.
-
-## Implementation Notes
-
-- The X3 may have different hardware specs, screen resolution, and file system layout
-- If the firmware port maintains the same HTTP/WS API, app changes could be minimal (mainly device identification and any X3-specific paths)
-- If the API differs, would need conditional logic or a device capability system
+CrossPoint 2.0.0 includes X3 support, so the original firmware blocker is resolved.
+The app now reads the reported model, displays X3 identity, exports sleep images at
+528 × 792, and resets browsing when switching readers. HTTP/WebSocket transfer and
+format gates remain shared with X4. Tests exercise both models with the mock reader.
+Physical X3 hardware validation remains outstanding. See GitHub #17.

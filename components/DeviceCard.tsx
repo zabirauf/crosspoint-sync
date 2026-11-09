@@ -1,10 +1,12 @@
 import { XStack, YStack, Text, Card } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { useColorScheme } from 'react-native';
+import { getReaderName } from '@/constants/ReaderProfiles';
 import { DeviceInfo, ConnectionStatus } from '@/types/device';
 
 interface DeviceCardProps {
   device: DeviceInfo;
+  model?: string;
   status?: ConnectionStatus;
   rssi?: number;
   onPress?: () => void;
@@ -30,7 +32,7 @@ function statusColor(status?: ConnectionStatus): string {
   }
 }
 
-export function DeviceCard({ device, status, rssi, onPress }: DeviceCardProps) {
+export function DeviceCard({ device, model, status, rssi, onPress }: DeviceCardProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 
@@ -57,8 +59,8 @@ export function DeviceCard({ device, status, rssi, onPress }: DeviceCardProps) {
           <FontAwesome name="tablet" size={24} color={isDark ? '#ccc' : '#555'} />
         </YStack>
         <YStack flex={1} gap="$1">
-          <Text fontWeight="600" fontSize="$5">
-            {device.hostname}
+          <Text testID="Connection.DeviceModel" fontWeight="600" fontSize="$5">
+            {getReaderName(model, device.hostname)}
           </Text>
           <Text color="$gray10" fontSize="$3">
             {device.ip}

@@ -81,6 +81,7 @@ export function ConnectionSheet({ open, onOpenChange }: ConnectionSheetProps) {
             <>
               <DeviceCard
                 device={connectedDevice}
+                model={deviceStatus?.device}
                 status="connected"
                 rssi={deviceStatus?.rssi}
               />

@@ -1,0 +1,13 @@
+appId: com.crosspointsync.app
+name: "X3 identity and sleep preview"
+---
+# Connect to a disposable mock reader started with --device X3 first.
+- runFlow: ../helpers/navigate-to-settings.yaml
+- scrollUntilVisible:
+    element:
+      id: "Settings.DeviceModel"
+    direction: DOWN
+- assertVisible: "XTEink X3"
+- takeScreenshot: x3-settings
+- runFlow: ../helpers/navigate-to-library.yaml
+# Stage a local image in the sleep-preview route before running the crop check.

@@ -126,11 +126,11 @@ async function freePort(): Promise<number> {
   return port;
 }
 
-async function startMock(dataDir: string): Promise<{ process: ChildProcess; wsPort: number; status: DeviceStatus }> {
+async function startMock(dataDir: string, device = 'X4'): Promise<{ process: ChildProcess; wsPort: number; status: DeviceStatus }> {
   httpPort = await freePort();
   const wsPort = await freePort();
   const child = spawn(process.execPath, [require.resolve('tsx/cli'), 'scripts/mock-device-server.ts',
-    '--http-port', String(httpPort), '--ws-port', String(wsPort), '--data-dir', dataDir],
+    '--device', device, '--http-port', String(httpPort), '--ws-port', String(wsPort), '--data-dir', dataDir],
   { cwd: projectRoot, stdio: ['ignore', 'pipe', 'pipe'] });
   let output = '';
   child.stdout?.on('data', chunk => { output += chunk; });
@@ -345,9 +345,11 @@ test('supported upload formats', async t => {
     const originalWebSocket = globalThis.WebSocket;
     globalThis.WebSocket = WebSocket as unknown as typeof globalThis.WebSocket;
     try {
+      for (const model of ['X4', 'X3']) {
       for (const [backend, dataDir] of [['disk', diskRoot], ['memory', '']]) {
-        await t.test(`${backend}: actual API lists, uploads, downloads, renames and moves every format`, async () => {
-          const mock = await startMock(dataDir);
+        await t.test(`${model} ${backend}: actual API lists, uploads, downloads, renames and moves every format`, async () => {
+          const mock = await startMock(dataDir, model);
+          assert.equal(mock.status.device, model);
           try {
             const files = await api.getFiles('127.0.0.1', '/Formats');
             for (const name of fixtureNames) {
@@ -385,6 +387,8 @@ test('supported upload formats', async t => {
             if (backend === 'disk') assert.equal(folder?.isEpub, false);
           } finally { await stopMock(mock.process); }
         });
+      }
+
       }
 
       await t.test('actual queue waits for fresh status, rejects legacy jobs and resumes supported uploads after reconnect', async () => {

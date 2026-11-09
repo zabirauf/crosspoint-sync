@@ -1,0 +1,30 @@
+appId: com.crosspointsync.app
+name: "Offline sleep-image reader choice"
+---
+# Disconnect the reader and stage a local sleep-preview image before this flow.
+# It queues an offline X3 BMP; connect a disposable X3 reader to test its upload.
+- extendedWaitUntil:
+    visible:
+      id: "SleepPreview.ReaderChoice"
+    timeout: 10000
+- assertVisible: "Choose a reader"
+- assertVisible:
+    id: "SleepPreview.Reader.X3"
+- assertVisible:
+    id: "SleepPreview.Reader.X4"
+- assertNotVisible:
+    id: "SleepPreview.CropFrame"
+- takeScreenshot: sleep-reader-choice
+- tapOn:
+    id: "SleepPreview.Reader.X3"
+- assertVisible: "528 x 792 · Grayscale output"
+- assertVisible: "Target: X3"
+- assertVisible:
+    id: "SleepPreview.CropFrame"
+- takeScreenshot: sleep-offline-x3
+- tapOn:
+    id: "SleepPreview.Done"
+- extendedWaitUntil:
+    notVisible:
+      id: "SleepPreview.Screen"
+    timeout: 15000

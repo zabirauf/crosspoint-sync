@@ -1,6 +1,6 @@
 # CrossPoint Sync
 
-Book syncing app for the XTEink X4 e-ink reader. Discovers devices on local WiFi, browses files, and uploads EPUB/XTC/XTCH books and XTG/XTH images via WebSocket.
+Book syncing app for XTEink X3 and X4 e-ink readers. Discovers devices on local WiFi, browses files, and uploads EPUB/XTC/XTCH books and XTG/XTH images via WebSocket.
 
 ## Stack
 
@@ -118,10 +118,11 @@ extension-src/           # Safari Web Extension source files (bundled at prebuil
 - `withSceneLifecycle` keeps the generated iOS app compatible with the iOS 27 SDK. Expo prepares its existing window/root before app-delegate subscribers run; the scene delegate attaches that same window to the scene. Keep cold/warm URL forwarding and Expo lifecycle subscribers intact. The plugin also floors older pod resource targets to the app's existing minimum deployment version for Xcode 27.
 - `npm run test:adaptive` checks task/draft identity and crop invariance. `npm run test:responsive:web` checks the actual exported app across phone, expanded, tablet, split, and short windows; see `docs/analysis/adaptive-layout-validation-2026-11-04.md` for setup. Native rotation coverage is in `.maestro/flows/17-adaptive-layout.yaml`.
 
-## XTEink X4 Protocol
+## XTEink CrossPoint Protocol
 
 - **Firmware source**: When making changes to device API calls (anything in `services/device-api.ts`, `services/device-discovery.ts`, `services/websocket-upload.ts`, or related hooks), **always read the firmware source first** to validate expected request/response formats, parameter names, and error codes before planning changes. Reuse a checkout already identified in the session, or use the configurable checkout below. Ask the user only if the relevant firmware or fork cannot be identified.
 - **Firmware checkout**: Set `CROSSPOINT_FIRMWARE_SOURCE` to an existing checkout, or create an isolated checkout of [crosspoint-reader](https://github.com/crosspoint-reader/crosspoint-reader) under `.local/` as described in the simulator guide. Keep machine-specific locations in ignored local configuration. Check release tags for capability thresholds. XTC/XTCH reading starts at 0.10.0; WebSocket uploads start at 0.14.0. XTG/XTH are internal page images, not standalone reader formats; the app permits transferring them at 0.14.0+ through the generic uploader. The mock defaults to 1.3.0, not an enforced app minimum.
+- **Reader profiles**: `/api/status.device` identifies X3/X4 on firmware 1.3+. `constants/ReaderProfiles.ts` owns portrait sleep-image sizes (X3 528×792; X4 480×800). Require actual reader status or an explicit offline model choice, then freeze the chosen profile so preview and export match; never choose phone layouts from reader models. A missing model in an actual status response retains legacy X4 output; an unknown reported model must not be guessed as X4.
 - **Book formats**: `constants/FileFormats.ts` owns format kinds, upload firmware thresholds, derived extensions, and filename matching. `getDeviceCapabilities` returns `supportedFileExtensions` and `filePickerMimeType` for the connected firmware. The picker and queue both validate names against that extension list; file icons describe recognized formats regardless of firmware. Clear stale status when connecting to another reader and resume waiting jobs when fresh status arrives.
 - **HTTP REST API** (port 80): `GET /api/status`, `GET /api/files?path=`, `POST /mkdir`, `POST /delete`, `GET /download?path=`
 - **WebSocket upload** (port 81): `START:filename:size:path` → `READY` → binary chunks (64KB) → `PROGRESS:received:total` → `DONE`

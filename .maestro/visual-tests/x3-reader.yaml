@@ -1,0 +1,17 @@
+id: x3-reader
+name: "X3 model identity and sleep output"
+flow: manual-flows/x3-reader.yaml
+screenshots:
+  - x3-settings
+platforms: [ios, android]
+themes: [light]
+tags: [connected, requires-device, x3]
+description: |
+  Connected X3 reader settings identify XTEink X3 and the firmware version.
+  The paired x3-sleep-preview flow checks the model-specific crop editor.
+assertions:
+  - text: "The Device row identifies XTEink X3 without clipping or overlap"
+    severity: fail
+ignore:
+  - "Firmware version and address vary"
+  - "Clock and system status text"

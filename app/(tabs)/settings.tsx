@@ -7,6 +7,7 @@ import { useDeviceStore } from '@/stores/device-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import { PromptDialog } from '@/components/PromptDialog';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { getReaderName } from '@/constants/ReaderProfiles';
 import { useAdaptiveLayout } from '@/hooks/use-adaptive-layout';
 
 const MIN_INLINE_ROW_WIDTH = 420;
@@ -137,9 +138,10 @@ export default function SettingsScreen() {
           <SettingsRow
             icon="tablet"
             label="Device"
+            testID="Settings.DeviceModel"
             value={
               isConnected && connectedDevice
-                ? connectedDevice.hostname
+                ? getReaderName(deviceStatus?.device, connectedDevice.hostname)
                 : 'Not connected'
             }
           />

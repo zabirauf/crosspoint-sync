@@ -19,6 +19,12 @@ name: "Settings Screen - Main View"
       platform: iOS
     file: ../helpers/assert-safari-extension.yaml
 
+- scrollUntilVisible:
+    element:
+      id: "Settings.DeviceModel"
+    direction: DOWN
+- assertVisible:
+    id: "Settings.DeviceModel"
 - takeScreenshot: settings-main
 
 # Compact windows and larger text can require scrolling to later groups.

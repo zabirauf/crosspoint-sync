@@ -61,7 +61,7 @@ reddit_thread: ""
 | [FEAT-008](FEAT-008-android-support.md) | Android support | high | in-progress |
 | [FEAT-001](FEAT-001-epub-to-xtc-conversion.md) | EPUB to XTC/XTCH conversion | high | open |
 | [FEAT-002](FEAT-002-file-rename-and-move.md) | File rename and move (bulk + single) | medium | in-progress |
-| [FEAT-003](FEAT-003-x3-device-support.md) | X3 device support | low | blocked |
+| [FEAT-003](FEAT-003-x3-device-support.md) | X3 device support | low | in-progress |
 | [FEAT-004](FEAT-004-firefox-chrome-web-clipper.md) | Firefox/Chrome web clipper (iOS) | low | open |
 | [FEAT-006](FEAT-006-rss-feed-support.md) | RSS feed support with selective sync | high | open |
 | [FEAT-007](FEAT-007-readwise-integration.md) | Readwise integration | low | open |

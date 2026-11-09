@@ -6,6 +6,9 @@ export interface DeviceInfo {
 }
 
 export interface DeviceStatus {
+  /** Reported by CrossPoint 1.3+; older firmware omits these fields. */
+  device?: string;
+  firmwareFamily?: string;
   version: string;
   ip: string;
   mode: string;

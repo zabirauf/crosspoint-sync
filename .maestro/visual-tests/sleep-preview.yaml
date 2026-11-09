@@ -8,13 +8,13 @@ themes: [light, dark]
 tags: [adaptive, connected, requires-device]
 description: |
   The crop editor is a full-screen native presentation. On its first opening,
-  before any fold or rotation, its controls and 3:5 crop frame clear system UI.
+  before any fold or rotation, its controls and reader-proportioned crop frame clear system UI.
 assertions:
   - text: "Cancel and Done are fully visible inside the safe area, clear of the camera and system status region"
     severity: fail
-  - text: "The 3:5 crop frame fits inside the available canvas without being clipped"
+  - text: "The reader-proportioned crop frame fits inside the available canvas without being clipped"
     severity: fail
-  - text: "The format line identifies 480 x 800 grayscale output"
+  - text: "The format line identifies 480 x 800 for X4 or 528 x 792 for X3 grayscale output"
     severity: fail
 ignore:
   - "The source image can be in color; grayscale describes the output format"

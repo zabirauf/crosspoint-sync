@@ -12,7 +12,7 @@ description: |
   "Sync Settings" section: Upload path row with current value.
   "Web Clipper" on iOS or "Article Clipper" on Android: Clip upload path row with current value.
   The iOS section also includes "Enable in Safari".
-  "Device" section: shows Device hostname, IP Address, and Firmware rows.
+  "Device" section: shows the reported XTEink model (or hostname on legacy firmware), IP Address, and Firmware rows.
   Later groups can be reached by scrolling. Rows stack label/value in narrow windows.
   On expanded windows the content stays in a centered, readable column.
 
@@ -36,7 +36,7 @@ custom_criteria:
 
 ignore:
   - "Specific path values (vary by user preferences)"
-  - "Device hostname and IP (varies by connection state)"
+  - "Specific device model, hostname and IP (varies by connection state)"
   - "Firmware version number"
 
 created_by: human
