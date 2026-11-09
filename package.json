@@ -34,9 +34,10 @@
     "test:visual:runner": "node --test scripts/visual-flow-runner-test.cjs",
     "test:adaptive": "node --import tsx scripts/adaptive-layout-test.ts",
     "test:responsive:web": "node scripts/responsive-web-test.cjs",
-    "test:basic": "npm run test:epub:unit && npm run test:epub:compat && npm run test:delete && npm run test:books && npm run test:visual:runner && npm run test:adaptive && npm run test:share-import",
+    "test:basic": "npm run test:epub:unit && npm run test:epub:compat && npm run test:delete && npm run test:books && npm run test:visual:runner && npm run test:adaptive && npm run test:share-import && npm run test:folders",
     "typecheck": "tsc --noEmit",
-    "check:bundles": "bash scripts/with-dev-env.sh expo export --platform ios --output-dir .local/export-ios && bash scripts/with-dev-env.sh expo export --platform android --output-dir .local/export-android"
+    "check:bundles": "bash scripts/with-dev-env.sh expo export --platform ios --output-dir .local/export-ios && bash scripts/with-dev-env.sh expo export --platform android --output-dir .local/export-android",
+    "test:folders": "node --import tsx scripts/folder-protocol-test.ts"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

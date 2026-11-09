@@ -65,22 +65,26 @@ export async function getDeviceStatus(
   });
 }
 
+// Called inside a scheduled request, so conflict verification must not enqueue
+// another request behind itself on the single-request device scheduler.
+async function fetchFileListing(endpoint: string, path: string): Promise<DeviceFile[]> {
+  const res = await fetchWithTimeout(
+    `${endpoint}/api/files?path=${encodeURIComponent(path)}`,
+  );
+  if (!res.ok) throw new Error(`File listing failed: ${res.status}`);
+  const data: Array<{ name: string; size: number; isDirectory: boolean }> = await res.json();
+  return data.map((f) => ({
+    name: f.name,
+    size: f.size,
+    isDirectory: f.isDirectory,
+    isEpub: !f.isDirectory && f.name.toLowerCase().endsWith('.epub'),
+  }));
+}
+
 export async function getFiles(ip: string, path: string): Promise<DeviceFile[]> {
   return deviceScheduler.schedule({
     ignoreExternalBusy: true,
-    execute: async () => {
-      const res = await fetchWithTimeout(
-        `${baseUrl(ip)}/api/files?path=${encodeURIComponent(path)}`,
-      );
-      if (!res.ok) throw new Error(`File listing failed: ${res.status}`);
-      const data: Array<{ name: string; size: number; isDirectory: boolean }> = await res.json();
-      return data.map((f) => ({
-        name: f.name,
-        size: f.size,
-        isDirectory: f.isDirectory,
-        isEpub: !f.isDirectory && f.name.toLowerCase().endsWith('.epub'),
-      }));
-    },
+    execute: () => fetchFileListing(baseUrl(ip), path),
   });
 }
 
@@ -94,18 +98,33 @@ export async function createFolder(
       const formData = new FormData();
       formData.append('name', name);
       formData.append('path', path);
-      const res = await fetchWithTimeout(`${baseUrl(ip)}/mkdir`, {
+      const endpoint = baseUrl(ip);
+      const res = await fetchWithTimeout(`${endpoint}/mkdir`, {
         method: 'POST',
         body: formData,
       });
-      if (!res.ok) {
-        // 400/409 = folder already exists — safe to treat as success (ESP32 firmware only returns these for this reason)
-        if (res.status === 400 || res.status === 409) {
-          log('api', `Folder already exists (${res.status}): ${name} at ${path}`);
-          return;
+      if (res.ok) return;
+
+      const detail = (await res.text().catch(() => '')).trim();
+      // CrossPoint returns 400 both for invalid names and for existing items
+      // (including files). A conflict is safe only after verifying a directory.
+      const mayExist = res.status === 409 ||
+        (res.status === 400 && detail.toLowerCase() === 'folder already exists');
+      let verification = '';
+      if (mayExist) {
+        try {
+          const files = await fetchFileListing(endpoint, path);
+          const existing = files.find((file) => file.name.toLowerCase() === name.toLowerCase());
+          if (existing?.isDirectory) {
+            log('api', `Verified existing folder: ${name} at ${path}`);
+            return;
+          }
+          verification = existing ? '; an existing file is not a directory' : '; existing directory could not be verified';
+        } catch (err) {
+          verification = `; existing directory could not be verified: ${err instanceof Error ? err.message : String(err)}`;
         }
-        throw new Error(`Create folder failed: ${res.status}`);
       }
+      throw new Error(`Create folder failed (${res.status}): ${detail || res.statusText || 'Unknown error'}${verification}`);
     },
   });
 }
@@ -216,16 +235,18 @@ export async function ensureRemotePath(ip: string, remotePath: string): Promise<
       continue;
     }
 
+    let exists = false;
     try {
       const files = await getFiles(ip, currentPath);
-      const exists = files.some((f) => f.isDirectory && f.name.toLowerCase() === segment.toLowerCase());
-      if (!exists) {
-        await createFolder(ip, segment, currentPath);
-        log('api', `Created folder: ${segment} at ${currentPath}`);
-      }
-    } catch {
-      // Listing failed (parent may not exist yet on some firmwares) — try creating
+      exists = files.some((f) => f.isDirectory && f.name.toLowerCase() === segment.toLowerCase());
+    } catch (err) {
+      // Some firmware cannot list a missing parent. Creation still has to
+      // succeed or verify an existing directory before this path is cached.
+      log('api', `Parent listing failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+    if (!exists) {
       await createFolder(ip, segment, currentPath);
+      log('api', `Created folder: ${segment} at ${currentPath}`);
     }
 
     validatedPaths.add(segmentPath);
