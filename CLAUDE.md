@@ -135,8 +135,9 @@ extension-src/           # Safari Web Extension source files (bundled at prebuil
 - **Flow**: Content script extracts article HTML + image URLs → background script downloads images → native handler writes HTML/images/manifest to App Groups → main app picks up via `services/clip-import.ts` → `services/epub-generator.ts` generates EPUB → upload queue.
 - **Manifest naming**: Clip manifests are prefixed `clip-` (e.g., `clip-<uuid>.json`) to distinguish from share manifests. HTML goes to `shared-clips/<uuid>.html`, images to `shared-clips/<uuid>/`.
 - Extension bundle ID: `com.crosspointsync.app.WebExtension`
-- **Dev dependencies**: `defuddle` and `dompurify` are devDependencies — only used at prebuild time for esbuild bundling, not included in the React Native bundle.
+- **Dev dependencies**: `defuddle` and `dompurify` are devDependencies — only used at prebuild time for esbuild bundling, not included in the React Native bundle. Safari defers extractor initialization until a regex feature check: modern engines use current Defuddle; Safari 16.0–16.3 uses the pinned `defuddle-legacy` alias with the same sanitization and image-source normalization. Keep that fallback and its feature-limit regression while iOS 16.0 is supported.
 - **Extension source files** live in `extension-src/` and are copied/bundled into `ios/CrossPointSyncWebExtension/Resources/` during prebuild.
+- After updating Defuddle or DOMPurify, regenerate Android's committed extractor with `npm run build:webview-bundle`. Run `npm run test:clipper` to check the actual Safari source and Android bundle against the offline Substack image fixture through EPUB packaging. Safari's bundle is rebuilt during iOS prebuild.
 
 ## iOS Share Extension
 
