@@ -95,3 +95,9 @@ Reviewed native screenshots (resized or cropped from simulator captures):
 ![Reader destination on Duo and iPhone, including dark appearance](images/native-reader-navigation-2026-11-09/native-reader-icon-devices.png)
 
 ![Reader icon detail, inactive and selected](images/native-reader-navigation-2026-11-09/native-reader-icon-detail.png)
+
+## TestFlight upload — November 9, 2026
+
+Production version **1.5.0 (3)** was archived from source commit `22ad25db8b4c097c1ec076c512adfe49c66cc2ac` with Xcode 27.2 and the iOS 27.2 SDK. The archive contains the native ReaderToolbar module and all three final reader-icon scales. The app, Share Extension and Safari Web Extension all report version 1.5.0 and build 3. Their App Store distribution profiles have debugging disabled, and deep/strict package signature verification passed. The basic test suite also passed before publication.
+
+App Store Connect accepted the upload and began processing it. The existing internal TestFlight group automatically receives Xcode builds. The upload reported missing third-party dSYMs for React, ReactNativeDependencies and Hermes, matching the earlier release's symbol warnings; the upload itself succeeded. Local provenance and signing/upload logs are retained under `.local/testflight-1.5.0-build3/`. No App Store review submission was made.
