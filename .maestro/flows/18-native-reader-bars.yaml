@@ -1,0 +1,45 @@
+appId: com.crosspointsync.app
+name: "Native Reader Bars - Actions and Navigation"
+tags:
+  - requires-device
+  - native-bars
+---
+- runFlow: ../helpers/ensure-connected.yaml
+# Only builds using native iOS bars expose this toolbar. The same flow can stay
+# in the shared suite on older iOS and Android without changing their controls.
+- runFlow:
+    when:
+      visible:
+        id: "Library.NativeToolbar"
+    commands:
+      - tapOn:
+          id: "Library.FAB"
+      - assertVisible: "Upload Files"
+      - assertVisible: "Sleep Background"
+      - tapOn: "New Folder"
+      - assertVisible:
+          id: "PromptDialog.Input"
+      - tapOn:
+          id: "PromptDialog.CancelButton"
+      - tapOn:
+          id: "Library.OpenQueue"
+      - assertVisible:
+          id: "UploadQueue.Sheet"
+      - tapOn:
+          id: "UploadQueue.CloseButton"
+      - waitForAnimationToEnd
+      - takeScreenshot: native-reader-bars-library
+      - tapOn:
+          id: "TabBar.Reader"
+      - assertVisible:
+          id: "Reader.Screen"
+      - assertVisible:
+          id: "Connection.DisconnectButton"
+      - takeScreenshot: native-reader-bars-reader
+      - runFlow: ../helpers/navigate-to-settings.yaml
+      - assertVisible:
+          id: "Settings.UploadPath"
+      - takeScreenshot: native-reader-bars-settings
+      - runFlow: ../helpers/navigate-to-library.yaml
+      - assertVisible:
+          id: "Library.FAB"

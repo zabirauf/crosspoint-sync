@@ -214,6 +214,7 @@ function withShareExtensionFiles(config) {
       fs.writeFileSync(
         path.join(extPath, "Info.plist"),
         INFO_PLIST.replace("<string>1.0.0</string>", `<string>${mod.version || "1.0.0"}</string>`)
+          .replace("<string>1</string>", `<string>${mod.ios?.buildNumber || "1"}</string>`)
       );
       fs.writeFileSync(
         path.join(extPath, `${EXTENSION_NAME}.entitlements`),

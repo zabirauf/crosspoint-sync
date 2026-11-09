@@ -11,7 +11,7 @@ name: "Library Tab - Disconnected State"
     text: "No Device Connected"
 
 - assertVisible:
-    id: "Library.ConnectionPill"
+    id: "Library.ConnectionPill|TabBar.Reader"
 
 - assertVisible:
     id: "EmptyState"

@@ -14,7 +14,7 @@ name: "Ensure Disconnected State"
 # Wait for the app to fully load
 - extendedWaitUntil:
     visible:
-      id: "Library.ConnectionPill"
+      id: "Library.ConnectionPill|TabBar.Reader"
     timeout: 10000
 
 # Wait for auto-reconnect to complete (or fail) without a JavaScript busy loop.
@@ -25,7 +25,7 @@ name: "Ensure Disconnected State"
 
 # === First disconnect attempt ===
 - tapOn:
-    id: "Library.ConnectionPill"
+    id: "Library.ConnectionPill|TabBar.Reader"
 - waitForAnimationToEnd
 
 - runFlow:
@@ -38,13 +38,12 @@ name: "Ensure Disconnected State"
 - waitForAnimationToEnd
 
 # Close the sheet
-- tapOn:
-    id: "Connection.CloseButton"
+- runFlow: return-to-library.yaml
 - waitForAnimationToEnd
 
 # === Second disconnect attempt (handles race condition) ===
 - tapOn:
-    id: "Library.ConnectionPill"
+    id: "Library.ConnectionPill|TabBar.Reader"
 - waitForAnimationToEnd
 
 - runFlow:
@@ -57,6 +56,5 @@ name: "Ensure Disconnected State"
 - waitForAnimationToEnd
 
 # Close the sheet
-- tapOn:
-    id: "Connection.CloseButton"
+- runFlow: return-to-library.yaml
 - waitForAnimationToEnd

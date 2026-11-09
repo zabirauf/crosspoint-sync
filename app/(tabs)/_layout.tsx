@@ -5,6 +5,8 @@ import { useColorScheme } from 'react-native';
 
 import Colors from '@/constants/Colors';
 import { useAdaptiveLayout } from '@/hooks/use-adaptive-layout';
+import { NativeTabs, Icon, Label } from 'expo-router/unstable-native-tabs';
+import { usesNativeReaderBars } from '@/modules/reader-toolbar';
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
@@ -16,6 +18,25 @@ function TabBarIcon(props: {
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { expanded, insets } = useAdaptiveLayout();
+
+  if (usesNativeReaderBars) {
+    return (
+      <NativeTabs tintColor={Colors[colorScheme ?? 'light'].tint}>
+        <NativeTabs.Trigger name="index" disablePopToTop disableScrollToTop>
+          <Icon sf={{ default: 'books.vertical', selected: 'books.vertical.fill' }} />
+          <Label>Library</Label>
+        </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="reader">
+          <Icon src={require('@/assets/icons/reader.png')} />
+          <Label>Reader</Label>
+        </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="settings">
+          <Icon sf="gearshape" />
+          <Label>Settings</Label>
+        </NativeTabs.Trigger>
+      </NativeTabs>
+    );
+  }
 
   return (
     <Tabs
@@ -38,6 +59,10 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="book" color={color} />,
           tabBarButtonTestID: 'TabBar.Library',
         }}
+      />
+      <Tabs.Screen
+        name="reader"
+        options={{ title: 'Reader', href: null }}
       />
       <Tabs.Screen
         name="settings"

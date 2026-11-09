@@ -6,7 +6,7 @@ name: "Device Connection - Connection Sheet"
 - runFlow: ../helpers/ensure-disconnected.yaml
 
 - tapOn:
-    id: "Library.ConnectionPill"
+    id: "Library.ConnectionPill|TabBar.Reader"
 
 - waitForAnimationToEnd
 

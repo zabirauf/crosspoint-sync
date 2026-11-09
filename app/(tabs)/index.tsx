@@ -26,13 +26,19 @@ import { DeviceFile } from '@/types/device';
 import { useAdaptiveLayout } from '@/hooks/use-adaptive-layout';
 import { BREADCRUMB_SCROLL_DELAY_MS, FAB_BOTTOM_INSET, LIBRARY_CONTEXT_PANEL_WIDTH } from '@/constants/Layout';
 import { LibraryContext } from '@/components/LibraryContext';
+import { NativeTabScreen } from '@/components/NativeTabScreen';
+import { ReaderToolbar, usesNativeReaderBars } from '@/modules/reader-toolbar';
 
 const LIBRARY_CONTENT_MAX_WIDTH = 1120;
 const MIN_BROWSER_WIDTH_WITH_CONTEXT = 508;
 const MAX_CONTEXT_FONT_SCALE = 1.3;
 const FAB_BOTTOM_WITH_UPLOAD_BAR = 72;
 
-export default function LibraryScreen() {
+export default function LibraryRoute() {
+  return usesNativeReaderBars ? <NativeTabScreen name="Library" component={LibraryScreen} /> : <LibraryScreen />;
+}
+
+function LibraryScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const navigation = useNavigation();
@@ -82,7 +88,7 @@ export default function LibraryScreen() {
   // Place ConnectionPill in the header
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
+      headerRight: usesNativeReaderBars ? undefined : () => (
         <ConnectionPill onPress={() => setConnectionSheetOpen(true)} />
       ),
     });
@@ -212,13 +218,13 @@ export default function LibraryScreen() {
 
   return (
     <YStack flex={1} backgroundColor="$background" testID="Library.Screen">
-      <SafeAreaView edges={expanded ? ['left', 'bottom'] : ['left', 'right']} style={{ flex: 1 }}>
+      <SafeAreaView edges={usesNativeReaderBars ? ['left', 'right', 'bottom'] : expanded ? ['left', 'bottom'] : ['left', 'right']} style={{ flex: 1 }}>
         <View
           onLayout={(event) => setContentWidth(event.nativeEvent.layout.width)}
           style={{ flex: 1, flexDirection: 'row', width: '100%', maxWidth: LIBRARY_CONTENT_MAX_WIDTH, alignSelf: 'center' }}
         >
           {showLibraryContext && (
-            <LibraryContext onConnect={() => setConnectionSheetOpen(true)} onQueue={() => setQueueSheetOpen(true)} />
+            <LibraryContext onConnect={() => setConnectionSheetOpen(true)} onQueue={() => setQueueSheetOpen(true)} showActions={!usesNativeReaderBars} />
           )}
           <View style={{ flex: 1, minWidth: 0 }} testID="Library.BrowserPane" onLayout={(event) => setPaneHeight(event.nativeEvent.layout.height)}>
             {isConnected ? (
@@ -340,22 +346,36 @@ export default function LibraryScreen() {
                 title="No Device Connected"
                 subtitle="Connect to your e-ink reader to browse and manage books."
                 actionLabel="Connect"
-                onAction={() => setConnectionSheetOpen(true)}
+                onAction={() => usesNativeReaderBars ? router.navigate('/reader') : setConnectionSheetOpen(true)}
               />
             )}
 
             {/* Upload status bar */}
             <UploadStatusBar onPress={() => setQueueSheetOpen(true)} />
 
-            {/* Floating action button */}
-            <ActionFAB
-              onAddBook={() => pickAndQueueFiles(isConnected ? currentPath : defaultUploadPath)}
-              onNewFolder={handleNewFolder}
-              onSleepBackground={handleSleepBackground}
-              showNewFolder={isConnected}
-              bottomOffset={hasActiveUploads ? FAB_BOTTOM_WITH_UPLOAD_BAR : FAB_BOTTOM_INSET}
-              availableHeight={paneHeight}
-            />
+            {/* Add and reader actions */}
+            {usesNativeReaderBars ? (
+              <ReaderToolbar
+                connected={isConnected}
+                needsAttention={jobs.some(j => ['failed', 'conflict', 'cancelled'].includes(j.status))}
+                style={{ width: 0, height: 0 }}
+                onAction={({ nativeEvent: { action } }) => {
+                  if (action === 'upload') pickAndQueueFiles(isConnected ? currentPath : defaultUploadPath);
+                  else if (action === 'folder') handleNewFolder();
+                  else if (action === 'sleep') handleSleepBackground();
+                  else if (action === 'queue') setQueueSheetOpen(true);
+                }}
+              />
+            ) : (
+              <ActionFAB
+                onAddBook={() => pickAndQueueFiles(isConnected ? currentPath : defaultUploadPath)}
+                onNewFolder={handleNewFolder}
+                onSleepBackground={handleSleepBackground}
+                showNewFolder={isConnected}
+                bottomOffset={hasActiveUploads ? FAB_BOTTOM_WITH_UPLOAD_BAR : FAB_BOTTOM_INSET}
+                availableHeight={paneHeight}
+              />
+            )}
           </View>
         </View>
       </SafeAreaView>

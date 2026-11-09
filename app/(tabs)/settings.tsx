@@ -9,6 +9,8 @@ import { PromptDialog } from '@/components/PromptDialog';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getReaderName } from '@/constants/ReaderProfiles';
 import { useAdaptiveLayout } from '@/hooks/use-adaptive-layout';
+import { NativeTabScreen } from '@/components/NativeTabScreen';
+import { ReaderToolbar, usesNativeReaderBars } from '@/modules/reader-toolbar';
 
 const MIN_INLINE_ROW_WIDTH = 420;
 const MAX_INLINE_ROW_FONT_SCALE = 1.2;
@@ -57,7 +59,11 @@ function SettingsRow({
   );
 }
 
-export default function SettingsScreen() {
+export default function SettingsRoute() {
+  return usesNativeReaderBars ? <NativeTabScreen name="Settings" component={SettingsScreen} /> : <SettingsScreen />;
+}
+
+function SettingsScreen() {
   const { connectedDevice, deviceStatus, connectionStatus } = useDeviceStore();
   const disconnect = useDeviceStore((s) => s.disconnect);
   const { defaultUploadPath, setDefaultUploadPath, clipUploadPath, setClipUploadPath, debugLogsEnabled, setDebugLogsEnabled } = useSettingsStore();
@@ -108,7 +114,8 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView edges={expanded ? ['left', 'bottom'] : ['left', 'right']} style={{ flex: 1, backgroundColor: theme.background.val }} testID="Settings.Screen">
+    <SafeAreaView edges={usesNativeReaderBars ? ['left', 'right', 'bottom'] : expanded ? ['left', 'bottom'] : ['left', 'right']} style={{ flex: 1, backgroundColor: theme.background.val }} testID="Settings.Screen">
+      {usesNativeReaderBars && <ReaderToolbar enabled={false} connected={isConnected} needsAttention={false} onAction={() => {}} style={{ width: 0, height: 0 }} />}
       <ScrollView contentContainerStyle={{ padding: expanded ? 24 : 16, paddingBottom: 32, gap: 24, width: '100%', maxWidth: 720, alignSelf: 'center' }} testID="Settings.Content">
         <YStack gap="$2" paddingHorizontal="$2">
           <H4>Sync Settings</H4>

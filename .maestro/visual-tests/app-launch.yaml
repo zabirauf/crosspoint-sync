@@ -9,14 +9,16 @@ tags: [smoke, launch]
 
 description: |
   App just launched, showing the Library tab in disconnected state.
-  Header shows "Library" title with a connection pill showing "Connect".
+  The screen shows a Library title, with a connection pill in older layouts or
+  a native Reader destination on iOS 26+. The Reader icon has no dot or badge.
   Main content shows empty state with plug icon and "No Device Connected" message.
-  Tab bar at bottom with Library (selected) and Settings tabs.
+  Library (selected), Reader and Settings appear in native tabs or the side
+  rail; older layouts have Library and Settings.
 
 assertions:
   - text: "The Library tab title is visible in the header"
     severity: fail
-  - text: "The connection pill in the header shows 'Connect' text"
+  - text: "Reader navigation or a connection pill is available"
     severity: fail
   - text: "The tab bar shows Library and Settings tabs"
     severity: fail

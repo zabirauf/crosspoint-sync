@@ -62,6 +62,17 @@ const selector = (id) => `[data-testid="${id}"]`;
     await page.goto(base, { waitUntil: 'networkidle0' });
     await visible('Library.FileRow.Formats');
     await capture('duo-outer-library');
+    // The native Reader page and legacy sheet share this form. Exercise the
+    // sheet's disconnect/reconnect and auto-dismiss behavior after extraction.
+    await click('Library.ConnectionPill');
+    await visible('Connection.Content');
+    await click('Connection.DisconnectButton');
+    await visible('Connection.AddressInput');
+    await visible('Connection.ConnectButton');
+    await capture('phone-connection-form');
+    await click('Connection.ConnectButton');
+    await page.waitForFunction(() => ![...document.querySelectorAll('[data-testid="Connection.Sheet"]')].some(el => el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })));
+    await visible('Library.FileRow.Formats');
     await click('Library.FileRow.Formats');
     await visible('Library.FileRow.Gettysburg-Address.epub');
     await page.evaluate((s) => { window.__resizeList = document.querySelector(s); }, selector('Library.FileList'));

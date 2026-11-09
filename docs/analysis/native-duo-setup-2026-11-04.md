@@ -50,3 +50,48 @@ To repeat, boot the dedicated simulator, start the disposable mock reader (HTTP 
 ## Final workspace state
 
 The dedicated Duo and tablet test simulators were shut down after verification, and task-owned mock/proxy, Metro, web-server and test-companion processes were stopped. The Duo device, runtime and final Release app remain installed. The Duo's saved test address was restored to `localhost:8082` for a normal mock-reader rerun. Source changes and review artifacts are on `codex/iphone-duo`.
+
+## Native system rail follow-up — November 8, 2026
+
+Starting from `main` at `e7c93ec`, iOS 27.1+ now uses Expo's native tabs and a native navigation stack for each tab. The local `reader-toolbar` Expo module installs standard navigation-bar items for Add, reader connection and uploads. UIKit places those items and Library/Settings in the system rail on the outer and wide inner displays, and uses horizontal bars in the tall inner pose. The decision does not use a phone model or a width breakpoint. Older iOS builds, Android and web retain their existing adaptive navigation.
+
+Library and Settings respect both lateral safe areas with native bars. The expanded reader context keeps its status summaries while its connection/queue buttons move into the rail. Native actions retain the existing accessibility identifiers; the Add menu keeps Upload Files, connected-only New Folder and Sleep Background. Unchanged status polls retain the same native items so an open menu is not recreated.
+
+Validation used Xcode 27.2, the iOS Simulator 27.2 SDK and the dedicated Duo simulator on iOS 27.1:
+
+- The final Release build passed. iOS and Android Metro exports passed.
+- Three targeted Maestro flows passed: connected Add menu, disconnected Add menu, and native actions/navigation. The native flow opens/cancels New Folder, opens/closes the queue and switches both tabs. Reviewed menu and native-bar references are in `test-references/ios/iphone-duo/light/`.
+- A live native probe retained the exact folder draft through outer, wide inner, tall inner, partial fold and outer return in one app process. After cancelling, the Formats folder remained selected through those display changes, outer landscape and a Settings round trip. File actions cleared the rail on either physical edge. All folder operations were cancelled.
+- The four adaptive checks and the final browser resize matrix passed. Typecheck produced the same 106 diagnostics as an isolated copy of the starting `main`, with no new diagnostics.
+
+Native artifacts are under `test-screenshots/duo-right-rail/`; local build and probe logs are under `.local/duo-right-rail/`. The firmware simulator was not needed for this UI-only change. These checks do not claim physical-device or reader-transfer validation.
+
+The new module requires rebuilding the iOS app; an older development client without it retains the previous navigation. Regenerate with `npm run prebuild -- --platform ios`, then build with `npm run ios`. The committed native action check is `.maestro/flows/18-native-reader-bars.yaml`; use a connected disposable mock reader.
+
+## iOS 26 glass menus and revised grouping — November 9, 2026
+
+The native path now starts at iOS 26, independently of Duo's iOS 27.1 vertical-bar support. Add appears before Uploads in the action group. Library, Reader and Settings form the destination group. Reader is a real management page that shares its existing form with the connection sheet used by older builds. Its tab uses a plain reader outline with no connection dot or notification badge; connection status appears inside the page. The WiFi navigation icon was removed, and Uploads uses a queue/list symbol.
+
+The final Release build passed with the iOS Simulator 27.2 SDK. Five targeted native flows passed on each of **Duo/iOS 27.1** and **iPhone 17 Pro/iOS 26.5**, for **10/10** total. They cover connecting/disconnecting, the idle Reader form, connected/disconnected native Add menus, cancelled New Folder, uploads, Reader and Settings navigation. The iPhone connection test taps Connect with the actual URL keyboard open; it does not rely on Maestro's unsupported keyboard-dismiss action for that page. Native-bar identifiers are refreshed after layout as well as prop updates.
+
+Native Duo captures verify Add/Uploads and Library/Reader/Settings order without group overlap in outer, wide inner, tall inner, partial-fold, outer landscape and outer-return poses. The Formats folder remains selected through these display changes. The exact Reader address draft survives five poses in one process. The disposable address was restored and the app reconnected; returning to the Library root after an explicit disconnect is expected. Recorded snapshots and the final restored state are audited in `test-screenshots/native-menu-ios26/duo-folds/result.json`.
+
+The browser resize matrix also passes after exercising the shared legacy connection sheet through disconnect, reconnect and automatic dismissal. Four adaptive checks and both iOS/Android bundle exports pass. Typecheck retains 106 known Tamagui prop diagnostics; moving the shared form changes their file locations and one conditional-child type description, with no new diagnostic category.
+
+Artifacts are under `test-screenshots/native-menu-ios26/`, including `duo-verified/results.xml`, `iphone-final/results.xml`, raw screenshots and the `images/` comparison figures. Reviewed references were updated for both devices. Earlier attempts are retained separately: a full disk interrupted one run, resolved by removing disposable compiler caches; a stale Duo automation companion was restarted before the fold probe. These are simulator/mock-reader UI checks, with no physical-device or reader-transfer claim.
+
+## Reader hardware icon — November 9, 2026
+
+The Reader destination now uses a custom monochrome template inspired by [official XTEink X3 hardware imagery](https://www.xteink.com/products/xteink-x3): an inset display, two reading strokes and two horizontal bottom controls. It represents the reader family rather than one exact model. It has no connection dot or badge. UIKit supplies the inactive, selected and dark-appearance tints. The editable source is `assets/icons/reader.svg`; `npm run build:reader-icon` generates the three native PNG scales with ImageMagick.
+
+The native navigation flow passed on Duo/iOS 27.1 and iPhone 17 Pro/iOS 26.5, and a separate Duo dark-appearance flow passed (**3/3**). These checks used the existing Release native binary with the updated Hermes bundle and icon assets; no native code changed for this icon. Android bundling passed, and typecheck retained the same 106 existing Tamagui diagnostics. The designer reviewed actual inactive and selected native captures across both devices and dark appearance and approved their clarity, weight and tint without further changes.
+
+Updated light references are in `test-references/ios/iphone-duo/light/` and `test-references/ios/iphone-17-pro/light/`. Raw captures, native test results and the device/detail comparison images are under `test-screenshots/reader-icon/`. This was a UI-only change using a disposable mock reader; firmware behavior was unchanged.
+
+Reviewed native screenshots (resized or cropped from simulator captures):
+
+![Library actions and navigation on Duo and iPhone](images/native-reader-navigation-2026-11-09/native-library-devices.png)
+
+![Reader destination on Duo and iPhone, including dark appearance](images/native-reader-navigation-2026-11-09/native-reader-icon-devices.png)
+
+![Reader icon detail, inactive and selected](images/native-reader-navigation-2026-11-09/native-reader-icon-detail.png)

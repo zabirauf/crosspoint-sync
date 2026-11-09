@@ -2,7 +2,7 @@
   "expo": {
     "name": "CrossPoint Sync",
     "slug": "crosspoint-sync",
-    "version": "1.2.0",
+    "version": "1.5.0",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "crosspointsync",
@@ -21,7 +21,8 @@
         "LSSupportsOpeningDocumentsInPlace": true,
         "NSLocalNetworkUsageDescription": "CrossPoint Sync needs local network access to discover and communicate with your e-ink reader device.",
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "buildNumber": "3"
     },
     "android": {
       "adaptiveIcon": {

@@ -1,0 +1,16 @@
+appId: com.crosspointsync.app
+name: "Return from Reader Connection"
+---
+- runFlow:
+    when:
+      visible:
+        id: "Reader.Screen"
+    commands:
+      - runFlow: navigate-to-library.yaml
+- runFlow:
+    when:
+      visible:
+        id: "Connection.CloseButton"
+    commands:
+      - tapOn:
+          id: "Connection.CloseButton"

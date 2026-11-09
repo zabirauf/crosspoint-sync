@@ -9,19 +9,23 @@ tags: [smoke, library, connected, requires-device]
 
 description: |
   Library tab connected to a device, showing a file browser with files and folders.
-  Header shows "Library" title with a green "Connected" pill.
+  Native iOS 26+ has Library, Reader and Settings destinations. Reader uses a
+  plain reader outline with no status/notification badge; connection status is
+  shown inside Reader. Other builds retain the green connected pill.
   Breadcrumb navigation shows current path (at least "Device" root).
   File list displays entries with file type icons, names, and sizes.
-  A floating action button (FAB) is visible in the bottom-right corner.
+  Add and Uploads use native iOS bars on iOS 26+. On Duo, these actions and the
+  Library/Reader/Settings tabs share the system rail when the
+  system uses vertical bars. Other platforms retain the floating Add button.
 
 assertions:
-  - text: "The connection pill shows 'Connected' with a green status dot"
+  - text: "Reader navigation or the connected pill is visible alongside the populated library"
     severity: fail
   - text: "At least one file or folder is visible in the list"
     severity: fail
   - text: "Each file row shows an icon, filename, and file size or chevron"
     severity: fail
-  - text: "The FAB button is visible in the bottom-right corner"
+  - text: "The Add control is visible in the toolbar or at the bottom right, without overlapping files"
     severity: fail
   - text: "Folder entries are visually distinct from file entries (folder icon)"
     severity: warning

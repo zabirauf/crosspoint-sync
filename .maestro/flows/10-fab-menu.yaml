@@ -1,5 +1,7 @@
 appId: com.crosspointsync.app
 name: "FAB Menu - Expanded State"
+tags:
+  - add-menu
 ---
 # Open the FAB menu from disconnected state and verify menu items
 - runFlow: ../helpers/ensure-disconnected.yaml
@@ -9,10 +11,10 @@ name: "FAB Menu - Expanded State"
 
 - waitForAnimationToEnd
 
-# Wait for the Reanimated menu animation to finish
+# Both the floating menu and the iOS system menu expose the same action title.
 - extendedWaitUntil:
     visible:
-      id: "FAB.UploadBook"
+      text: "Upload Files"
     timeout: 3000
 
 # Note: FAB.NewFolder is only visible when connected (showNewFolder={isConnected})

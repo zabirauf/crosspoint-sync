@@ -5,6 +5,17 @@ All notable changes to CrossPoint Sync will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-11-09
+
+### Added
+- Native iOS 26+ glass navigation and Add menus, with system right-rail placement on iPhone Duo.
+- A Reader destination beside Library and Settings, with an XTEink-style hardware icon.
+
+### Changed
+- Group Add and Uploads together and keep reader management beside Settings.
+- Show connection status inside Reader without a notification badge on its navigation icon.
+- Keep iOS app and extension build numbers aligned during Expo generation.
+
 ## [1.0.0] - Unreleased
 
 ### Added

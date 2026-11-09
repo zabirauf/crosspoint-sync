@@ -6,7 +6,7 @@ import { useUploadStore } from '@/stores/upload-store';
 import { getReaderName } from '@/constants/ReaderProfiles';
 import { LIBRARY_CONTEXT_PANEL_WIDTH } from '@/constants/Layout';
 
-export function LibraryContext({ onConnect, onQueue }: { onConnect: () => void; onQueue: () => void }) {
+export function LibraryContext({ onConnect, onQueue, showActions = true }: { onConnect: () => void; onQueue: () => void; showActions?: boolean }) {
   const { connectedDevice, connectionStatus, deviceStatus } = useDeviceStore();
   const jobs = useUploadStore((state) => state.jobs);
   const isDark = useColorScheme() === 'dark';
@@ -23,15 +23,15 @@ export function LibraryContext({ onConnect, onQueue }: { onConnect: () => void; 
           <Text fontSize="$3" color="$gray11" testID="Library.ReaderName">
             {connected && connectedDevice ? getReaderName(deviceStatus?.device, connectedDevice.hostname) : 'Connect your reader to browse its library.'}
           </Text>
-          <Button size="$4" onPress={onConnect} testID="Library.ManageConnection">
+          {showActions && <Button size="$4" onPress={onConnect} testID="Library.ManageConnection">
             {connected ? 'Connection' : 'Connect reader'}
-          </Button>
+          </Button>}
           <View style={{ height: 16 }} />
           <Text testID="Library.UploadHeading" fontSize="$4" fontWeight="600">Uploads</Text>
           <Text fontSize="$3" color="$gray11" testID="Library.QueueSummary">
             {uploading ? 'Transfer in progress' : attention ? `${attention} need attention` : waiting ? `${waiting} waiting` : 'No uploads waiting'}
           </Text>
-          <Button size="$4" chromeless onPress={onQueue} testID="Library.OpenQueue">View queue</Button>
+          {showActions && <Button size="$4" chromeless onPress={onQueue} testID="Library.OpenQueue">View queue</Button>}
         </YStack>
       </ScrollView>
     </View>

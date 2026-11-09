@@ -11,7 +11,7 @@ name: "Ensure Connected State"
 # Wait for the app to load
 - extendedWaitUntil:
     visible:
-      id: "Library.ConnectionPill"
+      id: "Library.ConnectionPill|TabBar.Reader"
     timeout: 10000
 
 # Wait for auto-reconnect to complete — wait for actual file rows to populate
