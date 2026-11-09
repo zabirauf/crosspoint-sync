@@ -14,7 +14,7 @@ The firmware's `isEpub` flag remains EPUB-specific. File icons use the app's for
 
 ## Firmware evidence and capability policy
 
-The local firmware checkout is `/Users/kakaagent/Documents/Projects/Opensource/crosspoint-reader`, inspected at `43694c9018d26446ab30cce2fa65ee608355ae50`.
+The firmware was inspected at commit `43694c9018d26446ab30cce2fa65ee608355ae50`.
 
 - [XtcTypes.h](https://github.com/crosspoint-reader/crosspoint-reader/blob/43694c9018d26446ab30cce2fa65ee608355ae50/lib/Xtc/Xtc/XtcTypes.h) defines XTG as a 1-bit bitmap and XTH as two 1-bit planes representing four gray levels. Both use a 22-byte page header.
 - [FsHelpers.cpp](https://github.com/crosspoint-reader/crosspoint-reader/blob/43694c9018d26446ab30cce2fa65ee608355ae50/lib/FsHelpers/FsHelpers.cpp) recognizes `.xtc` and `.xtch` as container extensions. [FileBrowserActivity.cpp](https://github.com/crosspoint-reader/crosspoint-reader/blob/43694c9018d26446ab30cce2fa65ee608355ae50/src/activities/home/FileBrowserActivity.cpp) does not expose standalone XTG/XTH readers.

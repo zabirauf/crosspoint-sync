@@ -1,5 +1,8 @@
 # EPUB Generator Test Cases
 # Used by scripts/epub-test.ts
+# Image MIME types describe bytes after preparation; source URLs can retain their
+# original extension. Native conversion and unsupported inputs are checked in
+# scripts/epub-compatibility-test.cjs.
 
 - name: "Text-only article"
   description: "Basic article with no images produces valid EPUB structure"
@@ -55,7 +58,7 @@
     noExternalImageUrls: true
 
 - name: "Protocol-relative URLs"
-  description: "Protocol-relative URLs (//cdn.example.com/img.jpg) are handled"
+  description: "Protocol-relative URLs still match images after conversion to a reader format"
   input:
     title: "Protocol Relative"
     author: "Author"
@@ -63,7 +66,7 @@
     html: '<p>Image:</p><img src="//cdn.example.com/hero.webp" alt="Hero">'
     images:
       - originalUrl: "//cdn.example.com/hero.webp"
-        mimeType: "image/webp"
+        mimeType: "image/jpeg"
   expect:
     hasValidStructure: true
     imageCount: 1
@@ -83,9 +86,9 @@
       - originalUrl: "https://img.example.com/b.png"
         mimeType: "image/png"
       - originalUrl: "https://img.example.com/c.gif"
-        mimeType: "image/gif"
+        mimeType: "image/jpeg"
       - originalUrl: "https://img.example.com/d.webp"
-        mimeType: "image/webp"
+        mimeType: "image/jpeg"
   expect:
     hasValidStructure: true
     imageCount: 4

@@ -160,6 +160,13 @@ The mock server runs on HTTP port 8082 and WebSocket port 8083 (macOS requires r
 
 The mock server provides a fake file system with sample books, so you can test file browsing, uploads, and the full connection lifecycle.
 
+For changes that depend on actual firmware behavior—generated books opening,
+reader API responses, transfers, or device profiles—also use the
+[CrossPoint firmware simulator testing guide](docs/testing/firmware-simulator.md).
+It covers a pinned build, isolated virtual SD cards, app connections, reader-side
+acceptance checks, and repeatable captures. The mock remains useful for fast UI
+checks and controlled network failures.
+
 ### iOS visual tests
 
 Install Maestro 2.10 or newer and the current app on an iOS simulator. Keep `npm run mock-device` running, then select the simulator explicitly:
