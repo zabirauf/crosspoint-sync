@@ -2,6 +2,7 @@ appId: com.crosspointsync.app
 name: "Upload Flow - FAB Menu"
 tags:
   - requires-device
+  - add-menu
 ---
 # Open the FAB menu from connected state to initiate an upload
 - runFlow: ../helpers/ensure-connected.yaml

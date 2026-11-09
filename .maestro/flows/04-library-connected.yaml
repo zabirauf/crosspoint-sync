@@ -10,6 +10,6 @@ tags:
     id: "Library.FileList"
 
 - assertVisible:
-    id: "Library.ConnectionPill"
+    id: "Library.ConnectionPill|TabBar.Reader"
 
 - takeScreenshot: library-connected-files

@@ -8,14 +8,15 @@ themes: [light]
 tags: [smoke, connection]
 
 description: |
-  Adaptive connection dialog is open, showing the disconnected state.
+  Reader connection controls show the disconnected state. On native iOS 26+
+  this is the Reader destination; other builds use an adaptive connection dialog.
   Header shows "Device" title with a "Not connected" status badge (gray dot).
   A "How to connect" info card explains connection methods (Join a Network, Create Hotspot).
   Below the card, a device address input field with a "Connect" button.
-  The dialog has a bounded width on expanded windows and scrolls in short windows.
+  The form has a bounded width on expanded windows and scrolls in short windows.
 
 assertions:
-  - text: "The sheet header shows 'Device' title"
+  - text: "The form shows the 'Device' title"
     severity: fail
   - text: "The connection status shows 'Not connected' with a gray dot"
     severity: fail
@@ -27,8 +28,8 @@ assertions:
     severity: fail
 
 focus_elements:
-  - id: "Connection.Sheet"
-    label: "Connection sheet"
+  - id: "Connection.Content"
+    label: "Connection controls"
   - id: "Connection.ConnectButton"
     label: "Connect button"
 

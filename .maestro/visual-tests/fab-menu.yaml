@@ -8,17 +8,18 @@ themes: [light]
 tags: [smoke, library, fab]
 
 description: |
-  The floating action button (FAB) menu is expanded, showing action options.
-  Options include "Upload Files" with a book icon and "Sleep Background" with a moon icon.
+  The Add menu is expanded, showing action options. It is a native system menu on
+  iOS 26+, anchored to a toolbar button in Duo's system rail (or a horizontal
+  toolbar when the system uses horizontal bars). Other layouts use a floating menu.
+  Options include "Upload Files" with a file or book icon and "Sleep Background" with a moon icon.
   When connected, also shows "New Folder" with a folder icon.
-  A semi-transparent backdrop covers the rest of the screen.
 
 assertions:
-  - text: "'Upload Files' option is visible with a book icon"
+  - text: "'Upload Files' option is visible with a file or book icon"
     severity: fail
   - text: "'Sleep Background' option is visible with a moon icon"
     severity: fail
-  - text: "The FAB button (plus icon) is visible at the bottom right"
+  - text: "The Add control and menu clear system controls and stay within the display"
     severity: fail
   - text: "Menu items have clear separation between them"
     severity: warning

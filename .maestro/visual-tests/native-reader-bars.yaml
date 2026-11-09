@@ -1,0 +1,36 @@
+id: native-reader-bars
+name: "Native iOS Reader Bars"
+flow: flows/18-native-reader-bars.yaml
+screenshots:
+  - native-reader-bars-library
+  - native-reader-bars-reader
+  - native-reader-bars-settings
+platforms: [ios]
+themes: [light]
+tags: [native-bars, requires-device]
+
+description: |
+  Library, Reader and Settings use native tab and navigation bars on iOS 26+.
+  On Duo's outer display and wide inner display the system places navigation
+  in the vertical rail under the status region. Add appears above Uploads in
+  the action group. Library, Reader and Settings form the navigation group.
+  Reader uses an XTEink-style outline with an inset screen, two reading lines
+  and bottom hardware-button bars. It has no badge; status is inside its page.
+  In poses with horizontal system
+  bars, the same controls appear in native horizontal bars.
+
+assertions:
+  - text: "Library, Reader and Settings navigation controls are visible and clear of system status controls"
+    severity: fail
+  - text: "Library shows Add followed by Uploads in a separate action group, without a floating Add button over the file list"
+    severity: fail
+  - text: "Reader resembles an e-reader with an inset display and bottom hardware controls, with no dot or notification badge"
+    severity: fail
+  - text: "The Reader page displays reader details and its connection status"
+    severity: fail
+  - text: "Content clears the system rail without a second app-drawn navigation rail"
+    severity: fail
+
+ignore:
+  - "Specific filenames, device address and upload count"
+  - "Exact system time, battery and signal values"

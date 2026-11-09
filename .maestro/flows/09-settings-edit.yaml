@@ -11,7 +11,7 @@ tags:
 # Wait for app to load
 - extendedWaitUntil:
     visible:
-      id: "Library.ConnectionPill"
+      id: "Library.ConnectionPill|TabBar.Reader"
     timeout: 10000
 
 # Navigate to Settings tab

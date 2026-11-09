@@ -12,7 +12,7 @@ tags:
 - runFlow: ../helpers/ensure-disconnected.yaml
 
 - tapOn:
-    id: "Library.ConnectionPill"
+    id: "Library.ConnectionPill|TabBar.Reader"
 - waitForAnimationToEnd
 
 - extendedWaitUntil:
@@ -36,6 +36,18 @@ tags:
 
 - tapOn:
     id: "Connection.ConnectButton"
+
+# Native Reader is a destination; return after connecting.
+- runFlow:
+    when:
+      visible:
+        id: "Reader.Screen"
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: "Connection.DisconnectButton"
+          timeout: 15000
+      - runFlow: ../helpers/navigate-to-library.yaml
 
 - extendedWaitUntil:
     visible:
@@ -86,7 +98,7 @@ tags:
 
 - extendedWaitUntil:
     visible:
-      id: "Library.ConnectionPill"
+      id: "Library.ConnectionPill|TabBar.Reader"
     timeout: 5000
 
 # === SCREENSHOT 6: Connection sheet (disconnected/idle) ===
@@ -95,7 +107,7 @@ tags:
 - waitForAnimationToEnd
 
 - tapOn:
-    id: "Library.ConnectionPill"
+    id: "Library.ConnectionPill|TabBar.Reader"
 
 - waitForAnimationToEnd
 

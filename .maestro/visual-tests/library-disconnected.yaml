@@ -12,11 +12,12 @@ description: |
   Shows an empty state with plug icon and "No Device Connected" message.
   Subtitle reads "Connect to your e-ink reader to browse and manage books."
   A "Connect" button is shown below the subtitle.
-  Header contains the "Library" title and a connection pill showing "Connect" with gray dot.
-  Tab bar at bottom with Library (selected) and Settings tabs.
+  A connection pill appears in older layouts; native iOS 26+ has a Reader tab
+  with a clean outline and no badge. Library (selected), Reader and Settings
+  appear in native bottom tabs or the side rail.
 
 assertions:
-  - text: "The connection pill in the header shows 'Connect' with a gray status dot"
+  - text: "Reader navigation or a connection pill is available"
     severity: fail
   - text: "An empty state icon is centered in the main content area"
     severity: fail
@@ -26,7 +27,7 @@ assertions:
     severity: warning
   - text: "A 'Connect' action button is visible"
     severity: fail
-  - text: "The tab bar shows Library and Settings tabs with Library selected"
+  - text: "Navigation shows Library and Settings, plus Reader on native iOS, with Library selected"
     severity: warning
   - text: "No loading spinners or error messages are visible"
     severity: warning
