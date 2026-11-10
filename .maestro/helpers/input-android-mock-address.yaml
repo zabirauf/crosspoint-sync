@@ -3,7 +3,8 @@ name: "Enter Android Emulator Mock Address"
 ---
 # The address field is already focused with its entire value selected.
 # Use Gboard's virtual keys to avoid hardware-key transport errors.
-- tapOn: "Cut"
+# Its Delete key also works when Android hides the selection's Cut toolbar.
+- tapOn: "Delete"
 - tapOn: "Symbol keyboard"
 - tapOn: "1"
 - tapOn: "0"

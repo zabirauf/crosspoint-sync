@@ -46,7 +46,8 @@ name: "Test Suite Setup - Connect Mock Device"
       platform: iOS
     commands:
       - tapOn:
-          text: "crosspoint\\.local|localhost:8082|10\\.0\\.2\\.2:8082"
+          id: "Connection.AddressInput"
+          point: "95%,50%"
       - eraseText: 30
       - inputText: "${typeof MOCK_DEVICE_ADDRESS === 'undefined' ? 'localhost:8082' : MOCK_DEVICE_ADDRESS}"
 
