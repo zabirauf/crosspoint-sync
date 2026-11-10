@@ -11,6 +11,7 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Put a separate blue glass Add button beside bottom navigation on iOS 26+, with Uploads in the header; retain the Duo system rail.
 
 ### Fixed
+- Match native tab backgrounds to the current header theme so Duo's outer display has no white strip in dark mode.
 - Keep native navigation tint and header actions after appearance changes, and use clear icon-only tabs in compact landscape.
 
 ## [1.5.0] - 2026-11-09

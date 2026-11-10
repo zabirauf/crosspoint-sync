@@ -1,0 +1,34 @@
+id: native-tab-surfaces
+name: "Native tab edge appearance"
+flow: flows/20-native-tab-surfaces.yaml
+screenshots:
+  - native-surface-dark-library
+  - native-surface-dark-reader
+  - native-surface-dark-settings
+  - native-surface-light-settings
+  - native-surface-light-reader
+  - native-surface-light-library
+  - native-surface-dark-after-toggle
+  - native-surface-light-after-toggle
+platforms: [ios]
+themes: [light, dark]
+tags: [native-surfaces]
+
+description: |
+  Native tabs use the current header surface across their full bounds,
+  including the area above Duo's outer navigation bar. The top edge is part
+  of the app and must be reviewed. The native rail/bottom bars and safe-area
+  placement remain intact across tab changes and appearance updates.
+
+assertions:
+  - text: "Dark screens have no white strip at the top edge; the exposed tab backdrop matches the header"
+    severity: fail
+  - text: "Light screens have a light top edge matching the header"
+    severity: fail
+  - text: "Library, Reader and Settings remain usable in their original native navigation positions"
+    severity: fail
+  - text: "Library Add and Uploads remain visible after appearance changes"
+    severity: fail
+
+ignore:
+  - "Clock, signal and battery values"
