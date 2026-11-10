@@ -16,7 +16,8 @@ description: |
   File list displays entries with file type icons, names, and sizes.
   Add and Uploads use native iOS bars on iOS 26+. On Duo, these actions and the
   Library/Reader/Settings tabs share the system rail when the
-  system uses vertical bars. Other platforms retain the floating Add button.
+  system uses vertical bars. Bottom navigation has a separate blue native Add
+  button; Uploads stays in the header. Other platforms retain the floating Add button.
 
 assertions:
   - text: "Reader navigation or the connected pill is visible alongside the populated library"

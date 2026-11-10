@@ -16,13 +16,13 @@ description: |
   the action group. Library, Reader and Settings form the navigation group.
   Reader uses an XTEink-style outline with an inset screen, two reading lines
   and bottom hardware-button bars. It has no badge; status is inside its page.
-  In poses with horizontal system
-  bars, the same controls appear in native horizontal bars.
+  With bottom navigation, Library has a separate blue native glass Add button
+  beside the navigation pill; Uploads stays in the header.
 
 assertions:
   - text: "Library, Reader and Settings navigation controls are visible and clear of system status controls"
     severity: fail
-  - text: "Library shows Add followed by Uploads in a separate action group, without a floating Add button over the file list"
+  - text: "Duo's vertical rail keeps Add followed by Uploads; bottom navigation has a separate blue Add button and header Uploads, without obscuring files"
     severity: fail
   - text: "Reader resembles an e-reader with an inset display and bottom hardware controls, with no dot or notification badge"
     severity: fail

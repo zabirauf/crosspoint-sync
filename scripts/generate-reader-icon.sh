@@ -5,6 +5,8 @@ set -euo pipefail
 # template images so the system controls selected, inactive and dark-mode tint.
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
+NATIVE_RESOURCES="modules/reader-toolbar/ios/Resources"
+mkdir -p "$NATIVE_RESOURCES"
 
 for SCALE in 1 2 3; do
   SUFFIX=""
@@ -12,4 +14,5 @@ for SCALE in 1 2 3; do
   magick -background none -density 384 assets/icons/reader.svg \
     -resize "$((24 * SCALE))x$((28 * SCALE))!" \
     "PNG32:assets/icons/reader${SUFFIX}.png"
+  cp "assets/icons/reader${SUFFIX}.png" "$NATIVE_RESOURCES/reader${SUFFIX}.png"
 done

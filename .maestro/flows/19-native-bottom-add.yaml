@@ -1,0 +1,93 @@
+appId: com.crosspointsync.app
+name: "Native Bottom Add - Menu and Navigation"
+tags:
+  - requires-device
+  - native-bars
+---
+- setOrientation: PORTRAIT
+- runFlow: ../helpers/ensure-connected.yaml
+- runFlow:
+    when:
+      visible:
+        id: "Reader.BottomNavigation"
+    commands:
+      - tapOn:
+          id: "Library.FileRow.Formats"
+      - tapOn:
+          id: "Library.FAB"
+      - assertVisible: "Upload Files"
+      - assertVisible: "Sleep Background"
+      - takeScreenshot: native-bottom-add-menu
+      - tapOn: "New Folder"
+      - assertVisible:
+          id: "PromptDialog.Input"
+      - inputText: "Bottom Add draft"
+      - assertVisible: "Bottom Add draft"
+      - takeScreenshot: native-bottom-add-folder
+      - tapOn:
+          id: "PromptDialog.CancelButton"
+      - tapOn:
+          id: "TabBar.Reader"
+      - assertVisible:
+          id: "Reader.Screen"
+      - assertNotVisible:
+          id: "Library.FAB"
+      - runFlow: ../helpers/navigate-to-settings.yaml
+      - assertVisible:
+          id: "Settings.UploadPath"
+      - runFlow: ../helpers/navigate-to-library.yaml
+      - assertVisible:
+          id: "Library.FileRow.Gettysburg-Address.epub"
+      - tapOn:
+          id: "Library.OpenQueue"
+      - assertVisible:
+          id: "UploadQueue.Sheet"
+      - tapOn:
+          id: "UploadQueue.CloseButton"
+      - assertVisible:
+          id: "Library.FAB"
+      - setOrientation: LANDSCAPE_LEFT
+      - tapOn:
+          id: "Library.FAB"
+      - assertVisible: "Upload Files"
+      - takeScreenshot: native-bottom-add-landscape-menu
+      - tapOn: "New Folder"
+      - assertVisible:
+          id: "PromptDialog.Input"
+      - tapOn:
+          id: "PromptDialog.CancelButton"
+      - takeScreenshot: native-bottom-add-landscape
+      - setOrientation: PORTRAIT
+      - takeScreenshot: native-bottom-add-library
+      - setDarkMode: enabled
+      - waitForAnimationToEnd
+      - tapOn:
+          id: "Library.FAB"
+      - assertVisible: "Upload Files"
+      - takeScreenshot: native-bottom-add-dark-menu
+      - tapOn: "New Folder"
+      - tapOn:
+          id: "PromptDialog.CancelButton"
+      - setDarkMode: disabled
+      - waitForAnimationToEnd
+      - assertVisible:
+          id: "Library.OpenQueue"
+      - takeScreenshot: native-bottom-add-after-appearance
+- runFlow:
+    when:
+      visible:
+        id: "Library.NativeToolbar"
+    commands:
+      - setDarkMode: enabled
+      - waitForAnimationToEnd
+      - assertVisible:
+          id: "Library.FAB"
+      - assertVisible:
+          id: "Library.OpenQueue"
+      - setDarkMode: disabled
+      - waitForAnimationToEnd
+      - assertVisible:
+          id: "Library.FAB"
+      - assertVisible:
+          id: "Library.OpenQueue"
+      - takeScreenshot: native-bars-after-appearance

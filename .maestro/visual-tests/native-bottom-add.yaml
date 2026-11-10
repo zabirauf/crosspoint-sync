@@ -1,0 +1,34 @@
+id: native-bottom-add
+name: "Native iPhone Bottom Add"
+flow: flows/19-native-bottom-add.yaml
+screenshots:
+  - native-bottom-add-menu
+  - native-bottom-add-folder
+  - native-bottom-add-library
+  - native-bottom-add-landscape-menu
+  - native-bottom-add-landscape
+  - native-bottom-add-dark-menu
+  - native-bottom-add-after-appearance
+platforms: [ios]
+themes: [light]
+tags: [native-bars, requires-device]
+
+description: |
+  When UIKit places navigation at the bottom, Library has a separate blue
+  native glass Add button at the trailing side of Library/Reader/Settings.
+  Uploads remains in the header. Add opens the native menu upward. The same
+  navigation controller retains the selected folder across tab changes.
+  On the system's vertical rail, Add and Uploads keep their existing placement.
+
+assertions:
+  - text: "A blue Add button is separated from the three navigation destinations without overlapping Settings or content"
+    severity: fail
+  - text: "The native Add menu stays within the display and shows Upload Files, New Folder and Sleep Background while connected"
+    severity: fail
+  - text: "The New Folder input and Cancel/Create actions remain reachable with the software keyboard open"
+    severity: fail
+  - text: "The library remains in Formats after visiting Reader and Settings"
+    severity: fail
+
+ignore:
+  - "Specific device address, timestamps and upload count"
