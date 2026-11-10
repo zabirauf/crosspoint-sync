@@ -101,3 +101,23 @@ Reviewed native screenshots (resized or cropped from simulator captures):
 Production version **1.5.0 (3)** was archived from source commit `22ad25db8b4c097c1ec076c512adfe49c66cc2ac` with Xcode 27.2 and the iOS 27.2 SDK. The archive contains the native ReaderToolbar module and all three final reader-icon scales. The app, Share Extension and Safari Web Extension all report version 1.5.0 and build 3. Their App Store distribution profiles have debugging disabled, and deep/strict package signature verification passed. The basic test suite also passed before publication.
 
 App Store Connect accepted the upload. Apple's notifications confirmed processing completed at **16:05:30 UTC** and **1.5.0 (3) was available to test at 16:05:44 UTC** on November 9. The existing internal TestFlight group automatically receives Xcode builds. The upload reported missing third-party dSYMs for React, ReactNativeDependencies and Hermes, matching the earlier release's symbol warnings; the upload itself succeeded. Local provenance and signing/upload logs are retained under `.local/testflight-1.5.0-build3/`. No App Store review submission was made.
+
+## Full iOS and Android regression — November 9, 2026
+
+Fresh native Release builds of **1.5.0** passed the complete ordered workspace on both iOS profiles and Android; the iOS build number is **3**, matching TestFlight. Production source is unchanged from the uploaded TestFlight build; the build checkout was `bcc0708761e56fe7fa55e410d86493097989155f`, whose changes after `22ad25d` were documentation only. [Structured results](native-ios-android-regression-2026-11-09.json) retain every case result and bundle hashes.
+
+| Device | Runtime | Complete run | Named captures |
+| --- | --- | --- | --- |
+| iPhone 17 Pro | iOS 26.5 | 18/18 passed | 23 |
+| iPhone Duo, outer display | iOS 27.1 | 18/18 passed | 23 |
+| Pixel 7 emulator | Android 16 / API 36 | 19/19 passed | 24 |
+
+All **55 JUnit cases** have zero failures or errors. Android includes the 18 workspace cases plus the reopened-landscape-keyboard regression; its iOS-only native-bar action branch is guarded out. The keyboard check verifies the retained rename and folder drafts, reachable actions with the keyboard open, restored Move footer after dismissal, actual mock folder creation and cancellation. The 70 captures were reviewed, with detailed checks of the iPhone rename and Android Move/keyboard layouts. The full iOS runs required no startup recovery.
+
+The tests use separate full fixture copies and disposable mock readers, on HTTP 8084 for iOS and 8082 for Android. Android handwriting was disabled and the software keyboard enabled for the run; both settings were restored afterward. Test setup now clears selected Android address text with Gboard's Delete key, avoiding its transient Cut toolbar, and targets the iOS address field by identifier so saved custom mock ports work on reruns. The corrected Android address-entry check separately passed 1/1.
+
+Earlier keyboard/fixture failures and a sharding rejection before flow execution are retained separately. The complete results above are fresh runs after those setup issues were resolved. Final reports, screenshots and per-flow logs are in `test-screenshots/pr36-mobile/ios-iphone-complete/`, `ios-duo-complete/` and `android-complete-fixtures/`. Build logs and provenance are under `.local/pr36-mobile-tests/`. Task-owned devices and mock servers were stopped after verification.
+
+This pass covers native UI behavior with mock readers. The standard Upload Flow opens the Add menu; it does not automate native book-picker selection or verify reader transfers. Duo's orientation commands are not a new physical-fold claim; the separate fold evidence above remains applicable. No firmware behavior changed.
+
+![Android Library and landscape keyboard regression captures](images/native-reader-navigation-2026-11-09/android-native-validation.png)

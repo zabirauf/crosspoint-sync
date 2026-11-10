@@ -1,0 +1,372 @@
+{
+  "sourceCommit": "bcc0708761e56fe7fa55e410d86493097989155f",
+  "productionSourceMatchesTestFlightCommit": "22ad25db8b4c097c1ec076c512adfe49c66cc2ac",
+  "appVersion": "1.5.0",
+  "iosBuild": "3",
+  "androidVersionCode": 1,
+  "buildConfiguration": "Release",
+  "iosBundleSHA256": "568bbcd1c96c5a5b4ec728791c488f113b98466c3ec138612418946deb24d2df",
+  "androidApkSHA256": "1d13231bb52112bf2ac69cd7a1b78982e162990b444881ca6d16cce094bf35d9",
+  "scope": "Native simulator/emulator UI flows against isolated disposable mock readers",
+  "totalTests": 55,
+  "totalFailures": 0,
+  "runs": [
+    {
+      "device": "iPhone 17 Pro",
+      "runtime": "iOS 26.5",
+      "tests": 18,
+      "failures": 0,
+      "namedScreenshots": 23,
+      "cases": [
+        {
+          "name": "Test Suite Setup - Connect Mock Device",
+          "status": "passed",
+          "durationSeconds": 70.846,
+          "flow": ".maestro/flows/00-setup.yaml"
+        },
+        {
+          "name": "App Launch - Cold Start",
+          "status": "passed",
+          "durationSeconds": 46.716,
+          "flow": ".maestro/flows/01-app-launch.yaml"
+        },
+        {
+          "name": "Library Tab - Disconnected State",
+          "status": "passed",
+          "durationSeconds": 46.304,
+          "flow": ".maestro/flows/02-library-disconnected.yaml"
+        },
+        {
+          "name": "Device Connection - Connection Sheet",
+          "status": "passed",
+          "durationSeconds": 48.276,
+          "flow": ".maestro/flows/03-device-connection.yaml"
+        },
+        {
+          "name": "Library Tab - Connected with Files",
+          "status": "passed",
+          "durationSeconds": 6.657,
+          "flow": ".maestro/flows/04-library-connected.yaml"
+        },
+        {
+          "name": "Library - Supported File Formats",
+          "status": "passed",
+          "durationSeconds": 14.777,
+          "flow": ".maestro/flows/16-book-formats.yaml"
+        },
+        {
+          "name": "File Navigation - Browse Folders",
+          "status": "passed",
+          "durationSeconds": 7.96,
+          "flow": ".maestro/flows/05-file-navigation.yaml"
+        },
+        {
+          "name": "Upload Flow - FAB Menu",
+          "status": "passed",
+          "durationSeconds": 7.92,
+          "flow": ".maestro/flows/06-upload-flow.yaml"
+        },
+        {
+          "name": "Settings Screen - Main View",
+          "status": "passed",
+          "durationSeconds": 15.083,
+          "flow": ".maestro/flows/08-settings-screen.yaml"
+        },
+        {
+          "name": "Settings - Edit Upload Path",
+          "status": "passed",
+          "durationSeconds": 16.295,
+          "flow": ".maestro/flows/09-settings-edit.yaml"
+        },
+        {
+          "name": "FAB Menu - Expanded State",
+          "status": "passed",
+          "durationSeconds": 59.323,
+          "flow": ".maestro/flows/10-fab-menu.yaml"
+        },
+        {
+          "name": "Dark Mode - Library Disconnected",
+          "status": "passed",
+          "durationSeconds": 50.936,
+          "flow": ".maestro/flows/11-dark-mode.yaml"
+        },
+        {
+          "name": "File Action Sheet",
+          "status": "passed",
+          "durationSeconds": 8.146,
+          "flow": ".maestro/flows/12-file-action-sheet.yaml"
+        },
+        {
+          "name": "Rename Dialog",
+          "status": "passed",
+          "durationSeconds": 11.421,
+          "flow": ".maestro/flows/13-rename-dialog.yaml"
+        },
+        {
+          "name": "Move Sheet",
+          "status": "passed",
+          "durationSeconds": 9.943,
+          "flow": ".maestro/flows/14-move-sheet.yaml"
+        },
+        {
+          "name": "Move Sheet - New Folder Dialog",
+          "status": "passed",
+          "durationSeconds": 15.54,
+          "flow": ".maestro/flows/15-move-new-folder.yaml"
+        },
+        {
+          "name": "Adaptive Layout - Resize Continuity",
+          "status": "passed",
+          "durationSeconds": 38.11,
+          "flow": ".maestro/flows/17-adaptive-layout.yaml"
+        },
+        {
+          "name": "Native Reader Bars - Actions and Navigation",
+          "status": "passed",
+          "durationSeconds": 29.83,
+          "flow": ".maestro/flows/18-native-reader-bars.yaml"
+        }
+      ]
+    },
+    {
+      "device": "iPhone Duo outer display",
+      "runtime": "iOS 27.1",
+      "tests": 18,
+      "failures": 0,
+      "namedScreenshots": 23,
+      "cases": [
+        {
+          "name": "Test Suite Setup - Connect Mock Device",
+          "status": "passed",
+          "durationSeconds": 85.269,
+          "flow": ".maestro/flows/00-setup.yaml"
+        },
+        {
+          "name": "App Launch - Cold Start",
+          "status": "passed",
+          "durationSeconds": 49.309,
+          "flow": ".maestro/flows/01-app-launch.yaml"
+        },
+        {
+          "name": "Library Tab - Disconnected State",
+          "status": "passed",
+          "durationSeconds": 50.58,
+          "flow": ".maestro/flows/02-library-disconnected.yaml"
+        },
+        {
+          "name": "Device Connection - Connection Sheet",
+          "status": "passed",
+          "durationSeconds": 54.569,
+          "flow": ".maestro/flows/03-device-connection.yaml"
+        },
+        {
+          "name": "Library Tab - Connected with Files",
+          "status": "passed",
+          "durationSeconds": 8.707,
+          "flow": ".maestro/flows/04-library-connected.yaml"
+        },
+        {
+          "name": "Library - Supported File Formats",
+          "status": "passed",
+          "durationSeconds": 18.353,
+          "flow": ".maestro/flows/16-book-formats.yaml"
+        },
+        {
+          "name": "File Navigation - Browse Folders",
+          "status": "passed",
+          "durationSeconds": 10.551,
+          "flow": ".maestro/flows/05-file-navigation.yaml"
+        },
+        {
+          "name": "Upload Flow - FAB Menu",
+          "status": "passed",
+          "durationSeconds": 22.584,
+          "flow": ".maestro/flows/06-upload-flow.yaml"
+        },
+        {
+          "name": "Settings Screen - Main View",
+          "status": "passed",
+          "durationSeconds": 32.724,
+          "flow": ".maestro/flows/08-settings-screen.yaml"
+        },
+        {
+          "name": "Settings - Edit Upload Path",
+          "status": "passed",
+          "durationSeconds": 22.308,
+          "flow": ".maestro/flows/09-settings-edit.yaml"
+        },
+        {
+          "name": "FAB Menu - Expanded State",
+          "status": "passed",
+          "durationSeconds": 52.574,
+          "flow": ".maestro/flows/10-fab-menu.yaml"
+        },
+        {
+          "name": "Dark Mode - Library Disconnected",
+          "status": "passed",
+          "durationSeconds": 50.381,
+          "flow": ".maestro/flows/11-dark-mode.yaml"
+        },
+        {
+          "name": "File Action Sheet",
+          "status": "passed",
+          "durationSeconds": 10.08,
+          "flow": ".maestro/flows/12-file-action-sheet.yaml"
+        },
+        {
+          "name": "Rename Dialog",
+          "status": "passed",
+          "durationSeconds": 15.055,
+          "flow": ".maestro/flows/13-rename-dialog.yaml"
+        },
+        {
+          "name": "Move Sheet",
+          "status": "passed",
+          "durationSeconds": 12.692,
+          "flow": ".maestro/flows/14-move-sheet.yaml"
+        },
+        {
+          "name": "Move Sheet - New Folder Dialog",
+          "status": "passed",
+          "durationSeconds": 15.036,
+          "flow": ".maestro/flows/15-move-new-folder.yaml"
+        },
+        {
+          "name": "Adaptive Layout - Resize Continuity",
+          "status": "passed",
+          "durationSeconds": 33.225,
+          "flow": ".maestro/flows/17-adaptive-layout.yaml"
+        },
+        {
+          "name": "Native Reader Bars - Actions and Navigation",
+          "status": "passed",
+          "durationSeconds": 30.503,
+          "flow": ".maestro/flows/18-native-reader-bars.yaml"
+        }
+      ]
+    },
+    {
+      "device": "Pixel 7 emulator",
+      "runtime": "Android 16 / API 36",
+      "tests": 19,
+      "failures": 0,
+      "namedScreenshots": 24,
+      "cases": [
+        {
+          "name": "Test Suite Setup - Connect Mock Device",
+          "status": "passed",
+          "durationSeconds": 60.41,
+          "flow": ".maestro/flows/00-setup.yaml"
+        },
+        {
+          "name": "App Launch - Cold Start",
+          "status": "passed",
+          "durationSeconds": 40.188,
+          "flow": ".maestro/flows/01-app-launch.yaml"
+        },
+        {
+          "name": "Library Tab - Disconnected State",
+          "status": "passed",
+          "durationSeconds": 40.318,
+          "flow": ".maestro/flows/02-library-disconnected.yaml"
+        },
+        {
+          "name": "Device Connection - Connection Sheet",
+          "status": "passed",
+          "durationSeconds": 43.25,
+          "flow": ".maestro/flows/03-device-connection.yaml"
+        },
+        {
+          "name": "Library Tab - Connected with Files",
+          "status": "passed",
+          "durationSeconds": 4.5,
+          "flow": ".maestro/flows/04-library-connected.yaml"
+        },
+        {
+          "name": "Library - Supported File Formats",
+          "status": "passed",
+          "durationSeconds": 16.102,
+          "flow": ".maestro/flows/16-book-formats.yaml"
+        },
+        {
+          "name": "File Navigation - Browse Folders",
+          "status": "passed",
+          "durationSeconds": 6.766,
+          "flow": ".maestro/flows/05-file-navigation.yaml"
+        },
+        {
+          "name": "Upload Flow - FAB Menu",
+          "status": "passed",
+          "durationSeconds": 8.118,
+          "flow": ".maestro/flows/06-upload-flow.yaml"
+        },
+        {
+          "name": "Settings Screen - Main View",
+          "status": "passed",
+          "durationSeconds": 11.55,
+          "flow": ".maestro/flows/08-settings-screen.yaml"
+        },
+        {
+          "name": "Settings - Edit Upload Path",
+          "status": "passed",
+          "durationSeconds": 13.592,
+          "flow": ".maestro/flows/09-settings-edit.yaml"
+        },
+        {
+          "name": "FAB Menu - Expanded State",
+          "status": "passed",
+          "durationSeconds": 44.351,
+          "flow": ".maestro/flows/10-fab-menu.yaml"
+        },
+        {
+          "name": "Dark Mode - Library Disconnected",
+          "status": "passed",
+          "durationSeconds": 41.261,
+          "flow": ".maestro/flows/11-dark-mode.yaml"
+        },
+        {
+          "name": "File Action Sheet",
+          "status": "passed",
+          "durationSeconds": 6.529,
+          "flow": ".maestro/flows/12-file-action-sheet.yaml"
+        },
+        {
+          "name": "Rename Dialog",
+          "status": "passed",
+          "durationSeconds": 36.629,
+          "flow": ".maestro/flows/13-rename-dialog.yaml"
+        },
+        {
+          "name": "Move Sheet",
+          "status": "passed",
+          "durationSeconds": 13.456,
+          "flow": ".maestro/flows/14-move-sheet.yaml"
+        },
+        {
+          "name": "Move Sheet - New Folder Dialog",
+          "status": "passed",
+          "durationSeconds": 14.328,
+          "flow": ".maestro/flows/15-move-new-folder.yaml"
+        },
+        {
+          "name": "Adaptive Layout - Resize Continuity",
+          "status": "passed",
+          "durationSeconds": 46.647,
+          "flow": ".maestro/flows/17-adaptive-layout.yaml"
+        },
+        {
+          "name": "Native Reader Bars - Actions and Navigation",
+          "status": "passed",
+          "durationSeconds": 10.567,
+          "flow": ".maestro/flows/18-native-reader-bars.yaml"
+        },
+        {
+          "name": "Android - Landscape Keyboard Reachability",
+          "status": "passed",
+          "durationSeconds": 84.248,
+          "flow": ".maestro/manual-flows/android-keyboard-landscape.yaml"
+        }
+      ]
+    }
+  ]
+}
