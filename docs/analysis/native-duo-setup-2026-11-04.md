@@ -92,7 +92,7 @@ Reviewed native screenshots (resized or cropped from simulator captures):
 
 ![Library actions and navigation on Duo and iPhone](images/native-reader-navigation-2026-11-09/native-library-devices.png)
 
-![Reader destination on Duo and iPhone, including dark appearance](images/native-reader-navigation-2026-11-09/native-reader-icon-devices.png)
+![Reader destination on Duo and iPhone](images/native-reader-navigation-2026-11-09/native-reader-icon-devices.png)
 
 ![Reader icon detail, inactive and selected](images/native-reader-navigation-2026-11-09/native-reader-icon-detail.png)
 
@@ -121,3 +121,33 @@ Earlier keyboard/fixture failures and a sharding rejection before flow execution
 This pass covers native UI behavior with mock readers. The standard Upload Flow opens the Add menu; it does not automate native book-picker selection or verify reader transfers. Duo's orientation commands are not a new physical-fold claim; the separate fold evidence above remains applicable. No firmware behavior changed.
 
 ![Android Library and landscape keyboard regression captures](images/native-reader-navigation-2026-11-09/android-native-validation.png)
+
+## Prominent bottom Add follow-up — November 9, 2026
+
+When UIKit places navigation horizontally, Library now shows a separate blue native glass **+** beside Library, Reader and Settings. Uploads remains in the header. The implementation uses a public standalone `UITabBar` and glass `UIButton`; the existing tab controller continues to own screen state, selection, safe areas and system placement. Its bar remains in layout with its presentation hidden only in the horizontal case. Actual native bar geometry selects this presentation, with no device-model or window-width check. Duo's vertical system rail retains its original Add/Uploads group and destinations.
+
+Portrait tabs retain labels. Compact-height tabs use icons with accessible names, avoiding UIKit's overlapping compact titles in the standalone bar. The Add menu keeps Upload Files, New Folder and Sleep Background in that visual order in both layouts. The designer approved the regular iPhone's portrait discoverability, spacing and action/destination grouping; their menu-order feedback was applied using UIKit's fixed menu element order.
+
+Appearance audits found that React Navigation could update native tint after the initial theme notification and remove the custom Uploads header item during header reconfiguration. A UIKit tint observer and button attachment callback refresh the existing presentation after those changes. They do not poll or replace the screen tree. A separate geometry audit caught an 8.5-point compact alignment difference; Add now aligns with the native selected control's rendered row. Final screenshot review also caught overlapping compact labels, which led to the accessible icon-only presentation before the final suite reruns.
+
+The final Release simulator build uses source `6e741a2f86676f3fba66320dd512b645804c0b12`, Xcode 27.2 and the iOS Simulator 27.2 SDK. [Structured results and build hashes](native-bottom-add-validation-2026-11-09.json) retain every final case and sanitized native layout record.
+
+| Device | Runtime | Scope | Result |
+| --- | --- | --- | --- |
+| iPhone 17 Pro | iOS 26.5 | Complete ordered suite | 19/19 passed |
+| iPhone Duo | iOS 27.1 | Complete ordered suite | 19/19 passed |
+| Pixel 7 emulator | Android 16 / API 36 | Selected regression including landscape keyboard | 7/7 passed |
+
+The new native flow opens the Add menu in light/dark appearance and landscape, types and cancels a folder draft, switches Reader/Settings in both orientations, retains the Formats folder and opens/closes Uploads. It also checks header actions after hot appearance changes on both iOS profiles. Final captures were reviewed and references updated in `test-references/ios/iphone-17-pro/` and `test-references/ios/iphone-duo/`. Adaptive checks passed 4/4 and visual-runner checks passed 7/7.
+
+The physical rotation audit on the iPhone simulator verifies distinct, nonoverlapping controls, a 54-point portrait / 44-point compact Add target and restoration of the selected Library tint. The portrait Add target clears the Settings accessibility frame by 34 points. Actual Duo hinge/rotation APIs exercised outer, wide inner, tall inner, partial fold and outer return. Formats stayed selected; the tall inner pose used bottom controls and the other audited poses used the system rail. A second pass retained the exact “Bottom action fold draft” text, `/Formats` destination and reachable Create/Cancel/Close actions across all five poses in one app process. The draft was cancelled.
+
+Android runtime code, shared JavaScript and icon assets are unchanged from the earlier full 19/19 Android pass. The selected rerun reused that verified 1.5.0 APK; two cases guard out their iOS-specific branches. An initial emulator snapshot restored an old 1.2.0 app, so the reported run follows reinstallation and version verification of 1.5.0. Keyboard/handwriting settings were restored afterward.
+
+Final artifacts are in `test-screenshots/bottom-add/iphone-compact-final/`, `duo-compact-final/`, `android-final/` and `layout-audit-compact/`; earlier attempts remain separate. Build and audit logs are under `.local/bottom-add/`. These checks use disposable mock readers and native simulators/emulators. No device API or generated-content behavior changed, so the firmware simulator was not required. They do not claim physical-device, picker-selection or reader-transfer acceptance coverage.
+
+The published **TestFlight 1.5.0 (3)** described above predates this bottom Add follow-up. These simulator builds reuse the local version/build values for testing; this follow-up has not uploaded a new App Store Connect build.
+
+![Regular iPhone Add menu in light and dark appearance](images/native-reader-navigation-2026-11-09/native-bottom-add-menus.png)
+
+![Compact iPhone navigation and Add menu](images/native-reader-navigation-2026-11-09/native-bottom-add-landscape.png)

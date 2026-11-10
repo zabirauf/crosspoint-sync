@@ -5,6 +5,14 @@ All notable changes to CrossPoint Sync will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- Put a separate blue glass Add button beside bottom navigation on iOS 26+, with Uploads in the header; retain the Duo system rail.
+
+### Fixed
+- Keep native navigation tint and header actions after appearance changes, and use clear icon-only tabs in compact landscape.
+
 ## [1.5.0] - 2026-11-09
 
 ### Added
