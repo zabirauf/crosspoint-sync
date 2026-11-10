@@ -1,0 +1,817 @@
+{
+  "issue": "Duo cold inner launch clips content at the outer-display width",
+  "productionSourceCommit": "82730ad49c8e807a1ea71b116d079f01ac92a157",
+  "before": {
+    "scene": [
+      951,
+      669
+    ],
+    "reactRoot": [
+      951,
+      669
+    ],
+    "nativeTabsReactHost": [
+      951,
+      669
+    ],
+    "embeddedNativeTabController": [
+      466,
+      678
+    ],
+    "activeDisplaySnapshotRejectedByRegressionChecker": true
+  },
+  "after": {
+    "scene": [
+      951,
+      669
+    ],
+    "nativeTabsReactHost": [
+      951,
+      669
+    ],
+    "embeddedNativeTabController": [
+      951,
+      669
+    ]
+  },
+  "coldLaunch": {
+    "passed": true,
+    "version": "1.5.0",
+    "build": "6",
+    "count": 18,
+    "records": [
+      {
+        "pose": "outer",
+        "appearance": "dark",
+        "tab": "Library",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3,
+            "unique_id": "F00FC4DC-080B-4308-B742-B711F977527D"
+          },
+          "height": 678,
+          "width": 466
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 494
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 544
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 594
+          },
+          "Library.FAB": {
+            "height": 38,
+            "width": 38,
+            "x": 399,
+            "y": 179
+          },
+          "Library.OpenQueue": {
+            "height": 38,
+            "width": 38,
+            "x": 399,
+            "y": 231
+          }
+        }
+      },
+      {
+        "pose": "outer",
+        "appearance": "dark",
+        "tab": "Reader",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3,
+            "unique_id": "F00FC4DC-080B-4308-B742-B711F977527D"
+          },
+          "height": 678,
+          "width": 466
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 494
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 544
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 594
+          }
+        }
+      },
+      {
+        "pose": "outer",
+        "appearance": "dark",
+        "tab": "Settings",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3,
+            "unique_id": "F00FC4DC-080B-4308-B742-B711F977527D"
+          },
+          "height": 678,
+          "width": 466
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 494
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 544
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 594
+          }
+        }
+      },
+      {
+        "pose": "inner-wide",
+        "appearance": "dark",
+        "tab": "Library",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3,
+            "unique_id": "B98C1278-87E0-4BC2-A8F5-C0E8AF0C3DC0"
+          },
+          "height": 669,
+          "width": 951
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 485
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 535
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 585
+          },
+          "Library.FAB": {
+            "height": 38,
+            "width": 38,
+            "x": 884,
+            "y": 129
+          },
+          "Library.OpenQueue": {
+            "height": 38,
+            "width": 38,
+            "x": 884,
+            "y": 181
+          }
+        }
+      },
+      {
+        "pose": "inner-wide",
+        "appearance": "dark",
+        "tab": "Reader",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3,
+            "unique_id": "B98C1278-87E0-4BC2-A8F5-C0E8AF0C3DC0"
+          },
+          "height": 669,
+          "width": 951
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 485
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 535
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 585
+          }
+        }
+      },
+      {
+        "pose": "inner-wide",
+        "appearance": "dark",
+        "tab": "Settings",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3,
+            "unique_id": "B98C1278-87E0-4BC2-A8F5-C0E8AF0C3DC0"
+          },
+          "height": 669,
+          "width": 951
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 485
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 535
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 585
+          }
+        }
+      },
+      {
+        "pose": "inner-tall",
+        "appearance": "dark",
+        "tab": "Library",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3,
+            "unique_id": "B98C1278-87E0-4BC2-A8F5-C0E8AF0C3DC0"
+          },
+          "height": 951,
+          "width": 669
+        },
+        "placement": "bottom-companion",
+        "controls": {
+          "Library": {
+            "height": 54,
+            "width": 94,
+            "x": 165.5,
+            "y": 872
+          },
+          "Reader": {
+            "height": 54,
+            "width": 94,
+            "x": 251.5,
+            "y": 872
+          },
+          "Settings": {
+            "height": 54,
+            "width": 94,
+            "x": 337.5,
+            "y": 872
+          },
+          "Library.FAB": {
+            "height": 54,
+            "width": 54,
+            "x": 474.5,
+            "y": 872
+          },
+          "Library.OpenQueue": {
+            "height": 20,
+            "width": 40,
+            "x": 481,
+            "y": 38
+          }
+        }
+      },
+      {
+        "pose": "inner-tall",
+        "appearance": "dark",
+        "tab": "Reader",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3,
+            "unique_id": "B98C1278-87E0-4BC2-A8F5-C0E8AF0C3DC0"
+          },
+          "height": 951,
+          "width": 669
+        },
+        "placement": "bottom-companion",
+        "controls": {
+          "Library": {
+            "height": 54,
+            "width": 94,
+            "x": 165.5,
+            "y": 872
+          },
+          "Reader": {
+            "height": 54,
+            "width": 94,
+            "x": 251.5,
+            "y": 872
+          },
+          "Settings": {
+            "height": 54,
+            "width": 94,
+            "x": 337.5,
+            "y": 872
+          }
+        }
+      },
+      {
+        "pose": "inner-tall",
+        "appearance": "dark",
+        "tab": "Settings",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3,
+            "unique_id": "B98C1278-87E0-4BC2-A8F5-C0E8AF0C3DC0"
+          },
+          "height": 951,
+          "width": 669
+        },
+        "placement": "bottom-companion",
+        "controls": {
+          "Library": {
+            "height": 54,
+            "width": 94,
+            "x": 165.5,
+            "y": 872
+          },
+          "Reader": {
+            "height": 54,
+            "width": 94,
+            "x": 251.5,
+            "y": 872
+          },
+          "Settings": {
+            "height": 54,
+            "width": 94,
+            "x": 337.5,
+            "y": 872
+          }
+        }
+      },
+      {
+        "pose": "outer",
+        "appearance": "light",
+        "tab": "Library",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3,
+            "unique_id": "F00FC4DC-080B-4308-B742-B711F977527D"
+          },
+          "height": 678,
+          "width": 466
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 494
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 544
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 594
+          },
+          "Library.FAB": {
+            "height": 38,
+            "width": 38,
+            "x": 399,
+            "y": 179
+          },
+          "Library.OpenQueue": {
+            "height": 38,
+            "width": 38,
+            "x": 399,
+            "y": 231
+          }
+        }
+      },
+      {
+        "pose": "outer",
+        "appearance": "light",
+        "tab": "Reader",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3,
+            "unique_id": "F00FC4DC-080B-4308-B742-B711F977527D"
+          },
+          "height": 678,
+          "width": 466
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 494
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 544
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 594
+          }
+        }
+      },
+      {
+        "pose": "outer",
+        "appearance": "light",
+        "tab": "Settings",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3,
+            "unique_id": "F00FC4DC-080B-4308-B742-B711F977527D"
+          },
+          "height": 678,
+          "width": 466
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 494
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 544
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 594
+          }
+        }
+      },
+      {
+        "pose": "inner-wide",
+        "appearance": "light",
+        "tab": "Library",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3,
+            "unique_id": "B98C1278-87E0-4BC2-A8F5-C0E8AF0C3DC0"
+          },
+          "height": 669,
+          "width": 951
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 485
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 535
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 585
+          },
+          "Library.FAB": {
+            "height": 38,
+            "width": 38,
+            "x": 884,
+            "y": 129
+          },
+          "Library.OpenQueue": {
+            "height": 38,
+            "width": 38,
+            "x": 884,
+            "y": 181
+          }
+        }
+      },
+      {
+        "pose": "inner-wide",
+        "appearance": "light",
+        "tab": "Reader",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3,
+            "unique_id": "B98C1278-87E0-4BC2-A8F5-C0E8AF0C3DC0"
+          },
+          "height": 669,
+          "width": 951
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 485
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 535
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 585
+          }
+        }
+      },
+      {
+        "pose": "inner-wide",
+        "appearance": "light",
+        "tab": "Settings",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3,
+            "unique_id": "B98C1278-87E0-4BC2-A8F5-C0E8AF0C3DC0"
+          },
+          "height": 669,
+          "width": 951
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 485
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 535
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 585
+          }
+        }
+      },
+      {
+        "pose": "inner-tall",
+        "appearance": "light",
+        "tab": "Library",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3,
+            "unique_id": "B98C1278-87E0-4BC2-A8F5-C0E8AF0C3DC0"
+          },
+          "height": 951,
+          "width": 669
+        },
+        "placement": "bottom-companion",
+        "controls": {
+          "Library": {
+            "height": 54,
+            "width": 94,
+            "x": 165.5,
+            "y": 872
+          },
+          "Reader": {
+            "height": 54,
+            "width": 94,
+            "x": 251.5,
+            "y": 872
+          },
+          "Settings": {
+            "height": 54,
+            "width": 94,
+            "x": 337.5,
+            "y": 872
+          },
+          "Library.FAB": {
+            "height": 54,
+            "width": 54,
+            "x": 474.5,
+            "y": 872
+          },
+          "Library.OpenQueue": {
+            "height": 20,
+            "width": 40,
+            "x": 481,
+            "y": 38
+          }
+        }
+      },
+      {
+        "pose": "inner-tall",
+        "appearance": "light",
+        "tab": "Reader",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3,
+            "unique_id": "B98C1278-87E0-4BC2-A8F5-C0E8AF0C3DC0"
+          },
+          "height": 951,
+          "width": 669
+        },
+        "placement": "bottom-companion",
+        "controls": {
+          "Library": {
+            "height": 54,
+            "width": 94,
+            "x": 165.5,
+            "y": 872
+          },
+          "Reader": {
+            "height": 54,
+            "width": 94,
+            "x": 251.5,
+            "y": 872
+          },
+          "Settings": {
+            "height": 54,
+            "width": 94,
+            "x": 337.5,
+            "y": 872
+          }
+        }
+      },
+      {
+        "pose": "inner-tall",
+        "appearance": "light",
+        "tab": "Settings",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3,
+            "unique_id": "B98C1278-87E0-4BC2-A8F5-C0E8AF0C3DC0"
+          },
+          "height": 951,
+          "width": 669
+        },
+        "placement": "bottom-companion",
+        "controls": {
+          "Library": {
+            "height": 54,
+            "width": 94,
+            "x": 165.5,
+            "y": 872
+          },
+          "Reader": {
+            "height": 54,
+            "width": 94,
+            "x": 251.5,
+            "y": 872
+          },
+          "Settings": {
+            "height": 54,
+            "width": 94,
+            "x": 337.5,
+            "y": 872
+          }
+        }
+      }
+    ]
+  },
+  "appearancePixels": {
+    "cold": {
+      "passed": true,
+      "count": 18
+    },
+    "folds": {
+      "passed": true,
+      "count": 30
+    },
+    "iphone": {
+      "passed": true,
+      "count": 8
+    }
+  },
+  "iphoneFlows": {
+    "passed": true,
+    "count": 3
+  },
+  "androidFlows": {
+    "passed": true,
+    "count": 6
+  },
+  "androidArtifact": "Unchanged Android 1.5.0 APK, freshly installed; production change is iOS Swift only",
+  "draftContinuity": {
+    "passed": true,
+    "value": "Cold launch fold draft",
+    "destination": "/Formats",
+    "steps": 5,
+    "sameProcess": true,
+    "submitted": false,
+    "note": "The modal retained wide geometry during the attempted inner-tall rotation."
+  },
+  "basicSuite": "passed",
+  "testToolLimitation": "Maestro cold-inner screenshots use the inactive outer display; active-display-aware idb supplies the cold-launch regression instead.",
+  "release": {
+    "version": "1.5.0",
+    "build": "6",
+    "status": "available",
+    "processedUTC": "2026-11-10T07:51:11+00:00",
+    "availableUTC": "2026-11-10T07:51:24+00:00",
+    "appStoreReviewSubmitted": false,
+    "distributionProfiles": "verified",
+    "deepStrictSignature": "passed",
+    "threeBundleVersions": "verified",
+    "nativeSourceSHA256": "49a4e774b18fd23b80e824442f8da034ea10f2e2267a8e1d68b1b6256d5e7bf6",
+    "ipaSHA256": "d4702097af0a68eb5bba3af31e5049a035acd74522f63094f26ff5a53ce983b7",
+    "bytecodeMatchesSimulatorAfterDebugFilenameNormalization": true
+  },
+  "images": [
+    "images/duo-cold-inner-2026-11-09/duo-cold-inner-before-after.png",
+    "images/duo-cold-inner-2026-11-09/duo-and-iphone-build6.png"
+  ]
+}

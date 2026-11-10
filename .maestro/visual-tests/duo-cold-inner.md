@@ -1,13 +1,21 @@
 # Duo cold inner-display launch
 
-Run `.maestro/manual-flows/duo-cold-inner.yaml` with the physical hinge already
-open, in inner wide and inner tall poses, in both light and dark appearance.
-The flow terminates and launches the app without resizing the display first.
-Pass `-e NATIVE_BAR_PLACEMENT=bottom` for inner tall; the default is `rail` for
-inner wide. These expectations reflect the system's observed placement.
+Run `scripts/test-duo-cold-launch.py` with an active-display-aware `idb` and an
+explicit disposable Duo UDID. The script prepares each physical pose before
+terminating/launching the app, then checks all three tabs in both appearances.
+It includes outer, inner wide and inner tall. Use a fresh output directory.
 
-For `duo-cold-inner-library`, `duo-cold-inner-reader` and
-`duo-cold-inner-settings`:
+```sh
+python3 scripts/test-duo-cold-launch.py --udid "$DUO_UDID" --idb "$IDB_BINARY" \
+  --output test-screenshots/duo-cold-launch
+node scripts/check-native-surfaces.cjs test-screenshots/duo-cold-launch
+```
+
+Maestro's current iOS driver captures the inactive outer display when started
+on inner wide, returning a black image and incorrect coordinates. Use the
+active-display driver for this test; regular iPhone Maestro flows remain valid.
+
+For the generated Library, Reader and Settings screenshots:
 
 - Content fills the usable inner display; no blank right half or clipping at
   the outer-display width.
