@@ -1,0 +1,53 @@
+appId: com.crosspointsync.app
+name: "Native bottom navigation - Offline queue and Reader theme"
+---
+# Stage one legal queued book while offline on a disposable iPhone simulator.
+# The default suite connects immediately, so it cannot retain this fixture.
+- setOrientation: PORTRAIT
+- stopApp
+- launchApp:
+    permissions: {}
+- setDarkMode: enabled
+- extendedWaitUntil:
+    visible:
+      id: "Library.UploadStatusBar"
+    timeout: 15000
+- assertVisible:
+    id: "Reader.BottomNavigation"
+- takeScreenshot: native-surface-dark-queue-library
+- tapOn:
+    id: "Library.UploadStatusBar"
+- assertVisible:
+    id: "UploadQueue.Sheet"
+- takeScreenshot: queue-dark-open
+- tapOn:
+    id: "UploadQueue.CloseButton"
+- tapOn: "^Reader$"
+- assertVisible:
+    id: "Connection.Instructions"
+- assertVisible:
+    id: "Connection.AddressLabel"
+- takeScreenshot: native-surface-dark-queue-reader
+- tapOn: "^Settings$"
+- takeScreenshot: native-surface-dark-queue-settings
+- setDarkMode: disabled
+- waitForAnimationToEnd
+# Exercise the light queue before taking theme references, allowing UIKit's
+# appearance crossfade to finish without treating a transient frame as a theme.
+- tapOn: "^Library$"
+- assertVisible:
+    id: "Library.UploadStatusBar"
+- tapOn:
+    id: "Library.UploadStatusBar"
+- assertVisible:
+    id: "UploadQueue.Sheet"
+- tapOn:
+    id: "UploadQueue.CloseButton"
+- takeScreenshot: native-surface-light-queue-library
+- tapOn: "^Reader$"
+- assertVisible:
+    id: "Connection.Instructions"
+- takeScreenshot: native-surface-light-queue-reader
+- tapOn: "^Settings$"
+- takeScreenshot: native-surface-light-queue-settings
+- tapOn: "^Library$"

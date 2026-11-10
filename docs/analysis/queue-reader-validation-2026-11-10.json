@@ -1,0 +1,2586 @@
+{
+  "issues": [
+    "Upload queue overlapped floating bottom controls",
+    "Reader body did not match sibling theme surfaces"
+  ],
+  "before": {
+    "queueOverlapPoints": 45,
+    "readerDarkBodyRGB": [
+      0,
+      0,
+      0
+    ],
+    "expectedDarkBodyRGB": [
+      20,
+      20,
+      20
+    ]
+  },
+  "duoColdChecks": {
+    "passed": true,
+    "count": 18,
+    "version": "1.5.0",
+    "build": "7",
+    "records": [
+      {
+        "pose": "outer",
+        "appearance": "dark",
+        "tab": "Library",
+        "screen": {
+          "width": 466,
+          "height": 678,
+          "scale": 3,
+          "rotation": 0
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 494
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 544
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 594
+          },
+          "Library.FAB": {
+            "height": 38,
+            "width": 38,
+            "x": 399,
+            "y": 179
+          },
+          "Library.OpenQueue": {
+            "height": 38,
+            "width": 38,
+            "x": 399,
+            "y": 231
+          }
+        },
+        "queueClearance": {
+          "queue": {
+            "height": 44,
+            "width": 382,
+            "x": 0,
+            "y": 624
+          },
+          "controls": {
+            "Library": {
+              "height": 58,
+              "width": 44,
+              "x": 396,
+              "y": 494
+            },
+            "Reader": {
+              "height": 58,
+              "width": 44,
+              "x": 396,
+              "y": 544
+            },
+            "Settings": {
+              "height": 58,
+              "width": 44,
+              "x": 396,
+              "y": 594
+            },
+            "Add": {
+              "height": 38,
+              "width": 38,
+              "x": 399,
+              "y": 179
+            }
+          },
+          "gapAboveBottomControls": null
+        }
+      },
+      {
+        "pose": "outer",
+        "appearance": "dark",
+        "tab": "Reader",
+        "screen": {
+          "width": 466,
+          "height": 678,
+          "scale": 3,
+          "rotation": 0
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 494
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 544
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 594
+          }
+        },
+        "queueClearance": null
+      },
+      {
+        "pose": "outer",
+        "appearance": "dark",
+        "tab": "Settings",
+        "screen": {
+          "width": 466,
+          "height": 678,
+          "scale": 3,
+          "rotation": 0
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 494
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 544
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 594
+          }
+        },
+        "queueClearance": null
+      },
+      {
+        "pose": "inner-wide",
+        "appearance": "dark",
+        "tab": "Library",
+        "screen": {
+          "width": 951,
+          "height": 669,
+          "scale": 3,
+          "rotation": 90
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 485
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 535
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 585
+          },
+          "Library.FAB": {
+            "height": 38,
+            "width": 38,
+            "x": 884,
+            "y": 129
+          },
+          "Library.OpenQueue": {
+            "height": 38,
+            "width": 38,
+            "x": 884,
+            "y": 181
+          }
+        },
+        "queueClearance": {
+          "queue": {
+            "height": 44,
+            "width": 655,
+            "x": 212,
+            "y": 615
+          },
+          "controls": {
+            "Library": {
+              "height": 58,
+              "width": 44,
+              "x": 881,
+              "y": 485
+            },
+            "Reader": {
+              "height": 58,
+              "width": 44,
+              "x": 881,
+              "y": 535
+            },
+            "Settings": {
+              "height": 58,
+              "width": 44,
+              "x": 881,
+              "y": 585
+            },
+            "Add": {
+              "height": 38,
+              "width": 38,
+              "x": 884,
+              "y": 129
+            }
+          },
+          "gapAboveBottomControls": null
+        }
+      },
+      {
+        "pose": "inner-wide",
+        "appearance": "dark",
+        "tab": "Reader",
+        "screen": {
+          "width": 951,
+          "height": 669,
+          "scale": 3,
+          "rotation": 90
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 485
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 535
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 585
+          }
+        },
+        "queueClearance": null
+      },
+      {
+        "pose": "inner-wide",
+        "appearance": "dark",
+        "tab": "Settings",
+        "screen": {
+          "width": 951,
+          "height": 669,
+          "scale": 3,
+          "rotation": 90
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 485
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 535
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 585
+          }
+        },
+        "queueClearance": null
+      },
+      {
+        "pose": "inner-tall",
+        "appearance": "dark",
+        "tab": "Library",
+        "screen": {
+          "width": 669,
+          "height": 951,
+          "scale": 3,
+          "rotation": 0
+        },
+        "placement": "bottom-companion",
+        "controls": {
+          "Library": {
+            "height": 54,
+            "width": 94,
+            "x": 165.5,
+            "y": 872
+          },
+          "Reader": {
+            "height": 54,
+            "width": 94,
+            "x": 251.5,
+            "y": 872
+          },
+          "Settings": {
+            "height": 54,
+            "width": 94,
+            "x": 337.5,
+            "y": 872
+          },
+          "Library.FAB": {
+            "height": 54,
+            "width": 54,
+            "x": 474.5,
+            "y": 872
+          },
+          "Library.OpenQueue": {
+            "height": 20,
+            "width": 40,
+            "x": 481,
+            "y": 38
+          }
+        },
+        "queueClearance": {
+          "queue": {
+            "height": 44,
+            "width": 669,
+            "x": 0,
+            "y": 824
+          },
+          "controls": {
+            "Library": {
+              "height": 54,
+              "width": 94,
+              "x": 165.5,
+              "y": 872
+            },
+            "Reader": {
+              "height": 54,
+              "width": 94,
+              "x": 251.5,
+              "y": 872
+            },
+            "Settings": {
+              "height": 54,
+              "width": 94,
+              "x": 337.5,
+              "y": 872
+            },
+            "Add": {
+              "height": 54,
+              "width": 54,
+              "x": 474.5,
+              "y": 872
+            }
+          },
+          "gapAboveBottomControls": 4
+        }
+      },
+      {
+        "pose": "inner-tall",
+        "appearance": "dark",
+        "tab": "Reader",
+        "screen": {
+          "width": 669,
+          "height": 951,
+          "scale": 3,
+          "rotation": 0
+        },
+        "placement": "bottom-companion",
+        "controls": {
+          "Library": {
+            "height": 54,
+            "width": 94,
+            "x": 165.5,
+            "y": 872
+          },
+          "Reader": {
+            "height": 54,
+            "width": 94,
+            "x": 251.5,
+            "y": 872
+          },
+          "Settings": {
+            "height": 54,
+            "width": 94,
+            "x": 337.5,
+            "y": 872
+          }
+        },
+        "queueClearance": null
+      },
+      {
+        "pose": "inner-tall",
+        "appearance": "dark",
+        "tab": "Settings",
+        "screen": {
+          "width": 669,
+          "height": 951,
+          "scale": 3,
+          "rotation": 0
+        },
+        "placement": "bottom-companion",
+        "controls": {
+          "Library": {
+            "height": 54,
+            "width": 94,
+            "x": 165.5,
+            "y": 872
+          },
+          "Reader": {
+            "height": 54,
+            "width": 94,
+            "x": 251.5,
+            "y": 872
+          },
+          "Settings": {
+            "height": 54,
+            "width": 94,
+            "x": 337.5,
+            "y": 872
+          }
+        },
+        "queueClearance": null
+      },
+      {
+        "pose": "outer",
+        "appearance": "light",
+        "tab": "Library",
+        "screen": {
+          "width": 466,
+          "height": 678,
+          "scale": 3,
+          "rotation": 0
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 494
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 544
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 594
+          },
+          "Library.FAB": {
+            "height": 38,
+            "width": 38,
+            "x": 399,
+            "y": 179
+          },
+          "Library.OpenQueue": {
+            "height": 38,
+            "width": 38,
+            "x": 399,
+            "y": 231
+          }
+        },
+        "queueClearance": {
+          "queue": {
+            "height": 44,
+            "width": 382,
+            "x": 0,
+            "y": 624
+          },
+          "controls": {
+            "Library": {
+              "height": 58,
+              "width": 44,
+              "x": 396,
+              "y": 494
+            },
+            "Reader": {
+              "height": 58,
+              "width": 44,
+              "x": 396,
+              "y": 544
+            },
+            "Settings": {
+              "height": 58,
+              "width": 44,
+              "x": 396,
+              "y": 594
+            },
+            "Add": {
+              "height": 38,
+              "width": 38,
+              "x": 399,
+              "y": 179
+            }
+          },
+          "gapAboveBottomControls": null
+        }
+      },
+      {
+        "pose": "outer",
+        "appearance": "light",
+        "tab": "Reader",
+        "screen": {
+          "width": 466,
+          "height": 678,
+          "scale": 3,
+          "rotation": 0
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 494
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 544
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 594
+          }
+        },
+        "queueClearance": null
+      },
+      {
+        "pose": "outer",
+        "appearance": "light",
+        "tab": "Settings",
+        "screen": {
+          "width": 466,
+          "height": 678,
+          "scale": 3,
+          "rotation": 0
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 494
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 544
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 594
+          }
+        },
+        "queueClearance": null
+      },
+      {
+        "pose": "inner-wide",
+        "appearance": "light",
+        "tab": "Library",
+        "screen": {
+          "width": 951,
+          "height": 669,
+          "scale": 3,
+          "rotation": 90
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 485
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 535
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 585
+          },
+          "Library.FAB": {
+            "height": 38,
+            "width": 38,
+            "x": 884,
+            "y": 129
+          },
+          "Library.OpenQueue": {
+            "height": 38,
+            "width": 38,
+            "x": 884,
+            "y": 181
+          }
+        },
+        "queueClearance": {
+          "queue": {
+            "height": 44,
+            "width": 655,
+            "x": 212,
+            "y": 615
+          },
+          "controls": {
+            "Library": {
+              "height": 58,
+              "width": 44,
+              "x": 881,
+              "y": 485
+            },
+            "Reader": {
+              "height": 58,
+              "width": 44,
+              "x": 881,
+              "y": 535
+            },
+            "Settings": {
+              "height": 58,
+              "width": 44,
+              "x": 881,
+              "y": 585
+            },
+            "Add": {
+              "height": 38,
+              "width": 38,
+              "x": 884,
+              "y": 129
+            }
+          },
+          "gapAboveBottomControls": null
+        }
+      },
+      {
+        "pose": "inner-wide",
+        "appearance": "light",
+        "tab": "Reader",
+        "screen": {
+          "width": 951,
+          "height": 669,
+          "scale": 3,
+          "rotation": 90
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 485
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 535
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 585
+          }
+        },
+        "queueClearance": null
+      },
+      {
+        "pose": "inner-wide",
+        "appearance": "light",
+        "tab": "Settings",
+        "screen": {
+          "width": 951,
+          "height": 669,
+          "scale": 3,
+          "rotation": 90
+        },
+        "placement": "system-rail",
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 485
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 535
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 585
+          }
+        },
+        "queueClearance": null
+      },
+      {
+        "pose": "inner-tall",
+        "appearance": "light",
+        "tab": "Library",
+        "screen": {
+          "width": 669,
+          "height": 951,
+          "scale": 3,
+          "rotation": 0
+        },
+        "placement": "bottom-companion",
+        "controls": {
+          "Library": {
+            "height": 54,
+            "width": 94,
+            "x": 165.5,
+            "y": 872
+          },
+          "Reader": {
+            "height": 54,
+            "width": 94,
+            "x": 251.5,
+            "y": 872
+          },
+          "Settings": {
+            "height": 54,
+            "width": 94,
+            "x": 337.5,
+            "y": 872
+          },
+          "Library.FAB": {
+            "height": 54,
+            "width": 54,
+            "x": 474.5,
+            "y": 872
+          },
+          "Library.OpenQueue": {
+            "height": 20,
+            "width": 40,
+            "x": 481,
+            "y": 38
+          }
+        },
+        "queueClearance": {
+          "queue": {
+            "height": 44,
+            "width": 669,
+            "x": 0,
+            "y": 824
+          },
+          "controls": {
+            "Library": {
+              "height": 54,
+              "width": 94,
+              "x": 165.5,
+              "y": 872
+            },
+            "Reader": {
+              "height": 54,
+              "width": 94,
+              "x": 251.5,
+              "y": 872
+            },
+            "Settings": {
+              "height": 54,
+              "width": 94,
+              "x": 337.5,
+              "y": 872
+            },
+            "Add": {
+              "height": 54,
+              "width": 54,
+              "x": 474.5,
+              "y": 872
+            }
+          },
+          "gapAboveBottomControls": 4
+        }
+      },
+      {
+        "pose": "inner-tall",
+        "appearance": "light",
+        "tab": "Reader",
+        "screen": {
+          "width": 669,
+          "height": 951,
+          "scale": 3,
+          "rotation": 0
+        },
+        "placement": "bottom-companion",
+        "controls": {
+          "Library": {
+            "height": 54,
+            "width": 94,
+            "x": 165.5,
+            "y": 872
+          },
+          "Reader": {
+            "height": 54,
+            "width": 94,
+            "x": 251.5,
+            "y": 872
+          },
+          "Settings": {
+            "height": 54,
+            "width": 94,
+            "x": 337.5,
+            "y": 872
+          }
+        },
+        "queueClearance": null
+      },
+      {
+        "pose": "inner-tall",
+        "appearance": "light",
+        "tab": "Settings",
+        "screen": {
+          "width": 669,
+          "height": 951,
+          "scale": 3,
+          "rotation": 0
+        },
+        "placement": "bottom-companion",
+        "controls": {
+          "Library": {
+            "height": 54,
+            "width": 94,
+            "x": 165.5,
+            "y": 872
+          },
+          "Reader": {
+            "height": 54,
+            "width": 94,
+            "x": 251.5,
+            "y": 872
+          },
+          "Settings": {
+            "height": 54,
+            "width": 94,
+            "x": 337.5,
+            "y": 872
+          }
+        },
+        "queueClearance": null
+      }
+    ]
+  },
+  "duoPixels": {
+    "passed": true,
+    "count": 18,
+    "results": [
+      {
+        "screenshot": "native-surface-dark-cold-inner-tall-library.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "bodyMeanRGB": [
+          20,
+          20,
+          20
+        ],
+        "expectedBodyRGB": [
+          20,
+          20,
+          20
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-cold-inner-tall-reader.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "bodyMeanRGB": [
+          20,
+          20,
+          20
+        ],
+        "expectedBodyRGB": [
+          20,
+          20,
+          20
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-cold-inner-tall-settings.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "bodyMeanRGB": [
+          20,
+          20,
+          20
+        ],
+        "expectedBodyRGB": [
+          20,
+          20,
+          20
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-cold-inner-wide-library.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "bodyMeanRGB": [
+          20,
+          20,
+          20
+        ],
+        "expectedBodyRGB": [
+          20,
+          20,
+          20
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-cold-inner-wide-reader.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "bodyMeanRGB": [
+          20,
+          20,
+          20
+        ],
+        "expectedBodyRGB": [
+          20,
+          20,
+          20
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-cold-inner-wide-settings.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "bodyMeanRGB": [
+          20,
+          20,
+          20
+        ],
+        "expectedBodyRGB": [
+          20,
+          20,
+          20
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-cold-outer-library.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "bodyMeanRGB": [
+          20,
+          20,
+          20
+        ],
+        "expectedBodyRGB": [
+          20,
+          20,
+          20
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-cold-outer-reader.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "bodyMeanRGB": [
+          20,
+          20,
+          20
+        ],
+        "expectedBodyRGB": [
+          20,
+          20,
+          20
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-cold-outer-settings.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "bodyMeanRGB": [
+          20,
+          20,
+          20
+        ],
+        "expectedBodyRGB": [
+          20,
+          20,
+          20
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-cold-inner-tall-library.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "bodyMeanRGB": [
+          247,
+          247,
+          247
+        ],
+        "expectedBodyRGB": [
+          247,
+          247,
+          247
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-cold-inner-tall-reader.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "bodyMeanRGB": [
+          247,
+          247,
+          247
+        ],
+        "expectedBodyRGB": [
+          247,
+          247,
+          247
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-cold-inner-tall-settings.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "bodyMeanRGB": [
+          247,
+          247,
+          247
+        ],
+        "expectedBodyRGB": [
+          247,
+          247,
+          247
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-cold-inner-wide-library.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "bodyMeanRGB": [
+          247,
+          247,
+          247
+        ],
+        "expectedBodyRGB": [
+          247,
+          247,
+          247
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-cold-inner-wide-reader.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "bodyMeanRGB": [
+          247,
+          247,
+          247
+        ],
+        "expectedBodyRGB": [
+          247,
+          247,
+          247
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-cold-inner-wide-settings.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "bodyMeanRGB": [
+          247,
+          247,
+          247
+        ],
+        "expectedBodyRGB": [
+          247,
+          247,
+          247
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-cold-outer-library.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "bodyMeanRGB": [
+          247,
+          247,
+          247
+        ],
+        "expectedBodyRGB": [
+          247,
+          247,
+          247
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-cold-outer-reader.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "bodyMeanRGB": [
+          247,
+          247,
+          247
+        ],
+        "expectedBodyRGB": [
+          247,
+          247,
+          247
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-cold-outer-settings.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "bodyMeanRGB": [
+          247,
+          247,
+          247
+        ],
+        "expectedBodyRGB": [
+          247,
+          247,
+          247
+        ],
+        "passed": true
+      }
+    ]
+  },
+  "duoQueueInteractions": {
+    "passed": true,
+    "count": 3,
+    "records": [
+      {
+        "pose": "inner-tall",
+        "screen": {
+          "width": 669,
+          "height": 951,
+          "scale": 3,
+          "rotation": 0
+        },
+        "queue": {
+          "height": 44,
+          "width": 669,
+          "x": 0,
+          "y": 824
+        },
+        "controls": {
+          "Library": {
+            "height": 54,
+            "width": 94,
+            "x": 165.5,
+            "y": 872
+          },
+          "Reader": {
+            "height": 54,
+            "width": 94,
+            "x": 251.5,
+            "y": 872
+          },
+          "Settings": {
+            "height": 54,
+            "width": 94,
+            "x": 337.5,
+            "y": 872
+          },
+          "Add": {
+            "height": 54,
+            "width": 54,
+            "x": 474.5,
+            "y": 872
+          }
+        },
+        "gapAboveBottomControls": 4
+      },
+      {
+        "pose": "inner-wide",
+        "screen": {
+          "width": 951,
+          "height": 669,
+          "scale": 3,
+          "rotation": 90
+        },
+        "queue": {
+          "height": 44,
+          "width": 655,
+          "x": 212,
+          "y": 615
+        },
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 485
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 535
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 585
+          },
+          "Add": {
+            "height": 38,
+            "width": 38,
+            "x": 884,
+            "y": 129
+          }
+        },
+        "gapAboveBottomControls": null
+      },
+      {
+        "pose": "outer",
+        "screen": {
+          "width": 466,
+          "height": 678,
+          "scale": 3,
+          "rotation": 0
+        },
+        "queue": {
+          "height": 44,
+          "width": 382,
+          "x": 0,
+          "y": 624
+        },
+        "controls": {
+          "Library": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 494
+          },
+          "Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 544
+          },
+          "Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 594
+          },
+          "Add": {
+            "height": 38,
+            "width": 38,
+            "x": 399,
+            "y": 179
+          }
+        },
+        "gapAboveBottomControls": null
+      }
+    ]
+  },
+  "iphoneNativeFlows": {
+    "passed": true,
+    "count": 4
+  },
+  "iphoneNativePixels": {
+    "passed": true,
+    "count": 8,
+    "results": [
+      {
+        "screenshot": "native-surface-dark-after-toggle.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "bodyMeanRGB": [
+          20,
+          20,
+          20
+        ],
+        "expectedBodyRGB": [
+          20,
+          20,
+          20
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-library.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "bodyMeanRGB": [
+          20,
+          20,
+          20
+        ],
+        "expectedBodyRGB": [
+          20,
+          20,
+          20
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-reader.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "bodyMeanRGB": [
+          20,
+          20,
+          20
+        ],
+        "expectedBodyRGB": [
+          20,
+          20,
+          20
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-settings.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "bodyMeanRGB": [
+          20,
+          20,
+          20
+        ],
+        "expectedBodyRGB": [
+          20,
+          20,
+          20
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-after-toggle.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "bodyMeanRGB": [
+          247,
+          247,
+          247
+        ],
+        "expectedBodyRGB": [
+          247,
+          247,
+          247
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-library.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "bodyMeanRGB": [
+          247,
+          247,
+          247
+        ],
+        "expectedBodyRGB": [
+          247,
+          247,
+          247
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-reader.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "bodyMeanRGB": [
+          247,
+          247,
+          247
+        ],
+        "expectedBodyRGB": [
+          247,
+          247,
+          247
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-settings.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "bodyMeanRGB": [
+          247,
+          247,
+          247
+        ],
+        "expectedBodyRGB": [
+          247,
+          247,
+          247
+        ],
+        "passed": true
+      }
+    ]
+  },
+  "iphoneQueueFlow": {
+    "passed": true,
+    "count": 1
+  },
+  "iphoneQueuePixels": {
+    "passed": true,
+    "count": 6,
+    "results": [
+      {
+        "screenshot": "native-surface-dark-queue-library.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "bodyMeanRGB": [
+          20,
+          20,
+          20
+        ],
+        "expectedBodyRGB": [
+          20,
+          20,
+          20
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-queue-reader.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "bodyMeanRGB": [
+          20,
+          20,
+          20
+        ],
+        "expectedBodyRGB": [
+          20,
+          20,
+          20
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-queue-settings.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "bodyMeanRGB": [
+          20,
+          20,
+          20
+        ],
+        "expectedBodyRGB": [
+          20,
+          20,
+          20
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-queue-library.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "bodyMeanRGB": [
+          247,
+          247,
+          247
+        ],
+        "expectedBodyRGB": [
+          247,
+          247,
+          247
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-queue-reader.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "bodyMeanRGB": [
+          247,
+          247,
+          247
+        ],
+        "expectedBodyRGB": [
+          247,
+          247,
+          247
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-queue-settings.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "bodyMeanRGB": [
+          247,
+          247,
+          247
+        ],
+        "expectedBodyRGB": [
+          247,
+          247,
+          247
+        ],
+        "passed": true
+      }
+    ]
+  },
+  "androidFlows": {
+    "passed": true,
+    "count": 6
+  },
+  "androidAPKArchitecture": "arm64-v8a",
+  "androidAPKSource": "Fresh Gradle Release build from the changed shared application source",
+  "androidAPKSHA256": "3ce405f433308649525fa3fb6a7948f7659b52fc18456d6d0edc1aeceaffdedb",
+  "contrast": {
+    "passed": true,
+    "results": [
+      {
+        "mode": "light",
+        "name": "Primary body text",
+        "foreground": [
+          5,
+          5,
+          5
+        ],
+        "background": [
+          247,
+          247,
+          247
+        ],
+        "ratio": 19.02,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "Secondary text and address label",
+        "foreground": [
+          100,
+          100,
+          100
+        ],
+        "background": [
+          247,
+          247,
+          247
+        ],
+        "ratio": 5.52,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "Instructions secondary text",
+        "foreground": [
+          100,
+          100,
+          100
+        ],
+        "background": [
+          244,
+          250,
+          255
+        ],
+        "ratio": 5.63,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "Error text",
+        "foreground": [
+          206,
+          44,
+          49
+        ],
+        "background": [
+          247,
+          247,
+          247
+        ],
+        "ratio": 4.87,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "Input value",
+        "foreground": [
+          36,
+          36,
+          36
+        ],
+        "background": [
+          237,
+          237,
+          237
+        ],
+        "ratio": 13.26,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "Input placeholder",
+        "foreground": [
+          100,
+          100,
+          100
+        ],
+        "background": [
+          237,
+          237,
+          237
+        ],
+        "ratio": 5.05,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "Input border / field",
+        "foreground": [
+          131,
+          131,
+          131
+        ],
+        "background": [
+          237,
+          237,
+          237
+        ],
+        "ratio": 3.24,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "Input border / page",
+        "foreground": [
+          131,
+          131,
+          131
+        ],
+        "background": [
+          247,
+          247,
+          247
+        ],
+        "ratio": 3.54,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "Input focus border",
+        "foreground": [
+          5,
+          136,
+          240
+        ],
+        "background": [
+          237,
+          237,
+          237
+        ],
+        "ratio": 3.1,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "Device address",
+        "foreground": [
+          100,
+          100,
+          100
+        ],
+        "background": [
+          247,
+          247,
+          247
+        ],
+        "ratio": 5.52,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "Connection indicator green11",
+        "foreground": [
+          33,
+          131,
+          88
+        ],
+        "background": [
+          247,
+          247,
+          247
+        ],
+        "ratio": 4.4,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "Connection indicator yellow11",
+        "foreground": [
+          158,
+          108,
+          0
+        ],
+        "background": [
+          247,
+          247,
+          247
+        ],
+        "ratio": 4.26,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "Connection indicator gray10",
+        "foreground": [
+          131,
+          131,
+          131
+        ],
+        "background": [
+          247,
+          247,
+          247
+        ],
+        "ratio": 3.54,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "Device indicator green11",
+        "foreground": [
+          33,
+          131,
+          88
+        ],
+        "background": [
+          247,
+          247,
+          247
+        ],
+        "ratio": 4.4,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "Device indicator orange11",
+        "foreground": [
+          204,
+          78,
+          0
+        ],
+        "background": [
+          247,
+          247,
+          247
+        ],
+        "ratio": 4.21,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "Device indicator red11",
+        "foreground": [
+          206,
+          44,
+          49
+        ],
+        "background": [
+          247,
+          247,
+          247
+        ],
+        "ratio": 4.87,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "Device indicator gray11",
+        "foreground": [
+          100,
+          100,
+          100
+        ],
+        "background": [
+          247,
+          247,
+          247
+        ],
+        "ratio": 5.52,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "blue button background",
+        "foreground": [
+          17,
+          50,
+          100
+        ],
+        "background": [
+          214,
+          239,
+          255
+        ],
+        "ratio": 10.61,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "blue button backgroundHover",
+        "foreground": [
+          17,
+          50,
+          100
+        ],
+        "background": [
+          231,
+          244,
+          254
+        ],
+        "ratio": 11.28,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "blue button backgroundPress",
+        "foreground": [
+          17,
+          50,
+          100
+        ],
+        "background": [
+          194,
+          228,
+          255
+        ],
+        "ratio": 9.52,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "blue button backgroundFocus",
+        "foreground": [
+          17,
+          50,
+          100
+        ],
+        "background": [
+          142,
+          199,
+          246
+        ],
+        "ratio": 7,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "red button background",
+        "foreground": [
+          100,
+          23,
+          35
+        ],
+        "background": [
+          255,
+          219,
+          220
+        ],
+        "ratio": 9.72,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "red button backgroundHover",
+        "foreground": [
+          100,
+          23,
+          35
+        ],
+        "background": [
+          254,
+          236,
+          237
+        ],
+        "ratio": 10.92,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "red button backgroundPress",
+        "foreground": [
+          100,
+          23,
+          35
+        ],
+        "background": [
+          255,
+          204,
+          205
+        ],
+        "ratio": 8.75,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "light",
+        "name": "red button backgroundFocus",
+        "foreground": [
+          100,
+          23,
+          35
+        ],
+        "background": [
+          244,
+          169,
+          170
+        ],
+        "ratio": 6.57,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "Primary body text",
+        "foreground": [
+          255,
+          255,
+          255
+        ],
+        "background": [
+          20,
+          20,
+          20
+        ],
+        "ratio": 18.42,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "Secondary text and address label",
+        "foreground": [
+          180,
+          180,
+          180
+        ],
+        "background": [
+          20,
+          20,
+          20
+        ],
+        "ratio": 8.89,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "Instructions secondary text",
+        "foreground": [
+          180,
+          180,
+          180
+        ],
+        "background": [
+          17,
+          25,
+          39
+        ],
+        "ratio": 8.5,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "Error text",
+        "foreground": [
+          255,
+          149,
+          146
+        ],
+        "background": [
+          20,
+          20,
+          20
+        ],
+        "ratio": 8.74,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "Input value",
+        "foreground": [
+          204,
+          204,
+          204
+        ],
+        "background": [
+          26,
+          26,
+          26
+        ],
+        "ratio": 10.84,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "Input placeholder",
+        "foreground": [
+          180,
+          180,
+          180
+        ],
+        "background": [
+          26,
+          26,
+          26
+        ],
+        "ratio": 8.39,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "Input border / field",
+        "foreground": [
+          123,
+          123,
+          123
+        ],
+        "background": [
+          26,
+          26,
+          26
+        ],
+        "ratio": 4.11,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "Input border / page",
+        "foreground": [
+          123,
+          123,
+          123
+        ],
+        "background": [
+          20,
+          20,
+          20
+        ],
+        "ratio": 4.35,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "Input focus border",
+        "foreground": [
+          59,
+          158,
+          255
+        ],
+        "background": [
+          26,
+          26,
+          26
+        ],
+        "ratio": 6.23,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "Device address",
+        "foreground": [
+          180,
+          180,
+          180
+        ],
+        "background": [
+          20,
+          20,
+          20
+        ],
+        "ratio": 8.89,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "Connection indicator green11",
+        "foreground": [
+          61,
+          214,
+          140
+        ],
+        "background": [
+          20,
+          20,
+          20
+        ],
+        "ratio": 9.82,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "Connection indicator yellow11",
+        "foreground": [
+          245,
+          225,
+          71
+        ],
+        "background": [
+          20,
+          20,
+          20
+        ],
+        "ratio": 13.81,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "Connection indicator gray10",
+        "foreground": [
+          123,
+          123,
+          123
+        ],
+        "background": [
+          20,
+          20,
+          20
+        ],
+        "ratio": 4.35,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "Device indicator green11",
+        "foreground": [
+          61,
+          214,
+          140
+        ],
+        "background": [
+          20,
+          20,
+          20
+        ],
+        "ratio": 9.82,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "Device indicator orange11",
+        "foreground": [
+          255,
+          160,
+          87
+        ],
+        "background": [
+          20,
+          20,
+          20
+        ],
+        "ratio": 9.14,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "Device indicator red11",
+        "foreground": [
+          255,
+          149,
+          146
+        ],
+        "background": [
+          20,
+          20,
+          20
+        ],
+        "ratio": 8.74,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "Device indicator gray11",
+        "foreground": [
+          180,
+          180,
+          180
+        ],
+        "background": [
+          20,
+          20,
+          20
+        ],
+        "ratio": 8.89,
+        "minimum": 3,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "blue button background",
+        "foreground": [
+          194,
+          230,
+          255
+        ],
+        "background": [
+          0,
+          50,
+          97
+        ],
+        "ratio": 9.86,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "blue button backgroundHover",
+        "foreground": [
+          194,
+          230,
+          255
+        ],
+        "background": [
+          0,
+          65,
+          117
+        ],
+        "ratio": 7.98,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "blue button backgroundPress",
+        "foreground": [
+          194,
+          230,
+          255
+        ],
+        "background": [
+          13,
+          39,
+          69
+        ],
+        "ratio": 11.52,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "blue button backgroundFocus",
+        "foreground": [
+          194,
+          230,
+          255
+        ],
+        "background": [
+          32,
+          92,
+          157
+        ],
+        "ratio": 5.21,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "red button background",
+        "foreground": [
+          255,
+          209,
+          217
+        ],
+        "background": [
+          81,
+          16,
+          29
+        ],
+        "ratio": 10.66,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "red button backgroundHover",
+        "foreground": [
+          255,
+          209,
+          217
+        ],
+        "background": [
+          96,
+          22,
+          34
+        ],
+        "ratio": 9.4,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "red button backgroundPress",
+        "foreground": [
+          255,
+          209,
+          217
+        ],
+        "background": [
+          59,
+          18,
+          25
+        ],
+        "ratio": 11.95,
+        "minimum": 4.5,
+        "passed": true
+      },
+      {
+        "mode": "dark",
+        "name": "red button backgroundFocus",
+        "foreground": [
+          255,
+          209,
+          217
+        ],
+        "background": [
+          139,
+          50,
+          57
+        ],
+        "ratio": 5.88,
+        "minimum": 4.5,
+        "passed": true
+      }
+    ]
+  },
+  "basicSuite": "passed",
+  "visualRunnerChecks": {
+    "passed": true,
+    "count": 7
+  },
+  "typecheck": {
+    "diagnosticCount": 108,
+    "priorDiagnosticCount": 106,
+    "newDiagnostics": "Two Tamagui RC Button.color styling prop declarations; runtime rendering verified"
+  },
+  "fixture": "Legal EPUB staged into persisted queue on disposable offline simulators; no reader-compatibility claim",
+  "release": {
+    "version": "1.5.0",
+    "build": "7",
+    "status": "uploaded",
+    "sourceCommit": "052951703f184d85433765da58a2245e32d5999e",
+    "nativeSourceSHA256": "81d27dfec7173d6f5e95a629a58a3ffe2aa8ca82afeabec9db32c4fd929fc9c7",
+    "ipaSHA256": "7eefd532fa26d29a6ed171798d20e9fcd2bf40dc4891f32efcde25100e9de57b",
+    "threeBundleVersions": "verified",
+    "distributionProfiles": "verified",
+    "deepStrictSignatures": "passed",
+    "bytecodeMatchesSimulatorAfterDebugFilenameNormalization": true,
+    "appStoreReviewSubmitted": false
+  },
+  "images": [
+    "images/queue-reader-2026-11-10/queue-detail.png",
+    "images/queue-reader-2026-11-10/queue-before-after.png",
+    "images/queue-reader-2026-11-10/reader-before-after.png"
+  ]
+}
