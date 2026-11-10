@@ -30,6 +30,16 @@ final class ReaderBottomBar: UIView, UITabBarDelegate {
   private static var associationKey: UInt8 = 0
 
   static func attached(to controller: UITabBarController) -> ReaderBottomBar {
+    // Screens 4.16 can initially insert the controller with the screen's
+    // default frame rather than its React host's bounds. On a cold inner-display
+    // launch this clips the app and leaves UIKit choosing bottom placement.
+    // Fit the existing controller before observing its bar; its flexible sizing
+    // then follows the same host through folds without replacing any screens.
+    if let content = controller.viewIfLoaded, let host = content.superview,
+      !host.bounds.isEmpty, content.frame != host.bounds
+    {
+      content.frame = host.bounds
+    }
     if let bar = objc_getAssociatedObject(controller, &associationKey) as? ReaderBottomBar {
       return bar
     }

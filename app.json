@@ -22,7 +22,7 @@
         "NSLocalNetworkUsageDescription": "CrossPoint Sync needs local network access to discover and communicate with your e-ink reader device.",
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "5"
+      "buildNumber": "6"
     },
     "android": {
       "adaptiveIcon": {

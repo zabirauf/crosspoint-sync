@@ -1,0 +1,42 @@
+appId: com.crosspointsync.app
+name: "Duo - Cold Inner Display Launch"
+env:
+  NATIVE_BAR_PLACEMENT: rail
+---
+# Physically unfold the simulator BEFORE running this standalone flow. Run in
+# both inner poses and appearances. Do not setOrientation or launch outer first:
+# that resize hides the stale native tab-controller frame this checks.
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "Library.NativeToolbar"
+    timeout: 20000
+- takeScreenshot: duo-cold-inner-library
+- runFlow:
+    when:
+      true: ${NATIVE_BAR_PLACEMENT == 'rail'}
+    commands:
+      - assertNotVisible:
+          id: "Reader.BottomNavigation"
+- runFlow:
+    when:
+      true: ${NATIVE_BAR_PLACEMENT == 'bottom'}
+    commands:
+      - assertVisible:
+          id: "Reader.BottomNavigation"
+- assertVisible:
+    id: "Library.FAB"
+- assertVisible:
+    id: "Library.OpenQueue"
+- tapOn: "Reader"
+- assertVisible:
+    id: "Reader.Screen"
+- takeScreenshot: duo-cold-inner-reader
+- tapOn: "Settings"
+- assertVisible:
+    id: "Settings.UploadPath"
+- takeScreenshot: duo-cold-inner-settings
+- tapOn: "Library"
+- assertVisible:
+    id: "Library.FAB"
