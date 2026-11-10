@@ -1,0 +1,1629 @@
+{
+  "sourceCommit": "fbd514a7b495a1bd8c7fd1d470f93552ab22fb6d",
+  "version": "1.5.0",
+  "build": "5",
+  "rootCause": "React Native Screens 4.16 gives the native tab screen a white backdrop. Duo outer navigation background starts 14 points below the top and exposes that backdrop.",
+  "fix": "Keep one full-size View themed with React Navigation colors.card around each native tab navigator; preserve native controller containment and safe areas.",
+  "beforePixelCheck": {
+    "passed": false,
+    "results": [
+      {
+        "screenshot": "native-surface-dark-library.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": false
+      }
+    ]
+  },
+  "initialFullRuns": [
+    {
+      "profile": "Duo/iOS 27.1",
+      "productionSourceEquivalentTo": "fbd514a7b495a1bd8c7fd1d470f93552ab22fb6d",
+      "scope": "full ordered suite before the new appearance test switched to native tab labels",
+      "cases": [
+        {
+          "name": "Test Suite Setup - Connect Mock Device",
+          "flow": ".maestro/flows/00-setup.yaml",
+          "passed": true,
+          "durationSeconds": 74.875
+        },
+        {
+          "name": "App Launch - Cold Start",
+          "flow": ".maestro/flows/01-app-launch.yaml",
+          "passed": true,
+          "durationSeconds": 52.411
+        },
+        {
+          "name": "Library Tab - Disconnected State",
+          "flow": ".maestro/flows/02-library-disconnected.yaml",
+          "passed": true,
+          "durationSeconds": 52.311
+        },
+        {
+          "name": "Device Connection - Connection Sheet",
+          "flow": ".maestro/flows/03-device-connection.yaml",
+          "passed": true,
+          "durationSeconds": 55.491
+        },
+        {
+          "name": "Library Tab - Connected with Files",
+          "flow": ".maestro/flows/04-library-connected.yaml",
+          "passed": true,
+          "durationSeconds": 13.566
+        },
+        {
+          "name": "Library - Supported File Formats",
+          "flow": ".maestro/flows/16-book-formats.yaml",
+          "passed": true,
+          "durationSeconds": 18.825
+        },
+        {
+          "name": "File Navigation - Browse Folders",
+          "flow": ".maestro/flows/05-file-navigation.yaml",
+          "passed": true,
+          "durationSeconds": 8.959
+        },
+        {
+          "name": "Upload Flow - FAB Menu",
+          "flow": ".maestro/flows/06-upload-flow.yaml",
+          "passed": true,
+          "durationSeconds": 10.915
+        },
+        {
+          "name": "Settings Screen - Main View",
+          "flow": ".maestro/flows/08-settings-screen.yaml",
+          "passed": true,
+          "durationSeconds": 18.289
+        },
+        {
+          "name": "Settings - Edit Upload Path",
+          "flow": ".maestro/flows/09-settings-edit.yaml",
+          "passed": true,
+          "durationSeconds": 15.761
+        },
+        {
+          "name": "FAB Menu - Expanded State",
+          "flow": ".maestro/flows/10-fab-menu.yaml",
+          "passed": true,
+          "durationSeconds": 50.022
+        },
+        {
+          "name": "Dark Mode - Library Disconnected",
+          "flow": ".maestro/flows/11-dark-mode.yaml",
+          "passed": true,
+          "durationSeconds": 49.779
+        },
+        {
+          "name": "File Action Sheet",
+          "flow": ".maestro/flows/12-file-action-sheet.yaml",
+          "passed": true,
+          "durationSeconds": 9.874
+        },
+        {
+          "name": "Rename Dialog",
+          "flow": ".maestro/flows/13-rename-dialog.yaml",
+          "passed": true,
+          "durationSeconds": 13.411
+        },
+        {
+          "name": "Move Sheet",
+          "flow": ".maestro/flows/14-move-sheet.yaml",
+          "passed": true,
+          "durationSeconds": 11.951
+        },
+        {
+          "name": "Move Sheet - New Folder Dialog",
+          "flow": ".maestro/flows/15-move-new-folder.yaml",
+          "passed": true,
+          "durationSeconds": 15.147
+        },
+        {
+          "name": "Adaptive Layout - Resize Continuity",
+          "flow": ".maestro/flows/17-adaptive-layout.yaml",
+          "passed": true,
+          "durationSeconds": 32.998
+        },
+        {
+          "name": "Native Reader Bars - Actions and Navigation",
+          "flow": ".maestro/flows/18-native-reader-bars.yaml",
+          "passed": true,
+          "durationSeconds": 31.934
+        },
+        {
+          "name": "Native Bottom Add - Menu and Navigation",
+          "flow": ".maestro/flows/19-native-bottom-add.yaml",
+          "passed": true,
+          "durationSeconds": 20.152
+        },
+        {
+          "name": "Native Tab Surfaces - Light and Dark",
+          "flow": ".maestro/flows/20-native-tab-surfaces.yaml",
+          "passed": true,
+          "durationSeconds": 66.466
+        }
+      ]
+    },
+    {
+      "profile": "iPhone 17 Pro/iOS 26.5",
+      "productionSourceEquivalentTo": "fbd514a7b495a1bd8c7fd1d470f93552ab22fb6d",
+      "scope": "full ordered suite before the new appearance test switched to native tab labels",
+      "cases": [
+        {
+          "name": "Test Suite Setup - Connect Mock Device",
+          "flow": ".maestro/flows/00-setup.yaml",
+          "passed": true,
+          "durationSeconds": 71.513
+        },
+        {
+          "name": "App Launch - Cold Start",
+          "flow": ".maestro/flows/01-app-launch.yaml",
+          "passed": true,
+          "durationSeconds": 50.291
+        },
+        {
+          "name": "Library Tab - Disconnected State",
+          "flow": ".maestro/flows/02-library-disconnected.yaml",
+          "passed": true,
+          "durationSeconds": 49.051
+        },
+        {
+          "name": "Device Connection - Connection Sheet",
+          "flow": ".maestro/flows/03-device-connection.yaml",
+          "passed": true,
+          "durationSeconds": 51.634
+        },
+        {
+          "name": "Library Tab - Connected with Files",
+          "flow": ".maestro/flows/04-library-connected.yaml",
+          "passed": true,
+          "durationSeconds": 6.525
+        },
+        {
+          "name": "Library - Supported File Formats",
+          "flow": ".maestro/flows/16-book-formats.yaml",
+          "passed": true,
+          "durationSeconds": 14.965
+        },
+        {
+          "name": "File Navigation - Browse Folders",
+          "flow": ".maestro/flows/05-file-navigation.yaml",
+          "passed": true,
+          "durationSeconds": 11.452
+        },
+        {
+          "name": "Upload Flow - FAB Menu",
+          "flow": ".maestro/flows/06-upload-flow.yaml",
+          "passed": true,
+          "durationSeconds": 8.723
+        },
+        {
+          "name": "Settings Screen - Main View",
+          "flow": ".maestro/flows/08-settings-screen.yaml",
+          "passed": true,
+          "durationSeconds": 14.597
+        },
+        {
+          "name": "Settings - Edit Upload Path",
+          "flow": ".maestro/flows/09-settings-edit.yaml",
+          "passed": true,
+          "durationSeconds": 13.712
+        },
+        {
+          "name": "FAB Menu - Expanded State",
+          "flow": ".maestro/flows/10-fab-menu.yaml",
+          "passed": true,
+          "durationSeconds": 49.114
+        },
+        {
+          "name": "Dark Mode - Library Disconnected",
+          "flow": ".maestro/flows/11-dark-mode.yaml",
+          "passed": true,
+          "durationSeconds": 46.48
+        },
+        {
+          "name": "File Action Sheet",
+          "flow": ".maestro/flows/12-file-action-sheet.yaml",
+          "passed": true,
+          "durationSeconds": 7.506
+        },
+        {
+          "name": "Rename Dialog",
+          "flow": ".maestro/flows/13-rename-dialog.yaml",
+          "passed": true,
+          "durationSeconds": 10.882
+        },
+        {
+          "name": "Move Sheet",
+          "flow": ".maestro/flows/14-move-sheet.yaml",
+          "passed": true,
+          "durationSeconds": 9.491
+        },
+        {
+          "name": "Move Sheet - New Folder Dialog",
+          "flow": ".maestro/flows/15-move-new-folder.yaml",
+          "passed": true,
+          "durationSeconds": 12.374
+        },
+        {
+          "name": "Adaptive Layout - Resize Continuity",
+          "flow": ".maestro/flows/17-adaptive-layout.yaml",
+          "passed": true,
+          "durationSeconds": 33.766
+        },
+        {
+          "name": "Native Reader Bars - Actions and Navigation",
+          "flow": ".maestro/flows/18-native-reader-bars.yaml",
+          "passed": true,
+          "durationSeconds": 29.625
+        },
+        {
+          "name": "Native Bottom Add - Menu and Navigation",
+          "flow": ".maestro/flows/19-native-bottom-add.yaml",
+          "passed": true,
+          "durationSeconds": 70.064
+        },
+        {
+          "name": "Native Tab Surfaces - Light and Dark",
+          "flow": ".maestro/flows/20-native-tab-surfaces.yaml",
+          "passed": false,
+          "durationSeconds": 71.963
+        }
+      ]
+    }
+  ],
+  "finalIPhoneNativeCases": [
+    {
+      "name": "Native Reader Bars - Actions and Navigation",
+      "flow": ".maestro/flows/18-native-reader-bars.yaml",
+      "passed": true,
+      "durationSeconds": 26.973
+    },
+    {
+      "name": "Native Bottom Add - Menu and Navigation",
+      "flow": ".maestro/flows/19-native-bottom-add.yaml",
+      "passed": true,
+      "durationSeconds": 68.773
+    },
+    {
+      "name": "Native Tab Surfaces - Light and Dark",
+      "flow": ".maestro/flows/20-native-tab-surfaces.yaml",
+      "passed": true,
+      "durationSeconds": 64.147
+    }
+  ],
+  "finalIPhoneTopEdgeChecks": {
+    "passed": true,
+    "results": [
+      {
+        "screenshot": "native-surface-dark-after-toggle.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-library.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-reader.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-settings.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-after-toggle.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-library.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-reader.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-settings.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      }
+    ]
+  },
+  "androidCases": [
+    {
+      "name": "Test Suite Setup - Connect Mock Device",
+      "flow": ".maestro/flows/00-setup.yaml",
+      "passed": true,
+      "durationSeconds": 121.642
+    },
+    {
+      "name": "Device Connection - Connection Sheet",
+      "flow": ".maestro/flows/03-device-connection.yaml",
+      "passed": true,
+      "durationSeconds": 44.437
+    },
+    {
+      "name": "Library Tab - Connected with Files",
+      "flow": ".maestro/flows/04-library-connected.yaml",
+      "passed": true,
+      "durationSeconds": 4.142
+    },
+    {
+      "name": "FAB Menu - Expanded State",
+      "flow": ".maestro/flows/10-fab-menu.yaml",
+      "passed": true,
+      "durationSeconds": 43.512
+    },
+    {
+      "name": "Dark Mode - Library Disconnected",
+      "flow": ".maestro/flows/11-dark-mode.yaml",
+      "passed": true,
+      "durationSeconds": 40.023
+    },
+    {
+      "name": "Android - Landscape Keyboard Reachability",
+      "flow": ".maestro/manual-flows/android-keyboard-landscape.yaml",
+      "passed": true,
+      "durationSeconds": 85.224
+    }
+  ],
+  "androidProductionSourceEquivalentTo": "fbd514a7b495a1bd8c7fd1d470f93552ab22fb6d",
+  "androidUnaffectedByLaterSwiftOnlyChanges": true,
+  "androidApkSHA256": "93ce08cc8926e1795749ecdd6d12e8e44738b54c82a786c8e4db2e252a4d6f46",
+  "finalDuoFoldChecks": {
+    "passed": true,
+    "records": [
+      {
+        "pose": "outer",
+        "appearance": "dark",
+        "tab": "Library",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 678,
+          "width": 466
+        },
+        "folder": "/Formats",
+        "mode": "system-rail",
+        "controls": {
+          "Library.FAB": {
+            "height": 38,
+            "width": 38,
+            "x": 399,
+            "y": 179
+          },
+          "Library.OpenQueue": {
+            "height": 38,
+            "width": 38,
+            "x": 399,
+            "y": 231
+          },
+          "TabBar.Library": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 494
+          },
+          "TabBar.Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 544
+          },
+          "TabBar.Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 594
+          }
+        }
+      },
+      {
+        "pose": "outer",
+        "appearance": "dark",
+        "tab": "Reader",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 678,
+          "width": 466
+        }
+      },
+      {
+        "pose": "outer",
+        "appearance": "dark",
+        "tab": "Settings",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 678,
+          "width": 466
+        }
+      },
+      {
+        "pose": "outer",
+        "appearance": "light",
+        "tab": "Library",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 678,
+          "width": 466
+        },
+        "folder": "/Formats",
+        "mode": "system-rail",
+        "controls": {
+          "Library.FAB": {
+            "height": 38,
+            "width": 38,
+            "x": 399,
+            "y": 179
+          },
+          "Library.OpenQueue": {
+            "height": 38,
+            "width": 38,
+            "x": 399,
+            "y": 231
+          },
+          "TabBar.Library": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 494
+          },
+          "TabBar.Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 544
+          },
+          "TabBar.Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 594
+          }
+        }
+      },
+      {
+        "pose": "outer",
+        "appearance": "light",
+        "tab": "Reader",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 678,
+          "width": 466
+        }
+      },
+      {
+        "pose": "outer",
+        "appearance": "light",
+        "tab": "Settings",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 678,
+          "width": 466
+        }
+      },
+      {
+        "pose": "inner-wide",
+        "appearance": "dark",
+        "tab": "Library",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3
+          },
+          "height": 669,
+          "width": 951
+        },
+        "folder": "/Formats",
+        "mode": "system-rail",
+        "controls": {
+          "Library.FAB": {
+            "height": 38,
+            "width": 38,
+            "x": 884,
+            "y": 129
+          },
+          "Library.OpenQueue": {
+            "height": 38,
+            "width": 38,
+            "x": 884,
+            "y": 181
+          },
+          "TabBar.Library": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 485
+          },
+          "TabBar.Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 535
+          },
+          "TabBar.Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 585
+          }
+        }
+      },
+      {
+        "pose": "inner-wide",
+        "appearance": "dark",
+        "tab": "Reader",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3
+          },
+          "height": 669,
+          "width": 951
+        }
+      },
+      {
+        "pose": "inner-wide",
+        "appearance": "dark",
+        "tab": "Settings",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3
+          },
+          "height": 669,
+          "width": 951
+        }
+      },
+      {
+        "pose": "inner-wide",
+        "appearance": "light",
+        "tab": "Library",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3
+          },
+          "height": 669,
+          "width": 951
+        },
+        "folder": "/Formats",
+        "mode": "system-rail",
+        "controls": {
+          "Library.FAB": {
+            "height": 38,
+            "width": 38,
+            "x": 884,
+            "y": 129
+          },
+          "Library.OpenQueue": {
+            "height": 38,
+            "width": 38,
+            "x": 884,
+            "y": 181
+          },
+          "TabBar.Library": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 485
+          },
+          "TabBar.Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 535
+          },
+          "TabBar.Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 585
+          }
+        }
+      },
+      {
+        "pose": "inner-wide",
+        "appearance": "light",
+        "tab": "Reader",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3
+          },
+          "height": 669,
+          "width": 951
+        }
+      },
+      {
+        "pose": "inner-wide",
+        "appearance": "light",
+        "tab": "Settings",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3
+          },
+          "height": 669,
+          "width": 951
+        }
+      },
+      {
+        "pose": "inner-tall",
+        "appearance": "dark",
+        "tab": "Library",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 951,
+          "width": 669
+        },
+        "folder": "/Formats",
+        "mode": "bottom-companion",
+        "controls": {
+          "Library.FAB": {
+            "height": 54,
+            "width": 54,
+            "x": 474.5,
+            "y": 872
+          },
+          "Library.OpenQueue": {
+            "height": 20,
+            "width": 40,
+            "x": 481,
+            "y": 38
+          },
+          "TabBar.Library": {
+            "height": 54,
+            "width": 94,
+            "x": 165.5,
+            "y": 872
+          },
+          "TabBar.Reader": {
+            "height": 54,
+            "width": 94,
+            "x": 251.5,
+            "y": 872
+          },
+          "TabBar.Settings": {
+            "height": 54,
+            "width": 94,
+            "x": 337.5,
+            "y": 872
+          }
+        }
+      },
+      {
+        "pose": "inner-tall",
+        "appearance": "dark",
+        "tab": "Reader",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 951,
+          "width": 669
+        }
+      },
+      {
+        "pose": "inner-tall",
+        "appearance": "dark",
+        "tab": "Settings",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 951,
+          "width": 669
+        }
+      },
+      {
+        "pose": "inner-tall",
+        "appearance": "light",
+        "tab": "Library",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 951,
+          "width": 669
+        },
+        "folder": "/Formats",
+        "mode": "bottom-companion",
+        "controls": {
+          "Library.FAB": {
+            "height": 54,
+            "width": 54,
+            "x": 474.5,
+            "y": 872
+          },
+          "Library.OpenQueue": {
+            "height": 20,
+            "width": 40,
+            "x": 481,
+            "y": 38
+          },
+          "TabBar.Library": {
+            "height": 54,
+            "width": 94,
+            "x": 165.5,
+            "y": 872
+          },
+          "TabBar.Reader": {
+            "height": 54,
+            "width": 94,
+            "x": 251.5,
+            "y": 872
+          },
+          "TabBar.Settings": {
+            "height": 54,
+            "width": 94,
+            "x": 337.5,
+            "y": 872
+          }
+        }
+      },
+      {
+        "pose": "inner-tall",
+        "appearance": "light",
+        "tab": "Reader",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 951,
+          "width": 669
+        }
+      },
+      {
+        "pose": "inner-tall",
+        "appearance": "light",
+        "tab": "Settings",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 951,
+          "width": 669
+        }
+      },
+      {
+        "pose": "partial",
+        "appearance": "dark",
+        "tab": "Library",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3
+          },
+          "height": 669,
+          "width": 951
+        },
+        "folder": "/Formats",
+        "mode": "system-rail",
+        "controls": {
+          "Library.FAB": {
+            "height": 38,
+            "width": 38,
+            "x": 884,
+            "y": 129
+          },
+          "Library.OpenQueue": {
+            "height": 38,
+            "width": 38,
+            "x": 884,
+            "y": 181
+          },
+          "TabBar.Library": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 485
+          },
+          "TabBar.Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 535
+          },
+          "TabBar.Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 585
+          }
+        }
+      },
+      {
+        "pose": "partial",
+        "appearance": "dark",
+        "tab": "Reader",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3
+          },
+          "height": 669,
+          "width": 951
+        }
+      },
+      {
+        "pose": "partial",
+        "appearance": "dark",
+        "tab": "Settings",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3
+          },
+          "height": 669,
+          "width": 951
+        }
+      },
+      {
+        "pose": "partial",
+        "appearance": "light",
+        "tab": "Library",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3
+          },
+          "height": 669,
+          "width": 951
+        },
+        "folder": "/Formats",
+        "mode": "system-rail",
+        "controls": {
+          "Library.FAB": {
+            "height": 38,
+            "width": 38,
+            "x": 884,
+            "y": 129
+          },
+          "Library.OpenQueue": {
+            "height": 38,
+            "width": 38,
+            "x": 884,
+            "y": 181
+          },
+          "TabBar.Library": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 485
+          },
+          "TabBar.Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 535
+          },
+          "TabBar.Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 881,
+            "y": 585
+          }
+        }
+      },
+      {
+        "pose": "partial",
+        "appearance": "light",
+        "tab": "Reader",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3
+          },
+          "height": 669,
+          "width": 951
+        }
+      },
+      {
+        "pose": "partial",
+        "appearance": "light",
+        "tab": "Settings",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3
+          },
+          "height": 669,
+          "width": 951
+        }
+      },
+      {
+        "pose": "return",
+        "appearance": "dark",
+        "tab": "Library",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 678,
+          "width": 466
+        },
+        "folder": "/Formats",
+        "mode": "system-rail",
+        "controls": {
+          "Library.FAB": {
+            "height": 38,
+            "width": 38,
+            "x": 399,
+            "y": 179
+          },
+          "Library.OpenQueue": {
+            "height": 38,
+            "width": 38,
+            "x": 399,
+            "y": 231
+          },
+          "TabBar.Library": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 494
+          },
+          "TabBar.Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 544
+          },
+          "TabBar.Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 594
+          }
+        }
+      },
+      {
+        "pose": "return",
+        "appearance": "dark",
+        "tab": "Reader",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 678,
+          "width": 466
+        }
+      },
+      {
+        "pose": "return",
+        "appearance": "dark",
+        "tab": "Settings",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 678,
+          "width": 466
+        }
+      },
+      {
+        "pose": "return",
+        "appearance": "light",
+        "tab": "Library",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 678,
+          "width": 466
+        },
+        "folder": "/Formats",
+        "mode": "system-rail",
+        "controls": {
+          "Library.FAB": {
+            "height": 38,
+            "width": 38,
+            "x": 399,
+            "y": 179
+          },
+          "Library.OpenQueue": {
+            "height": 38,
+            "width": 38,
+            "x": 399,
+            "y": 231
+          },
+          "TabBar.Library": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 494
+          },
+          "TabBar.Reader": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 544
+          },
+          "TabBar.Settings": {
+            "height": 58,
+            "width": 44,
+            "x": 396,
+            "y": 594
+          }
+        }
+      },
+      {
+        "pose": "return",
+        "appearance": "light",
+        "tab": "Reader",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 678,
+          "width": 466
+        }
+      },
+      {
+        "pose": "return",
+        "appearance": "light",
+        "tab": "Settings",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 678,
+          "width": 466
+        }
+      },
+      {
+        "pose": "outer",
+        "draft": "Dark surface fold draft",
+        "destination": "/Formats",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 678,
+          "width": 466
+        }
+      },
+      {
+        "pose": "inner-wide",
+        "draft": "Dark surface fold draft",
+        "destination": "/Formats",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3
+          },
+          "height": 669,
+          "width": 951
+        }
+      },
+      {
+        "pose": "inner-tall",
+        "draft": "Dark surface fold draft",
+        "destination": "/Formats",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 951,
+          "width": 669
+        }
+      },
+      {
+        "pose": "partial",
+        "draft": "Dark surface fold draft",
+        "destination": "/Formats",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 90,
+            "scale": 3
+          },
+          "height": 669,
+          "width": 951
+        }
+      },
+      {
+        "pose": "return",
+        "draft": "Dark surface fold draft",
+        "destination": "/Formats",
+        "screen": {
+          "coordinate_space": "screen",
+          "display": {
+            "rotation": 0,
+            "scale": 3
+          },
+          "height": 678,
+          "width": 466
+        }
+      }
+    ],
+    "submittedOperation": false
+  },
+  "finalDuoTopEdgeChecks": {
+    "passed": true,
+    "results": [
+      {
+        "screenshot": "native-surface-dark-inner-tall-library.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-inner-tall-reader.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-inner-tall-settings.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-inner-wide-library.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-inner-wide-reader.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-inner-wide-settings.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-outer-library.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-outer-reader.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-outer-settings.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-partial-library.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-partial-reader.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-partial-settings.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-return-library.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-return-reader.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-dark-return-settings.png",
+        "appearance": "dark",
+        "topEdgeMeanRGB": [
+          18,
+          18,
+          18
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-inner-tall-library.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-inner-tall-reader.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-inner-tall-settings.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-inner-wide-library.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-inner-wide-reader.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-inner-wide-settings.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-outer-library.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-outer-reader.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-outer-settings.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-partial-library.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-partial-reader.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-partial-settings.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-return-library.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-return-reader.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      },
+      {
+        "screenshot": "native-surface-light-return-settings.png",
+        "appearance": "light",
+        "topEdgeMeanRGB": [
+          255,
+          255,
+          255
+        ],
+        "passed": true
+      }
+    ]
+  },
+  "sameProcessDraftContinuity": true,
+  "basicTests": "passed",
+  "runnerTests": {
+    "tests": 7,
+    "failures": 0
+  },
+  "typecheck": {
+    "diagnostics": 106,
+    "newDiagnostics": 0
+  },
+  "release": {
+    "sourceCommit": "fbd514a7b495a1bd8c7fd1d470f93552ab22fb6d",
+    "version": "1.5.0",
+    "build": "5",
+    "sdk": "iphoneos27.2",
+    "bundles": [
+      {
+        "CFBundleIdentifier": "com.crosspointsync.app",
+        "CFBundleShortVersionString": "1.5.0",
+        "CFBundleVersion": "5",
+        "distributionProfileVerified": true
+      },
+      {
+        "CFBundleIdentifier": "com.crosspointsync.app.ShareExtension",
+        "CFBundleShortVersionString": "1.5.0",
+        "CFBundleVersion": "5",
+        "distributionProfileVerified": true
+      },
+      {
+        "CFBundleIdentifier": "com.crosspointsync.app.WebExtension",
+        "CFBundleShortVersionString": "1.5.0",
+        "CFBundleVersion": "5",
+        "distributionProfileVerified": true
+      }
+    ],
+    "nativeBottomBarPresent": true,
+    "nativeReaderToolbarPresent": true,
+    "readerIconScalesVerified": true,
+    "bundleSHA256": "9ab0b7e31e6d36158799f534c167c8a227e69b413f2779b8a8571d596a70079b",
+    "nativeBottomBarSourceSHA256": "f80cc9fcae4a774b282575a2f705952577b3a8f3a2ba0f0e1d18f9306fcfdc7d",
+    "signedPackageVerification": "passed",
+    "ipaSHA256": "145140abfa199b252ef66d2fe0500376cbd470b091175d0146ce9f04c3c5b111",
+    "hermesSourceMatchesCurrentSimulator": true,
+    "executableHermesBytecodeMatchesCurrentSimulator": true,
+    "hermesJavaScriptSourceSHA1": "096eb1692a69e6ae65149a25eb2f4532c601af55",
+    "uploadAccepted": true,
+    "uploadedAtUTC": "2026-11-10T07:09:26.668000+00:00",
+    "testFlightStatus": "available",
+    "appStoreReviewSubmitted": false,
+    "thirdPartySymbolWarnings": [
+      "React.framework",
+      "ReactNativeDependencies.framework",
+      "hermes.framework"
+    ],
+    "appleProcessingCompletedAtUTC": "2026-11-10T07:11:44Z",
+    "testFlightAvailableAtUTC": "2026-11-10T07:12:05Z",
+    "confirmationSource": "Apple App Store Connect and TestFlight notifications"
+  },
+  "scope": "Native simulator/emulator UI with disposable mock readers; no physical-device or firmware acceptance claim.",
+  "earlierAttempts": [
+    "The initial iPhone appearance flow could not find UIKit tab IDs after a theme change. Native tab labels and controls remained available. The final appearance test and fold probe select the native user-facing labels; production navigation metadata code is unchanged.",
+    "One archive failed when local storage filled; disposable build caches were cleared and final archive/export/signature checks passed.",
+    "A filtered workspace run was rejected by Maestro ordering before executing any flows; the direct targeted and complete runs are retained separately."
+  ]
+}
