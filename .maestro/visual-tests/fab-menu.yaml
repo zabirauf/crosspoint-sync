@@ -9,8 +9,8 @@ tags: [smoke, library, fab]
 
 description: |
   The Add menu is expanded, showing action options. It is a native system menu on
-  iOS 26+, anchored to a toolbar button in Duo's system rail (or a horizontal
-  toolbar when the system uses horizontal bars). Other layouts use a floating menu.
+  iOS 26+, anchored to Add in Duo's system rail or to the separate blue Add
+  button beside bottom navigation. Other layouts use a floating menu.
   Options include "Upload Files" with a file or book icon and "Sleep Background" with a moon icon.
   When connected, also shows "New Folder" with a folder icon.
 

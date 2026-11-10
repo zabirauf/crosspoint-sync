@@ -33,12 +33,18 @@ class ReaderToolbarView: ExpoView {
   var needsAttention = false
   private weak var screen: UIViewController?
   private var appliedState: [Bool]?
+  private var addItem: UIBarButtonItem?
+  private var queueItem: UIBarButtonItem?
+  private var bottomQueueItem: UIBarButtonItem?
 
   override func didMoveToWindow() {
     super.didMoveToWindow()
     if window != nil {
       updateToolbar()
     } else {
+      if #available(iOS 26.0, *), let screen, let tabs = screen.tabBarController {
+        ReaderBottomBar.attached(to: tabs).deactivate(owner: screen)
+      }
       screen?.navigationItem.rightBarButtonItems = nil
       screen = nil
       appliedState = nil
@@ -66,17 +72,19 @@ class ReaderToolbarView: ExpoView {
           if item.title == "Settings" { item.accessibilityIdentifier = "TabBar.Settings" }
         }
         let state = [enabled, connected, needsAttention]
-        let hasActions =
-          controller.navigationItem.rightBarButtonItems?.contains(where: {
-            $0.accessibilityIdentifier == "Library.FAB"
-          }) == true
         // Status polling also rerenders React event props. Keep the same items
         // and an open system menu unless their actual content changes.
-        if screen === controller, appliedState == state, hasActions == enabled { return }
+        if screen === controller, appliedState == state {
+          updatePlacement(controller: controller)
+          return
+        }
         screen = controller
         appliedState = state
         guard enabled else {
-          controller.navigationItem.rightBarButtonItems = nil
+          addItem = nil
+          queueItem = nil
+          bottomQueueItem = nil
+          updatePlacement(controller: controller)
           return
         }
         navigation.navigationBar.accessibilityIdentifier = "Library.NativeToolbar"
@@ -103,24 +111,48 @@ class ReaderToolbarView: ExpoView {
           menu: UIMenu(children: additions))
         add.accessibilityIdentifier = "Library.FAB"
         add.accessibilityLabel = "Add files or create a sleep background"
+        let queueAction = UIAction(handler: action("queue"))
+        let queueImage = UIImage(systemName: needsAttention ? "exclamationmark.circle" : "list.bullet")
+        let queueLabel = needsAttention ? "Uploads need attention" : "View upload queue"
         let queue = UIBarButtonItem(
           title: "Uploads",
-          image: UIImage(systemName: needsAttention ? "exclamationmark.circle" : "list.bullet"),
-          primaryAction: UIAction(handler: action("queue")))
+          image: queueImage,
+          primaryAction: queueAction)
         queue.accessibilityIdentifier = "Library.OpenQueue"
-        queue.accessibilityLabel = needsAttention ? "Uploads need attention" : "View upload queue"
+        queue.accessibilityLabel = queueLabel
+        if #available(iOS 26.0, *) {
+          let button = ReaderBarItemButton(type: .system)
+          button.setImage(queueImage, for: .normal)
+          button.tintColor = .label
+          button.accessibilityIdentifier = "Library.OpenQueue"
+          button.accessibilityLabel = queueLabel
+          button.addAction(queueAction, for: .touchUpInside)
+          button.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
+          bottomQueueItem = UIBarButtonItem(customView: button)
+        }
         if #available(iOS 27.1, *) {
           for item in [add, queue] { item.axisBehavior = .verticalPreferred }
           add.visibilityPriority = .high
         }
-        // Native tabs wrap each navigation controller in a screen controller.
-        // Navigation items share the system rail with that tab bar; a nested
-        // bottom toolbar would compete with the tab bar's vertical placement.
-        // UIKit displays trailing items in reverse visual order in both bars.
-        controller.navigationItem.rightBarButtonItems = [queue, add]
+        // UIKit reverses trailing items in the rail. The bottom companion
+        // instead presents Add beside navigation and leaves Uploads here.
+        addItem = add
+        queueItem = queue
+        updatePlacement(controller: controller)
         return
       }
       responder = current.next
+    }
+  }
+
+  private func updatePlacement(controller: UIViewController) {
+    if #available(iOS 26.0, *), let tabs = controller.tabBarController {
+      ReaderBottomBar.attached(to: tabs).update(
+        owner: controller, enabled: enabled, add: addItem, queue: queueItem,
+        bottomQueue: bottomQueueItem)
+    } else {
+      controller.navigationItem.rightBarButtonItems = enabled
+        ? [queueItem, addItem].compactMap { $0 } : nil
     }
   }
 }
