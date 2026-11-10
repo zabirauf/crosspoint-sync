@@ -79,5 +79,8 @@ if [[ "$STATUS" -ne 0 && -n "$IOS_SIMULATOR" ]] && accessibility_startup_failed;
   run_flows "$OUTPUT/startup-retry" || STATUS=$?
 fi
 node scripts/collect-visual-screenshots.cjs "$OUTPUT"
+if compgen -G "$OUTPUT/screenshots/native-surface-*.png" >/dev/null; then
+  node scripts/check-native-surfaces.cjs "$OUTPUT/screenshots" || STATUS=1
+fi
 ln -sfn "$OUTPUT" "$PROJECT_ROOT/test-screenshots/latest"
 exit "$STATUS"

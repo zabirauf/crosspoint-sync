@@ -1,0 +1,44 @@
+appId: com.crosspointsync.app
+name: "Native Tab Surfaces - Light and Dark"
+tags:
+  - native-surfaces
+---
+- setOrientation: PORTRAIT
+- setDarkMode: enabled
+- runFlow: ../helpers/ensure-disconnected.yaml
+- runFlow:
+    when:
+      visible:
+        id: "Library.NativeToolbar"
+    commands:
+      - assertVisible:
+          id: "NativeTab.Library"
+      - takeScreenshot: native-surface-dark-library
+      - tapOn: "^Reader$"
+      - assertVisible:
+          id: "NativeTab.Reader"
+      - takeScreenshot: native-surface-dark-reader
+      - tapOn: "^Settings$"
+      - waitForAnimationToEnd
+      - assertVisible:
+          id: "NativeTab.Settings"
+      - takeScreenshot: native-surface-dark-settings
+      - setDarkMode: disabled
+      - waitForAnimationToEnd
+      - takeScreenshot: native-surface-light-settings
+      - tapOn: "^Reader$"
+      - takeScreenshot: native-surface-light-reader
+      - tapOn: "^Library$"
+      - waitForAnimationToEnd
+      - takeScreenshot: native-surface-light-library
+      - setDarkMode: enabled
+      - waitForAnimationToEnd
+      - takeScreenshot: native-surface-dark-after-toggle
+      - setDarkMode: disabled
+      - waitForAnimationToEnd
+      - assertVisible:
+          id: "Library.FAB"
+      - assertVisible:
+          id: "Library.OpenQueue"
+      - takeScreenshot: native-surface-light-after-toggle
+- setDarkMode: disabled
