@@ -146,8 +146,19 @@ Android runtime code, shared JavaScript and icon assets are unchanged from the e
 
 Final artifacts are in `test-screenshots/bottom-add/iphone-compact-final/`, `duo-compact-final/`, `android-final/` and `layout-audit-compact/`; earlier attempts remain separate. Build and audit logs are under `.local/bottom-add/`. These checks use disposable mock readers and native simulators/emulators. No device API or generated-content behavior changed, so the firmware simulator was not required. They do not claim physical-device, picker-selection or reader-transfer acceptance coverage.
 
-The published **TestFlight 1.5.0 (3)** described above predates this bottom Add follow-up. These simulator builds reuse the local version/build values for testing; this follow-up has not uploaded a new App Store Connect build.
+At the time of these simulator checks, **TestFlight 1.5.0 (3)** predated the bottom Add follow-up and no new build had been uploaded. These simulator builds reused the local version/build values for testing. The later build 4 publication is documented below.
 
 ![Regular iPhone Add menu in light and dark appearance](images/native-reader-navigation-2026-11-09/native-bottom-add-menus.png)
 
 ![Compact iPhone navigation and Add menu](images/native-reader-navigation-2026-11-09/native-bottom-add-landscape.png)
+
+
+## TestFlight bottom Add release — November 9, 2026
+
+After PR #36 merged, `main` was fast-forwarded to `8958e71`. Its tree matches the final reviewed PR. Release commit `978e9f8ac4bd2214d21e83df84b630bdb2be5f0c` increments the iOS build number to **4**, retaining version **1.5.0**. Expo generation produced matching 1.5.0 (4) metadata for the app, Share Extension and Safari Web Extension. No application behavior changed during release preparation.
+
+The basic test suite passed again. The production arm64 archive passed with Xcode 27.2 and the iOS 27.2 SDK. The archive and signed IPA contain the final native bottom bar, reader toolbar and all three reader-icon scales. The native bottom-bar source matches the earlier validation hash; the executable Hermes bytecode also matches the tested simulator build. Its file hash differs only because Hermes records the archive build output location in debug metadata. App Store distribution profiles and deep/strict package signature verification passed for the exported package.
+
+App Store Connect accepted **1.5.0 (4)** at **2026-11-10T05:40:42.028000+00:00**. Apple confirmed processing completed at **2026-11-10T05:43:14Z** and availability in internal TestFlight at **2026-11-10T05:43:22Z**. This build includes the prominent bottom Add button on regular iPhone and the preserved Duo rail. The existing internal testing group receives the build automatically. No App Store review submission was made.
+
+The upload retained the existing missing third-party dSYM warnings for React, ReactNativeDependencies and Hermes; Apple accepted and processed the build. [Release provenance and verification](testflight-1.5.0-build4-2026-11-09.json) record the source, versions, hashes and availability. Local archive, export, verification and upload logs are under `.local/testflight-1.5.0-build4/`.

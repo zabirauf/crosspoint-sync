@@ -1,0 +1,53 @@
+{
+  "sourceCommit": "978e9f8ac4bd2214d21e83df84b630bdb2be5f0c",
+  "version": "1.5.0",
+  "build": "4",
+  "sdk": "iphoneos27.2",
+  "bundles": [
+    {
+      "CFBundleIdentifier": "com.crosspointsync.app",
+      "CFBundleShortVersionString": "1.5.0",
+      "CFBundleVersion": "4",
+      "distributionProfileVerified": true
+    },
+    {
+      "CFBundleIdentifier": "com.crosspointsync.app.ShareExtension",
+      "CFBundleShortVersionString": "1.5.0",
+      "CFBundleVersion": "4",
+      "distributionProfileVerified": true
+    },
+    {
+      "CFBundleIdentifier": "com.crosspointsync.app.WebExtension",
+      "CFBundleShortVersionString": "1.5.0",
+      "CFBundleVersion": "4",
+      "distributionProfileVerified": true
+    }
+  ],
+  "nativeBottomBarPresent": true,
+  "nativeReaderToolbarPresent": true,
+  "readerIconScalesVerified": true,
+  "bundleSHA256": "b49b4e505267d9bcfa54e1083b76c76d2e2b5cc061f401da128feeef285ad5b8",
+  "nativeBottomBarSourceSHA256": "f80cc9fcae4a774b282575a2f705952577b3a8f3a2ba0f0e1d18f9306fcfdc7d",
+  "hermesJavaScriptSourceSHA1": "29eb12dc713b84c6120e87403ae6fbd9bc2d62c6",
+  "hermesSourceMatchesValidatedSimulator": true,
+  "executableHermesBytecodeMatchesValidatedSimulator": true,
+  "signedPackageVerification": "passed",
+  "ipaSHA256": "0b0ea6a2ec3f196a19dccf60f8ef805011f8299940181f2ac323846b4ab2b774",
+  "uploadAccepted": true,
+  "uploadedAtUTC": "2026-11-10T05:40:42.028000+00:00",
+  "appleProcessingCompletedAtUTC": "2026-11-10T05:43:14Z",
+  "testFlightAvailableAtUTC": "2026-11-10T05:43:22Z",
+  "testFlightStatus": "available",
+  "appStoreReviewSubmitted": false,
+  "thirdPartySymbolWarnings": [
+    "React.framework",
+    "ReactNativeDependencies.framework",
+    "hermes.framework"
+  ],
+  "mergedMainCommit": "8958e71da1b9dd34b83f93de3a010b773c3f76e4",
+  "basicTests": "passed",
+  "priorNativeValidation": "native-bottom-add-validation-2026-11-09.json",
+  "releaseChange": "Increment iOS build number from 3 to 4; merged application source matches the tested native navigation PR.",
+  "bundleDifferenceNote": "Native simulator and archive bundle hashes differ because the Hermes debug filename records a different build output location; their JavaScript source hashes and global string tables match.",
+  "confirmationSource": "Apple App Store Connect and TestFlight notifications"
+}
