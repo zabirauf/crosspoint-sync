@@ -57,6 +57,16 @@ tags:
       - tapOn:
           id: "PromptDialog.CancelButton"
       - takeScreenshot: native-bottom-add-landscape
+      - tapOn:
+          id: "TabBar.Reader"
+      - assertVisible:
+          id: "Reader.Screen"
+      - runFlow: ../helpers/navigate-to-settings.yaml
+      - assertVisible:
+          id: "Settings.UploadPath"
+      - runFlow: ../helpers/navigate-to-library.yaml
+      - assertVisible:
+          id: "Library.FileRow.Gettysburg-Address.epub"
       - setOrientation: PORTRAIT
       - takeScreenshot: native-bottom-add-library
       - setDarkMode: enabled
