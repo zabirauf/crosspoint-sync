@@ -35,10 +35,10 @@ export function ConnectionContent({ onClose, contentContainerStyle }: Connection
               height={8}
               borderRadius={4}
               backgroundColor={
-                isConnected ? '$green9' : connectionStatus === 'connecting' ? '$yellow9' : '$gray8'
+                isConnected ? '$green11' : connectionStatus === 'connecting' ? '$yellow11' : '$gray10'
               }
             />
-            <Text color="$gray10" fontSize="$3">
+            <Text testID="Connection.Status" color="$gray11" fontSize="$3">
               {connectionStatus === 'connected'
                 ? 'Connected'
                 : connectionStatus === 'connecting'
@@ -73,15 +73,15 @@ export function ConnectionContent({ onClose, contentContainerStyle }: Connection
             />
             {deviceStatus && (
               <YStack gap="$1" paddingTop="$1">
-                <Text color="$gray10" fontSize="$2">
+                <Text color="$gray11" fontSize="$2">
                   Firmware: {deviceStatus.version} | Free heap: {deviceStatus.freeHeap} bytes
                 </Text>
-                <Text color="$gray10" fontSize="$2">
+                <Text color="$gray11" fontSize="$2">
                   Uptime: {Math.round(deviceStatus.uptime / 1000)}s | RSSI: {deviceStatus.rssi} dBm
                 </Text>
               </YStack>
             )}
-            <Button size="$4" theme="red" onPress={disconnect} testID="Connection.DisconnectButton">
+            <Button size="$4" theme="red" color="$red12" onPress={disconnect} testID="Connection.DisconnectButton">
               Disconnect
             </Button>
           </>
@@ -90,7 +90,7 @@ export function ConnectionContent({ onClose, contentContainerStyle }: Connection
         {/* Disconnected state */}
         {!isConnected && connectionStatus !== 'connecting' && (
           <>
-            <YStack backgroundColor="$blue2" borderRadius="$4" padding="$3" gap="$2">
+            <YStack testID="Connection.Instructions" backgroundColor="$blue2" borderRadius="$4" padding="$3" gap="$2">
               <Text fontWeight="600" fontSize="$4">How to connect</Text>
               <Text color="$gray11" fontSize="$3">
                 On your device, open File Transfer and choose:
@@ -112,7 +112,7 @@ export function ConnectionContent({ onClose, contentContainerStyle }: Connection
             </YStack>
 
             <YStack gap="$2">
-              <Label htmlFor="device-address" fontSize="$3" color="$gray10">
+              <Label testID="Connection.AddressLabel" htmlFor="device-address" fontSize="$3" color="$gray11">
                 Device address
               </Label>
               <XStack gap="$2">
@@ -123,6 +123,9 @@ export function ConnectionContent({ onClose, contentContainerStyle }: Connection
                   minWidth={0}
                   testID="Connection.AddressInput"
                   size="$4"
+                  borderColor="$gray10"
+                  focusStyle={{ borderColor: '$blue10' }}
+                  placeholderTextColor="$gray11"
                   placeholder="crosspoint.local"
                   defaultValue={lastDeviceIp ?? DEFAULT_DEVICE_ADDRESS}
                   onChangeText={setManualIp}
@@ -134,6 +137,7 @@ export function ConnectionContent({ onClose, contentContainerStyle }: Connection
                 <Button
                   size="$4"
                   theme="blue"
+                  color="$blue12"
                   disabled={!manualIp.trim()}
                   onPress={() => connectManualIP(manualIp.trim())}
                   testID="Connection.ConnectButton"
@@ -148,14 +152,14 @@ export function ConnectionContent({ onClose, contentContainerStyle }: Connection
         {/* Connecting state */}
         {connectionStatus === 'connecting' && (
           <YStack alignItems="center" paddingVertical="$3">
-            <Text color="$gray10" fontSize="$4">
+            <Text color="$gray11" fontSize="$4">
               Connecting...
             </Text>
           </YStack>
         )}
 
         {error && (
-          <Text color="$red10" fontSize="$3">
+          <Text testID="Connection.Error" color="$red11" fontSize="$3">
             {error}
           </Text>
         )}

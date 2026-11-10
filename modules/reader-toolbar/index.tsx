@@ -14,6 +14,7 @@ interface ReaderToolbarProps {
   connected: boolean;
   needsAttention: boolean;
   onAction: (event: NativeSyntheticEvent<{ action: ReaderToolbarAction }>) => void;
+  onNavigationInsetChange?: (event: NativeSyntheticEvent<{ bottom: number }>) => void;
   style?: { width: number; height: number };
 }
 

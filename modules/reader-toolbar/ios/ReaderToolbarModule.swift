@@ -6,7 +6,7 @@ public class ReaderToolbarModule: Module {
     Name("ReaderToolbar")
 
     View(ReaderToolbarView.self) {
-      Events("onAction")
+      Events("onAction", "onNavigationInsetChange")
       Prop("enabled") { (view: ReaderToolbarView, enabled: Bool) in
         view.enabled = enabled
       }
@@ -28,6 +28,8 @@ public class ReaderToolbarModule: Module {
 // safe areas and overflow; the React screen and its drafts stay mounted.
 class ReaderToolbarView: ExpoView {
   let onAction = EventDispatcher()
+  let onNavigationInsetChange = EventDispatcher()
+  private var lastNavigationInset: CGFloat?
   var enabled = true
   var connected = false
   var needsAttention = false
@@ -48,6 +50,7 @@ class ReaderToolbarView: ExpoView {
       screen?.navigationItem.rightBarButtonItems = nil
       screen = nil
       appliedState = nil
+      lastNavigationInset = nil
     }
   }
 
@@ -149,7 +152,12 @@ class ReaderToolbarView: ExpoView {
     if #available(iOS 26.0, *), let tabs = controller.tabBarController {
       ReaderBottomBar.attached(to: tabs).update(
         owner: controller, enabled: enabled, add: addItem, queue: queueItem,
-        bottomQueue: bottomQueueItem)
+        bottomQueue: bottomQueueItem,
+        onBottomInsetChange: { [weak self] bottom in
+          guard let self, self.lastNavigationInset != bottom else { return }
+          self.lastNavigationInset = bottom
+          self.onNavigationInsetChange(["bottom": bottom])
+        })
     } else {
       controller.navigationItem.rightBarButtonItems = enabled
         ? [queueItem, addItem].compactMap { $0 } : nil

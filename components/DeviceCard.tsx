@@ -1,4 +1,4 @@
-import { XStack, YStack, Text, Card } from 'tamagui';
+import { XStack, YStack, Text, Card, useTheme } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { useColorScheme } from 'react-native';
 import { getReaderName } from '@/constants/ReaderProfiles';
@@ -12,29 +12,14 @@ interface DeviceCardProps {
   onPress?: () => void;
 }
 
-function signalColor(rssi?: number): string {
-  if (rssi === undefined) return '#999';
-  if (rssi > -50) return '#4caf50';
-  if (rssi > -70) return '#ff9800';
-  return '#f44336';
-}
-
-function statusColor(status?: ConnectionStatus): string {
-  switch (status) {
-    case 'connected':
-      return '#4caf50';
-    case 'connecting':
-      return '#ff9800';
-    case 'error':
-      return '#f44336';
-    default:
-      return '#999';
-  }
-}
-
 export function DeviceCard({ device, model, status, rssi, onPress }: DeviceCardProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const theme = useTheme();
+  const signalColor = rssi === undefined ? theme.gray11.val
+    : rssi > -50 ? theme.green11.val : rssi > -70 ? theme.orange11.val : theme.red11.val;
+  const statusColor = status === 'connected' ? theme.green11.val
+    : status === 'connecting' ? theme.orange11.val : status === 'error' ? theme.red11.val : theme.gray11.val;
 
   return (
     <Card
@@ -62,19 +47,19 @@ export function DeviceCard({ device, model, status, rssi, onPress }: DeviceCardP
           <Text testID="Connection.DeviceModel" fontWeight="600" fontSize="$5">
             {getReaderName(model, device.hostname)}
           </Text>
-          <Text color="$gray10" fontSize="$3">
+          <Text color="$gray11" fontSize="$3">
             {device.ip}
           </Text>
         </YStack>
         <YStack alignItems="center" gap="$1">
           {rssi !== undefined && (
-            <FontAwesome name="wifi" size={14} color={signalColor(rssi)} />
+            <FontAwesome name="wifi" size={14} color={signalColor} />
           )}
           <YStack
             width={8}
             height={8}
             borderRadius={4}
-            backgroundColor={statusColor(status)}
+            backgroundColor={statusColor}
           />
         </YStack>
       </XStack>

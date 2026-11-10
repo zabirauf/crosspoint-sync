@@ -37,6 +37,30 @@ def tab_frame(state, label):
     return matches[0]['frame']
 
 
+def check_queue_clearance(state):
+    queues = [e for e in flatten(state['elements'])
+              if e.get('identifier') == 'Library.UploadStatusBar']
+    if not queues:
+        return None
+    queue = queues[0]['frame']
+    controls = {name: tab_frame(state, name) for name in TABS}
+    for element in flatten(state['elements']):
+        if element.get('identifier') == 'Library.FAB':
+            controls['Add'] = element['frame']
+    rail = abs(controls['Library']['x'] - controls['Reader']['x']) < 2
+    gap = None
+    if not rail:
+        gap = min(frame['y'] for frame in controls.values()) - (queue['y'] + queue['height'])
+        assert gap >= -.5, f'Queue is underneath bottom navigation by {-gap:.2f} points'
+    for name, frame in controls.items():
+        width = max(0, min(queue['x'] + queue['width'], frame['x'] + frame['width'])
+                    - max(queue['x'], frame['x']))
+        height = max(0, min(queue['y'] + queue['height'], frame['y'] + frame['height'])
+                     - max(queue['y'], frame['y']))
+        assert width * height < 1, f'Queue overlaps {name}'
+    return {'queue': queue, 'controls': controls, 'gapAboveBottomControls': gap}
+
+
 def check_layout(state, pose, tab):
     """Check observed iOS 27.1 placement and on-screen control geometry."""
     screen = state['screen']
@@ -64,7 +88,8 @@ def check_layout(state, pose, tab):
         assert (frame['x'] >= 0 and frame['y'] >= 0
                 and frame['x'] + frame['width'] <= screen['width'] + 1
                 and frame['y'] + frame['height'] <= screen['height'] + 1), f'{name}: outside active display'
-    return {'placement': 'system-rail' if rail else 'bottom-companion', 'controls': controls}
+    return {'placement': 'system-rail' if rail else 'bottom-companion', 'controls': controls,
+            'queueClearance': check_queue_clearance(state) if tab == 'Library' else None}
 
 
 def main():
@@ -73,6 +98,8 @@ def main():
     parser.add_argument('--idb', default='idb', help='Active-display-aware idb executable')
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--poses', nargs='+', choices=POSES, default=list(POSES))
+    parser.add_argument('--require-queue', action='store_true',
+                        help='Require a staged offline queue fixture and verify its clearance')
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     assert not (args.output / 'results.json').exists(), 'Use a fresh output directory'
@@ -110,6 +137,16 @@ def main():
             time.sleep(.5)
         raise AssertionError(f'App did not expose {identifier} on the active display')
 
+    def wait_for_pose(pose):
+        deadline = time.monotonic() + 15
+        while time.monotonic() < deadline:
+            state = tree()
+            screen = state['screen']
+            if (screen['width'] > screen['height']) == (pose == 'inner-wide'):
+                return
+            time.sleep(.25)
+        raise AssertionError(f'{pose}: simulator did not finish its orientation transition')
+
     # AX must stay enabled across process termination. Maestro's runner instead
     # binds to the default (inactive outer) display when launched on inner wide.
     preferences = {}
@@ -132,8 +169,13 @@ def main():
                     idb('hinge', hinge, '--json')
                 if rotation != 'PORTRAIT':
                     idb('rotation', rotation)
+                for key in preferences:
+                    sim('spawn', args.udid, 'defaults', 'write', 'com.apple.Accessibility', key, '-bool', 'true')
                 sim('launch', args.udid, BUNDLE)
                 wait('NativeTab.Library')
+                wait_for_pose(pose)
+                if args.require_queue:
+                    wait('Library.UploadStatusBar')
                 for tab in TABS:
                     if tab != 'Library':
                         frame = tab_frame(tree(), tab)

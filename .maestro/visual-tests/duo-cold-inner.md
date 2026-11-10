@@ -11,6 +11,11 @@ python3 scripts/test-duo-cold-launch.py --udid "$DUO_UDID" --idb "$IDB_BINARY" \
 node scripts/check-native-surfaces.cjs test-screenshots/duo-cold-launch
 ```
 
+For the queue regression, queue a legal book while disconnected on the disposable
+simulator and pass `--require-queue`. The script checks the entire queue hit area
+against the three navigation targets and Add, in both rail and bottom placement.
+The queue must sit above bottom navigation and remain tappable after resizing.
+
 Maestro's current iOS driver captures the inactive outer display when started
 on inner wide, returning a black image and incorrect coordinates. Use the
 active-display driver for this test; regular iPhone Maestro flows remain valid.
@@ -25,6 +30,8 @@ For the generated Library, Reader and Settings screenshots:
 - Inner tall: the system chooses bottom navigation. Add sits separately to its
   right and Uploads appears in the header. Other destinations hide these actions.
 - The Library header's upper edge matches the current appearance.
+- Reader uses the same body surface as Library and Settings, with readable text,
+  connection instructions, field boundaries and buttons in both appearances.
 
 Also cold-launch outer, and fold outer → inner → outer without terminating the
 app. Confirm system placement and the current screen/draft survive each resize.

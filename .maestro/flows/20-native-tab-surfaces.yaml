@@ -17,6 +17,12 @@ tags:
       - tapOn: "^Reader$"
       - assertVisible:
           id: "NativeTab.Reader"
+      - assertVisible:
+          id: "Connection.Status"
+      - assertVisible:
+          id: "Connection.AddressLabel"
+      - assertVisible:
+          id: "Connection.Instructions"
       - takeScreenshot: native-surface-dark-reader
       - tapOn: "^Settings$"
       - waitForAnimationToEnd
