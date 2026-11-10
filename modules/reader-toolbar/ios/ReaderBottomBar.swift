@@ -72,6 +72,7 @@ final class ReaderBottomBar: UIView, UITabBarDelegate {
     addButton.configuration?.indicator = .none
     addButton.tintColor = .systemBlue
     addButton.showsMenuAsPrimaryAction = true
+    addButton.preferredMenuElementOrder = .fixed
     addButton.accessibilityIdentifier = "Library.FAB"
     addButton.accessibilityLabel = "Add files or create a sleep background"
     addSubview(addButton)
@@ -235,6 +236,10 @@ final class ReaderBottomBar: UIView, UITabBarDelegate {
       }
     }
     for (source, target) in zip(source, navigationBar.items ?? []) {
+      // The compact standalone bar centers its images. Keep that row icon-only
+      // so UIKit does not lay a title over the image in short landscape windows.
+      target.title = traitCollection.verticalSizeClass == .compact ? nil : source.title
+      target.accessibilityLabel = source.accessibilityLabel ?? source.title
       target.accessibilityValue = source.accessibilityValue
     }
     if let items = navigationBar.items, items.indices.contains(controller.selectedIndex) {

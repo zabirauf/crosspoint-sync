@@ -29,6 +29,8 @@ assertions:
     severity: fail
   - text: "The library remains in Formats after visiting Reader and Settings"
     severity: fail
+  - text: "Compact landscape navigation uses three distinct icons without overlapping labels; portrait navigation retains labels"
+    severity: fail
 
 ignore:
   - "Specific device address, timestamps and upload count"
