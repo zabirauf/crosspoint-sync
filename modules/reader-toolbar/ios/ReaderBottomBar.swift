@@ -55,6 +55,7 @@ final class ReaderBottomBar: UIView, UITabBarDelegate {
   private var addItem: UIBarButtonItem?
   private var queueItem: UIBarButtonItem?
   private var bottomQueueItem: UIBarButtonItem?
+  private var onBottomInsetChange: ((CGFloat) -> Void)?
   private let tintObserver = ReaderTintObserver()
   private let navigationBar = UITabBar()
   private let addButton = UIButton(configuration: .prominentGlass())
@@ -102,13 +103,15 @@ final class ReaderBottomBar: UIView, UITabBarDelegate {
 
   func update(
     owner: UIViewController, enabled: Bool, add: UIBarButtonItem?,
-    queue: UIBarButtonItem?, bottomQueue: UIBarButtonItem?
+    queue: UIBarButtonItem?, bottomQueue: UIBarButtonItem?,
+    onBottomInsetChange: @escaping (CGFloat) -> Void
   ) {
     self.owner = owner
     actionsEnabled = enabled
     addItem = add
     queueItem = queue
     bottomQueueItem = bottomQueue
+    self.onBottomInsetChange = onBottomInsetChange
     if let button = bottomQueue?.customView as? ReaderBarItemButton {
       button.onDetached = { [weak self, weak owner] in
         // A header configuration update can remove our native item without
@@ -189,12 +192,18 @@ final class ReaderBottomBar: UIView, UITabBarDelegate {
         x: rtl ? rowX + 16 : rowX + rowWidth - 16 - side,
         y: rowCenter.map { $0 - side / 2 } ?? fallbackY,
         width: side, height: side)
+      // Floating bars do not always contribute their height to the React
+      // screen's safe area. Publish the actual obstruction so queue content
+      // can sit above both controls, after subtracting its existing safe area.
+      let top = min(navigationBar.frame.minY, addButton.isHidden ? navigationBar.frame.minY : addButton.frame.minY)
+      onBottomInsetChange?(max(0, bounds.maxY - top))
       superview?.bringSubviewToFront(self)
     } else {
       original.alpha = originalAlpha
       original.isUserInteractionEnabled = originalInteraction
       original.accessibilityElementsHidden = originalAccessibilityHidden
       controller.tabBarMinimizeBehavior = originalMinimizeBehavior
+      onBottomInsetChange?(0)
     }
     guard let owner else { return }
     let items: [UIBarButtonItem] = actionsEnabled

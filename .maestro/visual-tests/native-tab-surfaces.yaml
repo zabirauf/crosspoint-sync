@@ -19,6 +19,8 @@ description: |
   including the area above Duo's outer navigation bar. The top edge is part
   of the app and must be reviewed. The native rail/bottom bars and safe-area
   placement remain intact across tab changes and appearance updates.
+  All three destinations use the same theme body surface. Reader's secondary
+  labels, connection instructions, address field and buttons remain readable.
 
 assertions:
   - text: "Dark screens have no white strip at the top edge; the exposed tab backdrop matches the header"
@@ -28,6 +30,10 @@ assertions:
   - text: "Library, Reader and Settings remain usable in their original native navigation positions"
     severity: fail
   - text: "Library Add and Uploads remain visible after appearance changes"
+    severity: fail
+  - text: "Reader's body background matches Library and Settings in both themes"
+    severity: fail
+  - text: "Reader status, instructions, address label, input border and button labels have clear contrast"
     severity: fail
 
 ignore:

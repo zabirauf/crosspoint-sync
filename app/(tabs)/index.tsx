@@ -45,7 +45,8 @@ function LibraryScreen() {
   const { connectionStatus } = useDeviceStore();
   const { jobs } = useUploadStore();
   const openSwipeableRef = useRef<SwipeableMethods | null>(null);
-  const { expanded, fontScale } = useAdaptiveLayout();
+  const { expanded, fontScale, insets } = useAdaptiveLayout();
+  const [navigationBottomInset, setNavigationBottomInset] = useState(0);
   const [contentWidth, setContentWidth] = useState(0);
   const [paneHeight, setPaneHeight] = useState(0);
 
@@ -218,7 +219,10 @@ function LibraryScreen() {
 
   return (
     <YStack flex={1} backgroundColor="$background" testID="Library.Screen">
-      <SafeAreaView edges={usesNativeReaderBars ? ['left', 'right', 'bottom'] : expanded ? ['left', 'bottom'] : ['left', 'right']} style={{ flex: 1 }}>
+      <SafeAreaView
+        edges={usesNativeReaderBars ? ['left', 'right', 'bottom'] : expanded ? ['left', 'bottom'] : ['left', 'right']}
+        style={{ flex: 1, paddingBottom: Math.max(0, navigationBottomInset - insets.bottom) }}
+      >
         <View
           onLayout={(event) => setContentWidth(event.nativeEvent.layout.width)}
           style={{ flex: 1, flexDirection: 'row', width: '100%', maxWidth: LIBRARY_CONTENT_MAX_WIDTH, alignSelf: 'center' }}
@@ -356,6 +360,7 @@ function LibraryScreen() {
             {/* Add and reader actions */}
             {usesNativeReaderBars ? (
               <ReaderToolbar
+                onNavigationInsetChange={({ nativeEvent: { bottom } }) => setNavigationBottomInset(bottom)}
                 connected={isConnected}
                 needsAttention={jobs.some(j => ['failed', 'conflict', 'cancelled'].includes(j.status))}
                 style={{ width: 0, height: 0 }}
