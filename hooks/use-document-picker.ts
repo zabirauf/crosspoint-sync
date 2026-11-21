@@ -4,6 +4,7 @@ import { File as FSFile } from 'expo-file-system';
 import { Alert } from 'react-native';
 import { useUploadStore } from '@/stores/upload-store';
 import { useDeviceStore } from '@/stores/device-store';
+import { defaultDestinationFor } from '@/stores/settings-store';
 import { log } from '@/services/logger';
 import { isSupportedFile } from '@/constants/FileFormats';
 import { getDeviceCapabilities, getFileFirmwareError } from '@/services/firmware-version';
@@ -12,7 +13,11 @@ export function useDocumentPicker() {
   const addJob = useUploadStore((s) => s.addJob);
 
   const pickAndQueueFiles = useCallback(
-    async (destPath: string) => {
+    /**
+     * `explicitFolder`: the user is browsing `destPath` on the reader, so every
+     * file goes there. Otherwise .acsm files use the protected-books folder.
+     */
+    async (destPath: string, { explicitFolder = false }: { explicitFolder?: boolean } = {}) => {
       const { filePickerMimeType } = getDeviceCapabilities(useDeviceStore.getState().deviceStatus?.version);
       const result = await DocumentPicker.getDocumentAsync({
         // Providers can report bitmap/container files with an unknown or vendor-specific
@@ -52,12 +57,13 @@ export function useDocumentPicker() {
         const file = new FSFile(asset.uri);
         const fileSize = asset.size ?? file.size;
 
-        log('queue', `Queued: ${asset.name} (${fileSize} bytes) → ${destPath}`);
+        const destinationPath = explicitFolder ? destPath : defaultDestinationFor(asset.name, destPath);
+        log('queue', `Queued: ${asset.name} (${fileSize} bytes) → ${destinationPath}`);
         addJob({
           fileName: asset.name,
           fileUri: asset.uri,
           fileSize,
-          destinationPath: destPath,
+          destinationPath,
           jobType: 'book',
         });
       }

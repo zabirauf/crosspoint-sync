@@ -1,6 +1,6 @@
 import { File, Directory, Paths } from 'expo-file-system';
 import { DeviceStatus, DeviceFile } from '@/types/device';
-import { HTTP_PORT, REQUEST_TIMEOUT_MS } from '@/constants/Protocol';
+import { HTTP_PORT, PLUGIN_RUNNER_PATH, REQUEST_TIMEOUT_MS } from '@/constants/Protocol';
 import { log } from './logger';
 import { deviceScheduler, type RequestPriority } from './device-request-scheduler';
 import { getDeviceCapabilities } from './firmware-version';
@@ -268,4 +268,112 @@ export async function downloadFile(
       return file.uri;
     },
   });
+}
+
+// ── SD-plugin job queue (firmware 2.0.0+) ──────────────────────────────────
+
+export interface DevicePlugin {
+  name: string;
+  title?: string;
+  version?: string;
+  /** False for device.json-only plugins, which cannot run browser actions. */
+  hasPluginJs?: boolean;
+}
+
+export type PluginJobState = 'pending' | 'running' | 'done' | 'error' | 'unknown';
+
+export interface PluginJobStatus {
+  id: number;
+  state: PluginJobState;
+  result: Record<string, unknown> | null;
+}
+
+/** Settings → Connectivity → Plugins is disabled on the reader (HTTP 403). */
+export class PluginsDisabledError extends Error {
+  constructor() {
+    super('Plugins are disabled on the reader');
+    this.name = 'PluginsDisabledError';
+  }
+}
+
+/** The reader answered a plugin job request with an HTTP error. */
+export class PluginJobHttpError extends Error {
+  readonly status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'PluginJobHttpError';
+    this.status = status;
+  }
+}
+
+async function readError(res: Response): Promise<string> {
+  const text = (await res.text().catch(() => '')).trim();
+  try {
+    const parsed = JSON.parse(text) as { error?: unknown };
+    if (typeof parsed.error === 'string') return parsed.error;
+  } catch {}
+  return text || res.statusText || `HTTP ${res.status}`;
+}
+
+// Plugin job traffic runs while the queue holds the device busy, so these
+// requests bypass the external-busy gate that pauses status polling.
+export async function getPlugins(ip: string): Promise<DevicePlugin[]> {
+  return deviceScheduler.schedule({
+    ignoreExternalBusy: true,
+    execute: async () => {
+      const res = await fetchWithTimeout(`${baseUrl(ip)}/api/plugins`);
+      // Firmware without the plugin system has no such route.
+      if (res.status === 404) return [];
+      if (!res.ok) throw new Error(`Plugin list failed (${res.status}): ${await readError(res)}`);
+      const data: unknown = await res.json();
+      return Array.isArray(data) ? data.filter((p): p is DevicePlugin => typeof p?.name === 'string') : [];
+    },
+  });
+}
+
+export async function submitPluginJob(
+  ip: string,
+  plugin: string,
+  action: string,
+  args: Record<string, unknown>,
+): Promise<number> {
+  return deviceScheduler.schedule({
+    ignoreExternalBusy: true,
+    execute: async () => {
+      const res = await fetchWithTimeout(`${baseUrl(ip)}/api/plugin-jobs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plugin, action, args }),
+      });
+      if (res.status === 403) throw new PluginsDisabledError();
+      if (!res.ok) throw new Error(`Plugin job rejected (${res.status}): ${await readError(res)}`);
+      const { id } = (await res.json()) as { id?: unknown };
+      if (typeof id !== 'number' || id <= 0) throw new Error('Plugin job response had no id');
+      return id;
+    },
+  });
+}
+
+export async function getPluginJobStatus(ip: string, id: number): Promise<PluginJobStatus> {
+  return deviceScheduler.schedule({
+    ignoreExternalBusy: true,
+    execute: async () => {
+      const res = await fetchWithTimeout(`${baseUrl(ip)}/api/plugin-jobs/status?id=${id}`);
+      if (res.status === 403) throw new PluginsDisabledError();
+      if (!res.ok) {
+        throw new PluginJobHttpError(`Plugin job status failed (${res.status}): ${await readError(res)}`, res.status);
+      }
+      const data = (await res.json()) as Partial<PluginJobStatus>;
+      const states: PluginJobState[] = ['pending', 'running', 'done', 'error', 'unknown'];
+      return {
+        id,
+        state: states.includes(data.state as PluginJobState) ? (data.state as PluginJobState) : 'unknown',
+        result: data.result && typeof data.result === 'object' ? data.result : null,
+      };
+    },
+  });
+}
+
+export function pluginRunnerUrl(ip: string): string {
+  return `${baseUrl(ip)}${PLUGIN_RUNNER_PATH}`;
 }

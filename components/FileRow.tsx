@@ -16,7 +16,12 @@ interface FileRowProps {
 function fileIcon(file: DeviceFile): React.ComponentProps<typeof FontAwesome>['name'] {
   if (file.isDirectory) return 'folder';
   const format = getFileFormat(file.name);
-  if (format) return format.kind === 'image' ? 'file-image-o' : 'book';
+  if (format) {
+    if (format.kind === 'image') return 'file-image-o';
+    // An .acsm authorizes a protected book; it is not readable itself.
+    if (format.kind === 'fulfillment') return 'key';
+    return 'book';
+  }
   if (file.name.toLowerCase().endsWith('.pdf')) return 'file-pdf-o';
   return 'file-o';
 }

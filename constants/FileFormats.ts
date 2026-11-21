@@ -8,10 +8,18 @@ export const FILE_FORMATS = {
   // introduced in 0.14.0. Firmware does not open them as standalone books.
   '.xtg': { kind: 'image', minimumFirmware: [0, 14, 0] },
   '.xth': { kind: 'image', minimumFirmware: [0, 14, 0] },
+  // An Adobe ADEPT fulfillment token (a few KB of XML), not a book. It is
+  // stored through the generic uploader; a reader plugin turns it into a
+  // protected EPUB (see services/acsm-fulfillment.ts).
+  '.acsm': { kind: 'fulfillment', minimumFirmware: [0, 14, 0] },
 } as const;
 
 export type SupportedExtension = keyof typeof FILE_FORMATS;
 export const SUPPORTED_EXTENSIONS = Object.keys(FILE_FORMATS) as readonly SupportedExtension[];
+
+export function isAcsmFile(fileName: string): boolean {
+  return fileName.toLowerCase().endsWith('.acsm');
+}
 
 export function getFileFormat(fileName: string) {
   const lower = fileName.toLowerCase();

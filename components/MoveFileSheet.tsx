@@ -343,7 +343,7 @@ export function MoveFileSheet({
                   borderBottomColor={isDark ? '$gray5' : '$gray4'}
                 >
                   <FontAwesome
-                    name={getFileFormat(f.name)?.kind === 'image' ? 'file-image-o' : isSupportedFile(f.name) ? 'book' : f.name.toLowerCase().endsWith('.pdf') ? 'file-pdf-o' : 'file-o'}
+                    name={getFileFormat(f.name)?.kind === 'image' ? 'file-image-o' : getFileFormat(f.name)?.kind === 'fulfillment' ? 'key' : isSupportedFile(f.name) ? 'book' : f.name.toLowerCase().endsWith('.pdf') ? 'file-pdf-o' : 'file-o'}
                     size={20}
                     color={
                       isSupportedFile(f.name)

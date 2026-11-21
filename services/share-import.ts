@@ -1,7 +1,7 @@
 import { File, Directory, Paths } from 'expo-file-system';
 import { getAppGroupPath } from '@/modules/app-group-path';
 import { useUploadStore } from '@/stores/upload-store';
-import { useSettingsStore, waitForSettingsHydration } from '@/stores/settings-store';
+import { defaultDestinationFor, waitForSettingsHydration } from '@/stores/settings-store';
 import { log } from '@/services/logger';
 import { pathToUri } from '@/utils/format';
 
@@ -71,7 +71,7 @@ export async function importSharedFiles(): Promise<number> {
         fileName: manifest.fileName,
         fileUri: destFile.uri,
         fileSize: manifest.fileSize,
-        destinationPath: useSettingsStore.getState().defaultUploadPath,
+        destinationPath: defaultDestinationFor(manifest.fileName),
         jobType: 'book',
       });
 

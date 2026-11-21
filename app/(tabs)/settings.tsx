@@ -66,7 +66,10 @@ export default function SettingsRoute() {
 function SettingsScreen() {
   const { connectedDevice, deviceStatus, connectionStatus } = useDeviceStore();
   const disconnect = useDeviceStore((s) => s.disconnect);
-  const { defaultUploadPath, setDefaultUploadPath, clipUploadPath, setClipUploadPath, debugLogsEnabled, setDebugLogsEnabled } = useSettingsStore();
+  const {
+    defaultUploadPath, setDefaultUploadPath, clipUploadPath, setClipUploadPath,
+    protectedUploadPath, setProtectedUploadPath, debugLogsEnabled, setDebugLogsEnabled,
+  } = useSettingsStore();
 
   const lastDeviceIp = useDeviceStore((s) => s.lastDeviceIp);
   const router = useRouter();
@@ -79,6 +82,7 @@ function SettingsScreen() {
 
   const [uploadPathPromptOpen, setUploadPathPromptOpen] = useState(false);
   const [clipPathPromptOpen, setClipPathPromptOpen] = useState(false);
+  const [protectedPathPromptOpen, setProtectedPathPromptOpen] = useState(false);
 
   const handleChangeUploadPath = () => {
     setUploadPathPromptOpen(true);
@@ -121,6 +125,14 @@ function SettingsScreen() {
           <H4>Sync Settings</H4>
           <Separator marginVertical="$1" />
           <SettingsRow icon="upload" label="Upload path" value={defaultUploadPath} onPress={handleChangeUploadPath} testID="Settings.UploadPath" />
+          <Separator />
+          <SettingsRow
+            icon="key"
+            label="Protected Content path"
+            value={protectedUploadPath}
+            onPress={() => setProtectedPathPromptOpen(true)}
+            testID="Settings.ProtectedPath"
+          />
         </YStack>
 
         <Separator />
@@ -221,6 +233,17 @@ function SettingsScreen() {
           onSubmit={(value) => {
             const path = value.trim() || '/';
             setDefaultUploadPath(path.startsWith('/') ? path : `/${path}`);
+          }}
+        />
+        <PromptDialog
+          open={protectedPathPromptOpen}
+          onOpenChange={setProtectedPathPromptOpen}
+          title="Protected Content Path"
+          message="Folder for shared Protected Content (.acsm) files. The reader saves the books it fetches from them here too (e.g. /Protected Content)"
+          defaultValue={protectedUploadPath}
+          onSubmit={(value) => {
+            const path = value.trim() || '/Protected Content';
+            setProtectedUploadPath(path.startsWith('/') ? path : `/${path}`);
           }}
         />
         <PromptDialog

@@ -28,6 +28,7 @@ import {
   subscribeToAndroidShareIntent,
 } from '@/services/android-share-import';
 import { HiddenWebViewExtractor } from '@/components/HiddenWebViewExtractor';
+import { HiddenPluginRunner } from '@/components/HiddenPluginRunner';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -188,6 +189,7 @@ function RootLayoutNav() {
               />
             </Stack>
             <HiddenWebViewExtractor />
+            <HiddenPluginRunner />
           </ThemeProvider>
         </PortalProvider>
       </TamaguiProvider>

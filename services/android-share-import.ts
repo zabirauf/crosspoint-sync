@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import { File } from 'expo-file-system';
 import { useUploadStore } from '@/stores/upload-store';
-import { useSettingsStore } from '@/stores/settings-store';
+import { defaultDestinationFor, useSettingsStore, waitForSettingsHydration } from '@/stores/settings-store';
 import { log } from '@/services/logger';
 import {
   getSharedItems,
@@ -12,6 +12,7 @@ import {
 import { extractArticleFromUrl, downloadImagesFromUrls } from '@/services/url-article-extractor';
 import { extractArticleViaWebView } from '@/services/webview-article-extractor';
 import { generateEpub } from '@/services/epub-generator';
+import { isSupportedFile } from '@/constants/FileFormats';
 
 /**
  * Processes files shared via Android's share intent.
@@ -19,6 +20,13 @@ import { generateEpub } from '@/services/epub-generator';
  */
 export async function importAndroidSharedFiles(): Promise<number> {
   if (Platform.OS !== 'android') return 0;
+
+  // The upload queue can hydrate before settings on a cold launch. Wait for
+  // the saved destinations before reading the intent, which is then cleared.
+  if (!(await waitForSettingsHydration())) {
+    log('queue', 'Settings could not be restored; deferring shared files until the next import');
+    return 0;
+  }
 
   const items = getSharedItems();
   if (items.length === 0) return 0;
@@ -58,7 +66,13 @@ async function importFileItem(item: SharedItem): Promise<number> {
     return 0;
   }
 
-  const { defaultUploadPath } = useSettingsStore.getState();
+  // The generic application/octet-stream filter exists for .acsm files, which
+  // have no Android MIME mapping. Only EPUB shares are accepted by type alone.
+  if (item.mimeType !== 'application/epub+zip' && !isSupportedFile(item.name)) {
+    log('queue', `Android share: ignoring unsupported file ${item.name} (${item.mimeType ?? 'unknown type'})`);
+    try { sourceFile.delete(); } catch {}
+    return 0;
+  }
 
   log('queue', `Android share import: ${item.name} (${item.size ?? 0} bytes)`);
 
@@ -66,7 +80,7 @@ async function importFileItem(item: SharedItem): Promise<number> {
     fileName: item.name,
     fileUri: item.uri,
     fileSize: item.size ?? 0,
-    destinationPath: defaultUploadPath,
+    destinationPath: defaultDestinationFor(item.name),
     jobType: 'book',
   });
 

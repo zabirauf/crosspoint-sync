@@ -65,6 +65,10 @@ brew install sdl2
 
 On Linux/WSL use the upstream Linux/WSL sample and install its SDL2/OpenSSL
 development prerequisites. Native Windows is not supported by this simulator.
+With 2.0.0 on Linux, AnimatedGIF also needed the sample's commented
+`-Dmemcpy_P=memcpy` build flag. PlatformIO downloads packages from
+`api.registry.platformio.org` and `dl.registry.platformio.org`, so a restricted
+network must allow both.
 
 For the macOS baseline, adapt the upstream sample to the local sibling checkout:
 
@@ -187,6 +191,13 @@ PR along with the outcome and remaining hardware/platform checks. Captions must
 identify actual native/SDL captures versus browser previews or mocked output.
 When the GitHub connector cannot upload attachments, a separate media branch
 with commit-pinned raw image URLs can host the PR evidence.
+
+Headless Linux runs (`SDL_VIDEODRIVER=dummy`) accepted the first scripted key
+but dropped later ones in the 2.0.0 Home menu. The ACSM check therefore used a
+documented local boot adapter for File Transfer. The simulator's web-server shim
+also did not parse multipart form fields (`/mkdir`, `/delete`), although the
+WebSocket upload and JSON routes worked. See
+`docs/analysis/acsm-protected-content-2026-11-21.md`.
 
 ## Validated example: PR #32
 

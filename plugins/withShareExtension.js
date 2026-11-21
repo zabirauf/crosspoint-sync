@@ -45,31 +45,67 @@ class ShareViewController: UIViewController {
             return
         }
 
-        let validUTIs: [UTType] = [
+        let epubUTIs: [UTType] = [
             UTType("org.idpf.epub-container") ?? .epub,
         ]
 
         var pending = 0
+        var queued = 0
+        var ignored = 0
+        var attachmentsSeen = 0
 
         for item in items {
             guard let attachments = item.attachments else { continue }
             for provider in attachments {
-                for uti in validUTIs {
-                    if provider.hasItemConformingToTypeIdentifier(uti.identifier) {
-                        pending += 1
-                        provider.loadFileRepresentation(forTypeIdentifier: uti.identifier) { [weak self] url, error in
-                            defer {
-                                DispatchQueue.main.async {
-                                    pending -= 1
-                                    if pending == 0 {
-                                        self?.finishAndDismiss()
-                                    }
-                                }
-                            }
-                            guard let url = url, error == nil else { return }
-                            self?.copyToAppGroup(url: url)
+                NSLog("[CrossPointShare] attachment types=%@ suggestedName=%@",
+                      provider.registeredTypeIdentifiers.joined(separator: ","),
+                      provider.suggestedName ?? "nil")
+
+                // Adobe .acsm fulfillment tokens have no system UTI; match them
+                // by name or by the dynamic type the source app registered.
+                let epubType = epubUTIs.first(where: { provider.hasItemConformingToTypeIdentifier($0.identifier) })
+                let acsm = epubType == nil && isAcsm(provider)
+                // Some providers offer only a file URL, with no suggested name.
+                // Resolve it before deciding whether the attachment is a token.
+                let fileURLOnly = epubType == nil && !acsm
+                    && provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier)
+                guard epubType != nil || acsm || fileURLOnly else { continue }
+
+                pending += 1
+                attachmentsSeen += 1
+                // nil: not a file this extension imports, which is not a failure.
+                let complete: (Bool?) -> Void = { [weak self] ok in
+                    DispatchQueue.main.async {
+                        switch ok {
+                        case .some(true): queued += 1
+                        case .none: ignored += 1
+                        default: break
                         }
-                        break // only match first conforming UTI per provider
+                        pending -= 1
+                        if pending == 0 {
+                            if queued > 0 {
+                                self?.finishAndDismiss()
+                            } else if ignored > 0 && ignored == attachmentsSeen {
+                                self?.dismiss()
+                            } else {
+                                self?.failAndDismiss()
+                            }
+                        }
+                    }
+                }
+
+                if let epubType = epubType {
+                    provider.loadFileRepresentation(forTypeIdentifier: epubType.identifier) { [weak self] url, error in
+                        guard let self = self, let url = url, error == nil else { return complete(false) }
+                        complete(self.copyToAppGroup(url: url, filename: url.lastPathComponent, acsm: false))
+                    }
+                } else {
+                    resolveFileURL(provider) { [weak self] fileURL in
+                        guard let self = self else { return complete(false) }
+                        if fileURLOnly && fileURL?.pathExtension.lowercased() != "acsm" {
+                            return complete(nil)
+                        }
+                        self.loadAcsm(provider, fileURL: fileURL) { complete($0) }
                     }
                 }
             }
@@ -80,8 +116,101 @@ class ShareViewController: UIViewController {
         }
     }
 
-    private func copyToAppGroup(url: URL) {
-        guard let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) else { return }
+    private func isAcsm(_ provider: NSItemProvider) -> Bool {
+        if provider.suggestedName?.lowercased().hasSuffix(".acsm") == true { return true }
+        return provider.registeredTypeIdentifiers.contains { isAcsmType($0) }
+    }
+
+    private func isAcsmType(_ identifier: String) -> Bool {
+        guard let type = UTType(identifier) else { return false }
+        return type.preferredFilenameExtension?.lowercased() == "acsm"
+            || type.preferredMIMEType == "application/vnd.adobe.adept+xml"
+    }
+
+    /// A representation whose bytes are the token itself. URL types are
+    /// excluded: public.file-url conforms to public.data, but loading it
+    /// yields an archived URL (named "file URL"), not the file it points to.
+    private func acsmContentTypeIdentifier(_ provider: NSItemProvider) -> String? {
+        let types = provider.registeredTypeIdentifiers
+        if let specific = types.first(where: { isAcsmType($0) }) { return specific }
+        return types.first { identifier in
+            guard let type = UTType(identifier) else { return false }
+            return type.conforms(to: .data) && !type.conforms(to: .url)
+        }
+    }
+
+    /// The file a public.file-url attachment points to, or nil.
+    private func resolveFileURL(_ provider: NSItemProvider, completion: @escaping (URL?) -> Void) {
+        guard provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) else {
+            return completion(nil)
+        }
+        provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
+            var fileURL: URL?
+            if let url = item as? URL {
+                fileURL = url
+            } else if let data = item as? Data {
+                fileURL = URL(dataRepresentation: data, relativeTo: nil)
+            }
+            completion(fileURL?.isFileURL == true ? fileURL : nil)
+        }
+    }
+
+    /// Safari downloads (e.g. a Libby "Adobe EPUB" loan) arrive as a file URL.
+    /// The resolved URL gives the original filename and, when no content type
+    /// is offered, the file to copy.
+    private func loadAcsm(_ provider: NSItemProvider, fileURL: URL?, complete: @escaping (Bool) -> Void) {
+        let filename = acsmFilename(fileURL: fileURL, suggestedName: provider.suggestedName)
+
+        guard let contentType = acsmContentTypeIdentifier(provider) else {
+            if let fileURL = fileURL {
+                return complete(copyToAppGroup(url: fileURL, filename: filename, acsm: true))
+            }
+            return complete(false)
+        }
+        provider.loadFileRepresentation(forTypeIdentifier: contentType) { [weak self] url, error in
+            guard let self = self else { return complete(false) }
+            if let url = url, error == nil {
+                complete(self.copyToAppGroup(url: url, filename: filename, acsm: true))
+            } else if let fileURL = fileURL {
+                complete(self.copyToAppGroup(url: fileURL, filename: filename, acsm: true))
+            } else {
+                complete(false)
+            }
+        }
+    }
+
+    private func acsmFilename(fileURL: URL?, suggestedName: String?) -> String {
+        let candidates = [fileURL?.lastPathComponent, suggestedName]
+        let base = candidates.compactMap { $0 }.first { !$0.isEmpty } ?? "Protected Content"
+        return base.lowercased().hasSuffix(".acsm") ? base : base + ".acsm"
+    }
+
+    /// ACSM tokens are XML. Anything else (an archived URL, an HTML error
+    /// page) would only fail later on the reader with a parser error.
+    private func looksLikeXml(_ url: URL) -> Bool {
+        guard let handle = try? FileHandle(forReadingFrom: url) else { return false }
+        defer { try? handle.close() }
+        let head = handle.readData(ofLength: 64)
+        var bytes = Array(head)
+        if bytes.starts(with: [0xEF, 0xBB, 0xBF]) { bytes.removeFirst(3) }
+        let firstSignificant = bytes.first { ![0x20, 0x09, 0x0A, 0x0D].contains($0) }
+        return firstSignificant == UInt8(ascii: "<")
+    }
+
+    @discardableResult
+    private func copyToAppGroup(url: URL, filename: String, acsm: Bool) -> Bool {
+        let scoped = url.startAccessingSecurityScopedResource()
+        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+
+        if acsm && !looksLikeXml(url) {
+            NSLog("[CrossPointShare] rejected non-XML ACSM content from %@", url.lastPathComponent)
+            return false
+        }
+        return writeToAppGroup(url: url, filename: filename)
+    }
+
+    private func writeToAppGroup(url: URL, filename: String) -> Bool {
+        guard let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) else { return false }
 
         let sharedDir = container.appendingPathComponent("shared-files", isDirectory: true)
         let manifestDir = container.appendingPathComponent("manifests", isDirectory: true)
@@ -90,7 +219,6 @@ class ShareViewController: UIViewController {
         try? FileManager.default.createDirectory(at: manifestDir, withIntermediateDirectories: true)
 
         let uuid = UUID().uuidString
-        let filename = url.lastPathComponent
         let destURL = sharedDir.appendingPathComponent("\\(uuid)-\\(filename)")
 
         do {
@@ -110,8 +238,17 @@ class ShareViewController: UIViewController {
             let data = try JSONSerialization.data(withJSONObject: manifest, options: .prettyPrinted)
             let manifestURL = manifestDir.appendingPathComponent("\\(uuid).json")
             try data.write(to: manifestURL)
+            return true
         } catch {
-            // Silently fail — the file just won't appear in the queue
+            NSLog("[CrossPointShare] could not queue %@: %@", filename, error.localizedDescription)
+            return false
+        }
+    }
+
+    private func failAndDismiss() {
+        label.text = "Couldn’t read this file"
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+            self?.dismiss()
         }
     }
 

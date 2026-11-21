@@ -1,7 +1,28 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UploadJob, UploadJobStatus } from '@/types/upload';
+import { UploadJob, UploadJobFulfillment, UploadJobStatus } from '@/types/upload';
+
+/** A completed .acsm whose result (book fetched, or what to set up) stays visible until dismissed. */
+export function isFulfillmentRecord(job: UploadJob): boolean {
+  return job.status === 'completed' && (job.fulfillment?.state === 'done' || job.fulfillment?.state === 'skipped');
+}
+
+function isPersistedJob(job: UploadJob): boolean {
+  if (job.status === 'pending' || job.status === 'failed' || job.status === 'conflict') return true;
+  // An .acsm the reader is fetching: the token is on the reader, so a relaunch
+  // resumes its job instead of uploading it again.
+  if (job.status === 'uploading' && job.fulfillment?.state === 'running' && job.fulfillment.remotePath) return true;
+  return isFulfillmentRecord(job);
+}
+
+function toPersistedJob(job: UploadJob): UploadJob {
+  if (isFulfillmentRecord(job)) return job;
+  const fulfillment = job.fulfillment?.state === 'running'
+    ? { ...job.fulfillment, phase: undefined, phaseStartedAt: undefined }
+    : job.fulfillment;
+  return { ...job, status: 'pending', progress: 0, bytesTransferred: 0, forceUpload: false, fulfillment };
+}
 
 interface UploadState {
   jobs: UploadJob[];
@@ -11,6 +32,7 @@ interface UploadState {
   finalizeProcessingJob: (id: string, details: { fileName: string; fileUri: string; fileSize: number; destinationPath: string }) => void;
   updateJobProgress: (id: string, bytesTransferred: number, totalBytes: number) => void;
   updateJobStatus: (id: string, status: UploadJobStatus, error?: string) => void;
+  updateJobFulfillment: (id: string, fulfillment: UploadJobFulfillment | undefined) => void;
   removeJob: (id: string) => void;
   retryJob: (id: string) => void;
   resolveConflict: (id: string, action: 'overwrite' | 'remove') => void;
@@ -103,6 +125,11 @@ export const useUploadStore = create<UploadState>()(
           };
         }),
 
+      updateJobFulfillment: (id, fulfillment) =>
+        set((state) => ({
+          jobs: state.jobs.map((j) => (j.id === id ? { ...j, fulfillment } : j)),
+        })),
+
       removeJob: (id) =>
         set((state) => ({
           jobs: state.jobs.filter((j) => j.id !== id),
@@ -148,9 +175,7 @@ export const useUploadStore = create<UploadState>()(
       name: 'crosspointsync-uploads',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
-        jobs: state.jobs
-          .filter((j) => j.status === 'pending' || j.status === 'failed' || j.status === 'conflict')
-          .map((j) => ({ ...j, status: 'pending' as const, progress: 0, bytesTransferred: 0, forceUpload: false })),
+        jobs: state.jobs.filter(isPersistedJob).map(toPersistedJob),
       }),
     },
   ),
