@@ -128,7 +128,7 @@ function SettingsScreen() {
           <Separator />
           <SettingsRow
             icon="key"
-            label="ACSM upload path"
+            label="Protected Content path"
             value={protectedUploadPath}
             onPress={() => setProtectedPathPromptOpen(true)}
             testID="Settings.ProtectedPath"
@@ -238,11 +238,11 @@ function SettingsScreen() {
         <PromptDialog
           open={protectedPathPromptOpen}
           onOpenChange={setProtectedPathPromptOpen}
-          title="ACSM Upload Path"
-          message="Enter the folder for shared .acsm files. The reader saves their protected books there too (e.g. /Protected Books)"
+          title="Protected Content Path"
+          message="Folder for shared Protected Content (.acsm) files. The reader saves the books it fetches from them here too (e.g. /Protected Content)"
           defaultValue={protectedUploadPath}
           onSubmit={(value) => {
-            const path = value.trim() || '/Protected Books';
+            const path = value.trim() || '/Protected Content';
             setProtectedUploadPath(path.startsWith('/') ? path : `/${path}`);
           }}
         />

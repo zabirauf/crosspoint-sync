@@ -70,10 +70,60 @@ api.registerAction('fulfill', async (args) => {
 - The plugin README describes a third-party desktop app that sends `.acsm`
   files to the reader in the same way ("Send To CrossPoint").
 
+## Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant App as CrossPoint Sync<br/>(upload queue)
+    participant Runner as Hidden WebView<br/>(reader's /plugins-run)
+    participant Reader as Reader firmware 2.0.0+<br/>(HTTP :80, WebSocket :81)
+    participant Provider as Content provider<br/>(ADEPT operator)
+
+    User->>App: Share or pick a .acsm
+    App->>Reader: WebSocket upload to the Protected Content path
+    App->>Reader: GET /api/plugins (firmware 2.0.0+ only)
+    alt firmware < 2.0.0, plugins off, or no protected-content
+        App-->>User: Completed: ".acsm saved", with setup guidance
+    else plugin installed
+        App->>Reader: POST /api/plugin-jobs {protected-content, fulfill, {path}}
+        Reader-->>App: {id}
+        App->>Runner: Open /plugins-run
+        Runner->>Reader: GET /api/plugin-jobs/claim (every 2.5 s)
+        Reader-->>Runner: {id, claim, action: fulfill, args}
+        Runner->>Reader: GET /download?path=… (.acsm)
+        Runner->>Provider: ADEPT fulfillment via /api/relay
+        Provider-->>Reader: Encrypted EPUB streamed to SD via /api/fetch
+        Runner->>Reader: POST /api/book-key, delete the .acsm
+        Runner->>Reader: POST /api/plugin-jobs/complete {ok, result}
+        loop every 2 s until done, error or timeout
+            App->>Reader: GET /api/plugin-jobs/status?id=…
+        end
+        App->>Runner: Close
+        App-->>User: Completed "Fetched “title”", or failed with the plugin's reason (Retry reuses the .acsm)
+    end
+```
+
+Queue job states for a `.acsm`:
+
+```mermaid
+stateDiagram-v2
+    [*] --> pending: shared or picked
+    pending --> uploading: WebSocket upload
+    uploading --> fetching: upload done (status stays "uploading")
+    fetching --> completed: done, or skipped with guidance
+    fetching --> failed: plugin error or timeout
+    fetching --> cancelled: Stop Waiting
+    failed --> pending: Retry
+    pending --> fetching: retry finds the .acsm still on the reader
+    completed --> [*]
+```
+
 ## Design chosen
 
-1. Shared `.acsm` files go to Settings → **ACSM upload path** (default
-   `/Protected Books`), like clipped articles go to `/Articles`. The plugin
+1. Shared `.acsm` files go to Settings → **Protected Content path** (default
+   `/Protected Content`), like clipped articles go to `/Articles`. The plugin
    writes each book beside its `.acsm`, so protected books collect there too.
    Picking files while browsing a reader folder keeps that folder.
 2. `.acsm` is a recognized upload format (`kind: 'fulfillment'`, 0.14.0+

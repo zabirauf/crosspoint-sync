@@ -12,7 +12,7 @@ name: "Settings Screen - Main View"
     text: "Upload path"
 
 - assertVisible:
-    text: "ACSM upload path"
+    text: "Protected Content path"
 
 - assertVisible:
     text: "Clip upload path"

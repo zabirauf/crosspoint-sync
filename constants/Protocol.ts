@@ -6,7 +6,7 @@ export const CHUNK_SIZE = 4 * 1024; // 4KB — small enough for ESP32 WebSocket 
 export const DEFAULT_UPLOAD_PATH = '/';
 export const DEFAULT_CLIP_UPLOAD_PATH = '/Articles';
 // .acsm files, and the protected books the reader fetches beside them.
-export const DEFAULT_PROTECTED_UPLOAD_PATH = '/Protected Books';
+export const DEFAULT_PROTECTED_UPLOAD_PATH = '/Protected Content';
 export const DEFAULT_DEVICE_ADDRESS = 'crosspoint.local';
 export const CHUNKS_PER_WINDOW = 16; // 16 × 4KB = 64KB = one PROGRESS interval
 export const PROGRESS_ACK_TIMEOUT_MS = 5000;

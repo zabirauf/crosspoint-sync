@@ -49,7 +49,7 @@ function setup({ hydrated = true, uploadPath = '/Books', manifestPath = '/', sto
       removeItem: () => Promise.resolve(),
     } },
     '@/constants/Protocol': {
-      DEFAULT_UPLOAD_PATH: '/', DEFAULT_CLIP_UPLOAD_PATH: '/Articles', DEFAULT_PROTECTED_UPLOAD_PATH: '/Protected Books',
+      DEFAULT_UPLOAD_PATH: '/', DEFAULT_CLIP_UPLOAD_PATH: '/Articles', DEFAULT_PROTECTED_UPLOAD_PATH: '/Protected Content',
     },
     '@/constants/FileFormats': { isAcsmFile: name => name.toLowerCase().endsWith('.acsm') },
   });
@@ -127,12 +127,12 @@ test('iOS shares use Upload Path instead of the extension root', async () => {
   assert.equal(app.files.has('file:///group/manifests/book.epub.json'), false);
 });
 
-test('iOS .acsm shares use the ACSM upload path, which persisted settings can change', async () => {
+test('iOS .acsm shares use the Protected Content path, which persisted settings can change', async () => {
   const app = setup();
   app.addManifest('Loan.ACSM');
   assert.equal(await app.importFiles(), 2);
   const byName = Object.fromEntries(app.jobs.map(job => [job.fileName, job.destinationPath]));
-  assert.deepEqual(byName, { 'book.epub': '/Books', 'Loan.ACSM': '/Protected Books' });
+  assert.deepEqual(byName, { 'book.epub': '/Books', 'Loan.ACSM': '/Protected Content' });
 
   app.settings.getState().setProtectedUploadPath('/Libby');
   app.addManifest('Second.acsm');

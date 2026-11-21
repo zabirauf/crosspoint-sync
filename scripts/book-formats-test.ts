@@ -232,7 +232,7 @@ test('supported upload formats', async t => {
       assert.match(alerts[0], /Skipped 1/);
       assert.match(alerts[0], /\.epub, \.xtc, \.xtch, \.xtg, \.xth/);
     });
-    await t.test('queue Add Books sends .acsm files to the ACSM folder; a browsed folder keeps them', async () => {
+    await t.test('queue Add Books sends .acsm files to the Protected Content folder; a browsed folder keeps them', async () => {
       const before = jobs().length;
       const acsm = pathToFileURL(path.join(projectRoot, 'test-fixtures/acsm/Gettysburg-Loan.acsm')).href;
       pickerResult = { canceled: false, assets: [
@@ -242,7 +242,7 @@ test('supported upload formats', async t => {
       await pick('/Books');
       await pick('/Shelf', { explicitFolder: true });
       assert.deepEqual(jobs().slice(before).map(job => [job.fileName, job.destinationPath]), [
-        ['Loan.acsm', '/Protected Books'], [fixtureNames[0], '/Books'],
+        ['Loan.acsm', '/Protected Content'], [fixtureNames[0], '/Books'],
         ['Loan.acsm', '/Shelf'], [fixtureNames[0], '/Shelf'],
       ]);
       useUploadStore.setState({ jobs: jobs().slice(0, before) });

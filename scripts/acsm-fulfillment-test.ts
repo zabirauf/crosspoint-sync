@@ -393,7 +393,7 @@ test('Android share intents accept .acsm files shared as generic binary data', a
     ];
     assert.equal(await androidImport.importAndroidSharedFiles(), 4);
     assert.deepEqual(jobs().map(j => [j.fileName, j.destinationPath]), [
-      ['Novel.epub', '/'], ['Loan.acsm', '/Protected Books'], ['Loan2.ACSM', '/Protected Books'], ['Untitled', '/'],
+      ['Novel.epub', '/'], ['Loan.acsm', '/Protected Content'], ['Loan2.ACSM', '/Protected Content'], ['Untitled', '/'],
     ]);
     assert.equal(fs.existsSync(fileURLToPath(rejected)), false, 'an ignored share leaves no cached copy');
   } finally {
