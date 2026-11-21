@@ -7,6 +7,9 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- Upload Adobe `.acsm` files from the picker or the iOS/Android share sheet. On CrossPoint 2.0.0+ with the Protected Content plugin signed in, the reader then fetches the protected book automatically.
+
 ### Changed
 - Put a separate blue glass Add button beside bottom navigation on iOS 26+, with Uploads in the header; retain the Duo system rail.
 

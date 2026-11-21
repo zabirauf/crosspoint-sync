@@ -49,6 +49,9 @@ function statusColor(status: UploadJob['status']): string {
 }
 
 export function UploadJobCard({ job, onCancel, onRetry, onRemove, onOverwrite }: UploadJobCardProps) {
+  // After an .acsm upload, the reader's Protected Content plugin fetches the book.
+  const fetching = job.status === 'uploading' && job.fulfillment?.state === 'running';
+  const fulfillmentNote = job.status === 'completed' ? job.fulfillment?.message : undefined;
   return (
     <Card bordered padded size="$3" testID={`UploadQueue.Job.${job.id}`}>
       <YStack gap="$2">
@@ -56,21 +59,27 @@ export function UploadJobCard({ job, onCancel, onRetry, onRemove, onOverwrite }:
           <Text fontSize="$4" fontWeight="500" flex={1} numberOfLines={1}>
             {job.fileName}
           </Text>
-          <Text color={statusColor(job.status)} fontSize="$2" fontWeight="600">
-            {statusLabel(job.status)}
+          <Text color={statusColor(job.status)} fontSize="$2" fontWeight="600" testID={`UploadQueue.Job.${job.id}.Status`}>
+            {fetching ? 'Fetching Book' : statusLabel(job.status)}
           </Text>
         </XStack>
         <Text color="$gray10" fontSize="$2" numberOfLines={1}>
           {job.destinationPath}
         </Text>
 
-        {job.status === 'processing' && (
+        {(job.status === 'processing' || fetching) && (
           <Progress size="$2">
             <Progress.Indicator animation="bouncy" width="30%" />
           </Progress>
         )}
 
-        {job.status === 'uploading' && (
+        {fetching && (
+          <Text color="$gray10" fontSize="$2" testID={`UploadQueue.Job.${job.id}.Fulfillment`}>
+            The reader is downloading the protected book…
+          </Text>
+        )}
+
+        {job.status === 'uploading' && !fetching && (
           <YStack gap="$1">
             <Progress value={Math.round(job.progress * 100)} size="$2">
               <Progress.Indicator animation="bouncy" />
@@ -84,6 +93,16 @@ export function UploadJobCard({ job, onCancel, onRetry, onRemove, onOverwrite }:
               </Text>
             </XStack>
           </YStack>
+        )}
+
+        {fulfillmentNote && (
+          <Text
+            color={job.fulfillment?.state === 'skipped' ? '$yellow11' : '$gray11'}
+            fontSize="$2"
+            testID={`UploadQueue.Job.${job.id}.Fulfillment`}
+          >
+            {fulfillmentNote}
+          </Text>
         )}
 
         {job.error && (
@@ -101,7 +120,7 @@ export function UploadJobCard({ job, onCancel, onRetry, onRemove, onOverwrite }:
         <XStack gap="$2" justifyContent="flex-end">
           {job.status === 'uploading' && onCancel && (
             <Button size="$2" theme="red" onPress={onCancel}>
-              Cancel
+              {fetching ? 'Stop Waiting' : 'Cancel'}
             </Button>
           )}
           {job.status === 'conflict' && onOverwrite && (

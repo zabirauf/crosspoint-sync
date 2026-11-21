@@ -66,41 +66,40 @@ function withAndroidShareIntent(config) {
     }
 
     const existingFilters = mainActivity["intent-filter"];
+    const hasFilter = (action, mimeType) =>
+      existingFilters.some(
+        (f) =>
+          f.action?.some((a) => a.$?.["android:name"] === action) &&
+          f.data?.some((d) => d.$?.["android:mimeType"] === mimeType)
+      );
+    const addFilter = (action, mimeType) => {
+      if (hasFilter(action, mimeType)) return;
+      existingFilters.push({
+        action: [{ $: { "android:name": action } }],
+        category: [{ $: { "android:name": "android.intent.category.DEFAULT" } }],
+        data: [{ $: { "android:mimeType": mimeType } }],
+      });
+    };
 
-    // Check if we already added share intent filters
-    const hasShareFilter = existingFilters.some((f) =>
-      f.action?.some(
-        (a) => a.$?.["android:name"] === "android.intent.action.SEND"
-      )
-    );
-    if (hasShareFilter) return mod;
+    const SEND = "android.intent.action.SEND";
+    const SEND_MULTIPLE = "android.intent.action.SEND_MULTIPLE";
 
-    // ACTION_SEND for single EPUB files
-    existingFilters.push({
-      action: [{ $: { "android:name": "android.intent.action.SEND" } }],
-      category: [{ $: { "android:name": "android.intent.category.DEFAULT" } }],
-      data: [
-        { $: { "android:mimeType": "application/epub+zip" } },
-      ],
-    });
+    // Book files, single and multiple. ACSM files are Adobe fulfillment tokens
+    // that the reader's Protected Content plugin turns into books. Android has
+    // no built-in .acsm MIME mapping, so most file managers share them as
+    // application/octet-stream; android-share-import.ts accepts those by
+    // recognized extension only.
+    for (const mimeType of [
+      "application/epub+zip",
+      "application/vnd.adobe.adept+xml",
+      "application/octet-stream",
+    ]) {
+      addFilter(SEND, mimeType);
+      addFilter(SEND_MULTIPLE, mimeType);
+    }
 
-    // ACTION_SEND_MULTIPLE for multiple EPUB files
-    existingFilters.push({
-      action: [
-        { $: { "android:name": "android.intent.action.SEND_MULTIPLE" } },
-      ],
-      category: [{ $: { "android:name": "android.intent.category.DEFAULT" } }],
-      data: [
-        { $: { "android:mimeType": "application/epub+zip" } },
-      ],
-    });
-
-    // ACTION_SEND for text/URLs (used for article clipping from browsers)
-    existingFilters.push({
-      action: [{ $: { "android:name": "android.intent.action.SEND" } }],
-      category: [{ $: { "android:name": "android.intent.category.DEFAULT" } }],
-      data: [{ $: { "android:mimeType": "text/plain" } }],
-    });
+    // Text/URLs (used for article clipping from browsers)
+    addFilter(SEND, "text/plain");
 
     return mod;
   });

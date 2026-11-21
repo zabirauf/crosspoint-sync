@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UploadJob, UploadJobStatus } from '@/types/upload';
+import { UploadJob, UploadJobFulfillment, UploadJobStatus } from '@/types/upload';
 
 interface UploadState {
   jobs: UploadJob[];
@@ -11,6 +11,7 @@ interface UploadState {
   finalizeProcessingJob: (id: string, details: { fileName: string; fileUri: string; fileSize: number; destinationPath: string }) => void;
   updateJobProgress: (id: string, bytesTransferred: number, totalBytes: number) => void;
   updateJobStatus: (id: string, status: UploadJobStatus, error?: string) => void;
+  updateJobFulfillment: (id: string, fulfillment: UploadJobFulfillment | undefined) => void;
   removeJob: (id: string) => void;
   retryJob: (id: string) => void;
   resolveConflict: (id: string, action: 'overwrite' | 'remove') => void;
@@ -102,6 +103,11 @@ export const useUploadStore = create<UploadState>()(
                 : state.lastCompletionEvent,
           };
         }),
+
+      updateJobFulfillment: (id, fulfillment) =>
+        set((state) => ({
+          jobs: state.jobs.map((j) => (j.id === id ? { ...j, fulfillment } : j)),
+        })),
 
       removeJob: (id) =>
         set((state) => ({

@@ -41,6 +41,12 @@ Options:
                                >=1.2.0  batch delete (/delete 'paths' JSON-array
                                         form field; older firmware uses 'path')
   --device <X4|X3>           Device model reported by /api/status (default: X4)
+  --protected-content <mode> Simulated Protected Content SD plugin, firmware >=2.0.0
+                             only (default: absent):
+                               absent       plugin not installed
+                               activated    fulfils an uploaded .acsm into an EPUB
+                               unactivated  installed, never signed in
+                               disabled     Settings → Plugins is off (HTTP 403)
   --data-dir <path>          Serve files from disk (default: ./test-mock-filesystem).
                              Use --data-dir "" for a seeded in-memory filesystem.
   --latency <ms>             Simulated response latency in ms (default: 0).
@@ -73,6 +79,11 @@ const FIRMWARE_VERSION = getArg('--firmware-version', '1.3.0');
 const DEVICE_TYPE = getArg('--device', 'X4'); // X4 or X3 — reported by /api/status (firmware >=1.3.0)
 const DATA_DIR = getArg('--data-dir', './test-mock-filesystem');
 const LATENCY_MS = parseInt(getArg('--latency', '0'), 10);
+const PROTECTED_CONTENT = getArg('--protected-content', 'absent');
+if (!['absent', 'activated', 'unactivated', 'disabled'].includes(PROTECTED_CONTENT)) {
+  console.error(`Unknown --protected-content mode: ${PROTECTED_CONTENT}`);
+  process.exit(2);
+}
 
 // ─── Latency Simulation ───
 
@@ -105,6 +116,7 @@ const CAPABILITIES = {
   move: firmwareAtLeast(1, 0, 0),
   settingsApi: firmwareAtLeast(1, 1, 0),
   batchDelete: firmwareAtLeast(1, 2, 0),
+  pluginJobs: firmwareAtLeast(2, 0, 0),
 };
 
 // ─── Protected Paths ───
@@ -630,6 +642,202 @@ function textResponse(res: http.ServerResponse, status: number, text: string): v
   res.end(text);
 }
 
+// ─── SD-plugin Job Queue (firmware >=2.0.0) ───
+// Mirrors CrossPointWebServer's handlePluginJob* contract: a 6-slot pool of
+// opaque {plugin, action, args} jobs that an open /plugins-run page claims.
+
+type PluginJobState = 'pending' | 'running' | 'done' | 'error';
+interface PluginJob {
+  id: number;
+  claim: number;
+  plugin: string;
+  action: string;
+  args: unknown;
+  state: PluginJobState;
+  result: unknown;
+  updatedAt: number;
+}
+
+const MAX_PLUGIN_JOBS = 6;
+const PLUGIN_JOB_LEASE_MS = 10 * 60_000;
+const pluginJobs: PluginJob[] = [];
+let nextPluginJobId = 1;
+let nextPluginJobClaim = 1;
+const pluginsEnabled = PROTECTED_CONTENT !== 'disabled';
+const protectedContentInstalled = PROTECTED_CONTENT !== 'absent';
+
+function allocPluginJob(): PluginJob | null {
+  if (pluginJobs.length < MAX_PLUGIN_JOBS) {
+    const job = {} as PluginJob;
+    pluginJobs.push(job);
+    return job;
+  }
+  const finished = pluginJobs.filter((j) => j.state === 'done' || j.state === 'error');
+  return finished.sort((a, b) => a.updatedAt - b.updatedAt)[0] ?? null;
+}
+
+/**
+ * Stands in for the Protected Content plugin's `fulfill` action. The real
+ * plugin performs Adobe ADEPT fulfilment in the browser and streams the
+ * protected EPUB to SD; this writes a fixture EPUB beside the .acsm instead.
+ */
+function simulateProtectedContentFulfill(args: unknown): { ok: boolean; result: Record<string, unknown> } {
+  const path = String((args as { path?: unknown } | null)?.path ?? '');
+  if (!path.startsWith('/')) return { ok: false, result: { error: 'args.path must be an absolute .acsm path' } };
+  if (PROTECTED_CONTENT !== 'activated') {
+    return { ok: false, result: { error: 'device not activated; open the plugin UI once to sign in' } };
+  }
+  if (!backend.exists(path)) return { ok: false, result: { error: `could not read ${path} (HTTP 404)` } };
+  const acsm = backend.readFile(path).toString('utf-8');
+  const root = acsm.match(/<\s*(?:[\w-]+:)?([\w-]+)[\s>]/)?.[1];
+  if (root !== 'fulfillmentToken') return { ok: false, result: { error: `not an .acsm (root <${root ?? '?'}>)` } };
+
+  const title = acsm.match(/<dc:title[^>]*>([^<]*)<\/dc:title>/)?.[1]?.trim() || 'Protected Book';
+  const folder = path.slice(0, path.lastIndexOf('/')) || '/';
+  const fileName = `${title.replace(/[\\/:*?"<>|]/g, '_')}.epub`;
+  const book = fs.readFileSync(nodePath.resolve(__dirname, '../test-mock-filesystem/Formats/Gettysburg-Address.epub'));
+  backend.writeFile(folder, fileName, book);
+  backend.deleteItem(path);
+  const dest = folder === '/' ? `/${fileName}` : `${folder}/${fileName}`;
+  console.log(`[Plugin] protected-content fulfilled ${path} → ${dest}`);
+  return { ok: true, result: { title, dest, bytes: book.length } };
+}
+
+const RUNNER_PAGE = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>CrossPoint Plugin Runner</title></head>
+<body><h3>Plugin runner active (mock)</h3>
+<script>
+// Mock of /plugins-run hosting protected-content: claim, run, complete.
+setInterval(async () => {
+  const job = await (await fetch('/api/plugin-jobs/claim?plugin=protected-content')).json();
+  if (!job.id) return;
+  const run = await (await fetch('/mock/plugins/protected-content/' + job.action, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(job.args),
+  })).json();
+  await fetch('/api/plugin-jobs/complete', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: job.id, claim: job.claim, ok: run.ok, result: run.result }),
+  });
+}, 2500);
+</script></body></html>`;
+
+/** Returns true when the request was a plugin-system route. */
+async function handlePluginRoute(
+  req: http.IncomingMessage,
+  res: http.ServerResponse,
+  pathname: string,
+  url: URL,
+): Promise<boolean> {
+  if (!CAPABILITIES.pluginJobs) return false;
+  const isPluginRoute = pathname === '/api/plugins' || pathname === '/plugins-run' ||
+    pathname.startsWith('/api/plugin-jobs') || pathname.startsWith('/mock/plugins/');
+  if (!isPluginRoute) return false;
+
+  // Like the firmware (PluginLocations::scanPlugins), the list is served but
+  // empty while plugins are disabled.
+  if (pathname === '/api/plugins' && req.method === 'GET') {
+    jsonResponse(res, 200, protectedContentInstalled && pluginsEnabled
+      ? [{ name: 'protected-content', dir: '/.crosspoint/plugins/protected-content', title: 'Protected Content',
+          mount: 'files', hasPluginJs: true, version: '1.0.5', author: 'Diirge' }]
+      : []);
+    return true;
+  }
+  if (!pluginsEnabled) {
+    textResponse(res, 403, 'plugin system disabled');
+    return true;
+  }
+
+  if (pathname === '/plugins-run' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(RUNNER_PAGE);
+    return true;
+  }
+
+  if (pathname === '/api/plugin-jobs' && req.method === 'POST') {
+    let body: { plugin?: unknown; action?: unknown; args?: unknown };
+    try { body = JSON.parse((await collectBody(req)).toString('utf-8')); } catch {
+      jsonResponse(res, 400, { error: 'bad json' });
+      return true;
+    }
+    const plugin = typeof body.plugin === 'string' ? body.plugin : '';
+    const action = typeof body.action === 'string' ? body.action : '';
+    const argsJson = body.args === undefined ? '' : JSON.stringify(body.args);
+    if (!/^[\w.-]{1,23}$/.test(plugin) || !/^[\w.-]{1,23}$/.test(action) || argsJson.length >= 192) {
+      jsonResponse(res, 400, { error: 'bad plugin/action/args' });
+      return true;
+    }
+    const job = allocPluginJob();
+    if (!job) {
+      jsonResponse(res, 503, { error: 'job queue full' });
+      return true;
+    }
+    Object.assign(job, {
+      id: nextPluginJobId++, claim: 0, plugin, action, args: body.args ?? {},
+      state: 'pending', result: null, updatedAt: Date.now(),
+    });
+    console.log(`[Plugin] job ${job.id} queued: ${plugin}/${action} ${argsJson}`);
+    jsonResponse(res, 200, { id: job.id });
+    return true;
+  }
+
+  if (pathname === '/api/plugin-jobs/claim' && req.method === 'GET') {
+    const plugin = url.searchParams.get('plugin') ?? '';
+    const now = Date.now();
+    for (const job of pluginJobs) {
+      if (job.state === 'running' && now - job.updatedAt > PLUGIN_JOB_LEASE_MS) job.state = 'pending';
+      if (job.state !== 'pending' || job.plugin !== plugin) continue;
+      job.state = 'running';
+      job.claim = nextPluginJobClaim++;
+      job.updatedAt = now;
+      jsonResponse(res, 200, { id: job.id, claim: job.claim, action: job.action, args: job.args });
+      return true;
+    }
+    jsonResponse(res, 200, { id: 0 });
+    return true;
+  }
+
+  if (pathname === '/api/plugin-jobs/complete' && req.method === 'POST') {
+    const body = JSON.parse((await collectBody(req)).toString('utf-8')) as
+      { id?: number; claim?: number; ok?: boolean; result?: unknown };
+    const job = pluginJobs.find((j) => j.id === body.id);
+    if (job && (job.state === 'done' || job.state === 'error')) {
+      jsonResponse(res, 200, { ok: true });
+    } else if (!job || job.state !== 'running') {
+      jsonResponse(res, 404, { error: 'no such running job' });
+    } else if (job.claim !== body.claim) {
+      jsonResponse(res, 409, { error: 'stale claim' });
+    } else {
+      job.state = body.ok ? 'done' : 'error';
+      job.result = body.result ?? null;
+      job.updatedAt = Date.now();
+      console.log(`[Plugin] job ${job.id} ${job.state}`);
+      jsonResponse(res, 200, { ok: true });
+    }
+    return true;
+  }
+
+  if (pathname === '/api/plugin-jobs/status' && req.method === 'GET') {
+    const id = Number(url.searchParams.get('id'));
+    const job = pluginJobs.find((j) => j.id === id);
+    jsonResponse(res, 200, job ? { id, state: job.state, result: job.result } : { id, state: 'unknown', result: null });
+    return true;
+  }
+
+  // Mock-only: the action body of the simulated plugin, called by RUNNER_PAGE.
+  if (pathname === '/mock/plugins/protected-content/fulfill' && req.method === 'POST') {
+    if (!protectedContentInstalled) {
+      jsonResponse(res, 404, { error: 'Not found' });
+      return true;
+    }
+    const args = JSON.parse((await collectBody(req)).toString('utf-8') || '{}');
+    jsonResponse(res, 200, simulateProtectedContentFulfill(args));
+    return true;
+  }
+
+  jsonResponse(res, 404, { error: 'Not found' });
+  return true;
+}
+
 // ─── HTTP REST API ───
 
 const httpServer = http.createServer(async (req, res) => {
@@ -652,6 +860,8 @@ const httpServer = http.createServer(async (req, res) => {
   try {
     // Simulate network latency
     await delay(randomLatency());
+    if (await handlePluginRoute(req, res, pathname, url)) return;
+
     // GET /api/status
     if (pathname === '/api/status' && req.method === 'GET') {
       deviceStatus.uptime += 1000;
@@ -1060,6 +1270,7 @@ console.log(`  Capabilities:  ${capList.length ? capList.join(', ') : 'none (pre
 console.log(`  HTTP API:      port ${HTTP_PORT}`);
 console.log(`  WebSocket:     port ${WS_PORT}`);
 console.log(`  Latency:       ${LATENCY_MS > 0 ? `~${LATENCY_MS}ms (±30% jitter)` : 'none'}`);
+if (CAPABILITIES.pluginJobs) console.log(`  Protected:     ${PROTECTED_CONTENT}`);
 console.log(`  Hostname:      ${HOSTNAME}`);
 console.log('');
 console.log('Press Ctrl+C to stop');

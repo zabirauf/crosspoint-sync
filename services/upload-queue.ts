@@ -5,7 +5,9 @@ import { uploadFileViaWebSocket } from './websocket-upload';
 import { getFiles, ensureRemotePath, clearValidatedPaths } from './device-api';
 import { log } from './logger';
 import { deviceScheduler } from './device-request-scheduler';
-import { isSupportedFile } from '@/constants/FileFormats';
+import { isAcsmFile, isSupportedFile } from '@/constants/FileFormats';
+import type { UploadJob, UploadJobFulfillment } from '@/types/upload';
+import { fulfillUploadedAcsm, FulfillmentCancelledError, remoteFilePath } from './acsm-fulfillment';
 import { getDeviceCapabilities, getFileFirmwareError } from './firmware-version';
 import {
   DEVICE_RECOVERY_DELAY_MS,
@@ -79,6 +81,19 @@ async function processNextJob() {
         continue;
       }
 
+      // A retried .acsm whose upload succeeded but whose fulfillment failed is
+      // still on the reader (the plugin deletes it only on success).
+      if (isAcsmFile(nextJob.fileName) && nextJob.fulfillment?.state === 'failed') {
+        const remoteNames = await getRemoteFileNames(connectedDevice.ip, nextJob.destinationPath);
+        if (remoteNames.some((n) => n.toLowerCase() === nextJob.fileName.toLowerCase())) {
+          log('queue', `Retrying fulfillment of ${nextJob.fileName} without re-uploading`);
+          updateJobStatus(nextJob.id, 'uploading');
+          deviceScheduler.setExternalBusy(true);
+          void runAcsmFulfillment(nextJob, connectedDevice.ip, deviceStatus?.version);
+          break;
+        }
+      }
+
       // Conflict check: skip if forceUpload is set
       if (!nextJob.forceUpload) {
         const remoteNames = await getRemoteFileNames(connectedDevice.ip, nextJob.destinationPath);
@@ -127,6 +142,13 @@ async function processNextJob() {
           },
           onComplete: () => {
             cancelCurrentUpload = null;
+            if (isAcsmFile(nextJob.fileName)) {
+              // Keep the device busy and the job active until the reader's
+              // plugin has fetched the book.
+              log('queue', `Uploaded ${nextJob.fileName}; asking the reader to fetch the book`);
+              void runAcsmFulfillment(nextJob, connectedDevice.ip, useDeviceStore.getState().deviceStatus?.version);
+              return;
+            }
             deviceScheduler.setExternalBusy(false);
             log('queue', `Completed: ${nextJob.fileName}`);
             updateJobStatus(nextJob.id, 'completed');
@@ -155,6 +177,55 @@ async function processNextJob() {
   } finally {
     isProcessing = false;
   }
+}
+
+/**
+ * Second phase of an .acsm job: the job stays 'uploading' (holding the queue
+ * and keeping the device marked busy) while the reader fulfils it.
+ */
+async function runAcsmFulfillment(job: UploadJob, ip: string, firmwareVersion: string | undefined): Promise<void> {
+  const { updateJobStatus, updateJobFulfillment } = useUploadStore.getState();
+  const remotePath = remoteFilePath(job.destinationPath, job.fileName);
+  let cancelled = false;
+  cancelCurrentUpload = () => { cancelled = true; };
+  updateJobFulfillment(job.id, { state: 'running', remotePath });
+
+  let fulfillment: UploadJobFulfillment | undefined;
+  let error: string | undefined;
+  try {
+    const outcome = await fulfillUploadedAcsm(ip, remotePath, firmwareVersion, { isCancelled: () => cancelled });
+    if (outcome.kind === 'done') {
+      const name = outcome.title ? `“${outcome.title}”` : 'the book';
+      const message = outcome.dest ? `Fetched ${name} to ${outcome.dest}` : `Fetched ${name}`;
+      fulfillment = { state: 'done', remotePath, message };
+    } else {
+      log('queue', `Fulfillment skipped for ${job.fileName}: ${outcome.reason}`);
+      fulfillment = { state: 'skipped', remotePath, message: outcome.reason };
+    }
+  } catch (err) {
+    if (!(err instanceof FulfillmentCancelledError)) {
+      const message = err instanceof Error ? err.message : String(err);
+      log('queue', `Fulfillment failed for ${job.fileName}: ${message}`);
+      fulfillment = { state: 'failed', remotePath, message };
+      error = `Uploaded, but the reader could not fetch the book: ${message}`;
+    }
+  }
+
+  if (cancelled) {
+    // cancelCurrentUploadJob already marked the job cancelled and released the
+    // queue. The reader may still finish a job it has started.
+    updateJobFulfillment(job.id, undefined);
+    log('queue', `Stopped waiting for ${job.fileName} fulfillment`);
+    return;
+  }
+
+  // Release the queue before the status change that lets the next job start.
+  cancelCurrentUpload = null;
+  deviceScheduler.setExternalBusy(false);
+  dirListingCache.clear();
+  updateJobFulfillment(job.id, fulfillment);
+  updateJobStatus(job.id, error ? 'failed' : 'completed', error);
+  scheduleDelayedProcessing(DEVICE_RECOVERY_DELAY_MS);
 }
 
 export function startQueueProcessor(): () => void {
@@ -201,6 +272,9 @@ export function pauseCurrentUploadJob(): void {
   const { jobs, retryJob } = useUploadStore.getState();
   const activeJob = jobs.find((j) => j.status === 'uploading');
   if (!activeJob) return;
+  // The .acsm is already on the reader; restarting would upload it again.
+  // The reader holds the claimed job, and polling resumes in the foreground.
+  if (activeJob.fulfillment?.state === 'running') return;
 
   if (cancelCurrentUpload) {
     log('queue', `Pausing upload: ${activeJob.fileName}`);

@@ -1,0 +1,6 @@
+{
+  "title": "Protected Content (test adapter)",
+  "mount": "files",
+  "description": "Test-only stand-in for the Protected Content plugin's fulfill action.",
+  "version": "0.0.0-test"
+}

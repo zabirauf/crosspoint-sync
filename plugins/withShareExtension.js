@@ -45,7 +45,7 @@ class ShareViewController: UIViewController {
             return
         }
 
-        let validUTIs: [UTType] = [
+        let epubUTIs: [UTType] = [
             UTType("org.idpf.epub-container") ?? .epub,
         ]
 
@@ -54,23 +54,25 @@ class ShareViewController: UIViewController {
         for item in items {
             guard let attachments = item.attachments else { continue }
             for provider in attachments {
-                for uti in validUTIs {
-                    if provider.hasItemConformingToTypeIdentifier(uti.identifier) {
-                        pending += 1
-                        provider.loadFileRepresentation(forTypeIdentifier: uti.identifier) { [weak self] url, error in
-                            defer {
-                                DispatchQueue.main.async {
-                                    pending -= 1
-                                    if pending == 0 {
-                                        self?.finishAndDismiss()
-                                    }
-                                }
+                // Adobe .acsm fulfillment tokens have no system UTI; match them
+                // by name or by the dynamic type the source app registered.
+                let epubType = epubUTIs.first(where: { provider.hasItemConformingToTypeIdentifier($0.identifier) })
+                let acsm = epubType == nil && isAcsm(provider)
+                guard let typeIdentifier = epubType?.identifier ?? (acsm ? acsmTypeIdentifier(provider) : nil) else { continue }
+
+                pending += 1
+                let suggestedName = provider.suggestedName
+                provider.loadFileRepresentation(forTypeIdentifier: typeIdentifier) { [weak self] url, error in
+                    defer {
+                        DispatchQueue.main.async {
+                            pending -= 1
+                            if pending == 0 {
+                                self?.finishAndDismiss()
                             }
-                            guard let url = url, error == nil else { return }
-                            self?.copyToAppGroup(url: url)
                         }
-                        break // only match first conforming UTI per provider
                     }
+                    guard let url = url, error == nil else { return }
+                    self?.copyToAppGroup(url: url, suggestedName: suggestedName, acsm: acsm)
                 }
             }
         }
@@ -80,7 +82,21 @@ class ShareViewController: UIViewController {
         }
     }
 
-    private func copyToAppGroup(url: URL) {
+    private func isAcsm(_ provider: NSItemProvider) -> Bool {
+        if provider.suggestedName?.lowercased().hasSuffix(".acsm") == true { return true }
+        return provider.registeredTypeIdentifiers.contains { identifier in
+            guard let type = UTType(identifier) else { return false }
+            return type.preferredFilenameExtension?.lowercased() == "acsm"
+                || type.preferredMIMEType == "application/vnd.adobe.adept+xml"
+        }
+    }
+
+    private func acsmTypeIdentifier(_ provider: NSItemProvider) -> String {
+        provider.registeredTypeIdentifiers.first(where: { UTType($0)?.conforms(to: .data) == true })
+            ?? UTType.data.identifier
+    }
+
+    private func copyToAppGroup(url: URL, suggestedName: String?, acsm: Bool) {
         guard let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) else { return }
 
         let sharedDir = container.appendingPathComponent("shared-files", isDirectory: true)
@@ -90,7 +106,13 @@ class ShareViewController: UIViewController {
         try? FileManager.default.createDirectory(at: manifestDir, withIntermediateDirectories: true)
 
         let uuid = UUID().uuidString
-        let filename = url.lastPathComponent
+        var filename = url.lastPathComponent
+        // Data representations can arrive under a temporary name. The queue
+        // recognizes an .acsm by its extension, so keep or restore it.
+        if acsm && !filename.lowercased().hasSuffix(".acsm") {
+            let base = (suggestedName?.isEmpty == false) ? suggestedName! : url.deletingPathExtension().lastPathComponent
+            filename = base.lowercased().hasSuffix(".acsm") ? base : base + ".acsm"
+        }
         let destURL = sharedDir.appendingPathComponent("\\(uuid)-\\(filename)")
 
         do {

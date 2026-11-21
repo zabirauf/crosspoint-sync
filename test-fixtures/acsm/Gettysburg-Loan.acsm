@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic test fixture: the shape of an Adobe ADEPT fulfillment token with
+     placeholder identifiers, no real transaction and an invalid signature. -->
+<fulfillmentToken fulfillmentType="loan" auth="user" xmlns="http://ns.adobe.com/adept">
+  <distributor>urn:uuid:00000000-0000-4000-8000-000000000000</distributor>
+  <operatorURL>https://acs.example.invalid/fulfillment</operatorURL>
+  <transaction>TEST-TRANSACTION-0001</transaction>
+  <purchase>2026-11-21T00:00:00+00:00</purchase>
+  <expiration>2026-12-05T00:00:00+00:00</expiration>
+  <resourceItemInfo>
+    <resource>urn:uuid:00000000-0000-4000-8000-000000000001</resource>
+    <resourceItem>0</resourceItem>
+    <metadata>
+      <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">The Gettysburg Address</dc:title>
+      <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Abraham Lincoln</dc:creator>
+      <dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">application/epub+zip</dc:format>
+    </metadata>
+    <licenseToken>
+      <resource>urn:uuid:00000000-0000-4000-8000-000000000001</resource>
+      <permissions><display><until>2026-12-05T00:00:00+00:00</until></display></permissions>
+    </licenseToken>
+  </resourceItemInfo>
+  <hmac>AAAAAAAAAAAAAAAAAAAAAAAAAAA=</hmac>
+</fulfillmentToken>

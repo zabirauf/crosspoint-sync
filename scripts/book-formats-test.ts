@@ -191,7 +191,9 @@ test('supported upload formats', async t => {
       }
       for (const version of ['0.14.0', '0.14.0-dev+abc123', '0.15.0', '1.0.0', '1.3.0', '1.6.5']) {
         const { supportedFileExtensions, filePickerMimeType } = getDeviceCapabilities(version);
-        assert.deepEqual(supportedFileExtensions, ['.epub', '.xtc', '.xtch', '.xtg', '.xth']);
+        assert.deepEqual(supportedFileExtensions, ['.epub', '.xtc', '.xtch', '.xtg', '.xth', '.acsm']);
+        assert.ok(isSupportedFile('Loan.ACSM', supportedFileExtensions));
+        assert.equal(isSupportedFile('Loan.acsm.html', supportedFileExtensions), false);
         assert.equal(filePickerMimeType, '*/*');
         for (const name of fixtureNames) assert.ok(isSupportedFile(name, supportedFileExtensions));
         assert.equal(isSupportedFile('page.xth.zip', supportedFileExtensions), false);
@@ -289,11 +291,12 @@ test('supported upload formats', async t => {
           { name: 'Folder.xtc', size: 0, isDirectory: true, isEpub: false },
           { name: 'Folder.xth', size: 0, isDirectory: true, isEpub: false },
           { name: 'notes.txt', size: 10, isDirectory: false, isEpub: false },
+          { name: 'Library Loan.acsm', size: 10, isDirectory: false, isEpub: false },
         ]) {
           let row!: ReactTestRenderer;
           await act(async () => { row = create(React.createElement(FileRow, { file, onPress: () => {} })); });
           const icon = row.root.findByProps({ testID: `Library.FileRow.${file.name}.Icon` });
-          assert.equal(icon.props.name, file.isDirectory ? 'folder' : file.name.endsWith('.txt') ? 'file-o' : /\.(xtg|xth)$/.test(file.name) ? 'file-image-o' : 'book');
+          assert.equal(icon.props.name, file.isDirectory ? 'folder' : file.name.endsWith('.txt') ? 'file-o' : /\.(xtg|xth)$/.test(file.name) ? 'file-image-o' : file.name.endsWith('.acsm') ? 'key' : 'book');
           if (isSupportedFile(file.name) && !file.isDirectory) assert.equal(icon.props.color, dark ? '#81d4fa' : '#1a73e8');
           await act(async () => { row.unmount(); });
         }

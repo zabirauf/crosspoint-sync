@@ -1,6 +1,6 @@
 # CrossPoint Sync
 
-Book syncing app for XTEink X3 and X4 e-ink readers. Discovers devices on local WiFi, browses files, and uploads EPUB/XTC/XTCH books and XTG/XTH images via WebSocket.
+Book syncing app for XTEink X3 and X4 e-ink readers. Discovers devices on local WiFi, browses files, and uploads EPUB/XTC/XTCH books, XTG/XTH images and ACSM fulfillment tokens via WebSocket.
 
 ## Stack
 
@@ -62,6 +62,8 @@ services/
   epub-generator.ts       # Converts HTML + images into EPUB 3.0 via JSZip
   android-share-import.ts # Imports files/URLs shared via Android share intent
   url-article-extractor.ts # Fetch+heuristic article extraction for Android article clipping
+  acsm-fulfillment.ts     # Hands uploaded .acsm files to the reader's Protected Content plugin
+  plugin-runner.ts        # Keeps the reader's /plugins-run page open while plugin jobs run
 stores/
   device-store.ts      # Connection state, persists lastDeviceIp
   upload-store.ts      # Upload job queue, persists pending/failed jobs
@@ -78,6 +80,7 @@ components/
   ScanningIndicator.tsx # Animated scanning indicator
   EmptyState.tsx       # Generic empty state
   PromptDialog.tsx     # Cross-platform text input dialog (replaces iOS-only Alert.prompt)
+  HiddenPluginRunner.tsx # Hidden WebView hosting the reader's /plugins-run job executor
 modules/
   app-group-path/      # Local Expo module — exposes iOS App Group container path to JS (iOS only)
   multicast-lock/      # Local Expo module — WiFi MulticastLock for UDP broadcast (Android only)
@@ -129,7 +132,14 @@ extension-src/           # Safari Web Extension source files (bundled at prebuil
 - **Reader profiles**: `/api/status.device` identifies X3/X4 on firmware 1.3+. `constants/ReaderProfiles.ts` owns portrait sleep-image sizes (X3 528×792; X4 480×800). Require actual reader status or an explicit offline model choice, then freeze the chosen profile so preview and export match; never choose phone layouts from reader models. A missing model in an actual status response retains legacy X4 output; an unknown reported model must not be guessed as X4.
 - **Book formats**: `constants/FileFormats.ts` owns format kinds, upload firmware thresholds, derived extensions, and filename matching. `getDeviceCapabilities` returns `supportedFileExtensions` and `filePickerMimeType` for the connected firmware. The picker and queue both validate names against that extension list; file icons describe recognized formats regardless of firmware. Clear stale status when connecting to another reader and resume waiting jobs when fresh status arrives.
 - **HTTP REST API** (port 80): `GET /api/status`, `GET /api/files?path=`, `POST /mkdir`, `POST /delete`, `GET /download?path=`
+- **SD-plugin job queue** (2.0.0+): `GET /api/plugins`, `POST /api/plugin-jobs {plugin, action, args}` → `{id}` (403 when plugins are disabled; args < 192 bytes JSON), `GET /api/plugin-jobs/status?id=`. Jobs run only while a page hosting the plugin is open; the app keeps `/plugins-run` open in `HiddenPluginRunner`.
 - **WebSocket upload** (port 81): `START:filename:size:path` → `READY` → binary chunks (64KB) → `PROGRESS:received:total` → `DONE`
+
+## ACSM / Protected Content
+
+- `.acsm` files (Adobe ADEPT fulfillment tokens, e.g. Libby "Adobe EPUB" loans) are a `fulfillment` format in `constants/FileFormats.ts`. They are picked, shared (iOS Share Extension by name/dynamic type; Android `application/vnd.adobe.adept+xml` or `application/octet-stream` filtered by extension) and uploaded like books.
+- After upload, `services/upload-queue.ts` keeps the job `uploading` with `fulfillment.state: 'running'` while `services/acsm-fulfillment.ts` enqueues `protected-content/fulfill {path}`. The plugin (Plugin Hub `protected-content`) writes the protected EPUB beside the `.acsm`, stores its key and deletes the `.acsm`. Missing plugin, disabled plugins or firmware < 2.0.0 complete with guidance; plugin errors fail the job, and Retry reuses the `.acsm` on the card. Do not restart a job in its fulfillment phase: the `.acsm` is already on the reader.
+- The user must sign in to the plugin once from the reader's web page; the app never handles content-account credentials. Research and contract evidence: `docs/analysis/acsm-protected-content-2026-11-21.md`. Mock: `npm run mock-device -- --firmware-version 2.0.0 --protected-content activated`; tests: `npm run test:acsm`.
 
 ## Safari Web Clipper Extension
 

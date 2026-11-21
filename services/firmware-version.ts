@@ -14,6 +14,8 @@ export interface DeviceCapabilities {
   move: boolean;
   settingsApi: boolean;
   batchDelete: boolean;
+  /** SD-plugin job queue and protected-book keys (/api/plugin-jobs, /plugins-run). */
+  pluginJobs: boolean;
 }
 
 /**
@@ -70,6 +72,8 @@ export function getDeviceCapabilities(version: string | undefined): DeviceCapabi
     settingsApi: firmwareAtLeast(version, 1, 1, 0),
     // 1.2.0+ /delete expects a `paths` JSON-array form field; older firmware uses `path`.
     batchDelete: firmwareAtLeast(version, 1, 2, 0),
+    // 2.0.0 shipped the plugin job queue and on-read protected EPUB support.
+    pluginJobs: firmwareAtLeast(version, 2, 0, 0),
   };
 }
 

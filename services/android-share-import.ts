@@ -12,6 +12,7 @@ import {
 import { extractArticleFromUrl, downloadImagesFromUrls } from '@/services/url-article-extractor';
 import { extractArticleViaWebView } from '@/services/webview-article-extractor';
 import { generateEpub } from '@/services/epub-generator';
+import { isSupportedFile } from '@/constants/FileFormats';
 
 /**
  * Processes files shared via Android's share intent.
@@ -55,6 +56,14 @@ async function importFileItem(item: SharedItem): Promise<number> {
   const sourceFile = new File(item.uri);
   if (!sourceFile.exists) {
     log('queue', `Android share: cached file missing at ${item.uri}`);
+    return 0;
+  }
+
+  // The generic application/octet-stream filter exists for .acsm files, which
+  // have no Android MIME mapping. Only EPUB shares are accepted by type alone.
+  if (item.mimeType !== 'application/epub+zip' && !isSupportedFile(item.name)) {
+    log('queue', `Android share: ignoring unsupported file ${item.name} (${item.mimeType ?? 'unknown type'})`);
+    try { sourceFile.delete(); } catch {}
     return 0;
   }
 

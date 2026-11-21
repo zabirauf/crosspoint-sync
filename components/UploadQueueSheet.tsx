@@ -30,6 +30,8 @@ export function UploadQueueSheet({ open, onOpenChange }: UploadQueueSheetProps) 
   const conflictJobs = jobs.filter((j) => j.status === 'conflict');
   const completedCount = jobs.filter((j) => j.status === 'completed').length;
   const failedJobs = jobs.filter((j) => j.status === 'failed' || j.status === 'cancelled');
+  // Uploaded .acsm files the reader could not fetch yet explain what to set up.
+  const noticeJobs = jobs.filter((j) => j.status === 'completed' && j.fulfillment?.state === 'skipped');
 
   return (
     <AdaptiveSheet open={open} onOpenChange={onOpenChange} testID="UploadQueue.Sheet" height={UPLOAD_QUEUE_SHEET_HEIGHT} padding={16}>
@@ -121,7 +123,15 @@ export function UploadQueueSheet({ open, onOpenChange }: UploadQueueSheetProps) 
             />
           ))}
 
-          {!activeJob && processingJobs.length === 0 && pendingJobs.length === 0 && conflictJobs.length === 0 && failedJobs.length === 0 && (
+          {noticeJobs.map((job) => (
+            <UploadJobCard
+              key={job.id}
+              job={job}
+              onRemove={() => removeJob(job.id)}
+            />
+          ))}
+
+          {!activeJob && processingJobs.length === 0 && pendingJobs.length === 0 && conflictJobs.length === 0 && failedJobs.length === 0 && noticeJobs.length === 0 && (
             <Text color="$gray10" fontSize="$3" textAlign="center" paddingVertical="$2">
               No uploads in queue
             </Text>
