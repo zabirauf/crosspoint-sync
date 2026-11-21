@@ -37,6 +37,8 @@ export type FulfillmentOutcome =
 
 export interface FulfillmentOptions {
   isCancelled?: () => boolean;
+  /** Called once when the job is queued on the reader and once when it starts running. */
+  onPhase?: (phase: 'waiting' | 'fetching') => void;
   pollIntervalMs?: number;
   startTimeoutMs?: number;
   timeoutMs?: number;
@@ -90,6 +92,7 @@ export async function fulfillUploadedAcsm(
 ): Promise<FulfillmentOutcome> {
   const {
     isCancelled = () => false,
+    onPhase = () => {},
     pollIntervalMs = PLUGIN_JOB_POLL_INTERVAL_MS,
     startTimeoutMs = PLUGIN_JOB_START_TIMEOUT_MS,
     timeoutMs = PLUGIN_JOB_TIMEOUT_MS,
@@ -115,6 +118,7 @@ export async function fulfillUploadedAcsm(
     throw err;
   }
   log('plugin', `Queued ${PROTECTED_CONTENT_PLUGIN}/${PROTECTED_CONTENT_FULFILL_ACTION} job ${jobId} for ${remotePath}`);
+  onPhase('waiting');
 
   const runner = usePluginRunnerStore.getState();
   runner.acquire(pluginRunnerUrl(ip));
@@ -150,6 +154,7 @@ export async function fulfillUploadedAcsm(
           }
           continue;
         case 'running':
+          if (!started) onPhase('fetching');
           started = true;
           continue;
         case 'done': {

@@ -6,7 +6,7 @@ import { getFiles, ensureRemotePath, clearValidatedPaths } from './device-api';
 import { log } from './logger';
 import { deviceScheduler } from './device-request-scheduler';
 import { isAcsmFile, isSupportedFile } from '@/constants/FileFormats';
-import type { UploadJob, UploadJobFulfillment } from '@/types/upload';
+import type { UploadJob, UploadJobFulfillment, UploadJobFulfillmentPhase } from '@/types/upload';
 import { fulfillUploadedAcsm, FulfillmentCancelledError, remoteFilePath } from './acsm-fulfillment';
 import { getDeviceCapabilities, getFileFirmwareError } from './firmware-version';
 import {
@@ -188,12 +188,19 @@ async function runAcsmFulfillment(job: UploadJob, ip: string, firmwareVersion: s
   const remotePath = remoteFilePath(job.destinationPath, job.fileName);
   let cancelled = false;
   cancelCurrentUpload = () => { cancelled = true; };
-  updateJobFulfillment(job.id, { state: 'running', remotePath });
+  const setPhase = (phase: UploadJobFulfillmentPhase) => {
+    if (cancelled) return;
+    updateJobFulfillment(job.id, { state: 'running', phase, phaseStartedAt: Date.now(), remotePath });
+  };
+  setPhase('requesting');
 
   let fulfillment: UploadJobFulfillment | undefined;
   let error: string | undefined;
   try {
-    const outcome = await fulfillUploadedAcsm(ip, remotePath, firmwareVersion, { isCancelled: () => cancelled });
+    const outcome = await fulfillUploadedAcsm(ip, remotePath, firmwareVersion, {
+      isCancelled: () => cancelled,
+      onPhase: setPhase,
+    });
     if (outcome.kind === 'done') {
       const name = outcome.title ? `“${outcome.title}”` : 'the book';
       const message = outcome.dest ? `Fetched ${name} to ${outcome.dest}` : `Fetched ${name}`;

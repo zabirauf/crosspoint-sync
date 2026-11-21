@@ -14,8 +14,20 @@ export type UploadJobType = 'book' | 'sleep-background' | 'clip';
  * reader's Protected Content plugin, which downloads the protected EPUB.
  * The job keeps status 'uploading' while this runs so it still holds the queue.
  */
+/**
+ * Progress through a running fulfillment. The plugin reports no byte counts,
+ * so these stages and their start times are all the app can show.
+ * - requesting: checking for the plugin and submitting the job
+ * - waiting: job queued; the reader has not started it
+ * - fetching: the reader is downloading the book
+ */
+export type UploadJobFulfillmentPhase = 'requesting' | 'waiting' | 'fetching';
+
 export interface UploadJobFulfillment {
   state: 'running' | 'done' | 'skipped' | 'failed';
+  phase?: UploadJobFulfillmentPhase;
+  /** Epoch ms when the current phase began. */
+  phaseStartedAt?: number;
   message?: string;
   /** Absolute reader path of the uploaded .acsm. */
   remotePath?: string;

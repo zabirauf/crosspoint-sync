@@ -217,6 +217,11 @@ test('ACSM uploads and Protected Content fulfillment', async t => {
 
     await t.test('activated plugin: queue uploads the .acsm, the reader fetches the EPUB beside it', async () => {
       const mock = await startMock('activated');
+      const phases: string[] = [];
+      const unsubscribe = useUploadStore.subscribe(state => {
+        const phase = state.jobs.find(j => j.fileName === 'Gettysburg-Loan.acsm')?.fulfillment?.phase;
+        if (phase && phases[phases.length - 1] !== phase) phases.push(phase);
+      });
       try {
         const id = queueAcsm();
         await waitUntil(() => jobs().find(j => j.id === id)?.fulfillment?.state === 'running');
@@ -226,14 +231,20 @@ test('ACSM uploads and Protected Content fulfillment', async t => {
         await waitUntil(() => !!usePluginRunnerStore.getState().url?.endsWith('/plugins-run'));
 
         await waitUntil(settled(id));
+        unsubscribe();
+        // The mock can finish between two polls, so 'fetching' is not always observed.
+        const order = ['requesting', 'waiting', 'fetching'];
+        assert.deepEqual(phases.slice(0, 2), ['requesting', 'waiting'], `phases seen: ${phases.join(', ')}`);
+        assert.deepEqual(phases, order.slice(0, phases.length), 'phases only move forward');
         const job = jobs().find(j => j.id === id)!;
         assert.equal(job.status, 'completed', job.error);
         assert.equal(job.fulfillment?.state, 'done');
+        assert.equal(job.fulfillment?.phase, undefined, 'a finished job carries no running phase');
         assert.equal(job.fulfillment?.message, `Fetched “The Gettysburg Address” to /Library/${FETCHED_BOOK}`);
         assert.deepEqual(await listing(mock, '/Library'), [FETCHED_BOOK], 'the plugin replaces the .acsm with the book');
         assert.equal(usePluginRunnerStore.getState().url, null, 'the runner page closes after the job');
         assert.match(mock.output(), /job 1 queued: protected-content\/fulfill \{"path":"\/Library\/Gettysburg-Loan\.acsm"\}/);
-      } finally { useUploadStore.setState({ jobs: [] }); await stopMock(mock); }
+      } finally { unsubscribe(); useUploadStore.setState({ jobs: [] }); await stopMock(mock); }
     });
 
     await t.test('unactivated plugin: actionable failure, retry fulfils again without re-uploading', async () => {
@@ -351,6 +362,42 @@ test('ACSM uploads and Protected Content fulfillment', async t => {
     clearInterval(runnerTimer);
     fs.rmSync(scratch, { recursive: true, force: true });
   }
+});
+
+test('ACSM job card progress advances through both steps without finishing early', () => {
+  const { acsmJobProgress, formatElapsed } = require('../utils/fulfillment-progress') as typeof import('../utils/fulfillment-progress');
+  const t0 = 1_000_000;
+  const base = {
+    id: 'j', fileName: 'Loan.acsm', fileUri: 'file:///x', fileSize: 1800, destinationPath: '/Protected Content',
+    status: 'uploading' as const, progress: 1, bytesTransferred: 1800, createdAt: t0,
+  };
+  const running = (phase: 'requesting' | 'waiting' | 'fetching') =>
+    ({ ...base, fulfillment: { state: 'running' as const, phase, phaseStartedAt: t0 } });
+
+  assert.equal(acsmJobProgress({ ...base, fileName: 'Book.epub' }, t0), undefined, 'only .acsm jobs');
+  assert.equal(acsmJobProgress({ ...base, status: 'completed' }, t0), undefined, 'only while active');
+
+  const steps = [
+    acsmJobProgress({ ...base, progress: 0.5 }, t0)!,
+    acsmJobProgress(base, t0)!,
+    acsmJobProgress(running('requesting'), t0)!,
+    acsmJobProgress(running('waiting'), t0 + 10_000)!,
+    acsmJobProgress(running('fetching'), t0)!,
+    acsmJobProgress(running('fetching'), t0 + 30_000)!,
+    acsmJobProgress(running('fetching'), t0 + 120_000)!,
+    acsmJobProgress(running('fetching'), t0 + 60 * 60_000)!,
+  ];
+  for (let i = 1; i < steps.length; i++) {
+    assert.ok(steps[i].value >= steps[i - 1].value, `step ${i} moves forward (${steps[i - 1].value} → ${steps[i].value})`);
+  }
+  assert.ok(steps.every(s => s.value < 0.96), 'the bar waits for the reader before it completes');
+  assert.deepEqual(steps.map(s => s.label), [
+    'Sending', 'Sending', 'Requesting', 'Starting', 'Fetching Book', 'Fetching Book', 'Fetching Book', 'Fetching Book',
+  ]);
+  assert.match(steps[0].detail, /^Step 1 of 2/);
+  assert.match(steps[5].detail, /^Step 2 of 2: The reader is downloading the book/);
+  assert.equal(formatElapsed(steps[5].elapsedSeconds!), '0:30');
+  assert.equal(formatElapsed(125.9), '2:05');
 });
 
 test('Android share intents accept .acsm files shared as generic binary data', async () => {
