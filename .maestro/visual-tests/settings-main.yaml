@@ -9,7 +9,7 @@ tags: [smoke, settings]
 
 description: |
   Settings tab showing app configuration options in grouped sections.
-  "Sync Settings" section: Upload path row with current value.
+  "Sync Settings" section: Upload path and ACSM upload path rows with current values.
   "Web Clipper" on iOS or "Article Clipper" on Android: Clip upload path row with current value.
   The iOS section also includes "Enable in Safari".
   "Device" section: shows the reported XTEink model (or hostname on legacy firmware), IP Address, and Firmware rows.
@@ -20,6 +20,8 @@ assertions:
   - text: "The Settings title is visible in the header"
     severity: fail
   - text: "'Upload path' row is visible with a path value"
+    severity: fail
+  - text: "'ACSM upload path' row is visible below 'Upload path' with a path value"
     severity: fail
   - text: "'Clip upload path' row is visible with a path value"
     severity: fail

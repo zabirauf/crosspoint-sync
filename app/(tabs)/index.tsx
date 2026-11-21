@@ -365,7 +365,7 @@ function LibraryScreen() {
                 needsAttention={jobs.some(j => ['failed', 'conflict', 'cancelled'].includes(j.status))}
                 style={{ width: 0, height: 0 }}
                 onAction={({ nativeEvent: { action } }) => {
-                  if (action === 'upload') pickAndQueueFiles(isConnected ? currentPath : defaultUploadPath);
+                  if (action === 'upload') pickAndQueueFiles(isConnected ? currentPath : defaultUploadPath, { explicitFolder: isConnected });
                   else if (action === 'folder') handleNewFolder();
                   else if (action === 'sleep') handleSleepBackground();
                   else if (action === 'queue') setQueueSheetOpen(true);
@@ -373,7 +373,7 @@ function LibraryScreen() {
               />
             ) : (
               <ActionFAB
-                onAddBook={() => pickAndQueueFiles(isConnected ? currentPath : defaultUploadPath)}
+                onAddBook={() => pickAndQueueFiles(isConnected ? currentPath : defaultUploadPath, { explicitFolder: isConnected })}
                 onNewFolder={handleNewFolder}
                 onSleepBackground={handleSleepBackground}
                 showNewFolder={isConnected}

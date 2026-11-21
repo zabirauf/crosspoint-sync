@@ -72,10 +72,14 @@ api.registerAction('fulfill', async (args) => {
 
 ## Design chosen
 
-1. `.acsm` is a recognized upload format (`kind: 'fulfillment'`, 0.14.0+
+1. Shared `.acsm` files go to Settings → **ACSM upload path** (default
+   `/Protected Books`), like clipped articles go to `/Articles`. The plugin
+   writes each book beside its `.acsm`, so protected books collect there too.
+   Picking files while browsing a reader folder keeps that folder.
+2. `.acsm` is a recognized upload format (`kind: 'fulfillment'`, 0.14.0+
    through the generic uploader), so the picker, iOS Share Extension and
    Android share intent all enqueue it like an EPUB.
-2. After the WebSocket upload, the same queue job enters a fulfillment phase.
+3. After the WebSocket upload, the same queue job enters a fulfillment phase.
    It stays `uploading` (holding the queue and keep-awake, and pausing status
    polling) while `services/acsm-fulfillment.ts`:
    - skips with guidance on firmware < 2.0.0, if the plugin is missing or
@@ -84,12 +88,12 @@ api.registerAction('fulfill', async (args) => {
    - opens `/plugins-run` in a hidden 1×1 WebView (`HiddenPluginRunner`);
    - polls status until `done`/`error`, with start and overall timeouts and
      tolerance for transient status failures while the reader streams the book.
-3. Results: **done** → completed with "Fetched “title” to /path.epub" and a library
+4. Results: **done** → completed with "Fetched “title” to /path.epub" and a library
    refresh. **skipped** → completed, and the note remains in the queue sheet until
    dismissed. **error** → failed with the plugin's reason ("not signed in" is
    reworded into the fix). Retry reuses the `.acsm` already on the card without
    uploading it again.
-4. Backgrounding does not restart a job in its fulfillment phase, because that
+5. Backgrounding does not restart a job in its fulfillment phase, because that
    would upload the `.acsm` again. "Stop Waiting" stops polling only; the
    reader may still finish a job it has claimed.
 

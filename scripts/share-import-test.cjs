@@ -48,7 +48,10 @@ function setup({ hydrated = true, uploadPath = '/Books', manifestPath = '/', sto
       setItem: (_key, value) => { savedSettings = value; return Promise.resolve(); },
       removeItem: () => Promise.resolve(),
     } },
-    '@/constants/Protocol': { DEFAULT_UPLOAD_PATH: '/', DEFAULT_CLIP_UPLOAD_PATH: '/Articles' },
+    '@/constants/Protocol': {
+      DEFAULT_UPLOAD_PATH: '/', DEFAULT_CLIP_UPLOAD_PATH: '/Articles', DEFAULT_PROTECTED_UPLOAD_PATH: '/Protected Books',
+    },
+    '@/constants/FileFormats': { isAcsmFile: name => name.toLowerCase().endsWith('.acsm') },
   });
   const settings = settingsModule.useSettingsStore;
   const uriOf = (base, name) => `${typeof base === 'string' ? base : base.uri}${name ? `/${name}` : ''}`;
@@ -122,6 +125,19 @@ test('iOS shares use Upload Path instead of the extension root', async () => {
   assert.equal(app.jobs[0].destinationPath, '/Books');
   assert.equal(app.jobs[0].jobType, 'book');
   assert.equal(app.files.has('file:///group/manifests/book.epub.json'), false);
+});
+
+test('iOS .acsm shares use the ACSM upload path, which persisted settings can change', async () => {
+  const app = setup();
+  app.addManifest('Loan.ACSM');
+  assert.equal(await app.importFiles(), 2);
+  const byName = Object.fromEntries(app.jobs.map(job => [job.fileName, job.destinationPath]));
+  assert.deepEqual(byName, { 'book.epub': '/Books', 'Loan.ACSM': '/Protected Books' });
+
+  app.settings.getState().setProtectedUploadPath('/Libby');
+  app.addManifest('Second.acsm');
+  assert.equal(await app.importFiles(), 1);
+  assert.equal(app.jobs[2].destinationPath, '/Libby');
 });
 
 test('cold launch waits for persisted settings before moving or queuing the file', async () => {

@@ -232,6 +232,21 @@ test('supported upload formats', async t => {
       assert.match(alerts[0], /Skipped 1/);
       assert.match(alerts[0], /\.epub, \.xtc, \.xtch, \.xtg, \.xth/);
     });
+    await t.test('queue Add Books sends .acsm files to the ACSM folder; a browsed folder keeps them', async () => {
+      const before = jobs().length;
+      const acsm = pathToFileURL(path.join(projectRoot, 'test-fixtures/acsm/Gettysburg-Loan.acsm')).href;
+      pickerResult = { canceled: false, assets: [
+        { name: 'Loan.acsm', uri: acsm, mimeType: 'application/octet-stream', lastModified: 0 },
+        { name: fixtureNames[0], uri: pathToFileURL(path.join(fixturesDir, fixtureNames[0])).href, lastModified: 0 },
+      ] };
+      await pick('/Books');
+      await pick('/Shelf', { explicitFolder: true });
+      assert.deepEqual(jobs().slice(before).map(job => [job.fileName, job.destinationPath]), [
+        ['Loan.acsm', '/Protected Books'], [fixtureNames[0], '/Books'],
+        ['Loan.acsm', '/Shelf'], [fixtureNames[0], '/Shelf'],
+      ]);
+      useUploadStore.setState({ jobs: jobs().slice(0, before) });
+    });
     await t.test('picker rejects an entirely unsupported selection visibly', async () => {
       pickerResult = { canceled: false, assets: [{ name: 'notes.pdf', uri: 'file:///must-not-be-read.pdf', lastModified: 0 }] };
       await pick('/Books');
