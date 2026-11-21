@@ -296,6 +296,16 @@ export class PluginsDisabledError extends Error {
   }
 }
 
+/** The reader answered a plugin job request with an HTTP error. */
+export class PluginJobHttpError extends Error {
+  readonly status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'PluginJobHttpError';
+    this.status = status;
+  }
+}
+
 async function readError(res: Response): Promise<string> {
   const text = (await res.text().catch(() => '')).trim();
   try {
@@ -350,7 +360,9 @@ export async function getPluginJobStatus(ip: string, id: number): Promise<Plugin
     execute: async () => {
       const res = await fetchWithTimeout(`${baseUrl(ip)}/api/plugin-jobs/status?id=${id}`);
       if (res.status === 403) throw new PluginsDisabledError();
-      if (!res.ok) throw new Error(`Plugin job status failed (${res.status}): ${await readError(res)}`);
+      if (!res.ok) {
+        throw new PluginJobHttpError(`Plugin job status failed (${res.status}): ${await readError(res)}`, res.status);
+      }
       const data = (await res.json()) as Partial<PluginJobStatus>;
       const states: PluginJobState[] = ['pending', 'running', 'done', 'error', 'unknown'];
       return {

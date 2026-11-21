@@ -2,7 +2,7 @@
 /**
  * Runs the app's actual upload queue, WebSocket uploader, device API and
  * plugin-job client against a running CrossPoint firmware simulator. A
- * Chromium page loads the firmware's own /plugins-run page while the app
+ * Puppeteer Chromium page loads the firmware's own /plugins-run page while the app
  * requests a runner, standing in for the native hidden WebView.
  *
  *   npx tsx scripts/acsm-simulator-check.ts --http 18080 --ws 18081 --out <dir> [--expect done|skipped|failed]
@@ -72,8 +72,8 @@ const queue = require('../services/upload-queue') as typeof import('../services/
 loader._load = originalLoad;
 
 async function main() {
-  const { chromium } = require('playwright');
-  const browser = await chromium.launch();
+  const puppeteer = require('puppeteer') as typeof import('puppeteer');
+  const browser = await puppeteer.launch();
   const page = await browser.newPage();
   const runnerConsole: string[] = [];
   page.on('console', (m: { text(): string }) => runnerConsole.push(m.text()));

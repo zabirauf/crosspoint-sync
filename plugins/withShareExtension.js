@@ -51,6 +51,8 @@ class ShareViewController: UIViewController {
 
         var pending = 0
         var queued = 0
+        var ignored = 0
+        var attachmentsSeen = 0
 
         for item in items {
             guard let attachments = item.attachments else { continue }
@@ -63,16 +65,28 @@ class ShareViewController: UIViewController {
                 // by name or by the dynamic type the source app registered.
                 let epubType = epubUTIs.first(where: { provider.hasItemConformingToTypeIdentifier($0.identifier) })
                 let acsm = epubType == nil && isAcsm(provider)
-                guard epubType != nil || acsm else { continue }
+                // Some providers offer only a file URL, with no suggested name.
+                // Resolve it before deciding whether the attachment is a token.
+                let fileURLOnly = epubType == nil && !acsm
+                    && provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier)
+                guard epubType != nil || acsm || fileURLOnly else { continue }
 
                 pending += 1
-                let complete: (Bool) -> Void = { [weak self] ok in
+                attachmentsSeen += 1
+                // nil: not a file this extension imports, which is not a failure.
+                let complete: (Bool?) -> Void = { [weak self] ok in
                     DispatchQueue.main.async {
-                        if ok { queued += 1 }
+                        switch ok {
+                        case .some(true): queued += 1
+                        case .none: ignored += 1
+                        default: break
+                        }
                         pending -= 1
                         if pending == 0 {
                             if queued > 0 {
                                 self?.finishAndDismiss()
+                            } else if ignored > 0 && ignored == attachmentsSeen {
+                                self?.dismiss()
                             } else {
                                 self?.failAndDismiss()
                             }
@@ -86,7 +100,13 @@ class ShareViewController: UIViewController {
                         complete(self.copyToAppGroup(url: url, filename: url.lastPathComponent, acsm: false))
                     }
                 } else {
-                    loadAcsm(provider, complete: complete)
+                    resolveFileURL(provider) { [weak self] fileURL in
+                        guard let self = self else { return complete(false) }
+                        if fileURLOnly && fileURL?.pathExtension.lowercased() != "acsm" {
+                            return complete(nil)
+                        }
+                        self.loadAcsm(provider, fileURL: fileURL) { complete($0) }
+                    }
                 }
             }
         }
@@ -119,36 +139,10 @@ class ShareViewController: UIViewController {
         }
     }
 
-    /// Safari downloads (e.g. a Libby "Adobe EPUB" loan) arrive as a file URL.
-    /// Resolve it for the original filename and, when no content type is
-    /// offered, copy the file it points to.
-    private func loadAcsm(_ provider: NSItemProvider, complete: @escaping (Bool) -> Void) {
-        let suggestedName = provider.suggestedName
-        let contentType = acsmContentTypeIdentifier(provider)
-
-        let loadContent: (URL?) -> Void = { [weak self] fileURL in
-            guard let self = self else { return complete(false) }
-            let filename = self.acsmFilename(fileURL: fileURL, suggestedName: suggestedName)
-
-            if let contentType = contentType {
-                provider.loadFileRepresentation(forTypeIdentifier: contentType) { url, error in
-                    if let url = url, error == nil {
-                        complete(self.copyToAppGroup(url: url, filename: filename, acsm: true))
-                    } else if let fileURL = fileURL {
-                        complete(self.copyToAppGroup(url: fileURL, filename: filename, acsm: true))
-                    } else {
-                        complete(false)
-                    }
-                }
-            } else if let fileURL = fileURL {
-                complete(self.copyToAppGroup(url: fileURL, filename: filename, acsm: true))
-            } else {
-                complete(false)
-            }
-        }
-
+    /// The file a public.file-url attachment points to, or nil.
+    private func resolveFileURL(_ provider: NSItemProvider, completion: @escaping (URL?) -> Void) {
         guard provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) else {
-            return loadContent(nil)
+            return completion(nil)
         }
         provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
             var fileURL: URL?
@@ -157,7 +151,31 @@ class ShareViewController: UIViewController {
             } else if let data = item as? Data {
                 fileURL = URL(dataRepresentation: data, relativeTo: nil)
             }
-            loadContent(fileURL?.isFileURL == true ? fileURL : nil)
+            completion(fileURL?.isFileURL == true ? fileURL : nil)
+        }
+    }
+
+    /// Safari downloads (e.g. a Libby "Adobe EPUB" loan) arrive as a file URL.
+    /// The resolved URL gives the original filename and, when no content type
+    /// is offered, the file to copy.
+    private func loadAcsm(_ provider: NSItemProvider, fileURL: URL?, complete: @escaping (Bool) -> Void) {
+        let filename = acsmFilename(fileURL: fileURL, suggestedName: provider.suggestedName)
+
+        guard let contentType = acsmContentTypeIdentifier(provider) else {
+            if let fileURL = fileURL {
+                return complete(copyToAppGroup(url: fileURL, filename: filename, acsm: true))
+            }
+            return complete(false)
+        }
+        provider.loadFileRepresentation(forTypeIdentifier: contentType) { [weak self] url, error in
+            guard let self = self else { return complete(false) }
+            if let url = url, error == nil {
+                complete(self.copyToAppGroup(url: url, filename: filename, acsm: true))
+            } else if let fileURL = fileURL {
+                complete(self.copyToAppGroup(url: fileURL, filename: filename, acsm: true))
+            } else {
+                complete(false)
+            }
         }
     }
 

@@ -134,6 +134,8 @@ async function listing(mock: Mock, folder: string): Promise<string[]> {
 // ─── Stand-in for the hidden /plugins-run WebView ───
 
 let runnerEnabled = true;
+// Claim jobs but hold the action, like a long protected download.
+let runnerHold = false;
 let runnerLoads = 0;
 let loadedSession = 0;
 let runnerBusy = false;
@@ -158,6 +160,7 @@ async function runnerTick() {
     const job = await (await fetch(`${origin}/api/plugin-jobs/claim?plugin=protected-content`)).json() as
       { id: number; claim: number; action: string; args: unknown };
     if (!job.id) return;
+    while (runnerHold) await new Promise(resolve => setTimeout(resolve, 25));
     const run = await (await fetch(`${origin}/mock/plugins/protected-content/${job.action}`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(job.args),
     })).json() as { ok: boolean; result: unknown };
@@ -172,6 +175,16 @@ async function runnerTick() {
 const runnerTimer = setInterval(runnerTick, 100);
 
 // ─── Helpers ───
+
+// Replaces plugin job status responses while set, standing in for a reader
+// that cannot answer while it streams a book to SD.
+let statusOverride: (() => Response | Promise<Response>) | null = null;
+const realFetch = globalThis.fetch;
+globalThis.fetch = ((input: Parameters<typeof fetch>[0], init?: RequestInit) => {
+  const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+  if (statusOverride && url.includes('/api/plugin-jobs/status')) return Promise.resolve().then(statusOverride);
+  return realFetch(input, init);
+}) as typeof fetch;
 
 const jobs = () => useUploadStore.getState().jobs;
 
@@ -303,7 +316,8 @@ test('ACSM uploads and Protected Content fulfillment', async t => {
           fulfillment.fulfillUploadedAcsm(ip, missing, '2.0.0', { pollIntervalMs: 50, startTimeoutMs: 300 }),
           /did not start fetching the book/,
         );
-        assert.equal(usePluginRunnerStore.getState().users, 0, 'the runner is released after a failure');
+        // Once a poll shows the reader never claimed the job, the runner closes.
+        await waitUntil(() => usePluginRunnerStore.getState().users === 0);
         assert.equal(usePluginRunnerStore.getState().url, null);
 
         const pending = fulfillment.fulfillUploadedAcsm(ip, missing, '2.0.0', { pollIntervalMs: 50 });
@@ -332,28 +346,147 @@ test('ACSM uploads and Protected Content fulfillment', async t => {
       }
     });
 
-    await t.test('cancel stops waiting, releases the runner and lets the next upload start', async () => {
+    await t.test('cancel stops waiting, keeps the job id and lets the next upload start', async () => {
       const mock = await startMock('activated');
       runnerEnabled = false; // keep the first job waiting on the reader
       try {
         const first = queueAcsm('/One');
-        await waitUntil(() => jobs().find(j => j.id === first)?.fulfillment?.state === 'running');
+        await waitUntil(() => jobs().find(j => j.id === first)?.fulfillment?.jobId !== undefined);
         const second = queueAcsm('/Two');
         queue.cancelCurrentUploadJob();
         assert.equal(jobs().find(j => j.id === first)?.status, 'cancelled');
-        await waitUntil(() => jobs().find(j => j.id === first)?.fulfillment === undefined);
-        assert.equal(jobs().find(j => j.id === first)?.status, 'cancelled', 'a late poll does not revive it');
+        await waitUntil(() => jobs().find(j => j.id === first)?.fulfillment?.state === 'failed');
+        const stopped = jobs().find(j => j.id === first)!;
+        assert.equal(stopped.status, 'cancelled', 'a late poll does not revive it');
+        assert.equal(stopped.fulfillment?.jobId, 1, 'Retry can follow the job the reader still holds');
+        assert.equal(stopped.fulfillment?.remotePath, '/One/Gettysburg-Loan.acsm');
         await waitUntil(() => jobs().find(j => j.id === second)?.fulfillment?.state === 'running');
         runnerEnabled = true;
         await waitUntil(settled(second));
         assert.equal(jobs().find(j => j.id === second)?.status, 'completed');
-        assert.equal(usePluginRunnerStore.getState().users, 0);
+        await waitUntil(() => usePluginRunnerStore.getState().users === 0);
         // The reader finished the abandoned job as well once a runner was open.
         assert.deepEqual(await listing(mock, '/One'), [FETCHED_BOOK]);
         assert.deepEqual(await listing(mock, '/Two'), [FETCHED_BOOK]);
+
+        // Retry follows job 1, which already fetched the book, instead of
+        // uploading the .acsm again or submitting a job that cannot find it.
+        useUploadStore.getState().retryJob(first);
+        await waitUntil(settled(first));
+        const retried = jobs().find(j => j.id === first)!;
+        assert.equal(retried.status, 'completed', retried.error);
+        assert.equal(retried.fulfillment?.state, 'done');
+        assert.equal(mock.uploads(), 2);
+        assert.doesNotMatch(mock.output(), /job 3 queued/);
       } finally {
         runnerEnabled = true;
         useUploadStore.setState({ jobs: [] });
+        await stopMock(mock);
+      }
+    });
+
+    await t.test('stopping while the reader runs the action keeps the runner open until it finishes', async () => {
+      const mock = await startMock('activated');
+      runnerHold = true;
+      try {
+        const id = queueAcsm('/Held');
+        await waitUntil(() => jobs().find(j => j.id === id)?.fulfillment?.phase === 'fetching');
+        queue.cancelCurrentUploadJob();
+        await waitUntil(() => jobs().find(j => j.id === id)?.fulfillment?.state === 'failed');
+        await new Promise(resolve => setTimeout(resolve, 500));
+        assert.ok(usePluginRunnerStore.getState().url, 'the claimed action keeps its runner');
+        runnerHold = false;
+        await waitUntil(() => usePluginRunnerStore.getState().users === 0);
+        assert.deepEqual(await listing(mock, '/Held'), [FETCHED_BOOK]);
+      } finally {
+        runnerHold = false;
+        useUploadStore.setState({ jobs: [] });
+        await stopMock(mock);
+      }
+    });
+
+    await t.test('status timeouts during a download do not abort it', async () => {
+      const mock = await startMock('activated');
+      runnerHold = true;
+      try {
+        const id = queueAcsm('/Slow');
+        await waitUntil(() => jobs().find(j => j.id === id)?.fulfillment?.phase === 'fetching');
+        let failures = 0;
+        statusOverride = () => { failures++; throw new TypeError('Network request failed'); };
+        await waitUntil(() => failures >= 8, 30000);
+        assert.equal(jobs().find(j => j.id === id)?.status, 'uploading', 'still waiting after repeated timeouts');
+        statusOverride = null;
+        runnerHold = false;
+        await waitUntil(settled(id));
+        assert.equal(jobs().find(j => j.id === id)?.status, 'completed', jobs().find(j => j.id === id)?.error);
+      } finally {
+        statusOverride = null;
+        runnerHold = false;
+        useUploadStore.setState({ jobs: [] });
+        await stopMock(mock);
+      }
+    });
+
+    await t.test('a retry on another reader uploads normally instead of reusing its token', async () => {
+      const mock = await startMock('unactivated');
+      try {
+        const id = queueAcsm('/');
+        await waitUntil(settled(id));
+        assert.equal(jobs().find(j => j.id === id)?.fulfillment?.state, 'failed');
+        const { connectedDevice, deviceStatus } = useDeviceStore.getState();
+        useDeviceStore.getState().connectDevice({ ...connectedDevice!, hostname: 'Another reader' });
+        useDeviceStore.getState().updateDeviceStatus(deviceStatus!);
+        useUploadStore.getState().retryJob(id);
+        await waitUntil(settled(id));
+        const job = jobs().find(j => j.id === id)!;
+        assert.equal(job.status, 'conflict', 'the same-named file there is a conflict, not this token');
+        assert.equal(job.fulfillment, undefined);
+        assert.doesNotMatch(mock.output(), /job 2 queued/);
+      } finally { useUploadStore.setState({ jobs: [] }); await stopMock(mock); }
+    });
+
+    await t.test('service: an unknown job after running, a result read after the deadline, UTF-8 limits', async () => {
+      const mock = await startMock('activated');
+      const ip = '127.0.0.1';
+      try {
+        runnerHold = true;
+        const vanished = fulfillment.fulfillUploadedAcsm(ip, '/Stage/missing.acsm', '2.0.0', { pollIntervalMs: 50 });
+        const rejected = assert.rejects(vanished, /without a result the app could read/);
+        // Let the runner claim the job and the service observe it running.
+        await waitUntil(() => usePluginRunnerStore.getState().url !== null);
+        await new Promise(resolve => setTimeout(resolve, 400));
+        statusOverride = () => new Response(JSON.stringify({ id: 1, state: 'unknown', result: null }), {
+          headers: { 'Content-Type': 'application/json' },
+        });
+        await rejected;
+        statusOverride = null;
+        runnerHold = false;
+
+        // The job finishes before the first poll, which is already past both
+        // deadlines; its result is still reported.
+        await assert.rejects(
+          fulfillment.fulfillUploadedAcsm(ip, '/Stage/missing.acsm', '2.0.0', {
+            pollIntervalMs: 1500, startTimeoutMs: 1, timeoutMs: 1,
+          }),
+          /could not read \/Stage\/missing\.acsm/,
+        );
+
+        // 90 two-byte characters fit in 191 UTF-16 units but not 191 bytes.
+        assert.equal(fulfillment.utf8ByteLength('é'), 2);
+        assert.equal(fulfillment.utf8ByteLength('📚'), 4);
+        await assert.rejects(
+          fulfillment.fulfillUploadedAcsm(ip, `/${'é'.repeat(90)}.acsm`, '2.0.0'),
+          /too long for a plugin job/,
+        );
+        const tooLong = await fetch(`${mock.base}/api/plugin-jobs`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plugin: 'protected-content', action: 'fulfill', args: { path: `/${'é'.repeat(90)}.acsm` } }),
+        });
+        assert.equal(tooLong.status, 400, 'the mock measures args in bytes like the firmware');
+      } finally {
+        statusOverride = null;
+        runnerHold = false;
+        await waitUntil(() => usePluginRunnerStore.getState().users === 0);
         await stopMock(mock);
       }
     });
@@ -362,6 +495,28 @@ test('ACSM uploads and Protected Content fulfillment', async t => {
     clearInterval(runnerTimer);
     fs.rmSync(scratch, { recursive: true, force: true });
   }
+});
+
+test('persistence keeps fetching .acsm jobs and their results across relaunches', () => {
+  const partialize = useUploadStore.persist.getOptions().partialize!;
+  const base = {
+    fileName: 'Loan.acsm', fileUri: 'file:///x', fileSize: 1, destinationPath: '/P', progress: 1, bytesTransferred: 1, createdAt: 1,
+  };
+  const target = { remotePath: '/P/Loan.acsm', readerKey: 'Mock@127.0.0.1', jobId: 4, readerBootedAt: 10 };
+  const state = {
+    ...useUploadStore.getState(),
+    jobs: [
+      { ...base, id: 'fetching', status: 'uploading' as const, fulfillment: { ...target, state: 'running' as const, phase: 'fetching' as const, phaseStartedAt: 5 } },
+      { ...base, id: 'fetched', status: 'completed' as const, fulfillment: { state: 'done' as const, message: 'Fetched “Book”' } },
+      { ...base, id: 'notice', status: 'completed' as const, fulfillment: { state: 'skipped' as const, message: 'Install' } },
+      { ...base, fileName: 'Book.epub', id: 'book', status: 'completed' as const },
+      { ...base, fileName: 'Book.epub', id: 'sending', status: 'uploading' as const },
+    ],
+  };
+  const persisted = (partialize(state) as { jobs: import('../types/upload').UploadJob[] }).jobs;
+  assert.deepEqual(persisted.map(j => [j.id, j.status]), [['fetching', 'pending'], ['fetched', 'completed'], ['notice', 'completed']]);
+  assert.deepEqual(persisted[0].fulfillment, { ...target, state: 'running', phase: undefined, phaseStartedAt: undefined });
+  assert.equal(persisted[1].fulfillment?.message, 'Fetched “Book”');
 });
 
 test('ACSM job card progress advances through both steps without finishing early', () => {

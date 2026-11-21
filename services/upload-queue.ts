@@ -7,13 +7,20 @@ import { log } from './logger';
 import { deviceScheduler } from './device-request-scheduler';
 import { isAcsmFile, isSupportedFile } from '@/constants/FileFormats';
 import type { UploadJob, UploadJobFulfillment, UploadJobFulfillmentPhase } from '@/types/upload';
-import { fulfillUploadedAcsm, FulfillmentCancelledError, remoteFilePath } from './acsm-fulfillment';
+import {
+  fulfillUploadedAcsm,
+  FulfillmentCancelledError,
+  FulfillmentTokenMissingError,
+  remoteFilePath,
+} from './acsm-fulfillment';
 import { getDeviceCapabilities, getFileFirmwareError } from './firmware-version';
 import {
   DEVICE_RECOVERY_DELAY_MS,
   ENSURE_PATH_MAX_RETRIES,
   ENSURE_PATH_RETRY_DELAY_MS,
+  READER_REBOOT_TOLERANCE_MS,
 } from '@/constants/Protocol';
+import type { DeviceInfo, DeviceStatus } from '@/types/device';
 
 let cancelCurrentUpload: (() => void) | null = null;
 let isProcessing = false;
@@ -40,6 +47,32 @@ async function getRemoteFileNames(ip: string, dirPath: string): Promise<string[]
     log('queue', `Conflict check failed for ${dirPath}: ${err instanceof Error ? err.message : String(err)}`);
     return [];
   }
+}
+
+/**
+ * Identifies the reader an .acsm was sent to. The protocol exposes no device
+ * serial, so this uses the discovered hostname and address.
+ */
+export function readerKeyFor(device: DeviceInfo): string {
+  return `${device.hostname}@${device.ip}`;
+}
+
+/** Estimated reader boot time from its reported uptime (seconds). */
+function readerBootedAt(status: DeviceStatus | null | undefined): number | undefined {
+  return typeof status?.uptime === 'number' ? Date.now() - status.uptime * 1000 : undefined;
+}
+
+/** A job id from before a reader restart may now name another job. */
+function jobIdStillValid(fulfillment: UploadJobFulfillment, status: DeviceStatus | null | undefined): boolean {
+  if (fulfillment.jobId === undefined) return false;
+  const bootedAt = readerBootedAt(status);
+  if (bootedAt === undefined || fulfillment.readerBootedAt === undefined) return false;
+  return Math.abs(bootedAt - fulfillment.readerBootedAt) <= READER_REBOOT_TOLERANCE_MS;
+}
+
+interface ResumeState {
+  jobId?: number;
+  tokenOnReader: boolean;
 }
 
 async function processNextJob() {
@@ -81,17 +114,25 @@ async function processNextJob() {
         continue;
       }
 
-      // A retried .acsm whose upload succeeded but whose fulfillment failed is
-      // still on the reader (the plugin deletes it only on success).
-      if (isAcsmFile(nextJob.fileName) && nextJob.fulfillment?.state === 'failed') {
-        const remoteNames = await getRemoteFileNames(connectedDevice.ip, nextJob.destinationPath);
-        if (remoteNames.some((n) => n.toLowerCase() === nextJob.fileName.toLowerCase())) {
-          log('queue', `Retrying fulfillment of ${nextJob.fileName} without re-uploading`);
-          updateJobStatus(nextJob.id, 'uploading');
-          deviceScheduler.setExternalBusy(true);
-          void runAcsmFulfillment(nextJob, connectedDevice.ip, deviceStatus?.version);
-          break;
+      // An .acsm already sent to this reader: resume its fetch job, or submit a
+      // new one for the token still on the reader, rather than uploading it again
+      // (the plugin deletes the .acsm only on success). Another reader gets a
+      // normal upload, so its own same-named file surfaces as a conflict.
+      const sent = nextJob.fulfillment;
+      if (isAcsmFile(nextJob.fileName) && sent?.remotePath && (sent.state === 'failed' || sent.state === 'running')) {
+        if (sent.readerKey === readerKeyFor(connectedDevice)) {
+          const remoteNames = await getRemoteFileNames(connectedDevice.ip, nextJob.destinationPath);
+          const tokenOnReader = remoteNames.some((n) => n.toLowerCase() === nextJob.fileName.toLowerCase());
+          const jobId = jobIdStillValid(sent, deviceStatus) ? sent.jobId : undefined;
+          if (tokenOnReader || jobId !== undefined) {
+            log('queue', `Resuming fulfillment of ${nextJob.fileName} without re-uploading`);
+            updateJobStatus(nextJob.id, 'uploading');
+            deviceScheduler.setExternalBusy(true);
+            void runAcsmFulfillment(nextJob, connectedDevice, deviceStatus?.version, { jobId, tokenOnReader });
+            break;
+          }
         }
+        useUploadStore.getState().updateJobFulfillment(nextJob.id, undefined);
       }
 
       // Conflict check: skip if forceUpload is set
@@ -146,7 +187,7 @@ async function processNextJob() {
               // Keep the device busy and the job active until the reader's
               // plugin has fetched the book.
               log('queue', `Uploaded ${nextJob.fileName}; asking the reader to fetch the book`);
-              void runAcsmFulfillment(nextJob, connectedDevice.ip, useDeviceStore.getState().deviceStatus?.version);
+              void runAcsmFulfillment(nextJob, connectedDevice, useDeviceStore.getState().deviceStatus?.version);
               return;
             }
             deviceScheduler.setExternalBusy(false);
@@ -183,45 +224,75 @@ async function processNextJob() {
  * Second phase of an .acsm job: the job stays 'uploading' (holding the queue
  * and keeping the device marked busy) while the reader fulfils it.
  */
-async function runAcsmFulfillment(job: UploadJob, ip: string, firmwareVersion: string | undefined): Promise<void> {
+async function runAcsmFulfillment(
+  job: UploadJob,
+  device: DeviceInfo,
+  firmwareVersion: string | undefined,
+  resume?: ResumeState,
+): Promise<void> {
   const { updateJobStatus, updateJobFulfillment } = useUploadStore.getState();
-  const remotePath = remoteFilePath(job.destinationPath, job.fileName);
+  // What Retry and a relaunch need to find this token and its job again.
+  const target: UploadJobFulfillment = {
+    state: 'running',
+    remotePath: remoteFilePath(job.destinationPath, job.fileName),
+    readerKey: readerKeyFor(device),
+    jobId: resume?.jobId,
+    readerBootedAt: resume?.jobId !== undefined ? job.fulfillment?.readerBootedAt : undefined,
+  };
+  let phase: UploadJobFulfillmentPhase = 'requesting';
+  let phaseStartedAt = Date.now();
   let cancelled = false;
   cancelCurrentUpload = () => { cancelled = true; };
-  const setPhase = (phase: UploadJobFulfillmentPhase) => {
-    if (cancelled) return;
-    updateJobFulfillment(job.id, { state: 'running', phase, phaseStartedAt: Date.now(), remotePath });
+  const publish = () => {
+    if (!cancelled) updateJobFulfillment(job.id, { ...target, state: 'running', phase, phaseStartedAt });
   };
-  setPhase('requesting');
+  publish();
 
   let fulfillment: UploadJobFulfillment | undefined;
   let error: string | undefined;
   try {
-    const outcome = await fulfillUploadedAcsm(ip, remotePath, firmwareVersion, {
+    const outcome = await fulfillUploadedAcsm(device.ip, target.remotePath!, firmwareVersion, {
       isCancelled: () => cancelled,
-      onPhase: setPhase,
+      existingJobId: resume?.jobId,
+      tokenOnReader: resume?.tokenOnReader ?? true,
+      onJobId: (jobId) => {
+        if (jobId !== target.jobId) {
+          target.jobId = jobId;
+          target.readerBootedAt = readerBootedAt(useDeviceStore.getState().deviceStatus);
+        }
+        publish();
+      },
+      onPhase: (next) => {
+        phase = next;
+        phaseStartedAt = Date.now();
+        publish();
+      },
     });
     if (outcome.kind === 'done') {
       const name = outcome.title ? `“${outcome.title}”` : 'the book';
       const message = outcome.dest ? `Fetched ${name} to ${outcome.dest}` : `Fetched ${name}`;
-      fulfillment = { state: 'done', remotePath, message };
+      fulfillment = { state: 'done', remotePath: target.remotePath, message };
     } else {
       log('queue', `Fulfillment skipped for ${job.fileName}: ${outcome.reason}`);
-      fulfillment = { state: 'skipped', remotePath, message: outcome.reason };
+      fulfillment = { state: 'skipped', remotePath: target.remotePath, message: outcome.reason };
     }
   } catch (err) {
     if (!(err instanceof FulfillmentCancelledError)) {
       const message = err instanceof Error ? err.message : String(err);
       log('queue', `Fulfillment failed for ${job.fileName}: ${message}`);
-      fulfillment = { state: 'failed', remotePath, message };
+      // Without the token on the reader, Retry must send the .acsm again.
+      fulfillment = err instanceof FulfillmentTokenMissingError
+        ? { state: 'failed', message }
+        : { ...target, state: 'failed', message };
       error = `Uploaded, but the reader could not fetch the book: ${message}`;
     }
   }
 
   if (cancelled) {
     // cancelCurrentUploadJob already marked the job cancelled and released the
-    // queue. The reader may still finish a job it has started.
-    updateJobFulfillment(job.id, undefined);
+    // queue. The reader may still finish a job it has started; keep its id so
+    // Retry follows that job instead of submitting another.
+    updateJobFulfillment(job.id, { ...target, state: 'failed', message: 'Stopped waiting for the reader.' });
     log('queue', `Stopped waiting for ${job.fileName} fulfillment`);
     return;
   }

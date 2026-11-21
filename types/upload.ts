@@ -31,6 +31,12 @@ export interface UploadJobFulfillment {
   message?: string;
   /** Absolute reader path of the uploaded .acsm. */
   remotePath?: string;
+  /** The reader that received the .acsm; its token is reused only there. */
+  readerKey?: string;
+  /** Firmware plugin job id, so Retry or a relaunch resumes it instead of submitting another. */
+  jobId?: number;
+  /** Estimated reader boot time (epoch ms) when the job was submitted; job ids restart after a reboot. */
+  readerBootedAt?: number;
 }
 
 export interface UploadJob {

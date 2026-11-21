@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import { File } from 'expo-file-system';
 import { useUploadStore } from '@/stores/upload-store';
-import { defaultDestinationFor, useSettingsStore } from '@/stores/settings-store';
+import { defaultDestinationFor, useSettingsStore, waitForSettingsHydration } from '@/stores/settings-store';
 import { log } from '@/services/logger';
 import {
   getSharedItems,
@@ -20,6 +20,13 @@ import { isSupportedFile } from '@/constants/FileFormats';
  */
 export async function importAndroidSharedFiles(): Promise<number> {
   if (Platform.OS !== 'android') return 0;
+
+  // The upload queue can hydrate before settings on a cold launch. Wait for
+  // the saved destinations before reading the intent, which is then cleared.
+  if (!(await waitForSettingsHydration())) {
+    log('queue', 'Settings could not be restored; deferring shared files until the next import');
+    return 0;
+  }
 
   const items = getSharedItems();
   if (items.length === 0) return 0;

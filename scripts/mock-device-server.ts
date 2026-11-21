@@ -762,7 +762,7 @@ async function handlePluginRoute(
     const plugin = typeof body.plugin === 'string' ? body.plugin : '';
     const action = typeof body.action === 'string' ? body.action : '';
     const argsJson = body.args === undefined ? '' : JSON.stringify(body.args);
-    if (!/^[\w.-]{1,23}$/.test(plugin) || !/^[\w.-]{1,23}$/.test(action) || argsJson.length >= 192) {
+    if (!/^[\w.-]{1,23}$/.test(plugin) || !/^[\w.-]{1,23}$/.test(action) || Buffer.byteLength(argsJson, 'utf8') >= 192) {
       jsonResponse(res, 400, { error: 'bad plugin/action/args' });
       return true;
     }

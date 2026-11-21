@@ -2,7 +2,7 @@ import { AdaptiveSheet } from '@/components/AdaptiveSheet';
 import { YStack, XStack, Text, H4, Button, Separator } from 'tamagui';
 import { FontAwesome } from '@expo/vector-icons';
 import { ScrollView } from 'react-native';
-import { useUploadStore } from '@/stores/upload-store';
+import { isFulfillmentRecord, useUploadStore } from '@/stores/upload-store';
 import { useSettingsStore } from '@/stores/settings-store';
 import { useDeviceStore } from '@/stores/device-store';
 import { useDocumentPicker } from '@/hooks/use-document-picker';
@@ -30,8 +30,9 @@ export function UploadQueueSheet({ open, onOpenChange }: UploadQueueSheetProps) 
   const conflictJobs = jobs.filter((j) => j.status === 'conflict');
   const completedCount = jobs.filter((j) => j.status === 'completed').length;
   const failedJobs = jobs.filter((j) => j.status === 'failed' || j.status === 'cancelled');
-  // Uploaded .acsm files the reader could not fetch yet explain what to set up.
-  const noticeJobs = jobs.filter((j) => j.status === 'completed' && j.fulfillment?.state === 'skipped');
+  // Uploaded .acsm results stay until dismissed: the fetched book's title and
+  // destination, or what to set up on the reader.
+  const noticeJobs = jobs.filter(isFulfillmentRecord);
 
   return (
     <AdaptiveSheet open={open} onOpenChange={onOpenChange} testID="UploadQueue.Sheet" height={UPLOAD_QUEUE_SHEET_HEIGHT} padding={16}>

@@ -31,3 +31,9 @@ export const PLUGIN_JOB_POLL_INTERVAL_MS = 2000;
 export const PLUGIN_JOB_START_TIMEOUT_MS = 45_000;
 // Fulfillment streams the whole book from the provider onto the SD card.
 export const PLUGIN_JOB_TIMEOUT_MS = 6 * 60_000;
+// The firmware lets another runner reclaim a job after this lease; a claimed
+// action keeps its hidden runner open at most this long after the app stops waiting.
+export const PLUGIN_JOB_LEASE_MS = 10 * 60_000;
+// Two status reports whose estimated boot times differ by more than this mean
+// the reader restarted, which resets its job ids.
+export const READER_REBOOT_TOLERANCE_MS = 2 * 60_000;
